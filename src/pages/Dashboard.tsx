@@ -29,7 +29,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-
+import Modal from "@/components/student/modal"
 const placementData = [
   { month: "May", placed: 42, offers: 58 },
   { month: "Jun", placed: 61, offers: 79 },
@@ -85,7 +85,7 @@ const statusStyles: Record<string, string> = {
 const Dashboard = () => {
   return (
     <DashboardLayout>
-     
+     <Modal/>
       {/* Page header */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
         <div>

@@ -1,10 +1,11 @@
 import { NavLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
-  Users,
-  GraduationCap,
   Briefcase,
-  ClipboardCheck,
+  Users,
+  FileText,
+  CalendarCheck,
+  ClipboardList,
   BarChart3,
   Building2,
   Settings,
@@ -25,24 +26,26 @@ import {
 } from "@/components/ui/sidebar";
 
 const main = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Students", url: "/institute/students", icon: GraduationCap },
-  { title: "Recruiters", url: "/institute/recruiters", icon: Briefcase },
-  { title: "Evaluations", url: "/institute/evaluations", icon: ClipboardCheck },
-  { title: "Placements", url: "/institute/placements", icon: Building2 },
-  { title: "Reports", url: "/institute/reports", icon: BarChart3 },
+  { title: "Dashboard", url: "/employer", icon: LayoutDashboard, end: true },
+  { title: "Job Postings", url: "/employer/jobs", icon: Briefcase },
+  { title: "Candidates", url: "/employer/candidates", icon: Users },
+  { title: "Applications", url: "/employer/applications", icon: FileText },
+  { title: "Interviews", url: "/employer/interviews", icon: CalendarCheck },
+  { title: "Assessments", url: "/employer/assessments", icon: ClipboardList },
+  { title: "Reports", url: "/employer/reports", icon: BarChart3 },
 ];
 
 const secondary = [
-  { title: "Faculty", url: "/institute/faculty", icon: Users },
-  { title: "Settings", url: "/institute/settings", icon: Settings },
+  { title: "Company", url: "/employer/company", icon: Building2 },
+  { title: "Settings", url: "/employer/settings", icon: Settings },
 ];
 
-export function AppSidebar() {
+export function EmployerSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const { pathname } = useLocation();
-  const isActive = (path: string) => (path === "/" ? pathname === "/" : pathname.startsWith(path));
+  const isActive = (path: string, end?: boolean) =>
+    end ? pathname === path : pathname === path || pathname.startsWith(path + "/");
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
@@ -55,7 +58,7 @@ export function AppSidebar() {
             <div className="min-w-0">
               <p className="font-display font-bold text-sidebar-primary leading-tight truncate">GEISIL</p>
               <p className="text-[11px] uppercase tracking-wider text-sidebar-foreground/70 truncate">
-                Institute Portal
+                Employer Portal
               </p>
             </div>
           )}
@@ -66,7 +69,7 @@ export function AppSidebar() {
         <SidebarGroup>
           {!collapsed && (
             <SidebarGroupLabel className="text-sidebar-foreground/60 text-[11px] font-semibold uppercase tracking-wider px-2">
-              Workspace
+              Hiring
             </SidebarGroupLabel>
           )}
           <SidebarGroupContent>
@@ -75,7 +78,7 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
-                    isActive={isActive(item.url)}
+                    isActive={isActive(item.url, item.end)}
                     className="data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground data-[active=true]:font-semibold hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground text-sidebar-foreground rounded-md transition-colors"
                   >
                     <NavLink to={item.url} className="flex items-center gap-3">
@@ -92,7 +95,7 @@ export function AppSidebar() {
         <SidebarGroup className="mt-6">
           {!collapsed && (
             <SidebarGroupLabel className="text-sidebar-foreground/60 text-[11px] font-semibold uppercase tracking-wider px-2">
-              Manage
+              Account
             </SidebarGroupLabel>
           )}
           <SidebarGroupContent>

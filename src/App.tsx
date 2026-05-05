@@ -18,8 +18,20 @@ import ReportDetail from "./pages/ReportDetail.tsx";
 import Faculty from "./pages/Faculty.tsx";
 import FacultyDetail from "./pages/FacultyDetail.tsx";
 import Settings from "./pages/Settings.tsx";
+import EmployerDashboard from "./pages/employer/EmployerDashboard.tsx";
+import Jobs from "./pages/employer/Jobs.tsx";
+import JobDetail from "./pages/employer/JobDetail.tsx";
+import Candidates from "./pages/employer/Candidates.tsx";
+import CandidateDetail from "./pages/employer/CandidateDetail.tsx";
+import Applications from "./pages/employer/Applications.tsx";
+import Interviews from "./pages/employer/Interviews.tsx";
+import Assessments from "./pages/employer/Assessments.tsx";
+import EmployerReports from "./pages/employer/Reports.tsx";
+import Company from "./pages/employer/Company.tsx";
+import EmployerSettings from "./pages/employer/Settings.tsx";
 import NotFound from "./pages/NotFound.tsx";
-
+import { AuthProvider } from "@/components/context/AuthContext.tsx";
+import ProtectedRoute from "@/components/ProtectedRoute";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -27,27 +39,52 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/students" element={<Students />} />
-          <Route path="/students/:id" element={<StudentDetail />} />
-          <Route path="/recruiters" element={<Recruiters />} />
-          <Route path="/recruiters/:id" element={<RecruiterDetail />} />
-          <Route path="/evaluations" element={<Evaluations />} />
-          <Route path="/evaluations/:id" element={<EvaluationDetail />} />
-          <Route path="/placements" element={<Placements />} />
-          <Route path="/placements/:id" element={<PlacementDetail />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/reports/:id" element={<ReportDetail />} />
-          <Route path="/faculty" element={<Faculty />} />
-          <Route path="/faculty/:id" element={<FacultyDetail />} />
-          <Route path="/settings" element={<Settings />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<Index />} />
+             <Route path="/institute/*" element={
+              
+                 <Routes>
+                    <Route path="/students" element={<Students />} />
+                    <Route path="/students/:id" element={<StudentDetail />} />
+                    <Route path="/recruiters" element={<Recruiters />} />
+                    <Route path="/recruiters/:id" element={<RecruiterDetail />} />
+                    <Route path="/evaluations" element={<Evaluations />} />
+                    <Route path="/evaluations/:id" element={<EvaluationDetail />} />
+                    <Route path="/placements" element={<Placements />} />
+                    <Route path="/placements/:id" element={<PlacementDetail />} />
+                    <Route path="/reports" element={<Reports />} />
+                    <Route path="/reports/:id" element={<ReportDetail />} />
+                    <Route path="/faculty" element={<Faculty />} />
+                    <Route path="/faculty/:id" element={<FacultyDetail />} />
+                    <Route path="/settings" element={<Settings />} />
+                  </Routes>
+             
+               } />
+            <Route path="/employer/*" element={
+              
+                  <Routes>
+                    <Route path="/" element={<EmployerDashboard />} />
+                    <Route path="/jobs" element={<Jobs />} />
+                    <Route path="/jobs/:id" element={<JobDetail />} />
+                    <Route path="/candidates" element={<Candidates />} />
+                    <Route path="/candidates/:id" element={<CandidateDetail />} />
+                    <Route path="/applications" element={<Applications />} />
+                    <Route path="/interviews" element={<Interviews />} />
+                    <Route path="/assessments" element={<Assessments />} />
+                    <Route path="/reports" element={<EmployerReports />} />
+                    <Route path="/company" element={<Company />} />
+                    <Route path="/settings" element={<EmployerSettings />} />
+                </Routes>
+             
+              } />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
