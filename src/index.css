@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* GEISIL Institute Dashboard — Professional & Corporate
+   Navy + white, restrained accents. All colors HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 210 25% 98%;
+    --foreground: 222 45% 14%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 45% 14%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 45% 14%;
+
+    /* Deep corporate navy */
+    --primary: 220 70% 22%;
+    --primary-foreground: 210 40% 98%;
+    --primary-hover: 220 70% 17%;
+    --primary-soft: 220 60% 96%;
+
+    --secondary: 215 25% 95%;
+    --secondary-foreground: 222 45% 14%;
+
+    --muted: 215 25% 96%;
+    --muted-foreground: 218 14% 45%;
+
+    --accent: 215 80% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --success: 152 60% 36%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 35 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --destructive: 0 75% 50%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 215 22% 90%;
+    --input: 215 22% 90%;
+    --ring: 220 70% 22%;
+
+    --radius: 0.625rem;
+
+    /* Gradients */
+    --gradient-brand: linear-gradient(135deg, hsl(220 70% 22%) 0%, hsl(215 80% 35%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(210 25% 99%) 0%, hsl(215 25% 96%) 100%);
+
+    /* Shadows — soft, corporate */
+    --shadow-sm: 0 1px 2px 0 hsl(220 40% 15% / 0.04);
+    --shadow-md: 0 4px 12px -2px hsl(220 40% 15% / 0.08);
+    --shadow-lg: 0 16px 40px -12px hsl(220 40% 15% / 0.18);
+    --shadow-brand: 0 12px 32px -8px hsl(220 70% 22% / 0.35);
+
+    --transition-base: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Sidebar */
+    --sidebar-background: 220 70% 22%;
+    --sidebar-foreground: 210 30% 88%;
+    --sidebar-primary: 0 0% 100%;
+    --sidebar-primary-foreground: 220 70% 22%;
+    --sidebar-accent: 220 60% 28%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 220 50% 30%;
+    --sidebar-ring: 215 80% 60%;
+  }
+
+  .dark {
+    --background: 222 45% 8%;
+    --foreground: 210 30% 96%;
+    --card: 222 40% 11%;
+    --card-foreground: 210 30% 96%;
+    --popover: 222 40% 11%;
+    --popover-foreground: 210 30% 96%;
+    --primary: 215 80% 60%;
+    --primary-foreground: 222 45% 8%;
+    --secondary: 222 30% 16%;
+    --secondary-foreground: 210 30% 96%;
+    --muted: 222 30% 16%;
+    --muted-foreground: 218 14% 65%;
+    --accent: 215 80% 55%;
+    --accent-foreground: 0 0% 100%;
+    --border: 222 30% 18%;
+    --input: 222 30% 18%;
+    --ring: 215 80% 60%;
+    --sidebar-background: 222 45% 10%;
+    --sidebar-foreground: 210 30% 88%;
+    --sidebar-primary: 215 80% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 222 30% 16%;
+    --sidebar-accent-foreground: 210 30% 96%;
+    --sidebar-border: 222 30% 18%;
+    --sidebar-ring: 215 80% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
