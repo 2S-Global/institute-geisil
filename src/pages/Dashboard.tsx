@@ -29,7 +29,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import  Modal  from "@/components/student/modal";
+
 const placementData = [
   { month: "May", placed: 42, offers: 58 },
   { month: "Jun", placed: 61, offers: 79 },
@@ -91,7 +91,7 @@ const Dashboard = () => {
         <div>
           <p className="text-sm text-muted-foreground">Welcome back, Dr. Sharma 👋</p>
           <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight text-foreground mt-1">
-            Institute Dashboard  <Modal/>
+            Institute Dashboard  
           </h1>
           <p className="text-muted-foreground mt-1.5 text-sm">
             Overview of student employability, evaluations and placements.

@@ -1,33 +1,57 @@
-import * as React from "react";
-import { AlertDialog } from "radix-ui";
+import * as Dialog from "@radix-ui/react-dialog";
+import { useState } from "react";
+import "./style.css"
+const ModalForm = () => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
 
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
+    console.log({ name, email });
+  };
 
-const AlertDialogDemo = () => (
-	<AlertDialog.Root>
-		<AlertDialog.Trigger asChild>
-			<button className="Button violet">Delete account</button>
-		</AlertDialog.Trigger>
-		<AlertDialog.Portal>
-			<AlertDialog.Overlay className="AlertDialogOverlay" />
-			<AlertDialog.Content className="AlertDialogContent">
-				<AlertDialog.Title className="AlertDialogTitle">
-					Are you absolutely sure?
-				</AlertDialog.Title>
-				<AlertDialog.Description className="AlertDialogDescription">
-					This action cannot be undone. This will permanently delete your
-					account and remove your data from our servers.
-				</AlertDialog.Description>
-				<div style={{ display: "flex", gap: 25, justifyContent: "flex-end" }}>
-					<AlertDialog.Cancel asChild>
-						<button className="Button mauve">Cancel</button>
-					</AlertDialog.Cancel>
-					<AlertDialog.Action asChild>
-						<button className="Button red">Yes, delete account</button>
-					</AlertDialog.Action>
-				</div>
-			</AlertDialog.Content>
-		</AlertDialog.Portal>
-	</AlertDialog.Root>
-);
+  return (
+    <Dialog.Root>
+      {/* Open Button */}
+      <Dialog.Trigger asChild>
+        <button>Open Form</button>
+      </Dialog.Trigger>
 
-export default AlertDialogDemo;
+      {/* Modal */}
+      <Dialog.Portal>
+        <Dialog.Overlay className="overlay" />
+
+        <Dialog.Content className="modal">
+          <Dialog.Title>Contact Form</Dialog.Title>
+
+          <form onSubmit={handleSubmit}>
+            <div>
+              <label>Name</label>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <label>Email</label>
+              <input
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+
+            <button type="submit">Submit</button>
+          </form>
+
+          {/* Close Button */}
+          <Dialog.Close asChild>
+            <button>Close</button>
+          </Dialog.Close>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+};
+
+export default ModalForm;
