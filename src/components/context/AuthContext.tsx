@@ -50,12 +50,9 @@ const [user, setUser] = useState<any>(() => {
 
   const setLogin = () => {
     try {
-     
-      const token = Cookies.get("Institute_token");
-      localStorage.setItem("Institute_token", token);
+      const token = Cookies.get("token");
+      localStorage.setItem("token", token);
       setUser(user);
-
-    
     } catch (error: any) {
       return {
         success: false,
@@ -76,6 +73,7 @@ const [user, setUser] = useState<any>(() => {
         user,
         login,
         logout,
+        setLogin,
         isAuthenticated: !!user, }}>
       {children}
     </AuthContext.Provider>

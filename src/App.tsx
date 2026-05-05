@@ -45,7 +45,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<Index />} />
              <Route path="/institute/*" element={
-              
+              <ProtectedRoute role="2">
                  <Routes>
                     <Route path="/students" element={<Students />} />
                     <Route path="/students/:id" element={<StudentDetail />} />
@@ -61,10 +61,10 @@ const App = () => (
                     <Route path="/faculty/:id" element={<FacultyDetail />} />
                     <Route path="/settings" element={<Settings />} />
                   </Routes>
-             
+              </ProtectedRoute>
                } />
             <Route path="/employer/*" element={
-              
+              <ProtectedRoute role="2">
                   <Routes>
                     <Route path="/" element={<EmployerDashboard />} />
                     <Route path="/jobs" element={<Jobs />} />
@@ -78,7 +78,7 @@ const App = () => (
                     <Route path="/company" element={<Company />} />
                     <Route path="/settings" element={<EmployerSettings />} />
                 </Routes>
-             
+              </ProtectedRoute>
               } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
