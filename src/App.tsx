@@ -1,4 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useEffect } from "react";
+import Cookies from "js-cookie";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
@@ -33,8 +35,13 @@ import NotFound from "./pages/NotFound.tsx";
 import { AuthProvider } from "@/components/context/AuthContext.tsx";
 import ProtectedRoute from "@/components/ProtectedRoute";
 const queryClient = new QueryClient();
-
-const App = () => (
+const App = ()=>{ 
+ 
+  useEffect(()=>{
+         const token = Cookies.get("token");
+            localStorage.setItem("token", token);
+  },[])
+  return(
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -88,5 +95,5 @@ const App = () => (
     </TooltipProvider>
   </QueryClientProvider>
 );
-
+}
 export default App;
