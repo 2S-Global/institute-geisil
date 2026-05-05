@@ -85,7 +85,7 @@ const statusStyles: Record<string, string> = {
 const Dashboard = () => {
   return (
     <DashboardLayout>
-     <Modal/>
+    
       {/* Page header */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
         <div>
