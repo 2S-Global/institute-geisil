@@ -25,7 +25,7 @@ export function StatCard({ label, value, delta, icon: Icon, tint = "primary" }: 
         <div className="min-w-0">
           <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
           <p className="mt-2 font-display text-3xl font-bold text-foreground tracking-tight">{value}</p>
-          <div
+          {/* <div
             className={cn(
               "mt-3 inline-flex items-center gap-1 text-xs font-semibold rounded-full px-2 py-0.5",
               positive ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
@@ -34,7 +34,7 @@ export function StatCard({ label, value, delta, icon: Icon, tint = "primary" }: 
             {positive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
             {positive ? "+" : ""}
             {delta}% vs last month
-          </div>
+          </div> */}
         </div>
         <div className={cn("h-11 w-11 rounded-lg flex items-center justify-center shrink-0", tints[tint])}>
           <Icon className="h-5 w-5" />
