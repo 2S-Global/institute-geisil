@@ -51,7 +51,9 @@ const [user, setUser] = useState<any>(() => {
   const setLogin = () => {
     try {
       const token = Cookies.get("token");
-      localStorage.setItem("token", token);
+      if(token){
+           localStorage.setItem("token", token);
+      }
       setUser(user);
     } catch (error: any) {
       return {

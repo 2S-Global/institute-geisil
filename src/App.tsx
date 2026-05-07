@@ -39,7 +39,10 @@ const App = ()=>{
  
   useEffect(()=>{
          const token = Cookies.get("token");
-            localStorage.setItem("token", token);
+         console.log('aaaaaaaaaaaaaaa',token)
+          if(token){
+              localStorage.setItem("token", token);
+          }
   },[])
   return(
   <QueryClientProvider client={queryClient}>

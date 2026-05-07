@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Download, Filter, Plus, Search, GraduationCap, UserCheck, Award, Clock } from "lucide-react";
+import { Download, Filter, Plus, Search, GraduationCap, UserCheck, Award, Clock ,Upload} from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { StatCard } from "@/components/dashboard/StatCard";
@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ImportModal from "@/components/student/importModal";
+import StudentModal from "@/components/student/addModal";
 
 const students = [
   { id: "STU-10241", name: "Priya Menon", course: "B.Tech CSE", year: "Final", score: 92, status: "Placed" },
@@ -32,6 +34,8 @@ const statusStyles: Record<string, string> = {
 
 const Students = () => {
   const [query, setQuery] = useState("");
+   const [importOpen, setImportOpen] = useState(false);
+   const [addStudentOpen, setStudentOpen] = useState(false);
   const filtered = students.filter(
     (s) =>
       s.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -47,14 +51,16 @@ const Students = () => {
         description="Track enrolment, evaluation progress and placement readiness across all cohorts."
         actions={
           <>
-            <Button variant="outline" className="gap-2"><Download className="h-4 w-4" />Export</Button>
-            <Button className="gap-2 bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand">
+            <Button variant="outline" className="gap-2" onClick={() => setImportOpen(true)}><Upload className="h-4 w-4"  />Import Student</Button>
+           
+            <Button className="gap-2 bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand" onClick={() => setStudentOpen(true)}>
               <Plus className="h-4 w-4" /> Add student
             </Button>
           </>
         }
       />
-
+    <ImportModal open={importOpen} setOpen={setImportOpen}/>
+    <StudentModal open={addStudentOpen} setOpen={setStudentOpen}/>
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 mb-6">
         <StatCard label="Total Students" value="3,940" delta={12} icon={GraduationCap} tint="primary" />
         <StatCard label="Placement Ready" value="2,612" delta={9} icon={UserCheck} tint="accent" />
