@@ -214,9 +214,13 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
 
         setSuccess(response.data.message);
         if(response.data.message){
+          setFormData({});
+          setFields([]);
+          setSelectProgram([]);
+          setOpen(false);
              toast({
               title: "Success!",
-              description: response.data.message,
+              description: 'Student saved successfully',
             });
         }
        
@@ -312,256 +316,468 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
     <Toaster position="top-center" />
       {/* Modal */}
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-          {/* backdrop */}
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setOpen(false)}
-          />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
+  {/* Backdrop */}
+  <div
+    className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+    onClick={() => setOpen(false)}
+  />
 
-          {/* dialog */}
-          <div
-            className="relative w-full max-w-3xl h-[90vh] bg-white rounded-2xl shadow-2xl
-            flex flex-col overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* header */}
-            <div className="p-6 bg-[#112b5e] text-white shrink-0">
-              <div className="flex items-center gap-2">
-                <UserPlus className="h-5 w-5" />
-                <h2 className="text-lg font-semibold">{formData._id ? "Update Student" : "Add New Student"}</h2>
+  {/* Dialog */}
+  <div
+    className="
+      relative z-10
+      w-full
+      max-w-md
+      sm:max-w-2xl
+      lg:max-w-4xl
+      xl:max-w-5xl
+      h-[67vh]
+      sm:h-[67vh]
+      lg:h-[67vh]
+      bg-white
+      rounded-xl
+      sm:rounded-2xl
+      shadow-2xl
+      flex
+      flex-col
+      overflow-hidden
+    "
+    onClick={(e) => e.stopPropagation()}
+  >
+    {/* Header */}
+    <div className="p-4 sm:p-6 bg-[#112b5e] text-white shrink-0">
+      <div className="flex items-center gap-2">
+        <UserPlus className="h-5 w-5 shrink-0" />
+
+        <h2 className="text-base sm:text-lg font-semibold">
+          {formData._id ? "Update Student" : "Add New Student"}
+        </h2>
+      </div>
+    </div>
+
+    {/* Scrollable Content */}
+    <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+      <form
+        onSubmit={handleSubmit}
+        id="Form"
+        className="space-y-5"
+      >
+        {/* Name + DOB */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm font-medium text-gray-700">
+              Student Name
+            </label>
+
+            <input
+              type="text"
+              name="name"
+              value={formData?.name || ""}
+              onChange={handleChange}
+              className="
+                mt-1
+                w-full
+                rounded-xl
+                border
+                border-gray-200
+                px-4
+                py-2.5
+                text-sm
+                focus:outline-none
+                focus:ring-2
+                focus:ring-[#112b5e]
+              "
+            />
+
+            {err?.name && (
+              <div className="text-xs text-red-600 mt-1">
+                {err.name}
               </div>
-            </div>
-            {/* CONTENT (scrolls) */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
-              {/* form */}
-              <form onSubmit={handleSubmit} id="Form" className="p-6 space-y-5">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">
-                      Student Name
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      className="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#112b5e]"
-                      value={formData?.name || ""}
-                      onChange={handleChange}
-                    />
-                    {err?.name && (
-                      <div className="text-xs text-red-600 mt-1">{err.name}</div>
-                    )}
-                  </div>
+            )}
+          </div>
 
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">
-                      DOB
-                    </label>
-                    <input
-                      type="date"
-                      max={new Date()?.toISOString().split("T")[0]}
-                      name="dob"
-                      value={formData?.dob || ""}
-                      onChange={handleChange}
-                      className="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#112b5e]"
-                    />
-                    {err?.dob && <div className="text-xs text-red-600 mt-1">{err.dob}</div>}
-                  </div>
-                </div>
+          <div>
+            <label className="text-sm font-medium text-gray-700">
+              DOB
+            </label>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">
-                      Gender
-                    </label>
-                    <select
-                      className="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#112b5e]"
-                      name="gender"
-                      onChange={handleChange}
-                      value={formData.gender || ""}
-                    >
-                      <option value="">Please select</option>
-                      <option value="m">Male</option>
-                      <option value="f">Female</option>
-                      <option value="o">Other</option>
-                    </select>
-                    {err?.gender && (
-                      <div className="text-xs text-red-600 mt-1">{err.gender}</div>
-                    )}
-                  </div>
+            <input
+              type="date"
+              max={new Date()?.toISOString().split("T")[0]}
+              name="dob"
+              value={formData?.dob || ""}
+              onChange={handleChange}
+              className="
+                mt-1
+                w-full
+                rounded-xl
+                border
+                border-gray-200
+                px-4
+                py-2.5
+                text-sm
+                focus:outline-none
+                focus:ring-2
+                focus:ring-[#112b5e]
+              "
+            />
 
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">
-                      Admission Year
-                    </label>
-                    <select
-                      className="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#112b5e]"
-                      name="admissionYear"
-                      onChange={handleChange}
-                      value={formData.admissionYear || ""}
-                    >
-                      <option value="">Please select</option>
-                      {years?.map((year) => (
-                        <option key={year}>{year}</option>
-                      ))}
-                    </select>
-                    {err?.admissionYear && (
-                      <div className="text-xs text-red-600 mt-1">{err.admissionYear}</div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">
-                      USN
-                    </label>
-                    <input
-                      type="text"
-                      name="USN"
-                      value={formData?.USN || ""}
-                      onChange={handleChange}
-                      className="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#112b5e]"
-                    />
-                    {err?.USN && <div className="text-xs text-red-600 mt-1">{err?.USN}</div>}
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">
-                      Program
-                    </label>
-                    <Select
-                      options={programData}
-                      value={selectProgram}
-                      onChange={handleProgramSelect}
-                      placeholder="Please select"
-                      className="basic-multi-select"
-                      classNamePrefix="select"
-                    />
-
-                    {err?.program && (
-                      <div className="text-xs text-red-600 mt-1">{err.program}</div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">
-                      10Th(%)
-                    </label>
-                    <input
-                      type="number"
-                      name="tenTh"
-                      value={formData.tenTh || ""}
-                      onChange={handleChange}
-                      className="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#112b5e]"
-                    />
-                    {err?.tenTh && (
-                      <div className="text-xs text-red-600 mt-1">{err.tenTh}</div>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">
-                      12Th(%)
-                    </label>
-                    <input
-                      type="number"
-                      name="twelveTh"
-                      value={formData.twelveTh || ""}
-                      onChange={handleChange}
-                      className="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#112b5e]"
-                    />
-                    {err?.twelveTh && (
-                      <div className="text-xs text-red-600 mt-1">{err.twelveTh}</div>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <h6 className="text-sm font-semibold border-b pb-1">
-                        Semester/Yearly Marks ({marksType})
-                      </h6>
-
-                      <button
-                        type="button"
-                        onClick={addField}
-                        className="text-sm text-[#112b5e] font-medium hover:underline"
-                      >
-                        + Add {courseStructure === "year" ? "Year" : "Semester"}
-                      </button>
-                    </div>
-
-                    <div className="space-y-3">
-                      {fields.map((field, index) => {
-                        const isDisabled =
-                          index !== 0 && fields[index - 1]?.value === "";
-
-                        return (
-                          <div key={index} className="flex items-center gap-3">
-                            <span className="text-sm text-gray-600 w-24">
-                              {courseStructure === "year" ? "Year" : "Semester"}{" "}
-                              {index + 1}
-                            </span>
-
-                            <input
-                              type="number"
-                              className="flex-1 rounded-xl border border-gray-200 px-4 py-2
-                                        focus:outline-none focus:ring-2 focus:ring-[#112b5e]"
-                              placeholder="Enter value"
-                              value={field.value}
-                              onChange={(e) => handleSemesterChange(index, e)}
-                              disabled={isDisabled}
-                            />
-
-                            {!formData._id && (
-                              <button
-                                type="button"
-                                onClick={() => removeField(index)}
-                                className="text-red-500 text-sm hover:underline"
-                              >
-                                Delete
-                              </button>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              </form>
-            </div>
-            {/* FOOTER (fixed) */}
-            <div className="p-4 border-t bg-white flex justify-end gap-3 shrink-0">
-              {/* actions */}
-              <div className="flex justify-end gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setOpen(false)}
-                  className="px-4 py-2 rounded-xl border hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-
-                <button
-                  type="submit"
-                  form="Form"  
-                  className="px-5 py-2 rounded-xl text-white bg-[#112b5e]
-                        shadow-md hover:shadow-lg transition
-                        disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
-                >
-                  {loading ? (
-                  <>{formData._id ? "Updating" : "Submiting"}</>
-                ) : (
-                  <>{formData._id ? "Update" : "Submit"}</>
-                )}
-                </button>
+            {err?.dob && (
+              <div className="text-xs text-red-600 mt-1">
+                {err.dob}
               </div>
-            </div>
+            )}
           </div>
         </div>
+
+        {/* Gender + Admission */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm font-medium text-gray-700">
+              Gender
+            </label>
+
+            <select
+              className="
+                mt-1
+                w-full
+                rounded-xl
+                border
+                border-gray-200
+                px-4
+                py-2.5
+                text-sm
+                focus:outline-none
+                focus:ring-2
+                focus:ring-[#112b5e]
+              "
+              name="gender"
+              onChange={handleChange}
+              value={formData.gender || ""}
+            >
+              <option value="">Please select</option>
+              <option value="m">Male</option>
+              <option value="f">Female</option>
+              <option value="o">Other</option>
+            </select>
+
+            {err?.gender && (
+              <div className="text-xs text-red-600 mt-1">
+                {err.gender}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-700">
+              Admission Year
+            </label>
+
+            <select
+              className="
+                mt-1
+                w-full
+                rounded-xl
+                border
+                border-gray-200
+                px-4
+                py-2.5
+                text-sm
+                focus:outline-none
+                focus:ring-2
+                focus:ring-[#112b5e]
+              "
+              name="admissionYear"
+              onChange={handleChange}
+              value={formData.admissionYear || ""}
+            >
+              <option value="">Please select</option>
+
+              {years?.map((year) => (
+                <option key={year}>{year}</option>
+              ))}
+            </select>
+
+            {err?.admissionYear && (
+              <div className="text-xs text-red-600 mt-1">
+                {err.admissionYear}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* USN + Program */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm font-medium text-gray-700">
+              USN
+            </label>
+
+            <input
+              type="text"
+              name="USN"
+              value={formData?.USN || ""}
+              onChange={handleChange}
+              className="
+                mt-1
+                w-full
+                rounded-xl
+                border
+                border-gray-200
+                px-4
+                py-2.5
+                text-sm
+                focus:outline-none
+                focus:ring-2
+                focus:ring-[#112b5e]
+              "
+            />
+
+            {err?.USN && (
+              <div className="text-xs text-red-600 mt-1">
+                {err?.USN}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-700">
+              Program
+            </label>
+
+            <Select
+              options={programData}
+              value={selectProgram}
+              onChange={handleProgramSelect}
+              placeholder="Please select"
+              className="mt-1"
+              classNamePrefix="select"
+            />
+
+            {err?.program && (
+              <div className="text-xs text-red-600 mt-1">
+                {err.program}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 10th + 12th */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm font-medium text-gray-700">
+              10th (%)
+            </label>
+
+            <input
+              type="number"
+              name="tenTh"
+              value={formData.tenTh || ""}
+              onChange={handleChange}
+              className="
+                mt-1
+                w-full
+                rounded-xl
+                border
+                border-gray-200
+                px-4
+                py-2.5
+                text-sm
+                focus:outline-none
+                focus:ring-2
+                focus:ring-[#112b5e]
+              "
+            />
+
+            {err?.tenTh && (
+              <div className="text-xs text-red-600 mt-1">
+                {err.tenTh}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-700">
+              12th (%)
+            </label>
+
+            <input
+              type="number"
+              name="twelveTh"
+              value={formData.twelveTh || ""}
+              onChange={handleChange}
+              className="
+                mt-1
+                w-full
+                rounded-xl
+                border
+                border-gray-200
+                px-4
+                py-2.5
+                text-sm
+                focus:outline-none
+                focus:ring-2
+                focus:ring-[#112b5e]
+              "
+            />
+
+            {err?.twelveTh && (
+              <div className="text-xs text-red-600 mt-1">
+                {err.twelveTh}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Semester / Year Marks */}
+        <div>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+            <h6 className="text-sm sm:text-base font-semibold border-b pb-1">
+              Semester/Yearly Marks ({marksType})
+            </h6>
+
+            <button
+              type="button"
+              onClick={addField}
+              className="
+                text-sm
+                text-[#112b5e]
+                font-medium
+                hover:underline
+                text-left
+                sm:text-right
+              "
+            >
+              + Add {courseStructure === "year" ? "Year" : "Semester"}
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            {fields.map((field, index) => {
+              const isDisabled =
+                index !== 0 && fields[index - 1]?.value === "";
+
+              return (
+                <div
+                  key={index}
+                  className="
+                    flex
+                    flex-col
+                    sm:flex-row
+                    sm:items-center
+                    gap-3
+                  "
+                >
+                  <span className="text-sm text-gray-600 sm:w-28">
+                    {courseStructure === "year"
+                      ? "Year"
+                      : "Semester"}{" "}
+                    {index + 1}
+                  </span>
+
+                  <input
+                    type="number"
+                    className="
+                      flex-1
+                      rounded-xl
+                      border
+                      border-gray-200
+                      px-4
+                      py-2.5
+                      text-sm
+                      focus:outline-none
+                      focus:ring-2
+                      focus:ring-[#112b5e]
+                    "
+                    placeholder="Enter value"
+                    value={field.value}
+                    onChange={(e) =>
+                      handleSemesterChange(index, e)
+                    }
+                    disabled={isDisabled}
+                  />
+
+                  {!formData._id && (
+                    <button
+                      type="button"
+                      onClick={() => removeField(index)}
+                      className="
+                        text-red-500
+                        text-sm
+                        hover:underline
+                        self-start
+                        sm:self-center
+                      "
+                    >
+                      Delete
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </form>
+    </div>
+
+    {/* Footer */}
+    <div className="p-4 border-t bg-white shrink-0">
+      <div
+        className="
+          flex
+          flex-col-reverse
+          sm:flex-row
+          justify-end
+          gap-3
+        "
+      >
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          className="
+            w-full
+            sm:w-auto
+            px-4
+            py-2.5
+            rounded-xl
+            border
+            hover:bg-gray-50
+            transition
+          "
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          form="Form"
+          className="
+            w-full
+            sm:w-auto
+            px-5
+            py-2.5
+            rounded-xl
+            text-white
+            bg-[#112b5e]
+            shadow-md
+            hover:shadow-lg
+            transition
+            disabled:opacity-50
+            disabled:cursor-not-allowed
+            disabled:shadow-none
+          "
+        >
+          {loading ? (
+            <>{formData._id ? "Updating" : "Submitting"}</>
+          ) : (
+            <>{formData._id ? "Update" : "Submit"}</>
+          )}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
       )}
     </>
   );

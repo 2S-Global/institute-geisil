@@ -216,269 +216,146 @@ export default function AddStudentDialog({ open, setOpen }) {
     <>
       {/* Modal */}
       {open && (
-       <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
-  {/* Backdrop */}
-  <div
-    className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-    onClick={() => setOpen(false)}
-  />
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          {/* backdrop */}
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setOpen(false)}
+          />
 
-  {/* Dialog */}
-  <div
-    className="
-      relative z-10
-      w-full
-      max-w-md
-      sm:max-w-2xl
-      lg:max-w-3xl
-      xl:max-w-4xl
-      h-[40vh]
-      sm:h-[40vh]
-      lg:h-[40vh]
-      bg-white
-      rounded-xl
-      sm:rounded-2xl
-      shadow-2xl
-      flex
-      flex-col
-      overflow-hidden
-    "
-    onClick={(e) => e.stopPropagation()}
-  >
-    {/* Header */}
-    <div className="p-4 sm:p-6 bg-[#112b5e] text-white shrink-0">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <UserPlus className="h-5 w-5 shrink-0" />
+          {/* dialog */}
+          <div
+            className="relative w-full max-w-3xl h-[65vh] bg-white rounded-2xl shadow-2xl
+            flex flex-col overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* header */}
+            <div className="p-6 bg-[#112b5e] text-white shrink-0">
+             
 
-          <h2 className="text-base sm:text-lg font-semibold">
-            Import New Student
-          </h2>
-        </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <UserPlus className="h-5 w-5" />
+                  <h2 className="text-lg font-semibold">
+                    Import New Student
+                  </h2>
+                </div>
 
-        <button
-          type="button"
-          onClick={handleDownload}
-          className="
-            text-sm
-            text-left
-            sm:text-right
-            text-white/80
-            hover:text-white
-            transition-colors
-          "
-        >
-          Download Template CSV
-        </button>
-      </div>
-    </div>
+                <button
+                  type="button"
+                  onClick={handleDownload}
+                  className="text-sm text-white/80 hover:text-white   transition-colors"
+                >
+                  Download Template CSV
+                </button>
+            </div>
+            </div>
+            {/* CONTENT (scrolls) */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              {/* form */}
+              <form onSubmit={handleSubmit} id="Form" className="p-6 space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Program
+                    </label>
+                    <Select
+                      options={programData}
+                      value={selectProgram}
+                      onChange={handleProgramSelect}
+                      placeholder="Please select"
+                      className="basic-multi-select"
+                      classNamePrefix="select"
+                    />
 
-    {/* Content */}
-    <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-      <form
-        onSubmit={handleSubmit}
-        id="Form"
-        className="space-y-5"
-      >
-        {/* Row 1 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Program */}
-          <div>
-            <label className="text-sm font-medium text-gray-700">
-              Program
-            </label>
+                    {err?.program && (
+                      <div className="text-xs text-red-500 mt-1">{err.program}</div>
+                    )}
+                  </div>
 
-            <Select
-              options={programData}
-              value={selectProgram}
-              onChange={handleProgramSelect}
-              placeholder="Please select"
-              className="mt-1"
-              classNamePrefix="select"
-            />
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Admission Year
+                    </label>
+                    <select
+                      className="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#112b5e]"
+                      name="admissionYear"
+                      onChange={handleChange}
+                      value={formData.admissionYear || ""}
+                    >
+                      <option value="">Please select</option>
+                      {years?.map((year) => (
+                        <option key={year}>{year}</option>
+                      ))}
+                    </select>
+                    {err?.admissionYear && (
+                      <div className="text-xs text-red-500 mt-1">{err.admissionYear}</div>
+                    )}
+                  </div>
+                </div>
 
-            {err?.program && (
-              <div className="text-xs text-red-500 mt-1">
-                {err.program}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Exam/Semester
+                    </label>
+                    <select
+                      className="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#112b5e]"
+                      name="semester"
+                      onChange={handleChange}
+                      value={formData.semester || ""}
+                    >
+                      <option value="">Please select</option>
+                      {Semesters?.map((sem) => (
+                        <option key={sem}>{sem}</option>
+                      ))}
+                    </select>
+                    {err?.semester && (
+                      <div className="text-xs text-red-600 mt-1">{err.semester}</div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Upload Csv
+                    </label>
+                    <input
+                      type="file"
+                      accept=".csv"
+                      className="mt-1 w-full rounded-xl border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#112b5e]"
+                      onChange={handleFileChange}
+                    />
+                    {error && <div className="invalid-feedback">{error}</div>}
+                  </div>
+                </div>
+              </form>
+            </div>
+            {/* FOOTER (fixed) */}
+            <div className="p-4 border-t bg-white flex justify-end gap-3 shrink-0">
+              {/* actions */}
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="px-4 py-2 rounded-xl border hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  form="Form"  
+                  disabled={loading || !csvFile}
+                  className="px-5 py-2 rounded-xl text-white bg-[#112b5e]
+                        shadow-md hover:shadow-lg transition
+                        disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+                >
+                  Import
+                </button>
               </div>
-            )}
-          </div>
-
-          {/* Admission Year */}
-          <div>
-            <label className="text-sm font-medium text-gray-700">
-              Admission Year
-            </label>
-
-            <select
-              className="
-                mt-1
-                w-full
-                rounded-xl
-                border
-                border-gray-200
-                px-4
-                py-2.5
-                text-sm
-                focus:outline-none
-                focus:ring-2
-                focus:ring-[#112b5e]
-              "
-              name="admissionYear"
-              onChange={handleChange}
-              value={formData.admissionYear || ""}
-            >
-              <option value="">Please select</option>
-
-              {years?.map((year) => (
-                <option key={year}>{year}</option>
-              ))}
-            </select>
-
-            {err?.admissionYear && (
-              <div className="text-xs text-red-500 mt-1">
-                {err.admissionYear}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Row 2 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Semester */}
-          <div>
-            <label className="text-sm font-medium text-gray-700">
-              Exam/Semester
-            </label>
-
-            <select
-              className="
-                mt-1
-                w-full
-                rounded-xl
-                border
-                border-gray-200
-                px-4
-                py-2.5
-                text-sm
-                focus:outline-none
-                focus:ring-2
-                focus:ring-[#112b5e]
-              "
-              name="semester"
-              onChange={handleChange}
-              value={formData.semester || ""}
-            >
-              <option value="">Please select</option>
-
-              {Semesters?.map((sem) => (
-                <option key={sem}>{sem}</option>
-              ))}
-            </select>
-
-            {err?.semester && (
-              <div className="text-xs text-red-600 mt-1">
-                {err.semester}
-              </div>
-            )}
-          </div>
-
-          {/* File Upload */}
-          <div>
-            <label className="text-sm font-medium text-gray-700">
-              Upload CSV
-            </label>
-
-            <input
-              type="file"
-              accept=".csv"
-              className="
-                mt-1
-                w-full
-                rounded-xl
-                border
-                border-gray-200
-                px-4
-                py-2.5
-                text-sm
-                focus:outline-none
-                focus:ring-2
-                focus:ring-[#112b5e]
-              "
-              onChange={handleFileChange}
-            />
-
-            {error && (
-              <div className="text-xs text-red-500 mt-1">
-                {error}
-              </div>
-            )}
+            </div>
           </div>
         </div>
-      </form>
-    </div>
-
-    {/* Footer */}
-    <div
-      className="
-        p-4
-        border-t
-        bg-white
-        shrink-0
-      "
-    >
-      <div
-        className="
-          flex
-          flex-col-reverse
-          sm:flex-row
-          justify-end
-          gap-3
-        "
-      >
-        <button
-          type="button"
-          onClick={() => setOpen(false)}
-          className="
-            w-full
-            sm:w-auto
-            px-4
-            py-2.5
-            rounded-xl
-            border
-            hover:bg-gray-50
-            transition
-          "
-        >
-          Cancel
-        </button>
-
-        <button
-          type="submit"
-          form="Form"
-          disabled={loading || !csvFile}
-          className="
-            w-full
-            sm:w-auto
-            px-5
-            py-2.5
-            rounded-xl
-            text-white
-            bg-[#112b5e]
-            shadow-md
-            hover:shadow-lg
-            transition
-            disabled:opacity-50
-            disabled:cursor-not-allowed
-            disabled:shadow-none
-          "
-        >
-          Import
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
       )}
     </>
   );
