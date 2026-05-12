@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Search, Filter, MapPin, Users, Clock } from "lucide-react";
 import { EmployerLayout } from "@/components/EmployerLayout";
@@ -5,9 +6,25 @@ import { PageHeader } from "@/components/dashboard/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 
-const jobs = [
+interface Job {
+  id: string;
+  title: string;
+  dept: string;
+  loc: string;
+  type: string;
+  apps: number;
+  posted: string;
+  status: "Open" | "Reviewing" | "Closed";
+}
+
+const initialJobs: Job[] = [
   { id: "JD-1042", title: "Frontend Engineer", dept: "Engineering", loc: "Bengaluru", type: "Full-time", apps: 84, posted: "3d ago", status: "Open" },
   { id: "JD-1041", title: "Data Analyst", dept: "Analytics", loc: "Hyderabad", type: "Full-time", apps: 56, posted: "5d ago", status: "Open" },
   { id: "JD-1040", title: "Product Manager", dept: "Product", loc: "Remote", type: "Full-time", apps: 39, posted: "1w ago", status: "Reviewing" },
@@ -23,6 +40,47 @@ const styles: Record<string, string> = {
 };
 
 export default function Jobs() {
+  const { toast } = useToast();
+  const [jobs, setJobs] = useState<Job[]>(initialJobs);
+  const [search, setSearch] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const [title, setTitle] = useState("");
+  const [dept, setDept] = useState("");
+  const [loc, setLoc] = useState("");
+  const [type, setType] = useState("Full-time");
+  const [status, setStatus] = useState<Job["status"]>("Open");
+  const [description, setDescription] = useState("");
+
+  const filtered = jobs.filter((j) => {
+    const q = search.toLowerCase().trim();
+    if (!q) return true;
+    return j.title.toLowerCase().includes(q) || j.id.toLowerCase().includes(q) || j.dept.toLowerCase().includes(q);
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim() || !dept.trim() || !loc.trim()) {
+      toast({ title: "Missing info", description: "Title, department and location are required.", variant: "destructive" });
+      return;
+    }
+    const nextNum = jobs.reduce((m, j) => Math.max(m, parseInt(j.id.split("-")[1] || "1000", 10)), 1000) + 1;
+    const newJob: Job = {
+      id: `JD-${nextNum}`,
+      title: title.trim(),
+      dept: dept.trim(),
+      loc: loc.trim(),
+      type,
+      apps: 0,
+      posted: "Just now",
+      status,
+    };
+    setJobs((prev) => [newJob, ...prev]);
+    toast({ title: "Job posted", description: `${newJob.title} (${newJob.id}) has been published.` });
+    setOpen(false);
+    setTitle(""); setDept(""); setLoc(""); setType("Full-time"); setStatus("Open"); setDescription("");
+  };
+
   return (
     <EmployerLayout>
       <PageHeader
@@ -31,18 +89,25 @@ export default function Jobs() {
         actions={
           <>
             <Button variant="outline" className="gap-2"><Filter className="h-4 w-4" /> Filter</Button>
-            <Button className="gap-2 shadow-brand"><Plus className="h-4 w-4" /> Post a job</Button>
+            <Button className="gap-2 shadow-brand" onClick={() => setOpen(true)}>
+              <Plus className="h-4 w-4" /> Post a job
+            </Button>
           </>
         }
       />
       <Card className="p-4 mb-4 border-border/60 shadow-sm">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search by title, ID, or department…" className="pl-9 h-10" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by title, ID, or department…"
+            className="pl-9 h-10"
+          />
         </div>
       </Card>
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {jobs.map((j) => (
+        {filtered.map((j) => (
           <Card key={j.id} className="p-5 border-border/60 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between gap-3 mb-3">
               <div>
@@ -63,6 +128,62 @@ export default function Jobs() {
           </Card>
         ))}
       </div>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-display">Post a job</DialogTitle>
+            <DialogDescription>Create a new requisition visible to candidates.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="j-title">Job title</Label>
+              <Input id="j-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Backend Engineer" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="j-dept">Department</Label>
+                <Input id="j-dept" value={dept} onChange={(e) => setDept(e.target.value)} placeholder="e.g. Engineering" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="j-loc">Location</Label>
+                <Input id="j-loc" value={loc} onChange={(e) => setLoc(e.target.value)} placeholder="e.g. Bengaluru / Remote" />
+              </div>
+              <div className="space-y-2">
+                <Label>Type</Label>
+                <Select value={type} onValueChange={setType}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Full-time">Full-time</SelectItem>
+                    <SelectItem value="Part-time">Part-time</SelectItem>
+                    <SelectItem value="Contract">Contract</SelectItem>
+                    <SelectItem value="Internship">Internship</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Status</Label>
+                <Select value={status} onValueChange={(v) => setStatus(v as Job["status"])}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Open">Open</SelectItem>
+                    <SelectItem value="Reviewing">Reviewing</SelectItem>
+                    <SelectItem value="Closed">Closed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="j-desc">Description (optional)</Label>
+              <Textarea id="j-desc" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Responsibilities, requirements, perks…" />
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+              <Button type="submit">Post job</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </EmployerLayout>
   );
 }

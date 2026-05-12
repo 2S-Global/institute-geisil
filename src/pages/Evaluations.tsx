@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ClipboardCheck, CheckCircle2, Clock, AlertCircle, Plus, Download } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { z } from "zod";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { StatCard } from "@/components/dashboard/StatCard";
@@ -9,6 +11,26 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 
 const monthly = [
   { month: "Nov", count: 142 },
@@ -19,7 +41,7 @@ const monthly = [
   { month: "Apr", count: 312 },
 ];
 
-const evaluations = [
+const initialEvaluations = [
   { id: "EV-2841", student: "Priya Menon", type: "Aptitude + Coding", score: 92, status: "Completed", date: "2 hrs ago" },
   { id: "EV-2840", student: "Rohan Verma", type: "Case Study", score: 87, status: "Completed", date: "5 hrs ago" },
   { id: "EV-2839", student: "Aisha Khan", type: "Technical", score: 81, status: "Reviewing", date: "Yesterday" },
@@ -34,7 +56,85 @@ const statusStyles: Record<string, string> = {
   Pending: "bg-muted text-muted-foreground border-border",
 };
 
+const evaluationTypes = [
+  "Aptitude + Coding",
+  "Technical",
+  "Case Study",
+  "Group Discussion",
+  "Behavioral",
+  "Domain Knowledge",
+];
+
+const evaluationSchema = z
+  .object({
+    student: z.string().trim().min(2, "Student name is required").max(80),
+    rollNo: z.string().trim().max(40).optional().or(z.literal("")),
+    type: z.string().min(1, "Select an evaluation type"),
+    status: z.enum(["Completed", "Reviewing", "Pending"]),
+    score: z.coerce.number().int().min(0).max(100),
+    scheduledDate: z.string().trim().optional().or(z.literal("")),
+    evaluator: z.string().trim().max(80).optional().or(z.literal("")),
+    notes: z.string().max(500).optional().or(z.literal("")),
+  })
+  .refine((d) => d.status === "Pending" || d.score > 0, {
+    message: "Score is required for completed/reviewing evaluations",
+    path: ["score"],
+  });
+
+type EvaluationForm = z.infer<typeof evaluationSchema>;
+
+const emptyForm: EvaluationForm = {
+  student: "",
+  rollNo: "",
+  type: "",
+  status: "Completed",
+  score: 0,
+  scheduledDate: "",
+  evaluator: "",
+  notes: "",
+};
+
 const Evaluations = () => {
+  const { toast } = useToast();
+  const [open, setOpen] = useState(false);
+  const [evaluations, setEvaluations] = useState(initialEvaluations);
+  const [form, setForm] = useState<EvaluationForm>(emptyForm);
+  const [errors, setErrors] = useState<Partial<Record<keyof EvaluationForm, string>>>({});
+
+  const update = <K extends keyof EvaluationForm>(key: K, value: EvaluationForm[K]) => {
+    setForm((f) => ({ ...f, [key]: value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const result = evaluationSchema.safeParse(form);
+    if (!result.success) {
+      const fieldErrors: Partial<Record<keyof EvaluationForm, string>> = {};
+      result.error.issues.forEach((i) => {
+        const k = i.path[0] as keyof EvaluationForm;
+        if (!fieldErrors[k]) fieldErrors[k] = i.message;
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+    setErrors({});
+    const nextId = `EV-${2842 + (evaluations.length - initialEvaluations.length)}`;
+    setEvaluations((prev) => [
+      {
+        id: nextId,
+        student: result.data.student,
+        type: result.data.type,
+        score: result.data.status === "Pending" ? 0 : result.data.score,
+        status: result.data.status,
+        date: result.data.status === "Pending" ? "Scheduled" : "Just now",
+      },
+      ...prev,
+    ]);
+    toast({ title: "Evaluation added", description: `${result.data.student} • ${result.data.type}` });
+    setForm(emptyForm);
+    setOpen(false);
+  };
+
   return (
     <DashboardLayout>
       <PageHeader
@@ -44,9 +144,138 @@ const Evaluations = () => {
         actions={
           <>
             <Button variant="outline" className="gap-2"><Download className="h-4 w-4" />Export</Button>
-            <Button className="gap-2 bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand">
-              <Plus className="h-4 w-4" /> New evaluation
-            </Button>
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button className="gap-2 bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand">
+                  <Plus className="h-4 w-4" /> New evaluation
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[640px] max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="font-display text-2xl">Add new evaluation</DialogTitle>
+                  <DialogDescription>
+                    Record a new assessment result or schedule one for an upcoming candidate.
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-5 pt-2">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="student">Student name *</Label>
+                      <Input
+                        id="student"
+                        value={form.student}
+                        onChange={(e) => update("student", e.target.value)}
+                        placeholder="e.g. Priya Menon"
+                        maxLength={80}
+                      />
+                      {errors.student && <p className="text-xs text-destructive">{errors.student}</p>}
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="rollNo">Roll / ID</Label>
+                      <Input
+                        id="rollNo"
+                        value={form.rollNo}
+                        onChange={(e) => update("rollNo", e.target.value)}
+                        placeholder="e.g. 22BCE1234"
+                        maxLength={40}
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label>Evaluation type *</Label>
+                      <Select value={form.type} onValueChange={(v) => update("type", v)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {evaluationTypes.map((t) => (
+                            <SelectItem key={t} value={t}>{t}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {errors.type && <p className="text-xs text-destructive">{errors.type}</p>}
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label>Status *</Label>
+                      <Select
+                        value={form.status}
+                        onValueChange={(v) => update("status", v as EvaluationForm["status"])}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Completed">Completed</SelectItem>
+                          <SelectItem value="Reviewing">Reviewing</SelectItem>
+                          <SelectItem value="Pending">Pending</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="score">Score (0–100)</Label>
+                      <Input
+                        id="score"
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={form.score}
+                        onChange={(e) => update("score", Number(e.target.value) as never)}
+                        disabled={form.status === "Pending"}
+                      />
+                      {errors.score && <p className="text-xs text-destructive">{errors.score}</p>}
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="scheduledDate">Date</Label>
+                      <Input
+                        id="scheduledDate"
+                        type="date"
+                        value={form.scheduledDate}
+                        onChange={(e) => update("scheduledDate", e.target.value)}
+                      />
+                    </div>
+
+                    <div className="space-y-1.5 md:col-span-2">
+                      <Label htmlFor="evaluator">Evaluator</Label>
+                      <Input
+                        id="evaluator"
+                        value={form.evaluator}
+                        onChange={(e) => update("evaluator", e.target.value)}
+                        placeholder="Faculty or panelist name"
+                        maxLength={80}
+                      />
+                    </div>
+
+                    <div className="space-y-1.5 md:col-span-2">
+                      <Label htmlFor="notes">Notes</Label>
+                      <Textarea
+                        id="notes"
+                        value={form.notes}
+                        onChange={(e) => update("notes", e.target.value)}
+                        placeholder="Strengths, areas to improve, panel observations…"
+                        maxLength={500}
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+
+                  <DialogFooter className="gap-2">
+                    <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand"
+                    >
+                      Add evaluation
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
           </>
         }
       />
@@ -134,7 +363,7 @@ const Evaluations = () => {
                 {evaluations.map((e) => (
                   <tr key={e.id} className="hover:bg-muted/30 transition-colors group">
                     <td className="py-3">
-                      <Link to={`/evaluations/${e.id}`} className="flex items-center gap-3">
+                      <Link to={`/institute/evaluations/${e.id}`} className="flex items-center gap-3">
                         <Avatar className="h-9 w-9 border">
                           <AvatarFallback className="bg-accent/10 text-accent text-xs font-semibold">
                             {e.student.split(" ").map((w) => w[0]).join("")}

@@ -162,7 +162,7 @@ const Students = () => {
               <Upload className="h-4 w-4" />
               Import Student
             </Button>
-
+            <Button variant="outline" className="gap-2"><Download className="h-4 w-4" />Export</Button>
             <Button
               className="gap-2 bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand"
               onClick={() => setStudentOpen(true)}
@@ -255,7 +255,7 @@ const Students = () => {
                   >
                     <td className="py-3">
                       <Link
-                        to={`/students/${s.id}`}
+                        to={`/institute/students/${s.id}`}
                         className="flex items-center gap-3"
                       >
                         <Avatar className="h-9 w-9 border">

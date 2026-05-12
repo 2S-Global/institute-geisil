@@ -9,8 +9,18 @@ import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 
 const Settings = () => {
+  const { toast } = useToast();
+
+  const handleSave = () => {
+    toast({
+      title: "Settings saved",
+      description: "Your changes have been applied successfully.",
+    });
+  };
+
   return (
     <DashboardLayout>
       <PageHeader
@@ -18,7 +28,10 @@ const Settings = () => {
         title="Settings"
         description="Configure your institute profile, preferences, security and notifications."
         actions={
-          <Button className="gap-2 bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand">
+          <Button
+            onClick={handleSave}
+            className="gap-2 bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand"
+          >
             <Save className="h-4 w-4" /> Save changes
           </Button>
         }

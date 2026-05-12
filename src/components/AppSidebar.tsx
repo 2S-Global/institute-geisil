@@ -35,6 +35,7 @@ const main = [
 
 const secondary = [
   { title: "Faculty", url: "/institute/faculty", icon: Users },
+  { title: "Institute Profile", url: "/institute/institute-profile-details", icon: Building2 },
   { title: "Settings", url: "/institute/settings", icon: Settings },
 ];
 

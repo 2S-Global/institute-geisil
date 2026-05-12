@@ -1,14 +1,29 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Briefcase, Building2, Users, TrendingUp, ExternalLink, Mail } from "lucide-react";
+import {
+  Plus,
+  Briefcase,
+  Building2,
+  Users,
+  TrendingUp,
+  ExternalLink,
+  Mail,
+} from "lucide-react";
 import { z } from "zod";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { StatCard } from "@/components/dashboard/StatCard";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import API from "../lib/axios";
 import {
   Dialog,
   DialogContent,
@@ -31,12 +46,54 @@ import {
 import { useToast } from "@/hooks/use-toast";
 
 const initialRecruiters = [
-  { name: "Tata Consultancy Services", sector: "IT Services", openings: 42, hired: 28, rating: 4.8, status: "Active" },
-  { name: "Infosys Limited", sector: "IT Services", openings: 36, hired: 22, rating: 4.6, status: "Active" },
-  { name: "Deloitte India", sector: "Consulting", openings: 18, hired: 14, rating: 4.7, status: "Reviewing" },
-  { name: "Wipro Technologies", sector: "IT Services", openings: 24, hired: 19, rating: 4.5, status: "Active" },
-  { name: "HDFC Bank", sector: "Banking", openings: 14, hired: 11, rating: 4.4, status: "Closed" },
-  { name: "Accenture", sector: "Consulting", openings: 30, hired: 21, rating: 4.6, status: "Active" },
+  {
+    name: "Tata Consultancy Services",
+    sector: "IT Services",
+    openings: 42,
+    hired: 28,
+    rating: 4.8,
+    status: "Active",
+  },
+  {
+    name: "Infosys Limited",
+    sector: "IT Services",
+    openings: 36,
+    hired: 22,
+    rating: 4.6,
+    status: "Active",
+  },
+  {
+    name: "Deloitte India",
+    sector: "Consulting",
+    openings: 18,
+    hired: 14,
+    rating: 4.7,
+    status: "Reviewing",
+  },
+  {
+    name: "Wipro Technologies",
+    sector: "IT Services",
+    openings: 24,
+    hired: 19,
+    rating: 4.5,
+    status: "Active",
+  },
+  {
+    name: "HDFC Bank",
+    sector: "Banking",
+    openings: 14,
+    hired: 11,
+    rating: 4.4,
+    status: "Closed",
+  },
+  {
+    name: "Accenture",
+    sector: "Consulting",
+    openings: 30,
+    hired: 21,
+    rating: 4.6,
+    status: "Active",
+  },
 ];
 
 const statusStyles: Record<string, string> = {
@@ -45,7 +102,16 @@ const statusStyles: Record<string, string> = {
   Closed: "bg-muted text-muted-foreground border-border",
 };
 
-const sectors = ["IT Services", "Consulting", "Banking", "Manufacturing", "Healthcare", "E-commerce", "Education", "Other"];
+const sectors = [
+  "IT Services",
+  "Consulting",
+  "Banking",
+  "Manufacturing",
+  "Healthcare",
+  "E-commerce",
+  "Education",
+  "Other",
+];
 
 const recruiterSchema = z.object({
   name: z.string().trim().min(2, "Company name is required").max(120),
@@ -78,13 +144,23 @@ const Recruiters = () => {
   const [open, setOpen] = useState(false);
   const [recruiters, setRecruiters] = useState(initialRecruiters);
   const [form, setForm] = useState<RecruiterForm>(emptyForm);
-  const [errors, setErrors] = useState<Partial<Record<keyof RecruiterForm, string>>>({});
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof RecruiterForm, string>>
+  >({});
 
-  const update = <K extends keyof RecruiterForm>(key: K, value: RecruiterForm[K]) => {
+  const update = <K extends keyof RecruiterForm>(
+    key: K,
+    value: RecruiterForm[K],
+  ) => {
     setForm((f) => ({ ...f, [key]: value }));
+    // Remove error message while typing
+    setErrors((prev) => ({
+      ...prev,
+      [key]: undefined,
+    }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = recruiterSchema.safeParse(form);
     if (!result.success) {
@@ -97,6 +173,7 @@ const Recruiters = () => {
       return;
     }
     setErrors({});
+
     setRecruiters((prev) => [
       {
         name: result.data.name,
@@ -108,9 +185,35 @@ const Recruiters = () => {
       },
       ...prev,
     ]);
-    toast({ title: "Recruiter added", description: `${result.data.name} has been added to your partners.` });
-    setForm(emptyForm);
-    setOpen(false);
+    const payload = {
+      companyName: result.data.name,
+      sector: result.data.sector,
+      primaryContact: result.data.contactName,
+      email: result.data.email,
+      phone: result.data.phone,
+      website: result.data.website,
+      notes: result.data.notes,
+      status: result.data.status,
+    };
+    let response = "";
+    try {
+      response = await API({
+        method: "post",
+        url: "/api/instituteprofile/add_company",
+        data: payload,
+      });
+      toast({
+        title: "Recruiter added",
+        description: "Recruiter saved successfully",
+      });
+      setForm(emptyForm);
+      setOpen(false);
+    } catch (err) {
+      toast({
+        title: "Failed",
+        description: "This email already exists",
+      });
+    }
   };
 
   return (
@@ -128,15 +231,18 @@ const Recruiters = () => {
             </DialogTrigger>
             <DialogContent className="sm:max-w-[640px] max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle className="font-display text-2xl">Add new recruiter</DialogTitle>
+                <DialogTitle className="font-display text-2xl">
+                  Add new recruiter
+                </DialogTitle>
                 <DialogDescription>
-                  Onboard a hiring partner to start sharing requisitions and tracking placements.
+                  Onboard a hiring partner to start sharing requisitions and
+                  tracking placements.
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-5 pt-2">
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-1.5 md:col-span-2">
-                    <Label htmlFor="name">Company name *</Label>
+                    <Label htmlFor="name">Recruiter name *</Label>
                     <Input
                       id="name"
                       value={form.name}
@@ -144,29 +250,42 @@ const Recruiters = () => {
                       placeholder="e.g. Acme Technologies Pvt. Ltd."
                       maxLength={120}
                     />
-                    {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+                    {errors.name && (
+                      <p className="text-xs text-destructive">{errors.name}</p>
+                    )}
                   </div>
 
                   <div className="space-y-1.5">
                     <Label>Sector *</Label>
-                    <Select value={form.sector} onValueChange={(v) => update("sector", v)}>
+                    <Select
+                      value={form.sector}
+                      onValueChange={(v) => update("sector", v)}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select sector" />
                       </SelectTrigger>
                       <SelectContent>
                         {sectors.map((s) => (
-                          <SelectItem key={s} value={s}>{s}</SelectItem>
+                          <SelectItem key={s} value={s}>
+                            {s}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    {errors.sector && <p className="text-xs text-destructive">{errors.sector}</p>}
+                    {errors.sector && (
+                      <p className="text-xs text-destructive">
+                        {errors.sector}
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-1.5">
                     <Label>Status *</Label>
                     <Select
                       value={form.status}
-                      onValueChange={(v) => update("status", v as RecruiterForm["status"])}
+                      onValueChange={(v) =>
+                        update("status", v as RecruiterForm["status"])
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue />
@@ -188,7 +307,11 @@ const Recruiters = () => {
                       placeholder="Full name"
                       maxLength={80}
                     />
-                    {errors.contactName && <p className="text-xs text-destructive">{errors.contactName}</p>}
+                    {errors.contactName && (
+                      <p className="text-xs text-destructive">
+                        {errors.contactName}
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-1.5">
@@ -201,7 +324,9 @@ const Recruiters = () => {
                       placeholder="hr@company.com"
                       maxLength={255}
                     />
-                    {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+                    {errors.email && (
+                      <p className="text-xs text-destructive">{errors.email}</p>
+                    )}
                   </div>
 
                   <div className="space-y-1.5">
@@ -226,7 +351,7 @@ const Recruiters = () => {
                     />
                   </div>
 
-                  <div className="space-y-1.5 md:col-span-2">
+                  {/*  <div className="space-y-1.5 md:col-span-2">
                     <Label htmlFor="openings">Initial open positions</Label>
                     <Input
                       id="openings"
@@ -236,7 +361,7 @@ const Recruiters = () => {
                       onChange={(e) => update("openings", Number(e.target.value) as never)}
                     />
                     {errors.openings && <p className="text-xs text-destructive">{errors.openings}</p>}
-                  </div>
+                  </div> */}
 
                   <div className="space-y-1.5 md:col-span-2">
                     <Label htmlFor="notes">Notes</Label>
@@ -252,7 +377,11 @@ const Recruiters = () => {
                 </div>
 
                 <DialogFooter className="gap-2">
-                  <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setOpen(false)}
+                  >
                     Cancel
                   </Button>
                   <Button
@@ -269,20 +398,51 @@ const Recruiters = () => {
       />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 mb-6">
-        <StatCard label="Active Recruiters" value={String(180 + recruiters.length - initialRecruiters.length + 4)} delta={8} icon={Briefcase} tint="primary" />
-        <StatCard label="Open Positions" value="612" delta={14} icon={Building2} tint="accent" />
-        <StatCard label="Hires (MTD)" value="248" delta={11} icon={Users} tint="success" />
-        <StatCard label="Conversion" value="41.2%" delta={3} icon={TrendingUp} tint="warning" />
+        <StatCard
+          label="Active Recruiters"
+          value={String(180 + recruiters.length - initialRecruiters.length + 4)}
+          delta={8}
+          icon={Briefcase}
+          tint="primary"
+        />
+        <StatCard
+          label="Open Positions"
+          value="612"
+          delta={14}
+          icon={Building2}
+          tint="accent"
+        />
+        <StatCard
+          label="Hires (MTD)"
+          value="248"
+          delta={11}
+          icon={Users}
+          tint="success"
+        />
+        <StatCard
+          label="Conversion"
+          value="41.2%"
+          delta={3}
+          icon={TrendingUp}
+          tint="warning"
+        />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {recruiters.map((r) => (
-          <Card key={r.name} className="shadow-sm hover:shadow-md transition-shadow border-border/60">
+          <Card
+            key={r.name}
+            className="shadow-sm hover:shadow-md transition-shadow border-border/60"
+          >
             <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
               <div className="flex items-center gap-3 min-w-0">
                 <Avatar className="h-11 w-11 border">
                   <AvatarFallback className="bg-primary-soft text-primary font-semibold">
-                    {r.name.split(" ").map((w) => w[0]).slice(0, 2).join("")}
+                    {r.name
+                      .split(" ")
+                      .map((w) => w[0])
+                      .slice(0, 2)
+                      .join("")}
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0">
@@ -290,27 +450,44 @@ const Recruiters = () => {
                   <CardDescription>{r.sector}</CardDescription>
                 </div>
               </div>
-              <Badge variant="outline" className={statusStyles[r.status]}>{r.status}</Badge>
+              <Badge variant="outline" className={statusStyles[r.status]}>
+                {r.status}
+              </Badge>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-3 gap-3 mb-4">
                 <div>
                   <p className="text-xs text-muted-foreground">Openings</p>
-                  <p className="font-display text-xl font-bold text-foreground">{r.openings}</p>
+                  <p className="font-display text-xl font-bold text-foreground">
+                    {r.openings}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Hired</p>
-                  <p className="font-display text-xl font-bold text-foreground">{r.hired}</p>
+                  <p className="font-display text-xl font-bold text-foreground">
+                    {r.hired}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Rating</p>
-                  <p className="font-display text-xl font-bold text-foreground">{r.rating}</p>
+                  <p className="font-display text-xl font-bold text-foreground">
+                    {r.rating}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" className="flex-1 gap-1.5"><Mail className="h-3.5 w-3.5" /> Contact</Button>
-                <Button asChild variant="ghost" size="sm" className="text-primary gap-1">
-                  <Link to={`/institute/recruiters/${encodeURIComponent(r.name.toLowerCase().replace(/\s+/g, "-"))}`}>
+                <Button variant="outline" size="sm" className="flex-1 gap-1.5">
+                  <Mail className="h-3.5 w-3.5" /> Contact
+                </Button>
+                <Button
+                  asChild
+                  variant="ghost"
+                  size="sm"
+                  className="text-primary gap-1"
+                >
+                  <Link
+                    to={`/institute/recruiters/${encodeURIComponent(r.name.toLowerCase().replace(/\s+/g, "-"))}`}
+                  >
                     View <ExternalLink className="h-3.5 w-3.5" />
                   </Link>
                 </Button>

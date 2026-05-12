@@ -20,6 +20,8 @@ import ReportDetail from "./pages/ReportDetail.tsx";
 import Faculty from "./pages/Faculty.tsx";
 import FacultyDetail from "./pages/FacultyDetail.tsx";
 import Settings from "./pages/Settings.tsx";
+import InstituteProfile from "./pages/InstituteProfile.tsx";
+import InstituteProfileDetails from "./pages/InstituteProfileDetails.tsx";
 import EmployerDashboard from "./pages/employer/EmployerDashboard.tsx";
 import Jobs from "./pages/employer/Jobs.tsx";
 import JobDetail from "./pages/employer/JobDetail.tsx";
@@ -70,6 +72,8 @@ const App = ()=>{
                     <Route path="/faculty" element={<Faculty />} />
                     <Route path="/faculty/:id" element={<FacultyDetail />} />
                     <Route path="/settings" element={<Settings />} />
+                    <Route path="/institute-profile" element={<InstituteProfile />} />
+                    <Route path="/institute-profile-details" element={<InstituteProfileDetails />} />
                   </Routes>
               </ProtectedRoute>
                } />

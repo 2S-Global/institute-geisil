@@ -227,21 +227,22 @@ export default function AddStudentDialog({ open, setOpen }) {
   <div
     className="
       relative z-10
-      w-full
-      max-w-md
-      sm:max-w-2xl
-      lg:max-w-3xl
-      xl:max-w-4xl
-      h-[40vh]
-      sm:h-[40vh]
-      lg:h-[40vh]
-      bg-white
-      rounded-xl
-      sm:rounded-2xl
-      shadow-2xl
-      flex
-      flex-col
-      overflow-hidden
+    w-full
+    max-w-md
+    sm:max-w-2xl
+    lg:max-w-3xl
+    xl:max-w-4xl
+
+    min-h-[40vh]
+    max-h-[90dvh]
+
+    bg-white
+    rounded-xl
+    sm:rounded-2xl
+    shadow-2xl
+
+    flex flex-col
+    overflow-hidden
     "
     onClick={(e) => e.stopPropagation()}
   >

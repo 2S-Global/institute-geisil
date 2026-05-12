@@ -54,7 +54,7 @@ const StudentDetail = () => {
   return (
     <DashboardLayout>
       <Button asChild variant="ghost" size="sm" className="mb-4 -ml-2 text-muted-foreground hover:text-foreground">
-        <Link to="/students"><ArrowLeft className="h-4 w-4" /> Back to students</Link>
+        <Link to="/institute/students"><ArrowLeft className="h-4 w-4" /> Back to students</Link>
       </Button>
 
       <PageHeader

@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Building2, IndianRupee, TrendingUp, Users, Download, Plus, MapPin } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { z } from "zod";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { StatCard } from "@/components/dashboard/StatCard";
@@ -8,6 +10,34 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+
+interface Offer {
+  student: string;
+  company: string;
+  role: string;
+  ctc: string;
+  location: string;
+  status: "Accepted" | "Pending" | "Negotiating";
+}
 
 const trend = [
   { month: "Nov", offers: 124, accepted: 98 },
@@ -18,7 +48,7 @@ const trend = [
   { month: "Apr", offers: 322, accepted: 281 },
 ];
 
-const offers = [
+const initialOffers: Offer[] = [
   { student: "Priya Menon", company: "Google India", role: "SWE I", ctc: "32 LPA", location: "Bengaluru", status: "Accepted" },
   { student: "Rohan Verma", company: "Goldman Sachs", role: "Analyst", ctc: "24 LPA", location: "Mumbai", status: "Accepted" },
   { student: "Aisha Khan", company: "Microsoft", role: "Data Scientist", ctc: "28 LPA", location: "Hyderabad", status: "Pending" },
@@ -32,7 +62,56 @@ const statusStyles: Record<string, string> = {
   Negotiating: "bg-accent/10 text-accent border-accent/20",
 };
 
+const offerSchema = z.object({
+  student: z.string().trim().min(2, "Student name is required").max(80),
+  company: z.string().trim().min(2, "Company name is required").max(80),
+  role: z.string().trim().min(1, "Role is required").max(80),
+  ctc: z.string().trim().min(1, "CTC is required").max(20),
+  location: z.string().trim().min(1, "Location is required").max(40),
+  status: z.enum(["Accepted", "Pending", "Negotiating"]),
+});
+
+type OfferForm = z.infer<typeof offerSchema>;
+
+const emptyForm: OfferForm = {
+  student: "",
+  company: "",
+  role: "",
+  ctc: "",
+  location: "",
+  status: "Pending",
+};
+
 const Placements = () => {
+  const { toast } = useToast();
+  const [open, setOpen] = useState(false);
+  const [offers, setOffers] = useState(initialOffers);
+  const [form, setForm] = useState<OfferForm>(emptyForm);
+  const [errors, setErrors] = useState<Partial<Record<keyof OfferForm, string>>>({});
+
+  const update = <K extends keyof OfferForm>(key: K, value: OfferForm[K]) => {
+    setForm((f) => ({ ...f, [key]: value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const result = offerSchema.safeParse(form);
+    if (!result.success) {
+      const fieldErrors: Partial<Record<keyof OfferForm, string>> = {};
+      result.error.issues.forEach((i) => {
+        const k = i.path[0] as keyof OfferForm;
+        if (!fieldErrors[k]) fieldErrors[k] = i.message;
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+    setErrors({});
+    setOffers((prev) => [{ student: result.data.student, company: result.data.company, role: result.data.role, ctc: result.data.ctc, location: result.data.location, status: result.data.status }, ...prev]);
+    toast({ title: "Offer logged", description: `${result.data.student} • ${result.data.company}` });
+    setForm(emptyForm);
+    setOpen(false);
+  };
+
   return (
     <DashboardLayout>
       <PageHeader
@@ -42,9 +121,113 @@ const Placements = () => {
         actions={
           <>
             <Button variant="outline" className="gap-2"><Download className="h-4 w-4" />Export</Button>
-            <Button className="gap-2 bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand">
-              <Plus className="h-4 w-4" /> Log offer
-            </Button>
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button className="gap-2 bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand">
+                  <Plus className="h-4 w-4" /> Log offer
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[640px] max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="font-display text-2xl">Log new offer</DialogTitle>
+                  <DialogDescription>
+                    Record a placement offer extended to a student.
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-5 pt-2">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="student">Student name *</Label>
+                      <Input
+                        id="student"
+                        value={form.student}
+                        onChange={(e) => update("student", e.target.value)}
+                        placeholder="e.g. Priya Menon"
+                        maxLength={80}
+                      />
+                      {errors.student && <p className="text-xs text-destructive">{errors.student}</p>}
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="company">Company *</Label>
+                      <Input
+                        id="company"
+                        value={form.company}
+                        onChange={(e) => update("company", e.target.value)}
+                        placeholder="e.g. Google India"
+                        maxLength={80}
+                      />
+                      {errors.company && <p className="text-xs text-destructive">{errors.company}</p>}
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="role">Role *</Label>
+                      <Input
+                        id="role"
+                        value={form.role}
+                        onChange={(e) => update("role", e.target.value)}
+                        placeholder="e.g. SWE I"
+                        maxLength={80}
+                      />
+                      {errors.role && <p className="text-xs text-destructive">{errors.role}</p>}
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="ctc">CTC *</Label>
+                      <Input
+                        id="ctc"
+                        value={form.ctc}
+                        onChange={(e) => update("ctc", e.target.value)}
+                        placeholder="e.g. 32 LPA"
+                        maxLength={20}
+                      />
+                      {errors.ctc && <p className="text-xs text-destructive">{errors.ctc}</p>}
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="location">Location *</Label>
+                      <Input
+                        id="location"
+                        value={form.location}
+                        onChange={(e) => update("location", e.target.value)}
+                        placeholder="e.g. Bengaluru"
+                        maxLength={40}
+                      />
+                      {errors.location && <p className="text-xs text-destructive">{errors.location}</p>}
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label>Status *</Label>
+                      <Select
+                        value={form.status}
+                        onValueChange={(v) => update("status", v as OfferForm["status"])}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Accepted">Accepted</SelectItem>
+                          <SelectItem value="Pending">Pending</SelectItem>
+                          <SelectItem value="Negotiating">Negotiating</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <DialogFooter className="gap-2">
+                    <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand"
+                    >
+                      Log offer
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
           </>
         }
       />
@@ -114,9 +297,9 @@ const Placements = () => {
               </thead>
               <tbody className="divide-y divide-border/60">
                 {offers.map((o) => (
-                  <tr key={o.student} className="hover:bg-muted/30 transition-colors group">
+                  <tr key={`${o.student}-${o.company}`} className="hover:bg-muted/30 transition-colors group">
                     <td className="py-3">
-                      <Link to={`/placements/${encodeURIComponent(o.student.toLowerCase().replace(/\s+/g, "-"))}`} className="flex items-center gap-3">
+                      <Link to={`/institute/placements/${encodeURIComponent(o.student.toLowerCase().replace(/\s+/g, "-"))}`} className="flex items-center gap-3">
                         <Avatar className="h-9 w-9 border">
                           <AvatarFallback className="bg-primary-soft text-primary text-xs font-semibold">
                             {o.student.split(" ").map((w) => w[0]).join("")}
