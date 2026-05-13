@@ -1,4 +1,4 @@
-import { Building2, Globe, MapPin, GraduationCap, Edit, Award, Users } from "lucide-react";
+import { Building2, Globe, MapPin, GraduationCap, Edit, Award, Users,Mail  } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -85,15 +85,23 @@ export default function InstituteProfileDetails() {
 
       <Card className="p-6 mb-6 border-border/60 shadow-sm bg-gradient-to-br from-primary-soft to-card">
         <div className="flex flex-col md:flex-row gap-6 md:items-center">
-          <div className="h-20 w-20 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-display text-3xl font-bold shadow-brand">G</div>
+         <div className="h-20 w-20 rounded-full overflow-hidden shadow-brand">
+            <img
+              src={profile?.logo||''}
+              alt="profile"
+              className="h-full w-full object-cover"
+            />
+          </div>
           <div className="flex-1">
             <h2 className="font-display text-3xl font-bold text-foreground">{profile?.name||''}</h2>
             <p className="text-muted-foreground mt-1">Empowering students with industry-ready skills since {profile?.established && profile?.established.split('-')?.[0]||""}.</p>
             <div className="flex flex-wrap gap-3 mt-3 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1"><Building2 className="h-4 w-4" /> Higher Education</span>
+              <span className="flex items-center gap-1"><Mail  className="h-4 w-4" />{profile?.email||''}</span>
               <span className="flex items-center gap-1"><Globe className="h-4 w-4" /> {websiteName(profile?.website)}</span>
-              <span className="flex items-center gap-1"><MapPin className="h-4 w-4" /> Bengaluru, India</span>
-              <span className="flex items-center gap-1"><GraduationCap className="h-4 w-4" /> {student?.totalStudents||0}+ students</span>
+              <span className="flex items-center gap-1"><GraduationCap className="h-4 w-4" /> {student?.totalStudents||0} + students</span>
+            </div>
+            <div className="flex flex-wrap gap-3 mt-3 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1"><MapPin className="h-4 w-4" />{profile?.address||''}</span>
             </div>
           </div>
         </div>
@@ -125,6 +133,7 @@ export default function InstituteProfileDetails() {
                 <button
                   onClick={() => setShowAllCourse(!showAllCourse)}
                   className="text-sm text-primary underline ml-2"
+                  style={{color:'#112B5F',fontWeight: '500'}}
                 >
                   {showAllCourse ? "Show Less" : "Read More"}
                 </button>

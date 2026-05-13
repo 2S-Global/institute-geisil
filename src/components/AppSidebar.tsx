@@ -9,6 +9,7 @@ import {
   Building2,
   Settings,
   LogOut,
+  BookOpen 
 } from "lucide-react";
 import {
   Sidebar,
@@ -26,7 +27,9 @@ import {
 
 const main = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { title: "Institute Profile", url: "/institute/institute-profile-details", icon: Building2 },
   { title: "Students", url: "/institute/students", icon: GraduationCap },
+  { title: "Courses", url: "/institute/manage-courses", icon: BookOpen },
   { title: "Recruiters", url: "/institute/recruiters", icon: Briefcase },
   { title: "Evaluations", url: "/institute/evaluations", icon: ClipboardCheck },
   { title: "Placements", url: "/institute/placements", icon: Building2 },
@@ -35,7 +38,6 @@ const main = [
 
 const secondary = [
   { title: "Faculty", url: "/institute/faculty", icon: Users },
-  { title: "Institute Profile", url: "/institute/institute-profile-details", icon: Building2 },
   { title: "Settings", url: "/institute/settings", icon: Settings },
 ];
 

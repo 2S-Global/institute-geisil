@@ -2,16 +2,11 @@ import { useEffect, useState } from "react";
 import api from "@/lib/axios";
 import { Link } from "react-router-dom";
 import {
-  Download,
   Filter,
   Plus,
   Search,
-  GraduationCap,
-  UserCheck,
-  Award,
-  Clock,
-  Upload,
-   Edit, Trash
+   Edit, 
+   Trash
 } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { PageHeader } from "@/components/dashboard/PageHeader";
@@ -24,7 +19,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CoursesFormModal from "@/components/institute/courses/FormModal";
-
+import { useToast } from "@/hooks/use-toast";
 
 const statusStyles: Record<string, string> = {
   Placed: "bg-success/10 text-success border-success/20",
@@ -35,32 +30,38 @@ const statusStyles: Record<string, string> = {
 
 const ManageCourses = () => {
   const [query, setQuery] = useState("");
-  const [importOpen, setImportOpen] = useState(false);
-  const [addStudentOpen, setStudentOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [studentList, setStudentList] = useState([]);
-
-    const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const [refresh, setRefresh] = useState(false);
+  const [list, setList] = useState([]);
+  const [edit, setEdit] = useState({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [refresh, setRefresh] = useState(0);
+  const { toast } = useToast();
   const openModalRH = () => {
+    setEdit({})
     setIsModalOpen(true);
     //document.body.style.overflow = "hidden";
   };
 
+    const openModalEdit = (row) => {
+    setEdit(row);
+    setIsModalOpen(true);
+    //document.body.style.overflow = "hidden"; // Disable background scrolling
+  };
+
   const closeModalRH = () => {
+    setEdit({})
     setIsModalOpen(false);
     //document.body.style.overflow = "auto";
   };
 
   const itemsPerPage = 10;
-  const filtered = studentList?.filter(
+  const filtered = list?.filter(
     (s) =>
-      s.name.toLowerCase().includes(query.toLowerCase()) ||
-      s.programDetails.name.toLowerCase().includes(query.toLowerCase()) 
+      s.name.toLowerCase().includes(query.toLowerCase()) 
+     
   );
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
-  const paginatedStudents = filtered.slice(
+  const paginatedLists = filtered.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage,
   );
@@ -72,11 +73,11 @@ const ManageCourses = () => {
     pending: 0,
   });
 
-    const fetchStudentList = async () => {
+    const fetchList = async () => {
       try {
         const res = await api.get("/api/institute-course/course");
         const data = res?.data?.data||[];
-        setStudentList(data);
+        setList(data);
       } catch (err) {
         console.error("Error fetching stats", err);
       }
@@ -85,26 +86,45 @@ const ManageCourses = () => {
     
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const res = await api.get("/api/institutestudent/get_students_counts");
+    fetchList()
+  }, [refresh]);
 
-        const data = res.data;
+  const handleDelete = async (id) => {
+   
+    try {
+      const response = await api.delete(
+        `/api/institutestudent/delete-custom-course`,
+        {
+          data: { courseId: id }, // ✅ matches backend
+        },
+      );
 
-        setStats({
-          total: data?.totalStudents || 0,
-          placementReady: data?.placement_ready || 0,
-          avgScore: data?.avg_score || 0,
-          pending: data?.pending_eval || 0,
-        });
-      } catch (err) {
-        console.error("Error fetching stats", err);
+      if (response.data.success) {
+        // ✅ OPTION 1 (current way)
+         toast({
+                title: "Success",
+                description: response.data.message,
+            });
+        setRefresh(p=>p+1);
+
+        // ✅ OPTION 2 (better UX ⚡ instant)
+        // setTestimonials(prev => prev.filter(item => item._id !== id));
+
+        //setSuccess(response.data.message);
+       
+      } else {
+        //setError(response.data.message);
+       
       }
-    };
-
-    fetchStats();
-    fetchStudentList()
-  }, []);
+    } catch (err) {
+      //setError(err.response?.data?.message || "Delete failed");
+      toast({
+                title: "Error",
+                description: "Delete failed",
+            });
+     
+    }
+  };
 
   return (
     <DashboardLayout>
@@ -129,7 +149,8 @@ const ManageCourses = () => {
         <CoursesFormModal
           show={isModalOpen}
           onClose={closeModalRH}
-         
+          data={edit}
+          setRefresh={setRefresh}
         />
     
 
@@ -193,16 +214,15 @@ const ManageCourses = () => {
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground border-b border-border/60">
-                  <th className="font-medium py-3">Student</th>
-                  <th className="font-medium py-3">Course</th>
-                  <th className="font-medium py-3">Year</th>
-                  <th className="font-medium py-3 w-[220px]">Employability</th>
-                  <th className="font-medium py-3 ">Status</th>
+                  <th className="font-medium py-3">Course Name</th>
+                  <th className="font-medium py-3">Duration</th>
+                  <th className="font-medium py-3">Exam Type</th>
+                  <th className="font-medium py-3 ">Marks Type</th>
                   <th className="font-medium py-3 ">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60">
-                {paginatedStudents.map((s) => (
+                {paginatedLists.map((s) => (
                   <tr
                     key={s?.id}
                     className="hover:bg-muted/30 transition-colors cursor-pointer group"
@@ -232,31 +252,21 @@ const ManageCourses = () => {
                       </Link>
                     </td>
 
-                    <td className="py-3 text-muted-foreground">{s?.programDetails?.name}</td>
+                    <td className="py-3 text-muted-foreground">{s?.course_durartion}</td>
 
-                    <td className="py-3 text-muted-foreground">{s?.year}</td>
+                    <td className="py-3 text-muted-foreground">{s?.courseStructure}</td>
+                    <td className="py-3 text-muted-foreground">{s?.marksType}</td>
 
-                    <td className="py-3">
-                      <div className="flex items-center gap-3">
-                        <Progress value={s?.score} className="h-1.5 flex-1" />
+                  
 
-                        <span className="text-sm font-semibold text-foreground w-10 text-right">
-                          {s?.score}
-                        </span>
-                      </div>
-                    </td>
-
-                    <td className="py-3 text-right">
-                      <Badge
-                        variant="outline"
-                        className={statusStyles[s?.status]}
-                      >
-                        {s?.status}
-                      </Badge>
-                    </td>
+                   
                     <td className="py-3">
                        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                       <Edit className="h-4 w-4" onClick={()=>alert("ok")}/><Trash className="h-4 w-4" />
+                       <Edit className="h-4 w-4" onClick={()=>openModalEdit(s)}/><Trash className="h-4 w-4"  onClick={() => {
+              if (confirm("Delete this course?")) {
+                handleDelete(s._id);
+              }
+            }}/>
                        </div>
                     </td>
                   </tr>

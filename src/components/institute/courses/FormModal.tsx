@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 
-const FormModal = ({ show, onClose, data = {}, setRefresh = () => {} }) => {
+const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
   const apiurl =  import.meta.env.VITE_API_URL;
 
   const [formData, setFormData] = useState({
@@ -42,7 +42,7 @@ const FormModal = ({ show, onClose, data = {}, setRefresh = () => {} }) => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [err, setErr] = useState({});
-
+  const { toast } = useToast();
 useEffect(() => {
   if (data?._id) {
     const duration = data.course_durartion || "";
@@ -67,6 +67,17 @@ useEffect(() => {
       id: data._id || "",
     });
   }
+  else{
+    setFormData({
+    course_name: "",
+    duration: "",
+    semester: "",
+    id: "",
+    exam_type: "year", // NEW
+    marks_type: "", // NEW
+  })
+  }
+  
 }, [data]);
 
   // ✅ Validation
@@ -157,7 +168,7 @@ const handleChange = (e) => {
       sendformData.append("courseStructure", formData.exam_type); // ✅ FIX
       sendformData.append("marksType", formData.marks_type); // ✅ FIX
 
-      const token = localStorage.getItem("Institute_token");
+
 
       try {
         let response;
@@ -180,10 +191,18 @@ const handleChange = (e) => {
         }
 
         setSuccess(response.data.message);
-        setRefresh(true);
+         toast({
+                title: "Success",
+                description: response.data.message,
+            });
+        setRefresh((p)=>p+1);
         onClose();
       } catch (err) {
         setError(err.response?.data?.message || "Something went wrong");
+            toast({
+                title: "Error",
+                description: "Something went wrong",
+            });
       } finally {
         setLoading(false);
       }
