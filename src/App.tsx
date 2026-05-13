@@ -8,6 +8,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
 import Login from "./pages/Login.tsx";
 import Students from "./pages/Students.tsx";
+import ManageCourses from "./pages/ManageCourses.tsx";
 import StudentDetail from "./pages/StudentDetail.tsx";
 import Recruiters from "./pages/Recruiters.tsx";
 import RecruiterDetail from "./pages/RecruiterDetail.tsx";
@@ -74,6 +75,7 @@ const App = ()=>{
                     <Route path="/settings" element={<Settings />} />
                     <Route path="/institute-profile" element={<InstituteProfile />} />
                     <Route path="/institute-profile-details" element={<InstituteProfileDetails />} />
+                    <Route path="/manage-courses" element={<ManageCourses />} />
                   </Routes>
               </ProtectedRoute>
                } />

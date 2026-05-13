@@ -21,6 +21,8 @@ export default function InstituteProfileDetails() {
    const [loading, setLoading] = useState(false);
    const [profile, setProfile] = useState();
    const [student, setStudent] = useState();
+   const [course, setCourse] = useState();
+   const [showAllCourse, setShowAllCourse] = useState(false);
   
   
   const navigate=useNavigate() 
@@ -45,6 +47,16 @@ export default function InstituteProfileDetails() {
     }
   };
 
+    const courseData = async () => {
+      try {
+        const res = await API.get("/api/institute-course/course");
+        const data = res?.data?.data||[];
+        setCourse(data);
+      } catch (err) {
+        console.error("Error fetching stats", err);
+      }
+    };
+
   const fetchStudentStatus = async () => {
       try {
         const res = await API.get("/api/institutestudent/get_students_counts");
@@ -59,6 +71,7 @@ export default function InstituteProfileDetails() {
    useEffect(() => {
     FetchCompanyDetails();
     fetchStudentStatus();
+    courseData();
   }, []);
 
   return (
@@ -95,11 +108,30 @@ export default function InstituteProfileDetails() {
         </Card>
         <Card className="border-border/60 shadow-sm">
           <CardHeader><CardTitle className="font-display">Programs</CardTitle></CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
-            {["Computer Science", "Electronics", "Mechanical", "MBA", "Data Science", "Design"].map(s => (
-              <Badge key={s} variant="outline" className="bg-primary/10 text-primary border-primary/20">{s}</Badge>
-            ))}
-          </CardContent>
+         
+
+             <CardContent className="flex flex-wrap gap-2">
+              {(showAllCourse ? course : course?.slice(0, 3))?.map((s) => (
+                <Badge
+                  key={s.id}
+                  variant="outline"
+                  className="bg-primary/10 text-primary border-primary/20"
+                >
+                  {s.name}
+                </Badge>
+              ))}
+
+              {course?.length > 3 && (
+                <button
+                  onClick={() => setShowAllCourse(!showAllCourse)}
+                  className="text-sm text-primary underline ml-2"
+                >
+                  {showAllCourse ? "Show Less" : "Read More"}
+                </button>
+              )}
+            </CardContent>
+
+          
         </Card>
       </div>
 

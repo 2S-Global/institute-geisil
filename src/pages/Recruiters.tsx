@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Plus,
@@ -8,6 +8,7 @@ import {
   TrendingUp,
   ExternalLink,
   Mail,
+  ChevronLeft, ChevronRight
 } from "lucide-react";
 import { z } from "zod";
 import { DashboardLayout } from "@/components/DashboardLayout";
@@ -44,57 +45,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-
-const initialRecruiters = [
-  {
-    name: "Tata Consultancy Services",
-    sector: "IT Services",
-    openings: 42,
-    hired: 28,
-    rating: 4.8,
-    status: "Active",
-  },
-  {
-    name: "Infosys Limited",
-    sector: "IT Services",
-    openings: 36,
-    hired: 22,
-    rating: 4.6,
-    status: "Active",
-  },
-  {
-    name: "Deloitte India",
-    sector: "Consulting",
-    openings: 18,
-    hired: 14,
-    rating: 4.7,
-    status: "Reviewing",
-  },
-  {
-    name: "Wipro Technologies",
-    sector: "IT Services",
-    openings: 24,
-    hired: 19,
-    rating: 4.5,
-    status: "Active",
-  },
-  {
-    name: "HDFC Bank",
-    sector: "Banking",
-    openings: 14,
-    hired: 11,
-    rating: 4.4,
-    status: "Closed",
-  },
-  {
-    name: "Accenture",
-    sector: "Consulting",
-    openings: 30,
-    hired: 21,
-    rating: 4.6,
-    status: "Active",
-  },
-];
 
 const statusStyles: Record<string, string> = {
   Active: "bg-success/10 text-success border-success/20",
@@ -138,12 +88,13 @@ const emptyForm: RecruiterForm = {
   status: "Active",
   notes: "",
 };
-
+const ITEMS_PER_PAGE = 3;
 const Recruiters = () => {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
-  const [recruiters, setRecruiters] = useState(initialRecruiters);
+  const [recruiters, setRecruiters] = useState([]);
   const [form, setForm] = useState<RecruiterForm>(emptyForm);
+   const [currentPage, setCurrentPage] = useState(1);
   const [errors, setErrors] = useState<
     Partial<Record<keyof RecruiterForm, string>>
   >({});
@@ -174,7 +125,7 @@ const Recruiters = () => {
     }
     setErrors({});
 
-    setRecruiters((prev) => [
+/*     setRecruiters((prev) => [
       {
         name: result.data.name,
         sector: result.data.sector,
@@ -184,7 +135,7 @@ const Recruiters = () => {
         status: result.data.status,
       },
       ...prev,
-    ]);
+    ]); */
     const payload = {
       companyName: result.data.name,
       sector: result.data.sector,
@@ -215,6 +166,63 @@ const Recruiters = () => {
       });
     }
   };
+
+      const fetchRecruiterList = async () => {
+      try {
+        const res = await API.get("/api/instituteprofile/get_all_companies_by_institute");
+        const data = res?.data?.data||[];
+        setRecruiters(data);
+      } catch (err) {
+        console.error("Error fetching stats", err);
+      }
+    };
+
+
+    useEffect(()=>{
+      fetchRecruiterList()
+    },[recruiters.length])
+
+   const totalPages = Math.ceil(recruiters.length / ITEMS_PER_PAGE);
+
+  // Current page data
+  const paginatedRecruiters = recruiters.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+
+const generatePagination = () => {
+  const pages = [];
+
+  // Always show first page
+  pages.push(1);
+
+  // Left dots
+  if (currentPage > 3) {
+    pages.push("...");
+  }
+
+  // Middle pages
+  for (
+    let i = Math.max(2, currentPage - 1);
+    i <= Math.min(totalPages - 1, currentPage + 1);
+    i++
+  ) {
+    pages.push(i);
+  }
+
+  // Right dots
+  if (currentPage < totalPages - 2) {
+    pages.push("...");
+  }
+
+  // Always show last page
+  if (totalPages > 1) {
+    pages.push(totalPages);
+  }
+return pages
+//return [...new Set(pages)];
+};
 
   return (
     <DashboardLayout>
@@ -299,7 +307,7 @@ const Recruiters = () => {
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label htmlFor="contactName">Primary contact *</Label>
+                    <Label htmlFor="contactName">Contact Person *</Label>
                     <Input
                       id="contactName"
                       value={form.contactName}
@@ -400,7 +408,7 @@ const Recruiters = () => {
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 mb-6">
         <StatCard
           label="Active Recruiters"
-          value={String(180 + recruiters.length - initialRecruiters.length + 4)}
+          value={String(recruiters.length )}
           delta={8}
           icon={Briefcase}
           tint="primary"
@@ -427,18 +435,20 @@ const Recruiters = () => {
           tint="warning"
         />
       </div>
+     
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {recruiters.map((r) => (
+        {paginatedRecruiters?.map((r,i) => (
           <Card
-            key={r.name}
+            key={r?.companyName+i}
             className="shadow-sm hover:shadow-md transition-shadow border-border/60"
           >
+            
             <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
               <div className="flex items-center gap-3 min-w-0">
                 <Avatar className="h-11 w-11 border">
                   <AvatarFallback className="bg-primary-soft text-primary font-semibold">
-                    {r.name
+                    {r?.companyName
                       .split(" ")
                       .map((w) => w[0])
                       .slice(0, 2)
@@ -446,11 +456,11 @@ const Recruiters = () => {
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0">
-                  <CardTitle className="text-base truncate">{r.name}</CardTitle>
+                  <CardTitle className="text-base truncate">{r?.companyName}</CardTitle>
                   <CardDescription>{r.sector}</CardDescription>
                 </div>
               </div>
-              <Badge variant="outline" className={statusStyles[r.status]}>
+              <Badge variant="outline" className={statusStyles[r?.status]}>
                 {r.status}
               </Badge>
             </CardHeader>
@@ -486,7 +496,7 @@ const Recruiters = () => {
                   className="text-primary gap-1"
                 >
                   <Link
-                    to={`/institute/recruiters/${encodeURIComponent(r.name.toLowerCase().replace(/\s+/g, "-"))}`}
+                    to={`/institute/recruiters/${encodeURIComponent(r?.companyName?.toLowerCase()?.replace(/\s+/g, "-"))}`}
                   >
                     View <ExternalLink className="h-3.5 w-3.5" />
                   </Link>
@@ -496,6 +506,58 @@ const Recruiters = () => {
           </Card>
         ))}
       </div>
+      {/* Pagination */}
+       <div className="flex items-center justify-between mt-4">
+          <p className="text-sm text-muted-foreground">
+              Page {currentPage} of {totalPages}
+          </p>
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2">
+              {/* Prev */}
+              <button
+                onClick={() => setCurrentPage((p) => p - 1)}
+                disabled={currentPage === 1}
+                className="flex h-9 w-9 items-center justify-center rounded-lg border disabled:opacity-50"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+
+              {/* Numbers */}
+              {generatePagination().map((page, index) =>
+                page === "..." ? (
+                  <span
+                    key={`dots-${index}`}
+                    className="px-2 text-sm text-gray-500"
+                  >
+                  
+                    ...
+                  </span>
+                ) : (
+                  <button
+                    key={`${page}-${index}`}
+                    onClick={() => setCurrentPage(page)}
+                    className={`h-9 min-w-[36px] rounded-lg border px-3 text-sm transition ${
+                      currentPage === page
+                        ? "bg-black text-white"
+                        : "hover:bg-gray-100"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
+
+              {/* Next */}
+              <button
+                onClick={() => setCurrentPage((p) => p + 1)}
+                disabled={currentPage === totalPages}
+                className="flex h-9 w-9 items-center justify-center rounded-lg border disabled:opacity-50"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+       </div>
     </DashboardLayout>
   );
 };
