@@ -125,14 +125,8 @@ export default function AddStudentDialog({ open, setOpen }) {
 
       try {
         const response = await API.post(
-          `${apiurl}/api/institutestudent/import-candidates`,
+          `/api/institutestudent/import-candidates`,
           formPayload,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "multipart/form-data",
-            },
-          },
         );
 
         if (!response.data.success) throw new Error(response.data.message);
@@ -173,6 +167,10 @@ export default function AddStudentDialog({ open, setOpen }) {
         setMessage_id(Date.now());
       } catch (err) {
         setError(err.response?.data?.message || "Import failed. Try again.");
+         toast({
+              title: "Error",
+              description: 'Import failed. Try again.',
+            });
         setErrorId(Date.now());
       } finally {
         setLoading(false);
@@ -349,7 +347,7 @@ export default function AddStudentDialog({ open, setOpen }) {
           {/* Semester */}
           <div>
             <label className="text-sm font-medium text-gray-700">
-              Exam/Semester
+              Semester/Yearly
             </label>
 
             <select

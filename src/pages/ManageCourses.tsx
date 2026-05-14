@@ -1,13 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "@/lib/axios";
 import { Link } from "react-router-dom";
-import {
-  Filter,
-  Plus,
-  Search,
-   Edit, 
-   Trash
-} from "lucide-react";
+import { Filter, Plus, Search, Edit, Trash } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { StatCard } from "@/components/dashboard/StatCard";
@@ -20,7 +14,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CoursesFormModal from "@/components/institute/courses/FormModal";
 import { useToast } from "@/hooks/use-toast";
-
+import {nameFormate} from "../lib/utils"
 const statusStyles: Record<string, string> = {
   Placed: "bg-success/10 text-success border-success/20",
   "In Process": "bg-accent/10 text-accent border-accent/20",
@@ -37,28 +31,26 @@ const ManageCourses = () => {
   const [refresh, setRefresh] = useState(0);
   const { toast } = useToast();
   const openModalRH = () => {
-    setEdit({})
+    setEdit({});
     setIsModalOpen(true);
     //document.body.style.overflow = "hidden";
   };
 
-    const openModalEdit = (row) => {
+  const openModalEdit = (row) => {
     setEdit(row);
     setIsModalOpen(true);
     //document.body.style.overflow = "hidden"; // Disable background scrolling
   };
 
   const closeModalRH = () => {
-    setEdit({})
+    setEdit({});
     setIsModalOpen(false);
     //document.body.style.overflow = "auto";
   };
 
   const itemsPerPage = 10;
-  const filtered = list?.filter(
-    (s) =>
-      s.name.toLowerCase().includes(query.toLowerCase()) 
-     
+  const filtered = list?.filter((s) =>
+    s.name.toLowerCase().includes(query.toLowerCase()),
   );
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
   const paginatedLists = filtered.slice(
@@ -73,24 +65,21 @@ const ManageCourses = () => {
     pending: 0,
   });
 
-    const fetchList = async () => {
-      try {
-        const res = await api.get("/api/institute-course/course");
-        const data = res?.data?.data||[];
-        setList(data);
-      } catch (err) {
-        console.error("Error fetching stats", err);
-      }
-    };
-
-    
+  const fetchList = async () => {
+    try {
+      const res = await api.get("/api/institute-course/course");
+      const data = res?.data?.data || [];
+      setList(data);
+    } catch (err) {
+      console.error("Error fetching stats", err);
+    }
+  };
 
   useEffect(() => {
-    fetchList()
+    fetchList();
   }, [refresh]);
 
   const handleDelete = async (id) => {
-   
     try {
       const response = await api.delete(
         `/api/institutestudent/delete-custom-course`,
@@ -101,28 +90,25 @@ const ManageCourses = () => {
 
       if (response.data.success) {
         // ✅ OPTION 1 (current way)
-         toast({
-                title: "Success",
-                description: response.data.message,
-            });
-        setRefresh(p=>p+1);
+        toast({
+          title: "Success",
+          description: response.data.message,
+        });
+        setRefresh((p) => p + 1);
 
         // ✅ OPTION 2 (better UX ⚡ instant)
         // setTestimonials(prev => prev.filter(item => item._id !== id));
 
         //setSuccess(response.data.message);
-       
       } else {
         //setError(response.data.message);
-       
       }
     } catch (err) {
       //setError(err.response?.data?.message || "Delete failed");
       toast({
-                title: "Error",
-                description: "Delete failed",
-            });
-     
+        title: "Error",
+        description: "Delete failed",
+      });
     }
   };
 
@@ -136,25 +122,24 @@ const ManageCourses = () => {
           <>
             <Button
               className="gap-2 bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand"
-               onClick={() => openModalRH()}
+              onClick={() => openModalRH()}
             >
               <Plus className="h-4 w-4" /> Add Course
             </Button>
           </>
         }
       />
-     {/*  <ImportModal open={importOpen} setOpen={setImportOpen} />
+      {/*  <ImportModal open={importOpen} setOpen={setImportOpen} />
       <CoursesFormModal show={addStudentOpen} onClose={setStudentOpen} /> */}
-     
-        <CoursesFormModal
-          show={isModalOpen}
-          onClose={closeModalRH}
-          data={edit}
-          setRefresh={setRefresh}
-        />
-    
 
-     {/*  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 mb-6">
+      <CoursesFormModal
+        show={isModalOpen}
+        onClose={closeModalRH}
+        data={edit}
+        setRefresh={setRefresh}
+      />
+
+      {/*  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 mb-6">
         <StatCard
           label="Total Students"
           value={stats.total.toString()}
@@ -191,16 +176,14 @@ const ManageCourses = () => {
       <Card className="shadow-sm border-border/60">
         <CardContent className="p-4 md:p-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
-            <div>
-           
-            </div>
+            <div></div>
             <div className="flex items-center gap-2">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search students…"
+                  placeholder="Search course…"
                   className="pl-9 w-full md:w-72"
                 />
               </div>
@@ -228,15 +211,14 @@ const ManageCourses = () => {
                     className="hover:bg-muted/30 transition-colors cursor-pointer group"
                   >
                     <td className="py-3">
-                      <Link
+                     {/*  <Link
                         to={`/institute/students/${s?._id}`}
                         className="flex items-center gap-3"
-                      >
+                      > */}
+                      <div className="flex items-center gap-3">
                         <Avatar className="h-9 w-9 border">
                           <AvatarFallback className="bg-primary-soft text-primary text-xs font-semibold">
-                            {
-                              s?.name?.charAt(0)?.toUpperCase()
-                            }
+                            {s?.name?.charAt(0)?.toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
 
@@ -249,25 +231,42 @@ const ManageCourses = () => {
                             {s?.id}
                           </p>
                         </div>
-                      </Link>
+                        </div>
+                    {/*   </Link> */}
                     </td>
 
-                    <td className="py-3 text-muted-foreground">{s?.course_durartion}</td>
+                    <td className="py-3 text-muted-foreground">
+                      {s?.course_durartion}
+                    </td>
 
-                    <td className="py-3 text-muted-foreground">{s?.courseStructure}</td>
-                    <td className="py-3 text-muted-foreground">{s?.marksType}</td>
+                    <td className="py-3 text-muted-foreground">
+                      {s?.courseStructure && nameFormate(s?.courseStructure)}
+                    </td>
+                    <td className="py-3 text-muted-foreground">
+                      {s?.marksType && nameFormate(s?.marksType)}
+                    </td>
 
-                  
-
-                   
                     <td className="py-3">
-                       <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                       <Edit className="h-4 w-4" onClick={()=>openModalEdit(s)}/><Trash className="h-4 w-4"  onClick={() => {
-              if (confirm("Delete this course?")) {
-                handleDelete(s._id);
-              }
-            }}/>
-                       </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "10px",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Edit
+                          className="h-4 w-4"
+                          onClick={() => openModalEdit(s)}
+                        />
+                        <Trash
+                          className="h-4 w-4"
+                          onClick={() => {
+                            if (confirm("Delete this course?")) {
+                              handleDelete(s._id);
+                            }
+                          }}
+                        />
+                      </div>
                     </td>
                   </tr>
                 ))}

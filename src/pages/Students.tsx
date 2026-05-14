@@ -24,73 +24,9 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ImportModal from "@/components/student/importModal";
 import StudentModal from "@/components/student/addModal";
+import ImportMarksModal from "@/components/student/importMarksModal";
 
-const students = [
-  {
-    id: "STU-10241",
-    name: "Priya Menon",
-    course: "B.Tech CSE",
-    year: "Final",
-    score: 92,
-    status: "Placed",
-  },
-  {
-    id: "STU-10240",
-    name: "Rohan Verma",
-    course: "MBA Finance",
-    year: "Final",
-    score: 87,
-    status: "In Process",
-  },
-  {
-    id: "STU-10239",
-    name: "Aisha Khan",
-    course: "B.Sc Data Sci.",
-    year: "Pre-Final",
-    score: 81,
-    status: "Evaluated",
-  },
-  {
-    id: "STU-10238",
-    name: "Karthik Iyer",
-    course: "B.Tech ECE",
-    year: "Final",
-    score: 78,
-    status: "In Process",
-  },
-  {
-    id: "STU-10237",
-    name: "Neha Gupta",
-    course: "BBA",
-    year: "Final",
-    score: 74,
-    status: "Placed",
-  },
-  {
-    id: "STU-10236",
-    name: "Arjun Reddy",
-    course: "B.Tech Mech",
-    year: "Final",
-    score: 69,
-    status: "Pending",
-  },
-  {
-    id: "STU-10235",
-    name: "Sara Joseph",
-    course: "M.Sc Stats",
-    year: "Final",
-    score: 88,
-    status: "Placed",
-  },
-  {
-    id: "STU-10234",
-    name: "Vikram Singh",
-    course: "B.Com Hons",
-    year: "Pre-Final",
-    score: 71,
-    status: "Evaluated",
-  },
-];
+
 
 const statusStyles: Record<string, string> = {
   Placed: "bg-success/10 text-success border-success/20",
@@ -102,6 +38,7 @@ const statusStyles: Record<string, string> = {
 const Students = () => {
   const [query, setQuery] = useState("");
   const [importOpen, setImportOpen] = useState(false);
+  const [importMarksOpen, setImportMarksOpen] = useState(false);
   const [addStudentOpen, setStudentOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [studentList, setStudentList] = useState([]);
@@ -173,6 +110,14 @@ const Students = () => {
               <Upload className="h-4 w-4" />
               Import Student
             </Button>
+             <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => setImportMarksOpen(true)}
+            >
+              <Upload className="h-4 w-4" />
+              Import Student Marks
+            </Button>
             <Button variant="outline" className="gap-2"><Download className="h-4 w-4" />Export</Button>
             <Button
               className="gap-2 bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand"
@@ -185,6 +130,7 @@ const Students = () => {
       />
       <ImportModal open={importOpen} setOpen={setImportOpen} />
       <StudentModal open={addStudentOpen} setOpen={setStudentOpen} />
+      <ImportMarksModal open={importMarksOpen} setOpen={setImportMarksOpen} />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 mb-6">
         <StatCard
@@ -271,10 +217,7 @@ const Students = () => {
                       >
                         <Avatar className="h-9 w-9 border">
                           <AvatarFallback className="bg-primary-soft text-primary text-xs font-semibold">
-                            {s.name
-                              .split(" ")
-                              .map((w) => w[0])
-                              .join("")}
+                            {s.name.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
 

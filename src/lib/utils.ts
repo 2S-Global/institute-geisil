@@ -19,3 +19,13 @@ export const DMY = (input) => {
   const day = String(date.getDate()).padStart(2, "0");
   return `${day}-${month}-${year}`;
 };
+
+export function nameFormate(str) {
+  return str
+    .toLowerCase()
+    .split(" ")
+    .map(v =>
+      v.charAt(0).toUpperCase() + v.slice(1)
+    )
+    .join(" ");
+}

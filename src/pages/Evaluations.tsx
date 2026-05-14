@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ClipboardCheck, CheckCircle2, Clock, AlertCircle, Plus, Download } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
+import {nameFormate} from "../lib/utils"
 import {
   Dialog,
   DialogContent,
@@ -23,6 +24,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import api from "@/lib/axios";
 import {
   Select,
   SelectContent,
@@ -57,12 +59,12 @@ const statusStyles: Record<string, string> = {
 };
 
 const evaluationTypes = [
-  "Aptitude + Coding",
-  "Technical",
-  "Case Study",
-  "Group Discussion",
-  "Behavioral",
-  "Domain Knowledge",
+  {key:"Aptitude_Coding",value:"Aptitude + Coding"},
+  {key:"Technical",value:"Technical"},
+  {key:"Case_Study",value:"Case Study"},
+  {key:"Group_Discussion",value:"Group Discussion"},
+  {key:"Behavioral",value:"Behavioral"},
+  {key:"Domain_Knowledge",value:"Domain Knowledge"} 
 ];
 
 const evaluationSchema = z
@@ -73,7 +75,7 @@ const evaluationSchema = z
     status: z.enum(["Completed", "Reviewing", "Pending"]),
     score: z.coerce.number().int().min(0).max(100),
     scheduledDate: z.string().trim().optional().or(z.literal("")),
-    evaluator: z.string().trim().max(80).optional().or(z.literal("")),
+    evaluator: z.string().regex(/^[A-Za-z ]*$/,  "only letters allow").trim().max(80).optional().or(z.literal("")),
     notes: z.string().max(500).optional().or(z.literal("")),
   })
   .refine((d) => d.status === "Pending" || d.score > 0, {
@@ -94,10 +96,14 @@ const emptyForm: EvaluationForm = {
   notes: "",
 };
 
+
+
 const Evaluations = () => {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [evaluations, setEvaluations] = useState(initialEvaluations);
+  const [studentList, setStudentList] = useState([]);
+  const [edit, setEdit] = useState();
   const [form, setForm] = useState<EvaluationForm>(emptyForm);
   const [errors, setErrors] = useState<Partial<Record<keyof EvaluationForm, string>>>({});
 
@@ -105,7 +111,7 @@ const Evaluations = () => {
     setForm((f) => ({ ...f, [key]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
     const result = evaluationSchema.safeParse(form);
     if (!result.success) {
@@ -118,8 +124,8 @@ const Evaluations = () => {
       return;
     }
     setErrors({});
-    const nextId = `EV-${2842 + (evaluations.length - initialEvaluations.length)}`;
-    setEvaluations((prev) => [
+    //const nextId = `EV-${2842 + (evaluations.length - initialEvaluations.length)}`;
+    /* setEvaluations((prev) => [
       {
         id: nextId,
         student: result.data.student,
@@ -129,12 +135,74 @@ const Evaluations = () => {
         date: result.data.status === "Pending" ? "Scheduled" : "Just now",
       },
       ...prev,
-    ]);
-    toast({ title: "Evaluation added", description: `${result.data.student} • ${result.data.type}` });
+    ]); */
+    console.log("result",result.data);
+      let sendData={
+      student_name:result.data.student,
+      role:result.data.rollNo,
+      evaluation_type:result.data.type,
+      status:result.data.status,
+      score:result.data.score,
+      date:result.data.scheduledDate,
+      evaluator_name:result.data.evaluator,
+      notes:result.data.notes
+    }
+
+      let response = "";
+          try {
+            response = await api.post("/api/instituteprofile/add_evaluation",
+              sendData,
+            );
+            console.log(response,'response')
+            if(response?.success){
+                  toast({
+                    title: "success",
+                    description: "Evaluations saved successfully",
+                  });
+            }
+            else{
+              toast({
+                    title: "Error",
+                    description:response?.message ||"",
+                  });
+            }
+          
+            //await fetchRecruiterList();
+            setForm(emptyForm);
+            setOpen(false);
+          } catch (err) {
+            console.log(err.response);
+            toast({
+              title: "Failed",
+              description: "Something went wrong",
+            });
+          }
+
+
+
+
+
+    console.log("sendData",sendData)
+    console.log(response,'response')
+    //toast({ title: "Success", description: `Evaluation added successfully` });
     setForm(emptyForm);
     setOpen(false);
   };
+  const fetchSudentList = async () => {
+    try {
+      const res = await api.get(
+        "/api/institutestudent/institute-student-list",
+      );
+      const data = res?.data?.data || [];
+      setStudentList(data);
+    } catch (err) {
+      console.error("Error fetching stats", err);
+    }
+  };
 
+  useEffect(() => {
+    fetchSudentList();
+  }, []);
   return (
     <DashboardLayout>
       <PageHeader
@@ -161,13 +229,25 @@ const Evaluations = () => {
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-1.5">
                       <Label htmlFor="student">Student name *</Label>
-                      <Input
+                    {/*   <Input
                         id="student"
                         value={form.student}
                         onChange={(e) => update("student", e.target.value)}
                         placeholder="e.g. Priya Menon"
                         maxLength={80}
                       />
+                      {errors.student && <p className="text-xs text-destructive">{errors.student}</p>} */}
+
+                      <Select value={form.student} onValueChange={(v) => update("student", v)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {studentList.map((t) => (
+                            <SelectItem key={t._id} value={t._id}>{nameFormate(t.name)}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       {errors.student && <p className="text-xs text-destructive">{errors.student}</p>}
                     </div>
 
@@ -190,7 +270,7 @@ const Evaluations = () => {
                         </SelectTrigger>
                         <SelectContent>
                           {evaluationTypes.map((t) => (
-                            <SelectItem key={t} value={t}>{t}</SelectItem>
+                            <SelectItem key={t.key} value={t.key}>{t.value}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -247,6 +327,7 @@ const Evaluations = () => {
                         placeholder="Faculty or panelist name"
                         maxLength={80}
                       />
+                      {errors.evaluator && <p className="text-xs text-destructive">{errors.evaluator}</p>}
                     </div>
 
                     <div className="space-y-1.5 md:col-span-2">
@@ -356,6 +437,7 @@ const Evaluations = () => {
                   <th className="font-medium py-3">Type</th>
                   <th className="font-medium py-3 w-[200px]">Score</th>
                   <th className="font-medium py-3">When</th>
+                  <th className="font-medium py-3 text-right">Status</th>
                   <th className="font-medium py-3 text-right">Status</th>
                 </tr>
               </thead>

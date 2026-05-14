@@ -37,10 +37,10 @@ const Settings = () => {
         }
       />
 
-      <Tabs defaultValue="profile" className="space-y-6">
+      <Tabs defaultValue="notifications" className="space-y-6">
         <TabsList>
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="institute">Institute</TabsTrigger>
+        {/*   <TabsTrigger value="profile">Profile</TabsTrigger>
+          <TabsTrigger value="institute">Institute</TabsTrigger> */}
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
           <TabsTrigger value="security">Security</TabsTrigger>
         </TabsList>

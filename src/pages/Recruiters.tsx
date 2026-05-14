@@ -504,11 +504,7 @@ const Recruiters = () => {
               <div className="flex items-center gap-3 min-w-0">
                 <Avatar className="h-11 w-11 border">
                   <AvatarFallback className="bg-primary-soft text-primary font-semibold">
-                    {r?.companyName
-                      .split(" ")
-                      .map((w) => w[0])
-                      .slice(0, 2)
-                      .join("")}
+                    {r?.companyName.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0">
