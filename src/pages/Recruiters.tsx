@@ -1,4 +1,4 @@
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Plus,
@@ -8,7 +8,15 @@ import {
   TrendingUp,
   ExternalLink,
   Mail,
-  ChevronLeft, ChevronRight
+  ChevronLeft,
+  ChevronRight,
+  MessageSquare,
+  User,
+  Phone,
+  Globe,
+  MapPin,
+  Calendar,
+  Copy,
 } from "lucide-react";
 import { z } from "zod";
 import { DashboardLayout } from "@/components/DashboardLayout";
@@ -67,8 +75,19 @@ const recruiterSchema = z.object({
   name: z.string().trim().min(2, "Company name is required").max(120),
   sector: z.string().min(1, "Select a sector"),
   contactName: z.string().trim().min(2, "Contact name is required").max(80),
-  email: z.string().trim().email("Invalid email").max(255),
-  phone: z.string().trim().max(20).optional().or(z.literal("")),
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email is required")
+    .email("Invalid email")
+    .max(255),
+  phone: z
+    .string()
+    .trim()
+    .min(1, "Phone number is required")
+    .regex(/^[0-9]+$/, "Phone number must contain only digits")
+    .min(10, "Phone number must be at least 10 digits")
+    .max(15, "Phone number cannot exceed 15 digits"),
   website: z.string().trim().max(255).optional().or(z.literal("")),
   openings: z.coerce.number().int().min(0).max(10000),
   status: z.enum(["Active", "Reviewing", "Closed"]),
@@ -88,16 +107,18 @@ const emptyForm: RecruiterForm = {
   status: "Active",
   notes: "",
 };
-const ITEMS_PER_PAGE = 3;
+const ITEMS_PER_PAGE = 9;
+
 const Recruiters = () => {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [recruiters, setRecruiters] = useState([]);
   const [form, setForm] = useState<RecruiterForm>(emptyForm);
-   const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
   const [errors, setErrors] = useState<
     Partial<Record<keyof RecruiterForm, string>>
   >({});
+  const [contact, setContact] = useState<Recruiter | null>(null);
 
   const update = <K extends keyof RecruiterForm>(
     key: K,
@@ -109,6 +130,24 @@ const Recruiters = () => {
       ...prev,
       [key]: undefined,
     }));
+  };
+
+  const copy = async (value: string, label: string) => {
+    if (!value) return;
+
+    try {
+      await navigator.clipboard.writeText(value);
+
+      toast({
+        title: `${label} copied`,
+        description: value,
+      });
+    } catch (err) {
+      toast({
+        title: "Copy failed",
+        description: "Unable to copy text",
+      });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -125,7 +164,7 @@ const Recruiters = () => {
     }
     setErrors({});
 
-/*     setRecruiters((prev) => [
+    /*     setRecruiters((prev) => [
       {
         name: result.data.name,
         sector: result.data.sector,
@@ -157,6 +196,7 @@ const Recruiters = () => {
         title: "Recruiter added",
         description: "Recruiter saved successfully",
       });
+      await fetchRecruiterList();
       setForm(emptyForm);
       setOpen(false);
     } catch (err) {
@@ -167,62 +207,62 @@ const Recruiters = () => {
     }
   };
 
-      const fetchRecruiterList = async () => {
-      try {
-        const res = await API.get("/api/instituteprofile/get_all_companies_by_institute");
-        const data = res?.data?.data||[];
-        setRecruiters(data);
-      } catch (err) {
-        console.error("Error fetching stats", err);
-      }
-    };
+  const fetchRecruiterList = async () => {
+    try {
+      const res = await API.get(
+        "/api/instituteprofile/get_all_companies_by_institute",
+      );
+      const data = res?.data?.data || [];
+      setRecruiters(data);
+    } catch (err) {
+      console.error("Error fetching stats", err);
+    }
+  };
 
+  useEffect(() => {
+    fetchRecruiterList();
+  }, [recruiters.length]);
 
-    useEffect(()=>{
-      fetchRecruiterList()
-    },[recruiters.length])
-
-   const totalPages = Math.ceil(recruiters.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(recruiters.length / ITEMS_PER_PAGE);
 
   // Current page data
   const paginatedRecruiters = recruiters.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
 
+  const generatePagination = () => {
+    const pages = [];
 
-const generatePagination = () => {
-  const pages = [];
+    // Always show first page
+    pages.push(1);
 
-  // Always show first page
-  pages.push(1);
+    // Left dots
+    if (currentPage > 3) {
+      pages.push("...");
+    }
 
-  // Left dots
-  if (currentPage > 3) {
-    pages.push("...");
-  }
+    // Middle pages
+    for (
+      let i = Math.max(2, currentPage - 1);
+      i <= Math.min(totalPages - 1, currentPage + 1);
+      i++
+    ) {
+      pages.push(i);
+    }
 
-  // Middle pages
-  for (
-    let i = Math.max(2, currentPage - 1);
-    i <= Math.min(totalPages - 1, currentPage + 1);
-    i++
-  ) {
-    pages.push(i);
-  }
+    // Right dots
+    if (currentPage < totalPages - 2) {
+      pages.push("...");
+    }
 
-  // Right dots
-  if (currentPage < totalPages - 2) {
-    pages.push("...");
-  }
-
-  // Always show last page
-  if (totalPages > 1) {
-    pages.push(totalPages);
-  }
-return pages
-//return [...new Set(pages)];
-};
+    // Always show last page
+    if (totalPages > 1) {
+      pages.push(totalPages);
+    }
+    return pages;
+    //return [...new Set(pages)];
+  };
 
   return (
     <DashboardLayout>
@@ -308,13 +348,22 @@ return pages
 
                   <div className="space-y-1.5">
                     <Label htmlFor="contactName">Contact Person *</Label>
+
                     <Input
                       id="contactName"
                       value={form.contactName}
-                      onChange={(e) => update("contactName", e.target.value)}
+                      onChange={(e) => {
+                        const value = e.target.value;
+
+                        // Only alphabets and spaces allowed
+                        if (/^[A-Za-z\s]*$/.test(value)) {
+                          update("contactName", value);
+                        }
+                      }}
                       placeholder="Full name"
                       maxLength={80}
                     />
+
                     {errors.contactName && (
                       <p className="text-xs text-destructive">
                         {errors.contactName}
@@ -326,7 +375,7 @@ return pages
                     <Label htmlFor="email">Email *</Label>
                     <Input
                       id="email"
-                      type="email"
+                      type="text"
                       value={form.email}
                       onChange={(e) => update("email", e.target.value)}
                       placeholder="hr@company.com"
@@ -342,10 +391,19 @@ return pages
                     <Input
                       id="phone"
                       value={form.phone}
-                      onChange={(e) => update("phone", e.target.value)}
-                      placeholder="+91 98765 43210"
-                      maxLength={20}
+                      onChange={(e) => {
+                        const value = e.target.value;
+
+                        if (/^\d*$/.test(value)) {
+                          update("phone", value);
+                        }
+                      }}
+                      placeholder="9876543210"
+                      maxLength={10}
                     />
+                    {errors.phone && (
+                      <p className="text-xs text-destructive">{errors.phone}</p>
+                    )}
                   </div>
 
                   <div className="space-y-1.5">
@@ -408,7 +466,7 @@ return pages
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 mb-6">
         <StatCard
           label="Active Recruiters"
-          value={String(recruiters.length )}
+          value={String(recruiters.length)}
           delta={8}
           icon={Briefcase}
           tint="primary"
@@ -435,15 +493,13 @@ return pages
           tint="warning"
         />
       </div>
-     
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {paginatedRecruiters?.map((r,i) => (
+        {paginatedRecruiters?.map((r, i) => (
           <Card
-            key={r?.companyName+i}
+            key={r?.companyName + i}
             className="shadow-sm hover:shadow-md transition-shadow border-border/60"
           >
-            
             <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
               <div className="flex items-center gap-3 min-w-0">
                 <Avatar className="h-11 w-11 border">
@@ -456,7 +512,9 @@ return pages
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0">
-                  <CardTitle className="text-base truncate">{r?.companyName}</CardTitle>
+                  <CardTitle className="text-base truncate">
+                    {r?.companyName}
+                  </CardTitle>
                   <CardDescription>{r.sector}</CardDescription>
                 </div>
               </div>
@@ -486,7 +544,12 @@ return pages
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" className="flex-1 gap-1.5">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 gap-1.5"
+                  onClick={() => setContact(r)}
+                >
                   <Mail className="h-3.5 w-3.5" /> Contact
                 </Button>
                 <Button
@@ -507,57 +570,177 @@ return pages
         ))}
       </div>
       {/* Pagination */}
-       <div className="flex items-center justify-between mt-4">
-          <p className="text-sm text-muted-foreground">
-              Page {currentPage} of {totalPages}
-          </p>
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2">
-              {/* Prev */}
-              <button
-                onClick={() => setCurrentPage((p) => p - 1)}
-                disabled={currentPage === 1}
-                className="flex h-9 w-9 items-center justify-center rounded-lg border disabled:opacity-50"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
+      <div className="flex items-center justify-between mt-4">
+        <p className="text-sm text-muted-foreground">
+          Page {currentPage} of {totalPages}
+        </p>
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2">
+            {/* Prev */}
+            <button
+              onClick={() => setCurrentPage((p) => p - 1)}
+              disabled={currentPage === 1}
+              className="flex h-9 w-9 items-center justify-center rounded-lg border disabled:opacity-50"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
 
-              {/* Numbers */}
-              {generatePagination().map((page, index) =>
-                page === "..." ? (
-                  <span
-                    key={`dots-${index}`}
-                    className="px-2 text-sm text-gray-500"
-                  >
-                  
-                    ...
-                  </span>
-                ) : (
-                  <button
-                    key={`${page}-${index}`}
-                    onClick={() => setCurrentPage(page)}
-                    className={`h-9 min-w-[36px] rounded-lg border px-3 text-sm transition ${
-                      currentPage === page
-                        ? "bg-black text-white"
-                        : "hover:bg-gray-100"
-                    }`}
-                  >
-                    {page}
-                  </button>
-                )
-              )}
+            {/* Numbers */}
+            {generatePagination().map((page, index) =>
+              page === "..." ? (
+                <span
+                  key={`dots-${index}`}
+                  className="px-2 text-sm text-gray-500"
+                >
+                  ...
+                </span>
+              ) : (
+                <button
+                  key={`${page}-${index}`}
+                  onClick={() => setCurrentPage(page)}
+                  className={`h-9 min-w-[36px] rounded-lg border px-3 text-sm transition ${
+                    currentPage === page
+                      ? "bg-black text-white"
+                      : "hover:bg-gray-100"
+                  }`}
+                >
+                  {page}
+                </button>
+              ),
+            )}
 
-              {/* Next */}
-              <button
-                onClick={() => setCurrentPage((p) => p + 1)}
-                disabled={currentPage === totalPages}
-                className="flex h-9 w-9 items-center justify-center rounded-lg border disabled:opacity-50"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
+            {/* Next */}
+            <button
+              onClick={() => setCurrentPage((p) => p + 1)}
+              disabled={currentPage === totalPages}
+              className="flex h-9 w-9 items-center justify-center rounded-lg border disabled:opacity-50"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+      </div>
+
+      <Dialog open={!!contact} onOpenChange={(o) => !o && setContact(null)}>
+        <DialogContent className="sm:max-w-[560px] p-0 overflow-hidden">
+          {contact && (
+            <>
+              <div className="h-20 bg-gradient-to-r from-primary to-[hsl(var(--primary-hover))]" />
+              <div className="px-6 pb-6 -mt-10">
+                <div className="flex items-end gap-4">
+                  <Avatar className="h-20 w-20 border-4 border-card shadow-md">
+                    <AvatarFallback className="bg-primary-soft text-primary font-display font-bold text-2xl">
+                      {contact.companyName
+                        .split(" ")
+                        .map((w) => w[0])
+                        .slice(0, 2)
+                        .join("")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0 pb-1">
+                    <DialogHeader className="text-left space-y-0">
+                      <DialogTitle className="font-display text-xl truncate">
+                        {contact.companyName}
+                      </DialogTitle>
+                      <DialogDescription className="text-xs">
+                        {contact.sector}
+                      </DialogDescription>
+                    </DialogHeader>
+                  </div>
+                  <Badge
+                    variant="outline"
+                    className={statusStyles[contact.status]}
+                  >
+                    {contact.status}
+                  </Badge>
+                </div>
+
+                <div className="mt-5 rounded-lg border border-border/60 bg-muted/30 p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-primary-soft flex items-center justify-center">
+                      <User className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-semibold text-foreground truncate">
+                        {contact.primaryContact}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {contact.role}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 space-y-1">
+                  {[
+                    {
+                      icon: Mail,
+                      label: "Email",
+                      value: contact.email,
+                      copyable: true,
+                    },
+                    {
+                      icon: Phone,
+                      label: "Phone",
+                      value: contact.phone,
+                      copyable: true,
+                    },
+                    {
+                      icon: Globe,
+                      label: "Website",
+                      value: contact.website,
+                      copyable: true,
+                    },
+                  ].map((row) => (
+                    <div
+                      key={row.label}
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-muted/50 transition-colors group"
+                    >
+                      <row.icon className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-muted-foreground">
+                          {row.label}
+                        </p>
+                        <p className="text-sm text-foreground truncate">
+                          {row.value}
+                        </p>
+                      </div>
+                      {row.copyable && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => copy(row.value, row.label)}
+                        >
+                          <Copy className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <DialogFooter className="mt-5 gap-2 sm:gap-2">
+                  <Button variant="outline" className="gap-2 flex-1" asChild>
+                    <a href={`mailto:${contact.email}`}>
+                      <Mail className="h-4 w-4" /> Email
+                    </a>
+                  </Button>
+                  <Button
+                    className="gap-2 flex-1 bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand"
+                    asChild
+                  >
+                    <Link
+                      to={`/institute/recruiters/${encodeURIComponent(contact.companyName.toLowerCase().replace(/\s+/g, "-"))}`}
+                    >
+                      <MessageSquare className="h-4 w-4" /> Open profile
+                    </Link>
+                  </Button>
+                </DialogFooter>
+              </div>
+            </>
           )}
-       </div>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };
