@@ -193,73 +193,71 @@ const ManageCourses = () => {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="w-full overflow-x-auto rounded-xl border border-border/60">
+            <table className="w-full min-w-[700px] text-sm text-center">
               <thead>
-                <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground border-b border-border/60">
-                  <th className="font-medium py-3">Course Name</th>
-                  <th className="font-medium py-3">Duration</th>
-                  <th className="font-medium py-3">Exam Type</th>
-                  <th className="font-medium py-3 ">Marks Type</th>
-                  <th className="font-medium py-3 ">Action</th>
+                <tr className="border-b border-border/60 text-xs uppercase tracking-wider text-muted-foreground">
+                  <th className="font-medium py-3 px-4 text-center">
+                    Course Name
+                  </th>
+                  <th className="font-medium py-3 px-4 text-center">
+                    Duration
+                  </th>
+                  <th className="font-medium py-3 px-4 text-center">
+                    Exam Type
+                  </th>
+                  <th className="font-medium py-3 px-4 text-center">
+                    Marks Type
+                  </th>
+                  <th className="font-medium py-3 px-4 text-center">Action</th>
                 </tr>
               </thead>
+
               <tbody className="divide-y divide-border/60">
                 {paginatedLists.map((s) => (
                   <tr
                     key={s?.id}
-                    className="hover:bg-muted/30 transition-colors cursor-pointer group"
+                    className="hover:bg-muted/30 transition-colors group"
                   >
-                    <td className="py-3">
-                     {/*  <Link
-                        to={`/institute/students/${s?._id}`}
-                        className="flex items-center gap-3"
-                      > */}
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-9 w-9 border">
-                          <AvatarFallback className="bg-primary-soft text-primary text-xs font-semibold">
-                            {s?.name?.charAt(0)?.toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-
-                        <div>
-                          <p className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                            {s?.name}
+                    <td className="py-4 px-4">
+                      <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                        <div className="text-center sm:text-left max-w-[260px]">
+                          <p className="font-semibold text-foreground group-hover:text-primary transition-colors truncate">
+                            {s?.name?.length > 35
+                              ? `${s?.name?.slice(0, 35)}...`
+                              : s?.name}
                           </p>
 
-                          <p className="text-xs text-muted-foreground">
-                            {s?.id}
+                          <p className="text-xs text-muted-foreground truncate">
+                            {s?.id?.length > 25
+                              ? `${s?.id?.slice(0, 25)}...`
+                              : s?.id}
                           </p>
                         </div>
-                        </div>
-                    {/*   </Link> */}
+                      </div>
                     </td>
 
-                    <td className="py-3 text-muted-foreground">
+                    <td className="py-4 px-4 text-muted-foreground text-center">
                       {s?.course_durartion}
                     </td>
 
-                    <td className="py-3 text-muted-foreground">
+                    <td className="py-4 px-4 text-muted-foreground text-center">
                       {s?.courseStructure && nameFormate(s?.courseStructure)}
                     </td>
-                    <td className="py-3 text-muted-foreground">
+
+                    <td className="py-4 px-4 text-muted-foreground text-center uppercase">
                       {s?.marksType && nameFormate(s?.marksType)}
                     </td>
 
-                    <td className="py-3">
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: "10px",
-                          alignItems: "center",
-                        }}
-                      >
+                    <td className="py-4 px-4">
+                      <div className="flex items-center justify-center gap-4">
                         <Edit
-                          className="h-4 w-4"
+                          className="h-4 w-4 cursor-pointer"
                           onClick={() => openModalEdit(s)}
                         />
+
                         <Trash
-                          className="h-4 w-4"
+                          className="h-4 w-4 cursor-pointer"
                           onClick={() => {
                             if (confirm("Delete this course?")) {
                               handleDelete(s._id);
