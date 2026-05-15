@@ -26,8 +26,6 @@ import ImportModal from "@/components/student/importModal";
 import StudentModal from "@/components/student/addModal";
 import ImportMarksModal from "@/components/student/importMarksModal";
 
-
-
 const statusStyles: Record<string, string> = {
   Placed: "bg-success/10 text-success border-success/20",
   "In Process": "bg-accent/10 text-accent border-accent/20",
@@ -47,7 +45,7 @@ const Students = () => {
   const filtered = studentList?.filter(
     (s) =>
       s.name.toLowerCase().includes(query.toLowerCase()) ||
-      s.programDetails.name.toLowerCase().includes(query.toLowerCase()) 
+      s.programDetails.name.toLowerCase().includes(query.toLowerCase()),
   );
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
   const paginatedStudents = filtered.slice(
@@ -62,15 +60,17 @@ const Students = () => {
     pending: 0,
   });
 
-    const fetchStudentList = async () => {
-      try {
-        const res = await api.get("/api/institutestudent/institute-student-list-by-placement-ready");
-        const data = res?.data?.data||[];
-        setStudentList(data);
-      } catch (err) {
-        console.error("Error fetching stats", err);
-      }
-    };
+  const fetchStudentList = async () => {
+    try {
+      const res = await api.get(
+        "/api/institutestudent/institute-student-list-by-placement-ready",
+      );
+      const data = res?.data?.data || [];
+      setStudentList(data);
+    } catch (err) {
+      console.error("Error fetching stats", err);
+    }
+  };
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -91,7 +91,7 @@ const Students = () => {
     };
 
     fetchStats();
-    fetchStudentList()
+    fetchStudentList();
   }, []);
 
   return (
@@ -99,7 +99,6 @@ const Students = () => {
       <PageHeader
         eyebrow="Workspace"
         title="Students"
-        description="Track enrolment, evaluation progress and placement readiness across all cohorts."
         actions={
           <>
             <Button
@@ -110,7 +109,7 @@ const Students = () => {
               <Upload className="h-4 w-4" />
               Import Student
             </Button>
-             <Button
+            <Button
               variant="outline"
               className="gap-2"
               onClick={() => setImportMarksOpen(true)}
@@ -118,7 +117,10 @@ const Students = () => {
               <Upload className="h-4 w-4" />
               Import Student Marks
             </Button>
-            <Button variant="outline" className="gap-2"><Download className="h-4 w-4" />Export</Button>
+            <Button variant="outline" className="gap-2">
+              <Download className="h-4 w-4" />
+              Export
+            </Button>
             <Button
               className="gap-2 bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand"
               onClick={() => setStudentOpen(true)}
@@ -193,61 +195,77 @@ const Students = () => {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground border-b border-border/60">
-                  <th className="font-medium py-3">Student</th>
-                  <th className="font-medium py-3">Course</th>
-                  <th className="font-medium py-3">Year</th>
-                  <th className="font-medium py-3 w-[220px]">Employability</th>
-                  <th className="font-medium py-3 text-right">Status</th>
+          <div className="w-full overflow-x-auto rounded-xl border border-border/50">
+            <table className="w-full min-w-[760px] text-sm">
+              <thead className="bg-muted/40">
+                <tr className="text-center text-xs uppercase tracking-wider text-muted-foreground border-b border-border/60">
+                  <th className="font-medium py-3 px-4 whitespace-nowrap">
+                    Student
+                  </th>
+
+                  <th className="font-medium py-3 px-4 whitespace-nowrap">
+                    Course
+                  </th>
+
+                  <th className="font-medium py-3 px-4 whitespace-nowrap">
+                    Gender
+                  </th>
+
+                  <th className="font-medium py-3 px-4 min-w-[220px] whitespace-nowrap">
+                    Employability
+                  </th>
+
+                  <th className="font-medium py-3 px-4 whitespace-nowrap">
+                    Status
+                  </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border/60">
+
+              <tbody className="divide-y divide-border/60 text-center">
                 {paginatedStudents.map((s) => (
                   <tr
                     key={s.id}
                     className="hover:bg-muted/30 transition-colors cursor-pointer group"
                   >
-                    <td className="py-3">
+                    <td className="py-4 px-4">
                       <Link
                         to={`/institute/students/${s._id}`}
-                        className="flex items-center gap-3"
+                        className="flex flex-col items-center justify-center"
                       >
-                        <Avatar className="h-9 w-9 border">
-                          <AvatarFallback className="bg-primary-soft text-primary text-xs font-semibold">
-                            {s.name.charAt(0)}
-                          </AvatarFallback>
-                        </Avatar>
-
-                        <div>
-                          <p className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                        <div className="min-w-0">
+                          <p className="font-semibold text-foreground uppercase group-hover:text-primary transition-colors truncate">
                             {s.name}
                           </p>
 
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs text-muted-foreground truncate">
                             {s.id}
                           </p>
                         </div>
                       </Link>
                     </td>
 
-                    <td className="py-3 text-muted-foreground">{s.programDetails.name}</td>
+                    <td className="py-4 px-4 text-muted-foreground whitespace-nowrap">
+                      {s.programDetails.name}
+                    </td>
 
-                    <td className="py-3 text-muted-foreground">{s.year}</td>
+                    <td className="py-4 px-4 text-muted-foreground uppercase whitespace-nowrap">
+                      {s.gender}
+                    </td>
 
-                    <td className="py-3">
-                      <div className="flex items-center gap-3">
-                        <Progress value={s.score} className="h-1.5 flex-1" />
+                    <td className="py-4 px-4">
+                      <div className="flex items-center justify-center gap-3 min-w-[180px]">
+                        <Progress
+                          value={s.score}
+                          className="h-1.5 flex-1 max-w-[120px]"
+                        />
 
-                        <span className="text-sm font-semibold text-foreground w-10 text-right">
+                        <span className="text-sm font-semibold text-foreground w-10 text-right shrink-0">
                           {s.score}
                         </span>
                       </div>
                     </td>
 
-                    <td className="py-3 text-right">
+                    <td className="py-4 px-4 whitespace-nowrap">
                       <Badge
                         variant="outline"
                         className={statusStyles[s.status]}
