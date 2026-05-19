@@ -176,9 +176,9 @@ const StudentVerification = () => {
                   <Trash
                     className="h-4 w-4 cursor-pointer hover:text-red-500"
                     onClick={() => {
-                      if (confirm("Delete this course?")) {
+                      /* if (confirm("Delete this course?")) {
                         handleDelete(s._id);
-                      }
+                      } */
                     }}
                   />
                 </div>
