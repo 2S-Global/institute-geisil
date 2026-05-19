@@ -81,6 +81,7 @@ const recruiterSchema = z.object({
     .min(1, "Email is required")
     .email("Invalid email")
     .max(255),
+  address: z.string().trim().min(2, "Address is required").max(255),
   phone: z
     .string()
     .trim()
@@ -101,6 +102,7 @@ const emptyForm: RecruiterForm = {
   sector: "",
   contactName: "",
   email: "",
+  address: "",
   phone: "",
   website: "",
   openings: 0,
@@ -180,6 +182,7 @@ const Recruiters = () => {
       sector: result.data.sector,
       primaryContact: result.data.contactName,
       email: result.data.email,
+      address: result.data.address,
       phone: result.data.phone,
       website: result.data.website,
       notes: result.data.notes,
@@ -428,6 +431,19 @@ const Recruiters = () => {
                     />
                     {errors.openings && <p className="text-xs text-destructive">{errors.openings}</p>}
                   </div> */}
+
+                  <div className="space-y-1.5 md:col-span-2">
+                    <Label htmlFor="address">Address </Label>
+
+                    <Textarea
+                      id="address"
+                      value={form.address}
+                      onChange={(e) => update("address", e.target.value)}
+                      placeholder="Enter company address"
+                      maxLength={255}
+                      rows={3}
+                    />
+                  </div>
 
                   <div className="space-y-1.5 md:col-span-2">
                     <Label htmlFor="notes">Notes</Label>
