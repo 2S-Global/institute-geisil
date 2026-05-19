@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Mail, Phone, Users, BookOpen, Award } from "lucide-react";
+import { Plus, Mail, Phone, Users, BookOpen, Award,  ChevronLeft,
+  ChevronRight, } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { StatCard } from "@/components/dashboard/StatCard";
@@ -12,55 +13,306 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { Textarea } from "@/components/ui/textarea";
+import api from "@/lib/axios";
+import Select from "react-select";
+import CreatableSelect from "react-select/creatable";
+import { z } from "zod";
+const ITEMS_PER_PAGE = 9;
+const facultySchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, "Full name is required")
+     .regex(
+      /^[A-Za-z\s.]+$/,
+      "Only alphabets are allowed"
+    )
+    .max(120),
+   phone: z
+    .string()
+    .trim()
+    .min(1, "Phone number is required")
+    .regex(/^[0-9]+$/, "Phone number must contain only digits")
+    .min(10, "Phone number must be at least 10 digits")
+    .max(10, "Phone number cannot exceed 10 digits"),
 
-interface FacultyItem {
-  name: string;
-  role: string;
-  dept: string;
-  email: string;
-  students: number;
-  courses: number;
-}
+  role: z
+    .string()
+    .trim()
+    .min(2, "Role is required")
+    .regex(
+      /^[A-Za-z\s.]+$/,
+      "Only alphabets are allowed"
+    )
+    .max(120),
 
-const initialFaculty: FacultyItem[] = [
-  { name: "Dr. A. Sharma", role: "Head — Placements", dept: "Administration", email: "a.sharma@geisil.in", students: 412, courses: 4 },
-  { name: "Prof. R. Iyer", role: "Faculty Coordinator", dept: "Engineering", email: "r.iyer@geisil.in", students: 286, courses: 3 },
-  { name: "Dr. M. Banerjee", role: "Senior Evaluator", dept: "Management", email: "m.banerjee@geisil.in", students: 198, courses: 5 },
-  { name: "Prof. S. Patel", role: "Faculty Coordinator", dept: "Sciences", email: "s.patel@geisil.in", students: 224, courses: 3 },
-  { name: "Dr. K. Nair", role: "Industry Mentor", dept: "Engineering", email: "k.nair@geisil.in", students: 156, courses: 2 },
-  { name: "Prof. L. Das", role: "Faculty Coordinator", dept: "Commerce", email: "l.das@geisil.in", students: 174, courses: 4 },
-];
+  dept: z
+    .string()
+    .trim()
+    .min(2, "Department is required")
+    .regex(
+      /^[A-Za-z\s.]+$/,
+      "Only alphabets are allowed"
+    )
+    .max(120),
+
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email is required")
+    .email("Invalid email")
+    .max(255),
+
+  students: z.string().optional(),
+
+  courses: z
+    .array(
+      z.object({
+        value: z.string(),
+        label: z.string(),
+      })
+    )
+    .min(1, "Select at least one course"),
+
+  experties: z
+    .array(
+      z.object({
+        value: z.string(),
+        label: z.string(),
+      })
+    )
+    .optional(),
+
+  about: z
+    .string()
+    .max(500, "About cannot exceed 500 characters")
+    .optional()
+    .or(z.literal("")),
+
+  recognitions: z
+    .string()
+    .max(500, "Recognitions cannot exceed 500 characters")
+    .optional()
+    .or(z.literal("")),
+});
+
 
 const Faculty = () => {
   const { toast } = useToast();
-  const [facultyList, setFacultyList] = useState<FacultyItem[]>(initialFaculty);
-  const [open, setOpen] = useState(false);
 
+  const [facultyList, setFacultyList] =useState([]);
+
+  const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [role, setRole] = useState("");
   const [dept, setDept] = useState("");
   const [email, setEmail] = useState("");
   const [students, setStudents] = useState("");
-  const [courses, setCourses] = useState("");
+  const [phone, setPhone] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [courses, setCourses] = useState([]);
+  const [courseSelected, setCourseSelected] = useState([]);
+
+  const [expertiesOptions, setExpertiesOptions] =
+    useState([]);
+
+  const [expertieSelected, setExpertieSelected] =
+    useState([]);
+
+  const [about, setAbout] = useState("");
+  const [recognitions, setRecognitions] =
+    useState("");
+
+  const [errors, setErrors] = useState<any>({});
+    const [currentPage, setCurrentPage] = useState(1);
+
+  const clearFieldError = (field: string) => {
+    setErrors((prev) => ({
+      ...prev,
+      [field]: undefined,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !role.trim() || !dept.trim() || !email.trim()) {
-      toast({ title: "Missing info", description: "Name, role, department and email are required.", variant: "destructive" });
+
+    const formData = {
+      name,
+      role,
+      dept,
+      email,
+      students,
+      courses: courseSelected,
+      experties: expertieSelected,
+      about,
+      recognitions,
+      phone
+    };
+
+    const result = facultySchema.safeParse(formData);
+
+    if (!result.success) {
+      const fieldErrors =
+        result.error.flatten().fieldErrors;
+
+      setErrors(fieldErrors);
+
+     /*  toast({
+        title: "Validation Error",
+        description: "Please fix the form errors.",
+        variant: "destructive",
+      }); */
+
       return;
     }
-    const newFaculty: FacultyItem = {
-      name: name.trim(),
-      role: role.trim(),
-      dept: dept.trim(),
-      email: email.trim(),
-      students: Number(students) || 0,
-      courses: Number(courses) || 0,
-    };
-    setFacultyList((prev) => [newFaculty, ...prev]);
-    toast({ title: "Faculty added", description: `${newFaculty.name} has been added.` });
+    setErrors({});
+
+    const courseOptions=courseSelected.map((item)=>item.value)
+    const expertieOptions=expertieSelected.map((item)=>item.value)
+    
+
+    const sendData={
+      full_name:name,
+      role:role,
+      department:dept,
+      phone_number:phone,
+      email:email,
+      student_count:0,
+      course_count:0,
+      about:about,
+      area_of_experties:expertieOptions,
+      courses_name:courseOptions,
+      recognitions
+    }
+
+ 
+
+   const res = await api.post(
+        "/api/instituteprofile/add_faculty",
+        sendData
+      );
+ console.log("result",res);
+if(res){
+  toast({
+      title: "Faculty added",
+      description: `${name} has been added.`,
+    });
+    fetchFacultyList()
+}
+
+    
+
     setOpen(false);
-    setName(""); setRole(""); setDept(""); setEmail(""); setStudents(""); setCourses("");
+
+    setName("");
+    setRole("");
+    setDept("");
+    setEmail("");
+    setStudents("");
+    setCourseSelected([]);
+    setExpertieSelected([]);
+    setAbout("");
+    setRecognitions("");
+    setPhone("")
+
+    console.log(
+      name,
+      expertieSelected,
+      courseSelected
+    );
+  };
+
+  const handleCreate = (inputValue) => {
+    const newOption = {
+      value: inputValue.toLowerCase(),
+      label: inputValue,
+    };
+
+    setExpertiesOptions((prev) => [
+      ...prev,
+      newOption,
+    ]);
+
+    setExpertieSelected((prev) => [
+      ...prev,
+      newOption,
+    ]);
+  };
+
+ 
+
+  const fetchCourseList = async () => {
+    try {
+      const res = await api.get(
+        "/api/institute-course/course"
+      );
+      const data = res?.data?.data || [];
+      const options=data.map((item)=>({'value':item._id,'label':item.name}))
+      setCourses(options);
+    } catch (err) {
+      console.error("Error fetching data", err);
+    }
+  };
+
+
+  const fetchFacultyList = async () => {
+    try {
+      const res = await api.get(
+        "/api/instituteprofile/get_faculty"
+      );
+      const data = res?.data?.data || [];
+      setFacultyList(data);
+    } catch (err) {
+      console.error("Error fetching data", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchCourseList();
+    fetchFacultyList();
+  }, []);
+
+
+  const totalPages = Math.ceil(facultyList.length / ITEMS_PER_PAGE);
+
+  // Current page data
+  const paginatedFaculty = facultyList.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE,
+  );
+
+  const generatePagination = () => {
+    const pages = [];
+
+    // Always show first page
+    pages.push(1);
+
+    // Left dots
+    if (currentPage > 3) {
+      pages.push("...");
+    }
+
+    // Middle pages
+    for (
+      let i = Math.max(2, currentPage - 1);
+      i <= Math.min(totalPages - 1, currentPage + 1);
+      i++
+    ) {
+      pages.push(i);
+    }
+
+    // Right dots
+    if (currentPage < totalPages - 2) {
+      pages.push("...");
+    }
+
+    // Always show last page
+    if (totalPages > 1) {
+      pages.push(totalPages);
+    }
+    return pages;
+    //return [...new Set(pages)];
   };
 
   return (
@@ -74,104 +326,439 @@ const Faculty = () => {
             className="gap-2 bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand"
             onClick={() => setOpen(true)}
           >
-            <Plus className="h-4 w-4" /> Add faculty
+            <Plus className="h-4 w-4" />
+            Add faculty
           </Button>
         }
       />
 
       <div className="grid gap-4 md:grid-cols-3 mb-6">
-        <StatCard label="Total Faculty" value="48" delta={4} icon={Users} tint="primary" />
-        <StatCard label="Courses Covered" value="62" delta={6} icon={BookOpen} tint="accent" />
-        <StatCard label="Avg. Student Rating" value="4.6/5" delta={2} icon={Award} tint="success" />
+        <StatCard
+          label="Total Faculty"
+          value="48"
+          delta={4}
+          icon={Users}
+          tint="primary"
+        />
+
+        <StatCard
+          label="Courses Covered"
+          value="62"
+          delta={6}
+          icon={BookOpen}
+          tint="accent"
+        />
+
+        <StatCard
+          label="Avg. Student Rating"
+          value="4.6/5"
+          delta={2}
+          icon={Award}
+          tint="success"
+        />
       </div>
+     
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {facultyList.map((f) => (
-          <Card key={f.name} className="shadow-sm hover:shadow-md transition-shadow border-border/60">
+        {paginatedFaculty?.map((f,i) => (
+          <Card
+           key={f?.full_name + i}
+            className="shadow-sm hover:shadow-md transition-shadow border-border/60"
+          >
             <CardHeader className="flex flex-row items-start gap-3 space-y-0">
               <Avatar className="h-12 w-12 border">
                 <AvatarFallback className="bg-primary-soft text-primary font-semibold">
-                  {f.name.split(" ").map((w) => w[0]).slice(0, 2).join("")}
+                  {f?.full_name
+                    .split(" ")
+                    .map((w) => w[0])
+                    .slice(0, 2)
+                    .join("")}
                 </AvatarFallback>
               </Avatar>
+
               <div className="min-w-0 flex-1">
-                <Link to={`/institute/faculty/${encodeURIComponent(f.name.toLowerCase().replace(/[^a-z]+/g, "-"))}`} className="font-semibold text-foreground truncate hover:text-primary transition-colors block">
-                  {f.name}
+                <Link
+                  to={`/institute/faculty/${encodeURIComponent(
+                    f?.full_name
+                      .toLowerCase()
+                      .replace(/[^a-z]+/g, "-")
+                  )}`}
+                  className="font-semibold text-foreground truncate hover:text-primary transition-colors block"
+                >
+                  {f?.full_name}
                 </Link>
-                <p className="text-sm text-muted-foreground">{f.role}</p>
-                <Badge variant="outline" className="mt-1.5 bg-muted/50 text-muted-foreground border-border text-[10px]">
-                  {f.dept}
-                </Badge>
+
+                <p className="text-sm text-muted-foreground">
+                  {f?.role}
+                </p>
+{/* 
+                <Badge
+                  variant="outline"
+                  className="mt-1.5 bg-muted/50 text-muted-foreground border-border text-[10px]"
+                >
+                  {f?.dept}
+                </Badge> */}
               </div>
             </CardHeader>
+
             <CardContent className="pt-0">
               <div className="flex items-center justify-between text-sm py-3 border-t border-border/60">
                 <div>
-                  <p className="text-xs text-muted-foreground">Students</p>
-                  <p className="font-display text-lg font-bold text-foreground">{f.students}</p>
+                {/*   <p className="text-xs text-muted-foreground">
+                    Students
+                  </p>
+
+                  <p className="font-display text-lg font-bold text-foreground">
+                    {f?.students}
+                  </p> */}
                 </div>
+
                 <div>
-                  <p className="text-xs text-muted-foreground">Courses</p>
-                  <p className="font-display text-lg font-bold text-foreground">{f.courses}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Courses
+                  </p>
+
+                  <p className="font-display text-lg font-bold text-foreground">
+                    {f?.courses_name?.length||0}
+                  </p>
                 </div>
               </div>
+
               <div className="flex items-center gap-2">
-                <Button asChild variant="outline" size="sm" className="flex-1 gap-1.5">
-                  <Link to={`/institute/faculty/${encodeURIComponent(f.name.toLowerCase().replace(/[^a-z]+/g, "-"))}`}>View profile</Link>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 gap-1.5"
+                >
+                  <Link
+                    to={`/institute/faculty/${encodeURIComponent(
+                      f?.full_name
+                        .toLowerCase()
+                        .replace(/[^a-z]+/g, "-")
+                    )}`}
+                  >
+                    View profile
+                  </Link>
                 </Button>
-                <Button variant="outline" size="icon"><Mail className="h-3.5 w-3.5" /></Button>
-                <Button variant="outline" size="icon"><Phone className="h-3.5 w-3.5" /></Button>
+
+                <Button variant="outline" size="icon">
+                   <a href={`mailto:${f?.email}`}>
+                  <Mail className="h-3.5 w-3.5" />
+                  </a>
+                </Button>
+
+                <Button variant="outline" size="icon">
+                  <a href={`tel:${f?.phone}`}>
+                  <Phone className="h-3.5 w-3.5" />
+                  </a>
+                </Button>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Add faculty dialog */}
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="font-display">Add faculty</DialogTitle>
-            <DialogDescription>Add a new coordinator, evaluator or mentor.</DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="f-name">Full name</Label>
-              <Input id="f-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Dr. P. Kumar" />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label htmlFor="f-role">Role</Label>
-                <Input id="f-role" value={role} onChange={(e) => setRole(e.target.value)} placeholder="e.g. Faculty Coordinator" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="f-dept">Department</Label>
-                <Input id="f-dept" value={dept} onChange={(e) => setDept(e.target.value)} placeholder="e.g. Engineering" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="f-email">Email</Label>
-              <Input id="f-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="kumar@geisil.in" />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label htmlFor="f-students">Students</Label>
-                <Input id="f-students" type="number" value={students} onChange={(e) => setStudents(e.target.value)} placeholder="0" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="f-courses">Courses</Label>
-                <Input id="f-courses" type="number" value={courses} onChange={(e) => setCourses(e.target.value)} placeholder="0" />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-              <Button type="submit">Add faculty</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+        {/* Pagination */}
+      <div className="flex items-center justify-between mt-4">
+        <p className="text-sm text-muted-foreground">
+          Page {currentPage} of {totalPages}
+        </p>
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2">
+            {/* Prev */}
+            <button
+              onClick={() => setCurrentPage((p) => p - 1)}
+              disabled={currentPage === 1}
+              className="flex h-9 w-9 items-center justify-center rounded-lg border disabled:opacity-50"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+
+            {/* Numbers */}
+            {generatePagination().map((page, index) =>
+              page === "..." ? (
+                <span
+                  key={`dots-${index}`}
+                  className="px-2 text-sm text-gray-500"
+                >
+                  ...
+                </span>
+              ) : (
+                <button
+                  key={`${page}-${index}`}
+                  onClick={() => setCurrentPage(page)}
+                  className={`h-9 min-w-[36px] rounded-lg border px-3 text-sm transition ${
+                    currentPage === page
+                      ? "bg-black text-white"
+                      : "hover:bg-gray-100"
+                  }`}
+                >
+                  {page}
+                </button>
+              ),
+            )}
+
+            {/* Next */}
+            <button
+              onClick={() => setCurrentPage((p) => p + 1)}
+              disabled={currentPage === totalPages}
+              className="flex h-9 w-9 items-center justify-center rounded-lg border disabled:opacity-50"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+      </div>
+
+<Dialog open={open} onOpenChange={setOpen}>
+  <DialogContent className="sm:max-w-2xl h-[90vh] p-0 overflow-hidden flex flex-col">
+    {/* Header */}
+    <DialogHeader className="px-6 pt-6 pb-4 border-b shrink-0">
+      <DialogTitle className="font-display">
+        Add faculty
+      </DialogTitle>
+
+      <DialogDescription>
+        Add a new coordinator, evaluator or mentor.
+      </DialogDescription>
+    </DialogHeader>
+
+    {/* Scrollable Form */}
+    <form
+      onSubmit={handleSubmit}
+      className="flex-1 overflow-y-auto"
+    >
+      <div className="px-6 py-4 space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="f-name">
+            Full name
+          </Label>
+
+          <Input
+            id="f-name"
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+              clearFieldError("name");
+            }}
+            placeholder="e.g. Dr. P. Kumar"
+          />
+
+          {errors?.name && (
+            <p className="text-sm text-red-500">
+              {errors.name[0]}
+            </p>
+          )}
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-2">
+            <Label htmlFor="f-role">
+              Role
+            </Label>
+
+            <Input
+              id="f-role"
+              value={role}
+              onChange={(e) => {
+                setRole(e.target.value);
+                clearFieldError("role");
+              }}
+              placeholder="e.g. Faculty Coordinator"
+            />
+
+            {errors?.role && (
+              <p className="text-sm text-red-500">
+                {errors.role[0]}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="f-dept">
+              Department
+            </Label>
+
+            <Input
+              id="f-dept"
+              value={dept}
+              onChange={(e) => {
+                setDept(e.target.value);
+                clearFieldError("dept");
+              }}
+              placeholder="e.g. Engineering"
+            />
+
+            {errors?.dept && (
+              <p className="text-sm text-red-500">
+                {errors.dept[0]}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="f-email">
+            Email
+          </Label>
+
+          <Input
+            id="f-email"
+            type="email"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              clearFieldError("email");
+            }}
+            placeholder="kumar@geisil.in"
+          />
+
+          {errors?.email && (
+            <p className="text-sm text-red-500">
+              {errors.email[0]}
+            </p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="f-phone">
+            Phone
+          </Label>
+
+          <Input
+            id="f-phone"
+            value={phone}
+            onChange={(e) => {
+              setPhone(e.target.value);
+              clearFieldError("phone");
+            }}
+            placeholder="phone number"
+          />
+
+          {errors?.phone && (
+            <p className="text-sm text-red-500">
+              {errors.phone[0]}
+            </p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="Course">
+            Course
+          </Label>
+
+          <Select
+            options={courses}
+            isMulti
+            value={courseSelected}
+            onChange={(value) => {
+              setCourseSelected(value);
+              clearFieldError("courses");
+            }}
+          />
+
+          {errors?.courses && (
+            <p className="text-sm text-red-500">
+              {errors.courses[0]}
+            </p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="area_of_experties">
+            Area of experties
+          </Label>
+
+          <CreatableSelect
+            isMulti
+            options={expertiesOptions}
+            value={expertieSelected}
+            onChange={(newValue) => {
+              setExpertieSelected(newValue);
+              clearFieldError("experties");
+            }}
+            onCreateOption={handleCreate}
+            placeholder="Search or add..."
+            formatCreateLabel={(inputValue) =>
+              `Add "${inputValue}"`
+            }
+          />
+
+          {errors?.experties && (
+            <p className="text-sm text-red-500">
+              {errors.experties[0]}
+            </p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="about">
+            About
+          </Label>
+
+          <Textarea
+            id="about"
+            value={about}
+            onChange={(e) => {
+              setAbout(e.target.value);
+              clearFieldError("about");
+            }}
+            placeholder="Strengths, areas to improve, panel observations…"
+            maxLength={500}
+            rows={3}
+          />
+
+          {errors?.about && (
+            <p className="text-sm text-red-500">
+              {errors.about[0]}
+            </p>
+          )}
+        </div>
+
+        <div className="space-y-2 pb-6">
+          <Label htmlFor="recognitions">
+            Recognitions
+          </Label>
+
+          <Textarea
+            id="recognitions"
+            value={recognitions}
+            onChange={(e) => {
+              setRecognitions(e.target.value);
+              clearFieldError("recognitions");
+            }}
+            placeholder="Awards, achievements, recognitions..."
+            maxLength={500}
+            rows={3}
+          />
+
+          {errors?.recognitions && (
+            <p className="text-sm text-red-500">
+              {errors.recognitions[0]}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Sticky Footer */}
+      <DialogFooter className="sticky bottom-0 bg-background border-t px-6 py-4 shrink-0">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setOpen(false)}
+        >
+          Cancel
+        </Button>
+
+        <Button type="submit">
+          Add faculty
+        </Button>
+      </DialogFooter>
+    </form>
+  </DialogContent>
+</Dialog>
     </DashboardLayout>
   );
 };
-
 export default Faculty;

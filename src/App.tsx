@@ -21,6 +21,7 @@ import ReportDetail from "./pages/ReportDetail.tsx";
 import Faculty from "./pages/Faculty.tsx";
 import FacultyDetail from "./pages/FacultyDetail.tsx";
 import Settings from "./pages/Settings.tsx";
+import StudentVerification from "./pages/StudentVerification.tsx";
 import InstituteProfile from "./pages/InstituteProfile.tsx";
 import InstituteProfileDetails from "./pages/InstituteProfileDetails.tsx";
 import EmployerDashboard from "./pages/employer/EmployerDashboard.tsx";
@@ -76,6 +77,7 @@ const App = ()=>{
                     <Route path="/institute-profile" element={<InstituteProfile />} />
                     <Route path="/institute-profile-details" element={<InstituteProfileDetails />} />
                     <Route path="/manage-courses" element={<ManageCourses />} />
+                    <Route path="/student-verification" element={<StudentVerification />} />
                   </Routes>
               </ProtectedRoute>
                } />
