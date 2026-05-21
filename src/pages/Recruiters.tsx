@@ -53,6 +53,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import FormModal from "@/components/institute/Recruiters/FormModal";
+import { useSidebar } from "@/components/ui/sidebar"
 
 const statusStyles: Record<string, string> = {
   Active: "bg-success/10 text-success border-success/20",
@@ -122,6 +124,11 @@ const Recruiters = () => {
   >({});
   const [contact, setContact] = useState<Recruiter | null>(null);
 
+  const [edit, setEdit] = useState({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [refresh, setRefresh] = useState(0);
+  const {toggleSidebarOpen}=useSidebar()
+
   const update = <K extends keyof RecruiterForm>(
     key: K,
     value: RecruiterForm[K],
@@ -132,6 +139,19 @@ const Recruiters = () => {
       ...prev,
       [key]: undefined,
     }));
+  };
+
+
+ const closeModalRH = () => {
+    setEdit({});
+    setIsModalOpen(false);
+    //document.body.style.overflow = "auto";
+  };
+
+    const openModalEdit = (row) => {
+    setEdit(row);
+    setIsModalOpen(true);
+    //document.body.style.overflow = "hidden"; // Disable background scrolling
   };
 
   const copy = async (value: string, label: string) => {
@@ -224,7 +244,7 @@ const Recruiters = () => {
 
   useEffect(() => {
     fetchRecruiterList();
-  }, [recruiters.length]);
+  }, [recruiters.length,refresh]);
 
   const totalPages = Math.ceil(recruiters.length / ITEMS_PER_PAGE);
 
@@ -443,6 +463,9 @@ const Recruiters = () => {
                       maxLength={255}
                       rows={3}
                     />
+                       {errors.address && (
+                      <p className="text-xs text-destructive">{errors.address}</p>
+                    )}
                   </div>
 
                   <div className="space-y-1.5 md:col-span-2">
@@ -556,25 +579,36 @@ const Recruiters = () => {
                 </div>
               </div>
               <div className="flex items-center gap-2">
+              
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex-1 gap-1.5"
-                  onClick={() => setContact(r)}
+                  className="flex-1 gap-1"
+                  onClick={() => {setContact(r)}}
                 >
+                  
                   <Mail className="h-3.5 w-3.5" /> Contact
                 </Button>
-                <Button
-                  asChild
-                  variant="ghost"
-                  size="sm"
-                  className="text-primary gap-1"
-                >
+               
                   <Link
-                    to={`/institute/recruiters/${encodeURIComponent(r?.companyName?.toLowerCase()?.replace(/\s+/g, "-"))}`}
+                    to={`/institute/recruiters/${r?._id}`}
                   >
-                    View <ExternalLink className="h-3.5 w-3.5" />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-primary flex-1 gap-1"
+                    >
+                      View <ExternalLink className="h-3.5 w-3.5" />
+                    </Button>
                   </Link>
+                   
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 gap-1"
+                  onClick={() =>{openModalEdit(r)}}
+                >
+                  <Mail className="h-3.5 w-3.5" /> Edit
                 </Button>
               </div>
             </CardContent>
@@ -753,6 +787,12 @@ const Recruiters = () => {
           )}
         </DialogContent>
       </Dialog>
+       <FormModal
+        show={isModalOpen}
+        onClose={closeModalRH}
+        data={edit}
+        setRefresh={setRefresh}
+      />
     </DashboardLayout>
   );
 };

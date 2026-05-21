@@ -6,8 +6,7 @@ import api from "@/lib/axios";
 import { Filter, Plus, Search, Edit, Trash,Eye } from "lucide-react";
 import Modal from "./Modal"
 import { Button } from "@/components/ui/button"
-import { useSidebar } from "@/components/ui/sidebar"
-const All = () => {
+const Rejected = () => {
   const [query, setQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -29,9 +28,20 @@ const All = () => {
 
   const apiurl = import.meta.env.VITE_API_URL;
   const [status, setStatus] = useState(null);
-  const itemsPerPage = 10; // change as needed
+  const itemsPerPage = 2; // change as needed
+
+
+
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setToken(localStorage.getItem("Institute_token"));
+    }
+  }, []);
+
+
   const { toast } = useToast();
-  const {toggleSidebarOpen}=useSidebar()
+
   // ✅ Get token
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -45,6 +55,11 @@ const All = () => {
         try {
           const response = await api.get(
             `/api/institutestudent/get_students_by_status`,
+         {
+            params: {
+              status: "rejected",
+            }
+          },
             
           );
 
@@ -91,7 +106,6 @@ useEffect(() => {
   
   // ✅ Modal
   const openModalRH = (id, empId, statusValue) => {
-    console.log('kkk uuu',id, empId, statusValue)
     setIsModalOpen(true);
     setCanId(id);
     setEmploymentId(empId);
@@ -115,6 +129,9 @@ useEffect(() => {
     }
     return pages;
   };
+
+
+  
 
   return (
     <>
@@ -198,7 +215,7 @@ useEffect(() => {
               <td className="py-3 px-3 whitespace-nowrap">
                 <span
                   className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    s?.status === "verified"
+                     s?.status === "verified"
                       ? "bg-green-100 text-green-700"
                       :  s?.status === "unverified"?"bg-orange-100 text-orange-700":"bg-red-100 text-red-700"
                   }`}
@@ -214,18 +231,15 @@ useEffect(() => {
                     className="h-4 w-4 cursor-pointer hover:text-primary"
                    /*  onClick={() => openModalEdit(s)} */
                     onClick={() =>
-                         { 
-                          toggleSidebarOpen();
                           openModalRH(
                             s.userId,
                             s.employmentId,
                             s.status,
                           )
                         }
-                          
-                        }
                   />
 
+                
                 </div>
               </td>
             </tr>
@@ -295,4 +309,4 @@ useEffect(() => {
   );
 };
 
-export default All;
+export default Rejected;

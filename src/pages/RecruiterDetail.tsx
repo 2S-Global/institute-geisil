@@ -1,4 +1,5 @@
 import { useParams, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import {
   ArrowLeft,
   Mail,
@@ -66,6 +67,14 @@ const recruitersDB: Record<string, any> = {
   },
 };
 
+function websiteName(url) {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    return "";
+  }
+}
+
 const hiringTrend = [
   { month: "Nov", offers: 6, hires: 4 },
   { month: "Dec", offers: 9, hires: 7 },
@@ -111,22 +120,40 @@ const stageStyles: Record<string, { cls: string; icon: any }> = {
   Technical: { cls: "bg-warning/10 text-warning border-warning/20", icon: Clock },
   Rejected: { cls: "bg-destructive/10 text-destructive border-destructive/20", icon: XCircle },
 };
-
+import API from "../lib/axios";
 const RecruiterDetail = () => {
+  const [recruiter,setRecruiter]=useState()
   const { id } = useParams();
   const r = recruitersDB[id ?? "default"] ?? recruitersDB.default;
   const initials = r.name.split(" ").map((w: string) => w[0]).slice(0, 2).join("");
 
+
+    const fetchRecruiter= async () => {
+    try {
+      const res = await API.get(
+        `/api/instituteprofile/get_all_companies_by_institute?id=${id}`,
+      );
+      const data = res?.data?.data || {};
+      console.log(data)
+      setRecruiter(data);
+    } catch (err) {
+      console.error("Error fetching stats", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecruiter();
+  }, []);
   return (
     <DashboardLayout>
       <Button asChild variant="ghost" size="sm" className="mb-4 -ml-2 text-muted-foreground hover:text-foreground">
-        <Link to="/recruiters"><ArrowLeft className="h-4 w-4" /> Back to recruiters</Link>
+        <Link to="/institute/recruiters"><ArrowLeft className="h-4 w-4" /> Back to recruiters</Link>
       </Button>
 
       <PageHeader
         eyebrow="Recruiter profile"
-        title={r.name}
-        description={r.description}
+        title={recruiter?.companyName||""}
+        description={recruiter?.description}
         actions={
           <>
             <Button variant="outline" className="gap-2"><Download className="h-4 w-4" /> Export</Button>
@@ -139,21 +166,21 @@ const RecruiterDetail = () => {
 
       {/* Profile summary */}
       <Card className="mb-6 border-border/60 shadow-sm overflow-hidden">
-        <div className="h-24 bg-gradient-to-r from-primary to-[hsl(var(--primary-hover))]" />
-        <CardContent className="pt-0">
+       {/*  <div className="h-24 bg-[#516295] "/> */}
+        <CardContent className="pt-20">
           <div className="flex flex-col md:flex-row md:items-end gap-4 -mt-10">
             <Avatar className="h-20 w-20 border-4 border-card shadow-md">
               <AvatarFallback className="bg-primary-soft text-primary font-display font-bold text-2xl">
-                {initials}
+                {recruiter?.companyName?.charAt(0)||""}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0 md:pb-2">
               <div className="flex flex-wrap items-center gap-2">
-                <h2 className="font-display text-xl font-bold text-foreground">{r.name}</h2>
-                <Badge variant="outline" className="bg-success/10 text-success border-success/20">{r.status}</Badge>
-                <Badge variant="outline" className="gap-1"><Star className="h-3 w-3 fill-warning text-warning" />{r.rating}</Badge>
+                <h2 className="font-display text-xl font-bold text-foreground">{recruiter?.companyName||""}</h2>
+                <Badge variant="outline" className="bg-success/10 text-success border-success/20">{recruiter?.status||""}</Badge>
+                <Badge variant="outline" className="gap-1"><Star className="h-3 w-3 fill-warning text-warning" />{recruiter?.rating||""}</Badge>
               </div>
-              <p className="text-sm text-muted-foreground mt-1">{r.sector} • Partner since {r.since}</p>
+              <p className="text-sm text-muted-foreground mt-1">{recruiter?.sector||""} • since {recruiter?.since||""}</p>
             </div>
           </div>
 
@@ -162,19 +189,19 @@ const RecruiterDetail = () => {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
             <div className="flex items-start gap-3">
               <Mail className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-              <div className="min-w-0"><p className="text-muted-foreground text-xs">Email</p><p className="text-foreground truncate">{r.email}</p></div>
+              <div className="min-w-0"><p className="text-muted-foreground text-xs">Email</p><p className="text-foreground truncate">{recruiter?.email||""}</p></div>
             </div>
             <div className="flex items-start gap-3">
               <Phone className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-              <div className="min-w-0"><p className="text-muted-foreground text-xs">Phone</p><p className="text-foreground truncate">{r.phone}</p></div>
+              <div className="min-w-0"><p className="text-muted-foreground text-xs">Phone</p><p className="text-foreground truncate">{recruiter?.phone||""}</p></div>
             </div>
             <div className="flex items-start gap-3">
               <Globe className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-              <div className="min-w-0"><p className="text-muted-foreground text-xs">Website</p><p className="text-foreground truncate">{r.website}</p></div>
+              <div className="min-w-0"><p className="text-muted-foreground text-xs">Website</p><p className="text-foreground truncate">{websiteName(recruiter?.website)||""}</p></div>
             </div>
             <div className="flex items-start gap-3">
               <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-              <div className="min-w-0"><p className="text-muted-foreground text-xs">Location</p><p className="text-foreground truncate">{r.location}</p></div>
+              <div className="min-w-0"><p className="text-muted-foreground text-xs text-wrap">Location</p><p className="text-foreground ">{recruiter?.address||""}</p></div>
             </div>
           </div>
 

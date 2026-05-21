@@ -38,12 +38,12 @@ import EmployerSettings from "./pages/employer/Settings.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import { AuthProvider } from "@/components/context/AuthContext.tsx";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { SidebarProvider } from "@/components/ui/sidebar";
 const queryClient = new QueryClient();
 const App = ()=>{ 
  
   useEffect(()=>{
          const token = Cookies.get("token");
-         console.log('aaaaaaaaaaaaaaa',token)
           if(token){
               localStorage.setItem("token", token);
           }
@@ -54,6 +54,7 @@ const App = ()=>{
       <Toaster />
       <Sonner />
       <AuthProvider>
+        <SidebarProvider>
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
@@ -102,7 +103,9 @@ const App = ()=>{
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
+        </SidebarProvider>
       </AuthProvider>
+      
     </TooltipProvider>
   </QueryClientProvider>
 );

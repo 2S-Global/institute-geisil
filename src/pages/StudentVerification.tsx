@@ -4,6 +4,9 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 
 import All from "@/components/institute/studentVerification/All";
+import Pending from "@/components/institute/studentVerification/Pending";
+import Accepted from "@/components/institute/studentVerification/Accepted";
+import Rejected from "@/components/institute/studentVerification/Rejected";
 
 const StudentVerification = () => {
 
@@ -39,15 +42,15 @@ const StudentVerification = () => {
         </TabsContent>
 
         <TabsContent value="pending">
-        
+        <Pending/>
         </TabsContent>
 
         <TabsContent value="accepted">
-          
+          <Accepted/>
         </TabsContent>
 
         <TabsContent value="rejected">
-        
+            <Rejected/>
         </TabsContent>
       </Tabs>
     </DashboardLayout>
