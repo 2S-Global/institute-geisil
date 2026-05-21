@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Users,
@@ -25,6 +25,9 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
+
+import api from "@/lib/axios";
+
 const main = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Institute Profile", url: "/institute/institute-profile-details", icon: Building2 },
@@ -47,6 +50,33 @@ export function AppSidebar() {
   const { pathname } = useLocation();
   const isActive = (path: string) => (path === "/" ? pathname === "/" : pathname.startsWith(path));
 
+ 
+
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      // Backend logout API
+      await api.post("/api/auth/logout", {}, { withCredentials: true });
+
+      // Clear storage
+      localStorage.clear();
+      sessionStorage.clear();
+
+      // Clear normal cookies
+      document.cookie.split(";").forEach((cookie) => {
+        document.cookie = cookie
+          .replace(/^ +/, "")
+          .replace(/=.*/, "=;expires=" + new Date(0).toUTCString() + ";path=/");
+      });
+
+      // Redirect
+      navigate("https://geisil.com/");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
       <SidebarHeader className="border-b border-sidebar-border/60 px-4 py-5">
@@ -56,7 +86,9 @@ export function AppSidebar() {
           </div>
           {!collapsed && (
             <div className="min-w-0">
-              <p className="font-display font-bold text-sidebar-primary leading-tight truncate">GEISIL</p>
+              <p className="font-display font-bold text-sidebar-primary leading-tight truncate">
+                GEISIL
+              </p>
               <p className="text-[11px] uppercase tracking-wider text-sidebar-foreground/70 truncate">
                 Institute Portal
               </p>
@@ -83,7 +115,9 @@ export function AppSidebar() {
                   >
                     <NavLink to={item.url} className="flex items-center gap-3">
                       <item.icon className="h-[18px] w-[18px] shrink-0" />
-                      {!collapsed && <span className="truncate">{item.title}</span>}
+                      {!collapsed && (
+                        <span className="truncate">{item.title}</span>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -109,7 +143,9 @@ export function AppSidebar() {
                   >
                     <NavLink to={item.url} className="flex items-center gap-3">
                       <item.icon className="h-[18px] w-[18px] shrink-0" />
-                      {!collapsed && <span className="truncate">{item.title}</span>}
+                      {!collapsed && (
+                        <span className="truncate">{item.title}</span>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -120,13 +156,13 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border/60 p-3">
-        <NavLink
-          to="/login"
-          className="flex items-center gap-3 rounded-md px-3 py-2 text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground transition-colors text-sm"
+        <button
+          onClick={handleLogout}
+          className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground transition-colors text-sm"
         >
           <LogOut className="h-[18px] w-[18px] shrink-0" />
           {!collapsed && <span>Sign out</span>}
-        </NavLink>
+        </button>
       </SidebarFooter>
     </Sidebar>
   );
