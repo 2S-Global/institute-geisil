@@ -21,6 +21,7 @@ import ReportDetail from "./pages/ReportDetail.tsx";
 import Faculty from "./pages/Faculty.tsx";
 import FacultyDetail from "./pages/FacultyDetail.tsx";
 import Settings from "./pages/Settings.tsx";
+import StudentVerification from "./pages/StudentVerification.tsx";
 import InstituteProfile from "./pages/InstituteProfile.tsx";
 import InstituteProfileDetails from "./pages/InstituteProfileDetails.tsx";
 import EmployerDashboard from "./pages/employer/EmployerDashboard.tsx";
@@ -37,12 +38,12 @@ import EmployerSettings from "./pages/employer/Settings.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import { AuthProvider } from "@/components/context/AuthContext.tsx";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { SidebarProvider } from "@/components/ui/sidebar";
 const queryClient = new QueryClient();
 const App = ()=>{ 
  
   useEffect(()=>{
          const token = Cookies.get("token");
-         console.log('aaaaaaaaaaaaaaa',token)
           if(token){
               localStorage.setItem("token", token);
           }
@@ -53,6 +54,7 @@ const App = ()=>{
       <Toaster />
       <Sonner />
       <AuthProvider>
+        <SidebarProvider>
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
@@ -76,6 +78,7 @@ const App = ()=>{
                     <Route path="/institute-profile" element={<InstituteProfile />} />
                     <Route path="/institute-profile-details" element={<InstituteProfileDetails />} />
                     <Route path="/manage-courses" element={<ManageCourses />} />
+                    <Route path="/student-verification" element={<StudentVerification />} />
                   </Routes>
               </ProtectedRoute>
                } />
@@ -100,7 +103,9 @@ const App = ()=>{
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
+        </SidebarProvider>
       </AuthProvider>
+      
     </TooltipProvider>
   </QueryClientProvider>
 );

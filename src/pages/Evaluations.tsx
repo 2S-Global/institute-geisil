@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import {nameFormate} from "../lib/utils"
+import {nameFormate,timeAgo} from "../lib/utils"
 import {
   Dialog,
   DialogContent,
@@ -74,7 +74,7 @@ const evaluationSchema = z
     type: z.string().min(1, "Select an evaluation type"),
     status: z.enum(["Completed", "Reviewing", "Pending"]),
     score: z.coerce.number().int().min(0).max(100),
-    scheduledDate: z.string().trim().optional().or(z.literal("")),
+    scheduledDate:z.string().trim().min(1, "Date is required").pipe(z.coerce.date()),
     evaluator: z.string().regex(/^[A-Za-z ]*$/,  "only letters allow").trim().max(80).optional().or(z.literal("")),
     notes: z.string().max(500).optional().or(z.literal("")),
   })
@@ -101,7 +101,7 @@ const emptyForm: EvaluationForm = {
 const Evaluations = () => {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
-  const [evaluations, setEvaluations] = useState(initialEvaluations);
+  const [evaluations, setEvaluations] = useState();
   const [studentList, setStudentList] = useState([]);
   const [edit, setEdit] = useState();
   const [form, setForm] = useState<EvaluationForm>(emptyForm);
@@ -110,6 +110,24 @@ const Evaluations = () => {
   const update = <K extends keyof EvaluationForm>(key: K, value: EvaluationForm[K]) => {
     setForm((f) => ({ ...f, [key]: value }));
   };
+
+  const handleSelect = (key,value) => {
+    if (value) {
+      setForm((f) => ({ ...f, [key]: value }));
+    
+      const findData = studentList.find(
+        (u) => u._id === value,
+      );
+      setForm((f) => ({ ...f, 'rollNo': findData.USN }));
+     
+    } else {
+      setForm((f) => ({ ...f, 'rollNo': '' }));
+    }
+   
+  };
+
+
+
 
   const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
@@ -124,6 +142,7 @@ const Evaluations = () => {
       return;
     }
     setErrors({});
+    toast({})
     //const nextId = `EV-${2842 + (evaluations.length - initialEvaluations.length)}`;
     /* setEvaluations((prev) => [
       {
@@ -153,8 +172,8 @@ const Evaluations = () => {
             response = await api.post("/api/instituteprofile/add_evaluation",
               sendData,
             );
-            console.log(response,'response')
-            if(response?.success){
+           
+            if(response?.data?.success){
                   toast({
                     title: "success",
                     description: "Evaluations saved successfully",
@@ -163,7 +182,7 @@ const Evaluations = () => {
             else{
               toast({
                     title: "Error",
-                    description:response?.message ||"",
+                    description:response?.data?.message ||"",
                   });
             }
           
@@ -174,16 +193,10 @@ const Evaluations = () => {
             console.log(err.response);
             toast({
               title: "Failed",
-              description: "Something went wrong",
+              description: err?.response?.data?.message?.replace("_"," "),
             });
           }
 
-
-
-
-
-    console.log("sendData",sendData)
-    console.log(response,'response')
     //toast({ title: "Success", description: `Evaluation added successfully` });
     setForm(emptyForm);
     setOpen(false);
@@ -191,7 +204,7 @@ const Evaluations = () => {
   const fetchSudentList = async () => {
     try {
       const res = await api.get(
-        "/api/institutestudent/institute-student-list",
+        "/api/institutestudent/institute-student-list-by-placement-ready",
       );
       const data = res?.data?.data || [];
       setStudentList(data);
@@ -200,9 +213,25 @@ const Evaluations = () => {
     }
   };
 
+  const fetchEvaluationList = async () => {
+    try {
+      const res = await api.get(
+        "/api/instituteprofile/get_evaluation",
+      );
+      const data = res?.data?.data || [];
+      console.log('data',data)
+      setEvaluations(data);
+    } catch (err) {
+      console.error("Error fetching stats", err);
+    }
+  };
+
   useEffect(() => {
     fetchSudentList();
+    fetchEvaluationList();
   }, []);
+
+  console.log('evaluations',evaluations)
   return (
     <DashboardLayout>
       <PageHeader
@@ -238,7 +267,7 @@ const Evaluations = () => {
                       />
                       {errors.student && <p className="text-xs text-destructive">{errors.student}</p>} */}
 
-                      <Select value={form.student} onValueChange={(v) => update("student", v)}>
+                      <Select value={form.student} onValueChange={(v) => handleSelect("student", v)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select type" />
                         </SelectTrigger>
@@ -252,13 +281,14 @@ const Evaluations = () => {
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label htmlFor="rollNo">Roll / ID</Label>
+                      <Label htmlFor="rollNo">USN</Label>
                       <Input
                         id="rollNo"
                         value={form.rollNo}
                         onChange={(e) => update("rollNo", e.target.value)}
                         placeholder="e.g. 22BCE1234"
-                        maxLength={40}
+                        readonly="readonly"
+                       
                       />
                     </div>
 
@@ -295,7 +325,7 @@ const Evaluations = () => {
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label htmlFor="score">Score (0–100)</Label>
+                      <Label htmlFor="score">Score (0–100) *</Label>
                       <Input
                         id="score"
                         type="number"
@@ -309,13 +339,14 @@ const Evaluations = () => {
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label htmlFor="scheduledDate">Date</Label>
+                      <Label htmlFor="scheduledDate">Date *</Label>
                       <Input
                         id="scheduledDate"
                         type="date"
                         value={form.scheduledDate}
                         onChange={(e) => update("scheduledDate", e.target.value)}
                       />
+                        {errors.scheduledDate && <p className="text-xs text-destructive">{errors.scheduledDate}</p>}
                     </div>
 
                     <div className="space-y-1.5 md:col-span-2">
@@ -429,51 +460,91 @@ const Evaluations = () => {
           <CardDescription>Most recent submissions and their status</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
+          <div className="overflow-x-auto rounded-lg border border-border/60">
+            <table className="min-w-[700px] w-full text-sm">
+              <thead className="bg-muted/40">
                 <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground border-b border-border/60">
-                  <th className="font-medium py-3">Student</th>
-                  <th className="font-medium py-3">Type</th>
-                  <th className="font-medium py-3 w-[200px]">Score</th>
-                  <th className="font-medium py-3">When</th>
-                  <th className="font-medium py-3 text-right">Status</th>
-                  <th className="font-medium py-3 text-right">Status</th>
+                  <th className="font-medium py-3 px-4">Student</th>
+                  <th className="font-medium py-3 px-4">Type</th>
+                  <th className="font-medium py-3 px-4 min-w-[180px]">Score</th>
+                  <th className="font-medium py-3 px-4">When</th>
+                  <th className="font-medium py-3 px-4 text-right">Status</th>
                 </tr>
               </thead>
+
               <tbody className="divide-y divide-border/60">
-                {evaluations.map((e) => (
-                  <tr key={e.id} className="hover:bg-muted/30 transition-colors group">
-                    <td className="py-3">
-                      <Link to={`/institute/evaluations/${e.id}`} className="flex items-center gap-3">
-                        <Avatar className="h-9 w-9 border">
+                {evaluations?.map((e) =>{
+                const last=e?.evaluations?.length-1;
+                let lastEvaluation=last>0?e?.evaluations[last]:e?.evaluations[0];
+                
+                return(
+                  <tr
+                    key={e?._id}
+                    className="hover:bg-muted/30 transition-colors group"
+                  >
+                    {/* Student */}
+                    <td className="py-3 px-4">
+                      <Link
+                        to={`/institute/evaluations/${e?._id}`}
+                        className="flex items-center gap-3 min-w-[220px]"
+                      >
+                        <Avatar className="h-9 w-9 border shrink-0">
                           <AvatarFallback className="bg-accent/10 text-accent text-xs font-semibold">
-                            {e.student.split(" ").map((w) => w[0]).join("")}
+                            {e?.student_name
+                              .charAt(0).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
-                        <div>
-                          <p className="font-semibold text-foreground group-hover:text-primary transition-colors">{e.student}</p>
-                          <p className="text-xs text-muted-foreground">{e.id}</p>
+
+                        <div className="min-w-0">
+                          <p className="font-semibold text-foreground group-hover:text-primary transition-colors truncate">
+                            {e?.student_name && nameFormate(e?.student_name)}
+                          </p>
+
+                          <p className="text-xs text-muted-foreground truncate">
+                           
+                          </p>
                         </div>
                       </Link>
                     </td>
-                    <td className="py-3 text-muted-foreground">{e.type}</td>
-                    <td className="py-3">
-                      {e.status === "Pending" ? (
+
+                    {/* Type */}
+                    <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">
+                      {lastEvaluation?.evaluation_type?.replace("_"," ")}
+                    </td>
+
+                    {/* Score */}
+                    <td className="py-3 px-4">
+                      {lastEvaluation?.status === "Pending" ? (
                         <span className="text-xs text-muted-foreground">—</span>
                       ) : (
-                        <div className="flex items-center gap-3">
-                          <Progress value={e.score} className="h-1.5 flex-1" />
-                          <span className="text-sm font-semibold text-foreground w-10 text-right">{e.score}</span>
+                        <div className="flex items-center gap-3 min-w-[150px]">
+                          <Progress value={lastEvaluation?.score} className="h-1.5 flex-1" />
+
+                          <span className="text-sm font-semibold text-foreground w-10 text-right shrink-0">
+                            {lastEvaluation?.score}
+                          </span>
                         </div>
                       )}
                     </td>
-                    <td className="py-3 text-muted-foreground">{e.date}</td>
-                    <td className="py-3 text-right">
-                      <Badge variant="outline" className={statusStyles[e.status]}>{e.status}</Badge>
+
+                    {/* Date */}
+                    <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">
+                       {lastEvaluation?.date && timeAgo(lastEvaluation?.date)}
+                    </td>
+
+                    {/* Status */}
+                    <td className="py-3 px-4 text-right">
+                      <Badge
+                        variant="outline"
+                        className={`${statusStyles[e?.evaluations[0]?.status]} whitespace-nowrap`}
+                      >
+                        {e?.evaluations[0]?.status}
+                      </Badge>
                     </td>
                   </tr>
-                ))}
+                )}
+              
+              )}
               </tbody>
             </table>
           </div>

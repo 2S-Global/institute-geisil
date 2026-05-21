@@ -32,6 +32,7 @@ const main = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Institute Profile", url: "/institute/institute-profile-details", icon: Building2 },
   { title: "Students", url: "/institute/students", icon: GraduationCap },
+  { title: "Student Verification", url: "/institute/student-verification", icon: GraduationCap },
   { title: "Courses", url: "/institute/manage-courses", icon: BookOpen },
   { title: "Recruiters", url: "/institute/recruiters", icon: Briefcase },
   { title: "Evaluations", url: "/institute/evaluations", icon: ClipboardCheck },
