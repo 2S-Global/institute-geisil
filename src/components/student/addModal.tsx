@@ -40,6 +40,8 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
     admissionYear: data.admissionYear || "",
     tenTh: data.tenTh || "",
     twelveTh: data.twelveTh || "",
+    email: data.email || "",
+    phoneNumber: data.phoneNumber || "",
   });
   console.log("formData", formData);
   const [loading, setLoading] = useState(false);
@@ -626,6 +628,72 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
             {err?.twelveTh && (
               <div className="text-xs text-red-600 mt-1">
                 {err.twelveTh}
+              </div>
+            )}
+          </div>
+
+          {/* Extra Field for Email */}
+          <div>
+            <label className="text-sm font-medium text-gray-700">
+              Email
+            </label>
+
+            <input
+              type="email"
+              name="email"
+              value={formData.email || ""}
+              onChange={handleChange}
+              className="
+                mt-1
+                w-full
+                rounded-xl
+                border
+                border-gray-200
+                px-4
+                py-2.5
+                text-sm
+                focus:outline-none
+                focus:ring-2
+                focus:ring-[#112b5e]
+              "
+            />
+
+            {err?.email && (
+              <div className="text-xs text-red-600 mt-1">
+                {err.email}
+              </div>
+            )}
+          </div>
+
+          {/* Extra Field for Phone Number */}
+          <div>
+            <label className="text-sm font-medium text-gray-700">
+              Phone Number
+            </label>
+
+            <input
+              type="number"
+              name="phoneNumber"
+              value={formData.phoneNumber || ""}
+              onChange={handleChange}
+              className="
+                mt-1
+                w-full
+                rounded-xl
+                border
+                border-gray-200
+                px-4
+                py-2.5
+                text-sm
+                focus:outline-none
+                focus:ring-2
+                focus:ring-[#112b5e]
+              "
+            />
+
+            {err?.phoneNumber && (
+              <div className="text-xs text-red-600 mt-1">
+                {err.phoneNumber}
               </div>
             )}
           </div>
