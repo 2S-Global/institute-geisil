@@ -1,7 +1,15 @@
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Mail, Phone, Users, BookOpen, Award,  ChevronLeft,
-  ChevronRight, } from "lucide-react";
+import {
+  Plus,
+  Mail,
+  Phone,
+  Users,
+  BookOpen,
+  Award,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { StatCard } from "@/components/dashboard/StatCard";
@@ -9,27 +17,48 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
+import List from "@/components/institute/Faculty/List";
+import FormModal from "@/components/institute/Faculty/FormModal";
 import api from "@/lib/axios";
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 import { z } from "zod";
 const ITEMS_PER_PAGE = 9;
+const MAX_CHARS = 500;
+/*  .refine((val) => stripHtml(val).length <= MAX_CHARS, {
+      message: `About Us must be at most ${MAX_CHARS} characters`,
+    }) */
+const stripHtml = (val?: string) => {
+  if (!val) return "";
+  const clean = val
+    .replace(/<(.|\n)*?>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .trim();
+  return clean;
+};
+
 const facultySchema = z.object({
   name: z
     .string()
     .trim()
     .min(2, "Full name is required")
-     .regex(
-      /^[A-Za-z\s.]+$/,
-      "Only alphabets are allowed"
-    )
+    .regex(/^[A-Za-z\s.]+$/, "Only alphabets are allowed")
     .max(120),
-   phone: z
+  phone: z
     .string()
     .trim()
     .min(1, "Phone number is required")
@@ -41,20 +70,14 @@ const facultySchema = z.object({
     .string()
     .trim()
     .min(2, "Role is required")
-    .regex(
-      /^[A-Za-z\s.]+$/,
-      "Only alphabets are allowed"
-    )
+    .regex(/^[A-Za-z\s.]+$/, "Only alphabets are allowed")
     .max(120),
 
   dept: z
     .string()
     .trim()
     .min(2, "Department is required")
-    .regex(
-      /^[A-Za-z\s.]+$/,
-      "Only alphabets are allowed"
-    )
+    .regex(/^[A-Za-z\s.]+$/, "Only alphabets are allowed")
     .max(120),
 
   email: z
@@ -71,7 +94,7 @@ const facultySchema = z.object({
       z.object({
         value: z.string(),
         label: z.string(),
-      })
+      }),
     )
     .min(1, "Select at least one course"),
 
@@ -80,13 +103,20 @@ const facultySchema = z.object({
       z.object({
         value: z.string(),
         label: z.string(),
-      })
+      }),
     )
     .optional(),
-
   about: z
     .string()
-    .max(500, "About cannot exceed 500 characters")
+    /*  .superRefine((val, ctx) => {
+    const text = stripHtml(val);
+    if (text.length === 0) {
+      ctx.addIssue({
+        code: "custom",
+        message: "About Us is required",
+      });
+    }
+  }) */
     .optional()
     .or(z.literal("")),
 
@@ -97,11 +127,10 @@ const facultySchema = z.object({
     .or(z.literal("")),
 });
 
-
 const Faculty = () => {
   const { toast } = useToast();
 
-  const [facultyList, setFacultyList] =useState([]);
+  const [facultyList, setFacultyList] = useState([]);
 
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -114,18 +143,15 @@ const Faculty = () => {
   const [courses, setCourses] = useState([]);
   const [courseSelected, setCourseSelected] = useState([]);
 
-  const [expertiesOptions, setExpertiesOptions] =
-    useState([]);
+  const [expertiesOptions, setExpertiesOptions] = useState([]);
 
-  const [expertieSelected, setExpertieSelected] =
-    useState([]);
+  const [expertieSelected, setExpertieSelected] = useState([]);
 
   const [about, setAbout] = useState("");
-  const [recognitions, setRecognitions] =
-    useState("");
+  const [recognitions, setRecognitions] = useState("");
 
   const [errors, setErrors] = useState<any>({});
-    const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const clearFieldError = (field: string) => {
     setErrors((prev) => ({
@@ -134,6 +160,9 @@ const Faculty = () => {
     }));
   };
 
+  const [content, setContent] = useState<any>(null);
+  const [text, setText] = useState("");
+  const [error, setError] = useState("");
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -147,18 +176,17 @@ const Faculty = () => {
       experties: expertieSelected,
       about,
       recognitions,
-      phone
+      phone,
     };
 
     const result = facultySchema.safeParse(formData);
 
     if (!result.success) {
-      const fieldErrors =
-        result.error.flatten().fieldErrors;
+      const fieldErrors = result.error.flatten().fieldErrors;
 
       setErrors(fieldErrors);
 
-     /*  toast({
+      /*  toast({
         title: "Validation Error",
         description: "Please fix the form errors.",
         variant: "destructive",
@@ -168,60 +196,55 @@ const Faculty = () => {
     }
     setErrors({});
 
-    const courseOptions=courseSelected.map((item)=>item.value)
-    const expertieOptions=expertieSelected.map((item)=>item.value)
-    
+    const courseOptions = courseSelected.map((item) => item.value);
+    const expertieOptions = expertieSelected.map((item) => item.value);
 
-    const sendData={
-      full_name:name,
-      role:role,
-      department:dept,
-      phone_number:phone,
-      email:email,
-      student_count:0,
-      course_count:0,
-      about:about,
-      area_of_experties:expertieOptions,
-      courses_name:courseOptions,
-      recognitions
+    const sendData = {
+      full_name: name,
+      role: role,
+      department: dept,
+      phone_number: phone,
+      email: email,
+      student_count: 0,
+      course_count: 0,
+      about: about,
+      area_of_experties: expertieOptions,
+      courses_name: courseOptions,
+      recognitions,
+    };
+    try {
+      const res = await api.post("/api/instituteprofile/add_faculty", sendData);
+      if (res) {
+        toast({
+          title: "Faculty added",
+          description: `${name} has been added.`,
+        });
+        fetchFacultyList();
+      }
+
+      setOpen(false);
+
+      setName("");
+      setRole("");
+      setDept("");
+      setEmail("");
+      setStudents("");
+      setCourseSelected([]);
+      setExpertieSelected([]);
+      setAbout("");
+      setRecognitions("");
+      setPhone("");
+    } catch (err) {
+      toast({
+        title: "Faculty added",
+        description: `${name} has been added.`,
+      });
     }
-
- 
-
-   const res = await api.post(
-        "/api/instituteprofile/add_faculty",
-        sendData
-      );
- console.log("result",res);
-if(res){
-  toast({
-      title: "Faculty added",
-      description: `${name} has been added.`,
-    });
-    fetchFacultyList()
-}
-
-    
-
-    setOpen(false);
-
-    setName("");
-    setRole("");
-    setDept("");
-    setEmail("");
-    setStudents("");
-    setCourseSelected([]);
-    setExpertieSelected([]);
-    setAbout("");
-    setRecognitions("");
-    setPhone("")
-
-    console.log(
-      name,
-      expertieSelected,
-      courseSelected
-    );
   };
+
+  const [edit, setEdit] = useState({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [refresh, setRefresh] = useState(0);
 
   const handleCreate = (inputValue) => {
     const newOption = {
@@ -229,38 +252,40 @@ if(res){
       label: inputValue,
     };
 
-    setExpertiesOptions((prev) => [
-      ...prev,
-      newOption,
-    ]);
+    setExpertiesOptions((prev) => [...prev, newOption]);
 
-    setExpertieSelected((prev) => [
-      ...prev,
-      newOption,
-    ]);
+    setExpertieSelected((prev) => [...prev, newOption]);
   };
 
- 
+  const closeModalRH = () => {
+    setEdit({});
+    setIsModalOpen(false);
+    //document.body.style.overflow = "auto";
+  };
+
+  const openModalEdit = (row) => {
+    setEdit(row);
+    setIsModalOpen(true);
+    //document.body.style.overflow = "hidden"; // Disable background scrolling
+  };
 
   const fetchCourseList = async () => {
     try {
-      const res = await api.get(
-        "/api/institute-course/course"
-      );
+      const res = await api.get("/api/institute-course/course");
       const data = res?.data?.data || [];
-      const options=data.map((item)=>({'value':item._id,'label':item.name}))
+      const options = data.map((item) => ({
+        value: item._id,
+        label: item.name,
+      }));
       setCourses(options);
     } catch (err) {
       console.error("Error fetching data", err);
     }
   };
 
-
   const fetchFacultyList = async () => {
     try {
-      const res = await api.get(
-        "/api/instituteprofile/get_faculty"
-      );
+      const res = await api.get("/api/instituteprofile/get_faculty");
       const data = res?.data?.data || [];
       setFacultyList(data);
     } catch (err) {
@@ -270,9 +295,10 @@ if(res){
 
   useEffect(() => {
     fetchCourseList();
-    fetchFacultyList();
   }, []);
-
+  useEffect(() => {
+    fetchFacultyList();
+  }, [refresh]);
 
   const totalPages = Math.ceil(facultyList.length / ITEMS_PER_PAGE);
 
@@ -327,7 +353,7 @@ if(res){
             onClick={() => setOpen(true)}
           >
             <Plus className="h-4 w-4" />
-            Add faculty
+            Add Faculty
           </Button>
         }
       />
@@ -357,112 +383,15 @@ if(res){
           tint="success"
         />
       </div>
-     
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {paginatedFaculty?.map((f,i) => (
-          <Card
-           key={f?.full_name + i}
-            className="shadow-sm hover:shadow-md transition-shadow border-border/60"
-          >
-            <CardHeader className="flex flex-row items-start gap-3 space-y-0">
-              <Avatar className="h-12 w-12 border">
-                <AvatarFallback className="bg-primary-soft text-primary font-semibold">
-                  {f?.full_name
-                    .split(" ")
-                    .map((w) => w[0])
-                    .slice(0, 2)
-                    .join("")}
-                </AvatarFallback>
-              </Avatar>
-
-              <div className="min-w-0 flex-1">
-                <Link
-                  to={`/institute/faculty/${encodeURIComponent(
-                    f?.full_name
-                      .toLowerCase()
-                      .replace(/[^a-z]+/g, "-")
-                  )}`}
-                  className="font-semibold text-foreground truncate hover:text-primary transition-colors block"
-                >
-                  {f?.full_name}
-                </Link>
-
-                <p className="text-sm text-muted-foreground">
-                  {f?.role}
-                </p>
-{/* 
-                <Badge
-                  variant="outline"
-                  className="mt-1.5 bg-muted/50 text-muted-foreground border-border text-[10px]"
-                >
-                  {f?.dept}
-                </Badge> */}
-              </div>
-            </CardHeader>
-
-            <CardContent className="pt-0">
-              <div className="flex items-center justify-between text-sm py-3 border-t border-border/60">
-                <div>
-                {/*   <p className="text-xs text-muted-foreground">
-                    Students
-                  </p>
-
-                  <p className="font-display text-lg font-bold text-foreground">
-                    {f?.students}
-                  </p> */}
-                </div>
-
-                <div>
-                  <p className="text-xs text-muted-foreground">
-                    Courses
-                  </p>
-
-                  <p className="font-display text-lg font-bold text-foreground">
-                    {f?.courses_name?.length||0}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Button
-                  asChild
-                  variant="outline"
-                  size="sm"
-                  className="flex-1 gap-1.5"
-                >
-                  <Link
-                    to={`/institute/faculty/${encodeURIComponent(
-                      f?.full_name
-                        .toLowerCase()
-                        .replace(/[^a-z]+/g, "-")
-                    )}`}
-                  >
-                    View profile
-                  </Link>
-                </Button>
-
-                <Button variant="outline" size="icon">
-                   <a href={`mailto:${f?.email}`}>
-                  <Mail className="h-3.5 w-3.5" />
-                  </a>
-                </Button>
-
-                <Button variant="outline" size="icon">
-                  <a href={`tel:${f?.phone}`}>
-                  <Phone className="h-3.5 w-3.5" />
-                  </a>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        <List data={paginatedFaculty} openModalEdit={openModalEdit} />
       </div>
 
-        {/* Pagination */}
+      {/* Pagination */}
       <div className="flex items-center justify-between mt-4">
         <p className="text-sm text-muted-foreground">
-          Page {currentPage} of {totalPages}
+          {totalPages > 0 && `Page ${currentPage} of ${totalPages}`}
         </p>
         {totalPages > 1 && (
           <div className="flex items-center justify-center gap-2">
@@ -511,217 +440,178 @@ if(res){
         )}
       </div>
 
-<Dialog open={open} onOpenChange={setOpen}>
-  <DialogContent className="sm:max-w-2xl h-[90vh] p-0 overflow-hidden flex flex-col">
-    {/* Header */}
-    <DialogHeader className="px-6 pt-6 pb-4 border-b shrink-0">
-      <DialogTitle className="font-display">
-        Add faculty
-      </DialogTitle>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-2xl h-[90vh] p-0 overflow-hidden flex flex-col">
+          {/* Header */}
+          <DialogHeader className="px-6 pt-6 pb-4 border-b shrink-0">
+            <DialogTitle className="font-display">Add Faculty</DialogTitle>
 
-      <DialogDescription>
-        Add a new coordinator, evaluator or mentor.
-      </DialogDescription>
-    </DialogHeader>
+            <DialogDescription>
+              Add a new coordinator, evaluator or mentor.
+            </DialogDescription>
+          </DialogHeader>
 
-    {/* Scrollable Form */}
-    <form
-      onSubmit={handleSubmit}
-      className="flex-1 overflow-y-auto"
-    >
-      <div className="px-6 py-4 space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="f-name">
-            Full name
-          </Label>
+          {/* Scrollable Form */}
+          <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
+            <div className="px-6 py-4 space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="f-name">Full name</Label>
 
-          <Input
-            id="f-name"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-              clearFieldError("name");
-            }}
-            placeholder="e.g. Dr. P. Kumar"
-          />
+                <Input
+                  id="f-name"
+                  value={name}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    clearFieldError("name");
+                  }}
+                  placeholder="e.g. Dr. P. Kumar"
+                />
 
-          {errors?.name && (
-            <p className="text-sm text-red-500">
-              {errors.name[0]}
-            </p>
-          )}
-        </div>
+                {errors?.name && (
+                  <p className="text-sm text-red-500">{errors.name[0]}</p>
+                )}
+              </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-2">
-            <Label htmlFor="f-role">
-              Role
-            </Label>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="f-role">Role</Label>
 
-            <Input
-              id="f-role"
-              value={role}
-              onChange={(e) => {
-                setRole(e.target.value);
-                clearFieldError("role");
-              }}
-              placeholder="e.g. Faculty Coordinator"
-            />
+                  <Input
+                    id="f-role"
+                    value={role}
+                    onChange={(e) => {
+                      setRole(e.target.value);
+                      clearFieldError("role");
+                    }}
+                    placeholder="e.g. Faculty Coordinator"
+                  />
 
-            {errors?.role && (
-              <p className="text-sm text-red-500">
-                {errors.role[0]}
-              </p>
-            )}
-          </div>
+                  {errors?.role && (
+                    <p className="text-sm text-red-500">{errors.role[0]}</p>
+                  )}
+                </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="f-dept">
-              Department
-            </Label>
+                <div className="space-y-2">
+                  <Label htmlFor="f-dept">Department</Label>
 
-            <Input
-              id="f-dept"
-              value={dept}
-              onChange={(e) => {
-                setDept(e.target.value);
-                clearFieldError("dept");
-              }}
-              placeholder="e.g. Engineering"
-            />
+                  <Input
+                    id="f-dept"
+                    value={dept}
+                    onChange={(e) => {
+                      setDept(e.target.value);
+                      clearFieldError("dept");
+                    }}
+                    placeholder="e.g. Engineering"
+                  />
 
-            {errors?.dept && (
-              <p className="text-sm text-red-500">
-                {errors.dept[0]}
-              </p>
-            )}
-          </div>
-        </div>
+                  {errors?.dept && (
+                    <p className="text-sm text-red-500">{errors.dept[0]}</p>
+                  )}
+                </div>
+              </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="f-email">
-            Email
-          </Label>
+              <div className="space-y-2">
+                <Label htmlFor="f-email">Email</Label>
 
-          <Input
-            id="f-email"
-            type="email"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              clearFieldError("email");
-            }}
-            placeholder="kumar@geisil.in"
-          />
+                <Input
+                  id="f-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    clearFieldError("email");
+                  }}
+                  placeholder="kumar@geisil.in"
+                />
 
-          {errors?.email && (
-            <p className="text-sm text-red-500">
-              {errors.email[0]}
-            </p>
-          )}
-        </div>
+                {errors?.email && (
+                  <p className="text-sm text-red-500">{errors.email[0]}</p>
+                )}
+              </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="f-phone">
-            Phone
-          </Label>
+              <div className="space-y-2">
+                <Label htmlFor="f-phone">Phone</Label>
 
-          <Input
-            id="f-phone"
-            value={phone}
-            onChange={(e) => {
-              setPhone(e.target.value);
-              clearFieldError("phone");
-            }}
-            placeholder="phone number"
-          />
+                <Input
+                  id="f-phone"
+                  value={phone}
+                  onChange={(e) => {
+                    setPhone(e.target.value);
+                    clearFieldError("phone");
+                  }}
+                  placeholder="phone number"
+                />
 
-          {errors?.phone && (
-            <p className="text-sm text-red-500">
-              {errors.phone[0]}
-            </p>
-          )}
-        </div>
+                {errors?.phone && (
+                  <p className="text-sm text-red-500">{errors.phone[0]}</p>
+                )}
+              </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="Course">
-            Course
-          </Label>
+              <div className="space-y-2">
+                <Label htmlFor="Course">Course</Label>
 
-          <Select
-            options={courses}
-            isMulti
-            value={courseSelected}
-            onChange={(value) => {
-              setCourseSelected(value);
-              clearFieldError("courses");
-            }}
-          />
+                <Select
+                  options={courses}
+                  isMulti
+                  value={courseSelected}
+                  onChange={(value) => {
+                    setCourseSelected(value);
+                    clearFieldError("courses");
+                  }}
+                />
 
-          {errors?.courses && (
-            <p className="text-sm text-red-500">
-              {errors.courses[0]}
-            </p>
-          )}
-        </div>
+                {errors?.courses && (
+                  <p className="text-sm text-red-500">{errors.courses[0]}</p>
+                )}
+              </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="area_of_experties">
-            Area of experties
-          </Label>
+              <div className="space-y-2">
+                <Label htmlFor="area_of_experties">Area of experties</Label>
 
-          <CreatableSelect
-            isMulti
-            options={expertiesOptions}
-            value={expertieSelected}
-            onChange={(newValue) => {
-              setExpertieSelected(newValue);
-              clearFieldError("experties");
-            }}
-            onCreateOption={handleCreate}
-            placeholder="Search or add..."
-            formatCreateLabel={(inputValue) =>
-              `Add "${inputValue}"`
-            }
-          />
+                <CreatableSelect
+                  isMulti
+                  options={expertiesOptions}
+                  value={expertieSelected}
+                  onChange={(newValue) => {
+                    setExpertieSelected(newValue);
+                    clearFieldError("experties");
+                  }}
+                  onCreateOption={handleCreate}
+                  placeholder="Search or add..."
+                  formatCreateLabel={(inputValue) => `Add "${inputValue}"`}
+                />
 
-          {errors?.experties && (
-            <p className="text-sm text-red-500">
-              {errors.experties[0]}
-            </p>
-          )}
-        </div>
+                {errors?.experties && (
+                  <p className="text-sm text-red-500">{errors.experties[0]}</p>
+                )}
+              </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="about">
-            About
-          </Label>
+              <div className="space-y-2">
+                <Label htmlFor="about">About</Label>
 
-          <Textarea
+                {/*   <Textarea
             id="about"
             value={about}
             onChange={(e) => {
-              setAbout(e.target.value);
+              setAbout(()=>e.target.value);
               clearFieldError("about");
             }}
             placeholder="Strengths, areas to improve, panel observations…"
             maxLength={500}
             rows={3}
-          />
+          /> */}
 
-          {errors?.about && (
-            <p className="text-sm text-red-500">
-              {errors.about[0]}
-            </p>
-          )}
-        </div>
+                <ReactQuill value={about} onChange={setAbout} theme="snow" />
 
-        <div className="space-y-2 pb-6">
-          <Label htmlFor="recognitions">
-            Recognitions
-          </Label>
+                {errors?.about && (
+                  <p className="text-sm text-red-500">{errors.about[0]}</p>
+                )}
+              </div>
 
-          <Textarea
+              <div className="space-y-2 pb-6">
+                <Label htmlFor="recognitions">Recognitions</Label>
+
+                {/*   <Textarea
             id="recognitions"
             value={recognitions}
             onChange={(e) => {
@@ -731,33 +621,43 @@ if(res){
             placeholder="Awards, achievements, recognitions..."
             maxLength={500}
             rows={3}
-          />
+          /> */}
 
-          {errors?.recognitions && (
-            <p className="text-sm text-red-500">
-              {errors.recognitions[0]}
-            </p>
-          )}
-        </div>
-      </div>
+                <ReactQuill
+                  value={recognitions}
+                  onChange={setRecognitions}
+                  theme="snow"
+                />
 
-      {/* Sticky Footer */}
-      <DialogFooter className="sticky bottom-0 bg-background border-t px-6 py-4 shrink-0">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => setOpen(false)}
-        >
-          Cancel
-        </Button>
+                {errors?.recognitions && (
+                  <p className="text-sm text-red-500">
+                    {errors.recognitions[0]}
+                  </p>
+                )}
+              </div>
+            </div>
 
-        <Button type="submit">
-          Add faculty
-        </Button>
-      </DialogFooter>
-    </form>
-  </DialogContent>
-</Dialog>
+            {/* Sticky Footer */}
+            <DialogFooter className="sticky bottom-0 bg-background border-t px-6 py-4 shrink-0">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+              >
+                Cancel
+              </Button>
+
+              <Button type="submit">Add Faculty</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+      <FormModal
+        show={isModalOpen}
+        onClose={closeModalRH}
+        data={edit}
+        setRefresh={setRefresh}
+      />
     </DashboardLayout>
   );
 };

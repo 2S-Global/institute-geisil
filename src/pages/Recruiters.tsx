@@ -54,7 +54,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import FormModal from "@/components/institute/Recruiters/FormModal";
-import { useSidebar } from "@/components/ui/sidebar"
+import List  from "@/components/institute/Recruiters/List"
 
 const statusStyles: Record<string, string> = {
   Active: "bg-success/10 text-success border-success/20",
@@ -127,7 +127,6 @@ const Recruiters = () => {
   const [edit, setEdit] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [refresh, setRefresh] = useState(0);
-  const {toggleSidebarOpen}=useSidebar()
 
   const update = <K extends keyof RecruiterForm>(
     key: K,
@@ -297,13 +296,13 @@ const Recruiters = () => {
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button className="gap-2 bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand">
-                <Plus className="h-4 w-4" /> Add recruiter
+                <Plus className="h-4 w-4" /> Add Recruiter
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[640px] max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="font-display text-2xl">
-                  Add new recruiter
+                  Add Recruiter
                 </DialogTitle>
                 <DialogDescription>
                   Onboard a hiring partner to start sharing requisitions and
@@ -493,7 +492,7 @@ const Recruiters = () => {
                     type="submit"
                     className="bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand"
                   >
-                    Add recruiter
+                    Add Recruiter
                   </Button>
                 </DialogFooter>
               </form>
@@ -534,91 +533,12 @@ const Recruiters = () => {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {paginatedRecruiters?.map((r, i) => (
-          <Card
-            key={r?.companyName + i}
-            className="shadow-sm hover:shadow-md transition-shadow border-border/60"
-          >
-            <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
-              <div className="flex items-center gap-3 min-w-0">
-                <Avatar className="h-11 w-11 border">
-                  <AvatarFallback className="bg-primary-soft text-primary font-semibold">
-                    {r?.companyName.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="min-w-0">
-                  <CardTitle className="text-base truncate">
-                    {r?.companyName}
-                  </CardTitle>
-                  <CardDescription>{r.sector}</CardDescription>
-                </div>
-              </div>
-              <Badge variant="outline" className={statusStyles[r?.status]}>
-                {r.status}
-              </Badge>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 gap-3 mb-4">
-                <div>
-                  <p className="text-xs text-muted-foreground">Openings</p>
-                  <p className="font-display text-xl font-bold text-foreground">
-                    {r.openings}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Hired</p>
-                  <p className="font-display text-xl font-bold text-foreground">
-                    {r.hired}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Rating</p>
-                  <p className="font-display text-xl font-bold text-foreground">
-                    {r.rating}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-              
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex-1 gap-1"
-                  onClick={() => {setContact(r)}}
-                >
-                  
-                  <Mail className="h-3.5 w-3.5" /> Contact
-                </Button>
-               
-                  <Link
-                    to={`/institute/recruiters/${r?._id}`}
-                  >
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-primary flex-1 gap-1"
-                    >
-                      View <ExternalLink className="h-3.5 w-3.5" />
-                    </Button>
-                  </Link>
-                   
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex-1 gap-1"
-                  onClick={() =>{openModalEdit(r)}}
-                >
-                  <Mail className="h-3.5 w-3.5" /> Edit
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+       <List data={paginatedRecruiters} setContact={setContact}  openModalEdit={openModalEdit}/>
       </div>
       {/* Pagination */}
       <div className="flex items-center justify-between mt-4">
         <p className="text-sm text-muted-foreground">
-          Page {currentPage} of {totalPages}
+          {totalPages>0 && `Page ${currentPage} of ${totalPages}`}
         </p>
         {totalPages > 1 && (
           <div className="flex items-center justify-center gap-2">
@@ -671,7 +591,7 @@ const Recruiters = () => {
         <DialogContent className="sm:max-w-[560px] p-0 overflow-hidden">
           {contact && (
             <>
-              <div className="h-20 bg-gradient-to-r from-primary to-[hsl(var(--primary-hover))]" />
+              <div className="h-10 " />
               <div className="px-6 pb-6 -mt-10">
                 <div className="flex items-end gap-4">
                   <Avatar className="h-20 w-20 border-4 border-card shadow-md">

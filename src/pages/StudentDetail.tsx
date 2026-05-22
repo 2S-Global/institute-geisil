@@ -71,31 +71,103 @@ const StudentDetail = () => {
         }
       />
 
-      <Card className="mb-6 border-border/60 shadow-sm overflow-hidden">
-        <div className="h-24 bg-gradient-to-r from-primary to-[hsl(var(--primary-hover))]" />
-        <CardContent className="pt-0">
-          <div className="flex flex-col md:flex-row md:items-end gap-4 -mt-10">
-            <Avatar className="h-20 w-20 border-4 border-card shadow-md">
-              <AvatarFallback className="bg-primary-soft text-primary font-display font-bold text-2xl">{initials}</AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0 md:pb-2">
-              <div className="flex flex-wrap items-center gap-2">
-                <h2 className="font-display text-xl font-bold text-foreground">{name}</h2>
-                <Badge variant="outline" className="bg-success/10 text-success border-success/20">Placed</Badge>
-                <Badge variant="outline">Employability 92</Badge>
-              </div>
-              <p className="text-sm text-muted-foreground mt-1">B.Tech CSE • CGPA 9.2 • Specialization: AI / ML</p>
-            </div>
-          </div>
-          <Separator className="my-5" />
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
-            <div className="flex items-start gap-3"><Mail className="h-4 w-4 text-muted-foreground mt-0.5" /><div><p className="text-xs text-muted-foreground">Email</p><p className="text-foreground truncate">priya.menon@geisil.in</p></div></div>
-            <div className="flex items-start gap-3"><Phone className="h-4 w-4 text-muted-foreground mt-0.5" /><div><p className="text-xs text-muted-foreground">Phone</p><p className="text-foreground">+91 98765 43210</p></div></div>
-            <div className="flex items-start gap-3"><MapPin className="h-4 w-4 text-muted-foreground mt-0.5" /><div><p className="text-xs text-muted-foreground">Location</p><p className="text-foreground">Bengaluru, KA</p></div></div>
-            <div className="flex items-start gap-3"><Calendar className="h-4 w-4 text-muted-foreground mt-0.5" /><div><p className="text-xs text-muted-foreground">Enrolled</p><p className="text-foreground">Aug 2022</p></div></div>
-          </div>
-        </CardContent>
-      </Card>
+     <Card className="mb-6 border-border/60 shadow-sm overflow-hidden">
+  {/* Header */}
+  <div className="bg-[#1b4498] px-6 pt-6 pb-6">
+    <div className="flex flex-col md:flex-row md:items-end gap-4">
+      
+      <Avatar className="h-20 w-20 border-4 border-card shadow-md">
+        <AvatarFallback className="bg-primary-soft text-white font-display font-bold text-2xl">
+          {initials}
+        </AvatarFallback>
+      </Avatar>
+
+      <div className="flex-1 min-w-0">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="font-display text-xl font-bold text-white">
+            {name}
+          </h2>
+
+          <Badge
+            variant="outline"
+            className="bg-success/10 text-success border-success/20"
+          >
+            Placed
+          </Badge>
+
+          <Badge variant="outline" className="gap-1 bg-white">
+            Employability 92
+          </Badge>
+        </div>
+
+        <p className="text-sm text-white mt-1">
+          B.Tech CSE • CGPA 9.2 • Specialization: AI / ML
+        </p>
+      </div>
+    </div>
+  </div>
+
+  {/* Content */}
+  <CardContent className="pt-0">
+    <Separator className="mb-5" />
+
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
+      
+      <div className="flex items-start gap-3">
+        <Mail className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+        <div className="min-w-0">
+          <p className="text-muted-foreground text-xs">Email</p>
+          <p className="text-foreground truncate">
+            priya.menon@geisil.in
+          </p>
+        </div>
+      </div>
+
+      <div className="flex items-start gap-3">
+        <Phone className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+        <div className="min-w-0">
+          <p className="text-muted-foreground text-xs">Phone</p>
+          <p className="text-foreground truncate">
+            +91 98765 43210
+          </p>
+        </div>
+      </div>
+
+      <div className="flex items-start gap-3">
+        <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+        <div className="min-w-0">
+          <p className="text-muted-foreground text-xs">Location</p>
+          <p className="text-foreground">
+            Bengaluru, KA
+          </p>
+        </div>
+      </div>
+
+      <div className="flex items-start gap-3">
+        <Calendar className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+        <div className="min-w-0">
+          <p className="text-muted-foreground text-xs">Enrolled</p>
+          <p className="text-foreground">
+            Aug 2022
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {/* Optional Skills / Tags */}
+    <div className="mt-5 flex flex-wrap gap-2">
+      {["React", "Node.js", "AI/ML", "TypeScript"].map((skill) => (
+        <Badge
+          key={skill}
+          variant="outline"
+          className="bg-muted/40"
+        >
+          {skill}
+        </Badge>
+      ))}
+    </div>
+  </CardContent>
+</Card>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 mb-6">
         <StatCard label="Employability" value="92" delta={6} icon={Award} tint="primary" />

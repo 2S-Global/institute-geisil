@@ -178,7 +178,7 @@ setForm({
   <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
     <DialogHeader>
       <DialogTitle className="font-display text-2xl">
-        {data?._id ? "Edit recruiter" : "Add new recruiter"}
+        {data?._id ? "Edit Recruiter" : "Add Recruiter"}
       </DialogTitle>
 
       <DialogDescription>
@@ -370,7 +370,7 @@ setForm({
                     type="submit"
                     className="bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand"
                   >
-                    Update recruiter
+                    Update Recruiter
                   </Button>
                 </DialogFooter>
               </form>

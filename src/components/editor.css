@@ -1,0 +1,29 @@
+.editor-wrapper {
+  border: 1px solid #ddd;
+  padding: 10px;
+  min-height: 150px;
+  border-radius: 6px;
+}
+
+.editor-input {
+  min-height: 120px;
+  outline: none;
+}
+
+.editor-placeholder {
+  position: absolute;
+  color: #999;
+  pointer-events: none;
+}
+
+.editor-paragraph {
+  margin: 0 0 8px 0;
+}
+
+.editor-bold {
+  font-weight: bold;
+}
+
+.editor-italic {
+  font-style: italic;
+}

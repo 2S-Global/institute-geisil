@@ -10,6 +10,7 @@ import Login from "./pages/Login.tsx";
 import Students from "./pages/Students.tsx";
 import ManageCourses from "./pages/ManageCourses.tsx";
 import StudentDetail from "./pages/StudentDetail.tsx";
+import AllStudentList from "./pages/allStudentList.tsx";
 import Recruiters from "./pages/Recruiters.tsx";
 import RecruiterDetail from "./pages/RecruiterDetail.tsx";
 import Evaluations from "./pages/Evaluations.tsx";
@@ -38,7 +39,6 @@ import EmployerSettings from "./pages/employer/Settings.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import { AuthProvider } from "@/components/context/AuthContext.tsx";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { SidebarProvider } from "@/components/ui/sidebar";
 const queryClient = new QueryClient();
 const App = ()=>{ 
  
@@ -54,7 +54,7 @@ const App = ()=>{
       <Toaster />
       <Sonner />
       <AuthProvider>
-        <SidebarProvider>
+       
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
@@ -79,6 +79,7 @@ const App = ()=>{
                     <Route path="/institute-profile-details" element={<InstituteProfileDetails />} />
                     <Route path="/manage-courses" element={<ManageCourses />} />
                     <Route path="/student-verification" element={<StudentVerification />} />
+                    <Route path="/all-student" element={<AllStudentList />} />
                   </Routes>
               </ProtectedRoute>
                } />
@@ -103,7 +104,7 @@ const App = ()=>{
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
-        </SidebarProvider>
+       
       </AuthProvider>
       
     </TooltipProvider>

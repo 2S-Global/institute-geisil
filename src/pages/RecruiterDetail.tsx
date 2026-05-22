@@ -46,6 +46,12 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 
+const statusStyles: Record<string, string> = {
+  Active: "bg-white text-[#00b33c] border-green-600/40",
+  Reviewing: "bg-white text-warning border-warning/20",
+  Closed: "bg-white text-red-700 border-red-600/40",
+};
+
 const recruitersDB: Record<string, any> = {
   default: {
     name: "Tata Consultancy Services",
@@ -165,53 +171,106 @@ const RecruiterDetail = () => {
       />
 
       {/* Profile summary */}
-      <Card className="mb-6 border-border/60 shadow-sm overflow-hidden">
-       {/*  <div className="h-24 bg-[#516295] "/> */}
-        <CardContent className="pt-20">
-          <div className="flex flex-col md:flex-row md:items-end gap-4 -mt-10">
+     <Card className="mb-6 border-border/60 shadow-sm overflow-hidden">
+        {/* Header */}
+        <div className="bg-[#1b4498] px-6 pt-6 pb-6">
+          <div className="flex flex-col md:flex-row md:items-end gap-4">
+            
             <Avatar className="h-20 w-20 border-4 border-card shadow-md">
-              <AvatarFallback className="bg-primary-soft text-primary font-display font-bold text-2xl">
-                {recruiter?.companyName?.charAt(0)||""}
+              <AvatarFallback className="bg-primary-soft text-white font-display font-bold text-2xl">
+                {recruiter?.companyName?.charAt(0) || ""}
               </AvatarFallback>
             </Avatar>
-            <div className="flex-1 min-w-0 md:pb-2">
+
+            <div className="flex-1 min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <h2 className="font-display text-xl font-bold text-foreground">{recruiter?.companyName||""}</h2>
-                <Badge variant="outline" className="bg-success/10 text-success border-success/20">{recruiter?.status||""}</Badge>
-                <Badge variant="outline" className="gap-1"><Star className="h-3 w-3 fill-warning text-warning" />{recruiter?.rating||""}</Badge>
+                <h2 className="font-display text-xl font-bold text-white">
+                  {recruiter?.companyName || ""}
+                </h2>
+
+              {/*   <Badge
+                  variant="outline"
+                  className="bg-white"
+                >
+                  {recruiter?.status || ""}
+                </Badge> */}
+
+                <Badge variant="outline" className={statusStyles[recruiter?.status]}>
+                                {recruiter?.status}
+                              </Badge>
+
+                <Badge variant="outline" className="gap-1">
+                  <Star className="h-3 w-3 fill-warning text-warning" />
+                  {recruiter?.rating || ""}
+                </Badge>
               </div>
-              <p className="text-sm text-muted-foreground mt-1">{recruiter?.sector||""} • since {recruiter?.since||""}</p>
+
+              <p className="text-sm text-white mt-1">
+                {recruiter?.sector || ""} • since {recruiter?.since || ""}
+              </p>
             </div>
           </div>
+        </div>
 
-          <Separator className="my-5" />
+        {/* Content */}
+        <CardContent className="pt-0">
+              <Separator className="mb-5" />
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
             <div className="flex items-start gap-3">
               <Mail className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-              <div className="min-w-0"><p className="text-muted-foreground text-xs">Email</p><p className="text-foreground truncate">{recruiter?.email||""}</p></div>
+              <div className="min-w-0">
+                <p className="text-muted-foreground text-xs">Email</p>
+                <p className="text-foreground truncate">
+                  {recruiter?.email || ""}
+                </p>
+              </div>
             </div>
+
             <div className="flex items-start gap-3">
               <Phone className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-              <div className="min-w-0"><p className="text-muted-foreground text-xs">Phone</p><p className="text-foreground truncate">{recruiter?.phone||""}</p></div>
+              <div className="min-w-0">
+                <p className="text-muted-foreground text-xs">Phone</p>
+                <p className="text-foreground truncate">
+                  {recruiter?.phone || ""}
+                </p>
+              </div>
             </div>
+
             <div className="flex items-start gap-3">
               <Globe className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-              <div className="min-w-0"><p className="text-muted-foreground text-xs">Website</p><p className="text-foreground truncate">{websiteName(recruiter?.website)||""}</p></div>
+              <div className="min-w-0">
+                <p className="text-muted-foreground text-xs">Website</p>
+                <p className="text-foreground truncate">
+                  {websiteName(recruiter?.website) || ""}
+                </p>
+              </div>
             </div>
+
             <div className="flex items-start gap-3">
               <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-              <div className="min-w-0"><p className="text-muted-foreground text-xs text-wrap">Location</p><p className="text-foreground ">{recruiter?.address||""}</p></div>
+              <div className="min-w-0">
+                <p className="text-muted-foreground text-xs">Location</p>
+                <p className="text-foreground">
+                  {recruiter?.address || ""}
+                </p>
+              </div>
             </div>
           </div>
 
           <div className="mt-5 flex flex-wrap gap-2">
             {r.sectors.map((s: string) => (
-              <Badge key={s} variant="outline" className="bg-muted/40">{s}</Badge>
+              <Badge
+                key={s}
+                variant="outline"
+                className="bg-muted/40"
+              >
+                {s}
+              </Badge>
             ))}
           </div>
         </CardContent>
-      </Card>
+    </Card>
 
       {/* KPIs */}
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 mb-6">
