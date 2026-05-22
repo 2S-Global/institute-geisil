@@ -9,6 +9,7 @@ import Index from "./pages/Index.tsx";
 import Login from "./pages/Login.tsx";
 import Students from "./pages/Students.tsx";
 import ManageCourses from "./pages/ManageCourses.tsx";
+import StudentSearch from "./pages/SearchStudent.tsx";
 import StudentDetail from "./pages/StudentDetail.tsx";
 import Recruiters from "./pages/Recruiters.tsx";
 import RecruiterDetail from "./pages/RecruiterDetail.tsx";
@@ -79,6 +80,7 @@ const App = ()=>{
                     <Route path="/institute-profile-details" element={<InstituteProfileDetails />} />
                     <Route path="/manage-courses" element={<ManageCourses />} />
                     <Route path="/student-verification" element={<StudentVerification />} />
+                    <Route path="/search-student" element={<StudentSearch />} />
                   </Routes>
               </ProtectedRoute>
                } />
