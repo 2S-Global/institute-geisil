@@ -335,7 +335,8 @@ const FacultyDetail = () => {
               <CardDescription>Background and accomplishments</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 text-sm text-muted-foreground leading-relaxed">
-                  <p>{faculty?.about ||""}</p> 
+                  
+                  <div dangerouslySetInnerHTML={{ __html: faculty?.about }} />
               <Separator />
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
@@ -359,7 +360,8 @@ const FacultyDetail = () => {
                     <li>Industry Bridge Award — NASSCOM 2023</li>
                     <li>3x author of placement strategy whitepapers</li>
                   </ul> */}
-                  <p>{faculty?.recognitions ||""}</p>
+                 
+                  <div dangerouslySetInnerHTML={{ __html: faculty?.recognitions  }} />
                 </div>
               </div>
             </CardContent>

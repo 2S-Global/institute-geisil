@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "@/lib/axios";
 import { Link } from "react-router-dom";
-import { Filter, Plus, Search, Edit, Trash } from "lucide-react";
+import { Filter, Plus, Search, Edit, Trash,ArrowLeft } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { StatCard } from "@/components/dashboard/StatCard";
@@ -113,6 +113,9 @@ const AllStudentList = () => {
 
   return (
     <DashboardLayout>
+        <Button asChild variant="ghost" size="sm" className="mb-4 -ml-2 text-muted-foreground hover:text-foreground">
+        <Link to="/institute/students"><ArrowLeft className="h-4 w-4" /> Back to students</Link>
+      </Button>
       <PageHeader
         eyebrow="Workspace"
         title="Student List"

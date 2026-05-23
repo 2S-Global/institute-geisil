@@ -122,7 +122,7 @@ const facultySchema = z.object({
 
   recognitions: z
     .string()
-    .max(500, "Recognitions cannot exceed 500 characters")
+    /* .max(500, "Recognitions cannot exceed 500 characters") */
     .optional()
     .or(z.literal("")),
 });
@@ -139,6 +139,8 @@ const Faculty = () => {
   const [email, setEmail] = useState("");
   const [students, setStudents] = useState("");
   const [phone, setPhone] = useState("");
+  const [officeHours, setOfficeHours] = useState("");
+  const [address, setAddress] = useState("");
 
   const [courses, setCourses] = useState([]);
   const [courseSelected, setCourseSelected] = useState([]);
@@ -177,6 +179,8 @@ const Faculty = () => {
       about,
       recognitions,
       phone,
+      office_hours:officeHours,
+      address
     };
 
     const result = facultySchema.safeParse(formData);
@@ -211,6 +215,8 @@ const Faculty = () => {
       area_of_experties: expertieOptions,
       courses_name: courseOptions,
       recognitions,
+      office_hours:officeHours,
+      address
     };
     try {
       const res = await api.post("/api/instituteprofile/add_faculty", sendData);
@@ -235,10 +241,15 @@ const Faculty = () => {
       setRecognitions("");
       setPhone("");
     } catch (err) {
-      toast({
-        title: "Faculty added",
-        description: `${name} has been added.`,
+        if (err.response) {
+      console.log(err.response.data.message);
+       toast({
+        title: "Error",
+        description: `${err.response.data.message || "Something went wrong"}`,
       });
+     
+    }
+     
     }
   };
 
@@ -585,6 +596,44 @@ const Faculty = () => {
                   <p className="text-sm text-red-500">{errors.experties[0]}</p>
                 )}
               </div>
+
+               <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="f-role">Office Hours</Label>
+
+                  <Input
+                    id="f-officeHours"
+                    value={officeHours}
+                    onChange={(e) => {
+                      setOfficeHours(e.target.value);
+                      clearFieldError("officeHours");
+                    }}
+                    placeholder="Office Hours"
+                  />
+
+                  {errors?.officeHours && (
+                    <p className="text-sm text-red-500">{errors.officeHours[0]}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="f-address">Address</Label>
+
+                  <Input
+                    id="f-address"
+                    value={address}
+                    onChange={(e) => {
+                      setAddress(e.target.value);
+                      clearFieldError("address");
+                    }}
+                    placeholder="Address"
+                  />
+
+                  {errors?.address && (
+                    <p className="text-sm text-red-500">{errors.dept[0]}</p>
+                  )}
+                </div>
+               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="about">About</Label>

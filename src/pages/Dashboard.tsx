@@ -114,7 +114,7 @@ const Dashboard = () => {
 
        {/* KPIs */}
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Total Students" value="3,940" delta={12} icon={GraduationCap} tint="primary" link="/institute/students" />
+        <StatCard label="Total Students" value="3,940" delta={12} icon={GraduationCap} tint="primary" link="/institute/all-student" />
         <StatCard label="Active Recruiters" value="184" delta={8} icon={Briefcase} tint="accent" />
         <StatCard label="Evaluations (MTD)" value="1,267" delta={24} icon={ClipboardCheck} tint="success" />
         <StatCard label="Placement Rate" value="86.4%" delta={-2} icon={TrendingUp} tint="warning" />

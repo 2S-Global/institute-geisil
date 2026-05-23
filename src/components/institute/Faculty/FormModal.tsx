@@ -8,7 +8,21 @@ import { Textarea } from "@/components/ui/textarea";
 import api from "@/lib/axios";
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 import { z } from "zod";
+const MAX_CHARS = 500;
+/*  .refine((val) => stripHtml(val).length <= MAX_CHARS, {
+      message: `About Us must be at most ${MAX_CHARS} characters`,
+    }) */
+const stripHtml = (val?: string) => {
+  if (!val) return "";
+  const clean = val
+    .replace(/<(.|\n)*?>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .trim();
+  return clean;
+};
 const facultySchema = z.object({
   name: z
     .string()
@@ -98,7 +112,8 @@ const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
   const [email, setEmail] = useState("");
   const [students, setStudents] = useState("");
   const [phone, setPhone] = useState("");
-
+ const [officeHours, setOfficeHours] = useState("");
+  const [address, setAddress] = useState("");
   const [courses, setCourses] = useState([]);
   const [courseSelected, setCourseSelected] = useState([]);
 
@@ -139,7 +154,9 @@ const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
       experties: expertieSelected,
       about,
       recognitions,
-      phone
+      phone,
+      office_hours:officeHours,
+      address
     };
 
     const result = facultySchema.safeParse(formData);
@@ -169,23 +186,25 @@ const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
       area_of_experties:expertieOptions,
       courses_name:courseOptions,
       recognitions,
+      office_hours:officeHours,
+      address,
       id:data._id
     }
-
+ try {
   const res = await api.put(
         "/api/instituteprofile/update_faculty",
         sendData
       );
  
-if(res){
-  onClose();
-  setRefresh(p=>p+1)
-  toast({
-      title: "Faculty update",
-      description: `${name} has been updated.`,
-    });
-    
-}
+  if(res){
+    onClose();
+    setRefresh(p=>p+1)
+    toast({
+        title: "Faculty update",
+        description: `${name} has been updated.`,
+      });
+      
+  }
 
 onClose()
 
@@ -199,6 +218,21 @@ onClose()
     setAbout("");
     setRecognitions("");
     setPhone("")
+
+} catch (err) {
+        if (err.response) {
+      console.log(err.response.data.message);
+       toast({
+        title: "Error",
+        description: `${err.response.data.message || "Something went wrong"}`,
+      });
+     
+    }
+     
+    }
+
+
+
   };
 
   
@@ -230,7 +264,7 @@ onClose()
       const data = res?.data?.data || [];
       const options=data.map((item)=>({'value':item._id,'label':item.name}))
       setCourses(options);
-      setIsfetch(p=>p+1)
+     
     } catch (err) {
       console.error("Error fetching data", err);
     }
@@ -453,13 +487,49 @@ onClose()
             </p>
           )}
         </div>
+<div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="f-role">Office Hours</Label>
 
+                  <Input
+                    id="f-officeHours"
+                    value={officeHours}
+                    onChange={(e) => {
+                      setOfficeHours(e.target.value);
+                      clearFieldError("officeHours");
+                    }}
+                    placeholder="Office Hours"
+                  />
+
+                  {errors?.officeHours && (
+                    <p className="text-sm text-red-500">{errors.officeHours[0]}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="f-address">Address</Label>
+
+                  <Input
+                    id="f-address"
+                    value={address}
+                    onChange={(e) => {
+                      setAddress(e.target.value);
+                      clearFieldError("address");
+                    }}
+                    placeholder="Address"
+                  />
+
+                  {errors?.address && (
+                    <p className="text-sm text-red-500">{errors.dept[0]}</p>
+                  )}
+                </div>
+               </div>
         <div className="space-y-2">
           <Label htmlFor="about">
             About
           </Label>
 
-          <Textarea
+        {/*   <Textarea
             id="about"
             value={about}
             onChange={(e) => {
@@ -469,7 +539,9 @@ onClose()
             placeholder="Strengths, areas to improve, panel observations…"
             maxLength={500}
             rows={3}
-          />
+          /> */}
+
+           <ReactQuill value={about} onChange={setAbout} theme="snow" />
 
           {errors?.about && (
             <p className="text-sm text-red-500">
@@ -483,7 +555,7 @@ onClose()
             Recognitions
           </Label>
 
-          <Textarea
+          {/* <Textarea
             id="recognitions"
             value={recognitions}
             onChange={(e) => {
@@ -493,6 +565,13 @@ onClose()
             placeholder="Awards, achievements, recognitions..."
             maxLength={500}
             rows={3}
+          /> */}
+
+          
+          <ReactQuill
+            value={recognitions}
+            onChange={setRecognitions}
+            theme="snow"
           />
 
           {errors?.recognitions && (

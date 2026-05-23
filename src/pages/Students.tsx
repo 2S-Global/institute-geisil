@@ -141,6 +141,7 @@ const Students = () => {
           delta={12}
           icon={GraduationCap}
           tint="primary"
+          link="/institute/all-student"
         />
 
         <StatCard
