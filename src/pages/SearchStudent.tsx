@@ -141,12 +141,33 @@ const ManageStudents = () => {
   };
 
   // RESET
+  // RESET
   const handleReset = () => {
     setSelectedProgram(null);
 
     setSelectedSemester(null);
 
     setSemesterOptions([]);
+
+    // RESET STUDENT LIST
+    setStudents([]);
+
+    // RESET SEARCH STATE
+    setSearched(false);
+
+    // RESET ADVANCED FILTER
+    setShowAdvanced(false);
+
+    setGender("");
+
+    setTenMin(0);
+    setTenMax(100);
+
+    setTwelveMin(0);
+    setTwelveMax(100);
+
+    setGradMin(0);
+    setGradMax(100);
   };
 
   return (
@@ -500,6 +521,6 @@ const ManageStudents = () => {
       </Card>
     </DashboardLayout>
   );
-};
+};;
 
 export default ManageStudents;
