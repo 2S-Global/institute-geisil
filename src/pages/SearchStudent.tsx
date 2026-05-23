@@ -3,36 +3,28 @@ import api from "@/lib/axios";
 
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { PageHeader } from "@/components/dashboard/PageHeader";
-
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-
 import Select from "react-select";
 import { motion, AnimatePresence } from "framer-motion";
 const ManageStudents = () => {
   const [programData, setProgramData] = useState([]);
-
   const [semesterOptions, setSemesterOptions] = useState([]);
-
   const [selectedProgram, setSelectedProgram] = useState(null);
-
   const [selectedSemester, setSelectedSemester] = useState(null);
   const [students, setStudents] = useState([]);
   const [searched, setSearched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
-
   const [gender, setGender] = useState("");
-
   const [tenMin, setTenMin] = useState(0);
   const [tenMax, setTenMax] = useState(100);
-
   const [twelveMin, setTwelveMin] = useState(0);
   const [twelveMax, setTwelveMax] = useState(100);
-
   const [gradMin, setGradMin] = useState(0);
   const [gradMax, setGradMax] = useState(100);
-
+const [searchLoading, setSearchLoading] = useState(false);
+const [filterLoading, setFilterLoading] = useState(false);
   // FETCH COURSE LIST
   useEffect(() => {
     const token = localStorage.getItem("Institute_token");
@@ -89,59 +81,56 @@ const ManageStudents = () => {
   };
 
   // SEARCH
-  const handleSearch = async () => {
-    try {
-      setLoading(true);
+const handleSearch = async () => {
+  try {
+    setSearchLoading(true);
 
-      setSearched(true);
+    setSearched(true);
 
-      const token = localStorage.getItem("Institute_token");
+    const token = localStorage.getItem("Institute_token");
 
-      const res = await api.get(
-        "/api/institutestudent/institute-student-search",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-
-          params: {
-            course: selectedProgram?.value,
-            semester: selectedSemester?.value,
-          },
+    const res = await api.get(
+      "/api/institutestudent/institute-student-search",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-      );
 
-      let data = res?.data?.data || [];
+        params: {
+          course: selectedProgram?.value,
+          semester: selectedSemester?.value,
+        },
+      },
+    );
 
-      // ADVANCED FILTER
-      data = data.filter((item) => {
-        const genderMatch = !gender || item?.gender === gender;
+    let data = res?.data?.data || [];
 
-        const tenMatch =
-          Number(item?.tenTh || 0) >= Number(tenMin) &&
-          Number(item?.tenTh || 0) <= Number(tenMax);
+    data = data.filter((item) => {
+      const genderMatch = !gender || item?.gender === gender;
 
-        const twelveMatch =
-          Number(item?.twelveTh || 0) >= Number(twelveMin) &&
-          Number(item?.twelveTh || 0) <= Number(twelveMax);
+      const tenMatch =
+        Number(item?.tenTh || 0) >= Number(tenMin) &&
+        Number(item?.tenTh || 0) <= Number(tenMax);
 
-        const gradMatch =
-          Number(item?.graduationMarks || 0) >= Number(gradMin) &&
-          Number(item?.graduationMarks || 0) <= Number(gradMax);
+      const twelveMatch =
+        Number(item?.twelveTh || 0) >= Number(twelveMin) &&
+        Number(item?.twelveTh || 0) <= Number(twelveMax);
 
-        return genderMatch && tenMatch && twelveMatch && gradMatch;
-      });
+      const gradMatch =
+        Number(item?.graduationMarks || 0) >= Number(gradMin) &&
+        Number(item?.graduationMarks || 0) <= Number(gradMax);
 
-      setStudents(data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+      return genderMatch && tenMatch && twelveMatch && gradMatch;
+    });
 
-  // RESET
-  // RESET
+    setStudents(data);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setSearchLoading(false);
+  }
+};
+
   const handleReset = () => {
     setSelectedProgram(null);
 
@@ -169,6 +158,38 @@ const ManageStudents = () => {
     setGradMin(0);
     setGradMax(100);
   };
+
+const handleApplyFilter = async () => {
+  try {
+    setFilterLoading(true);
+
+    let data = [...students];
+
+    data = data.filter((item) => {
+      const genderMatch = !gender || item?.gender === gender;
+
+      const tenMatch =
+        Number(item?.tenTh || 0) >= Number(tenMin) &&
+        Number(item?.tenTh || 0) <= Number(tenMax);
+
+      const twelveMatch =
+        Number(item?.twelveTh || 0) >= Number(twelveMin) &&
+        Number(item?.twelveTh || 0) <= Number(twelveMax);
+
+      const gradMatch =
+        Number(item?.graduationMarks || 0) >= Number(gradMin) &&
+        Number(item?.graduationMarks || 0) <= Number(gradMax);
+
+      return genderMatch && tenMatch && twelveMatch && gradMatch;
+    });
+
+    setStudents(data);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setFilterLoading(false);
+  }
+};
 
   return (
     <DashboardLayout>
@@ -255,7 +276,14 @@ const ManageStudents = () => {
                   Reset
                 </Button>
 
-                <Button onClick={handleSearch}>Search</Button>
+                <Button
+                  onClick={handleSearch}
+                  disabled={
+                    !selectedProgram || !selectedSemester || searchLoading
+                  }
+                >
+                  {searchLoading ? "Searching..." : "Search"}
+                </Button>
               </div>
             </div>
 
@@ -443,7 +471,12 @@ const ManageStudents = () => {
                         Reset Filter
                       </Button>
 
-                      <Button onClick={handleSearch}>Apply Filter</Button>
+                      <Button
+                        onClick={handleApplyFilter}
+                        disabled={filterLoading}
+                      >
+                        {filterLoading ? "Applying..." : "Apply Filter"}
+                      </Button>
                     </div>
                   </div>
                 </motion.div>
@@ -458,7 +491,7 @@ const ManageStudents = () => {
                   </div>
 
                   {/* STUDENT LIST */}
-                  {loading ? (
+                  {searchLoading ? (
                     <div className="text-center py-10">Loading...</div>
                   ) : students?.length > 0 ? (
                     <div className="overflow-x-auto rounded-xl border border-border/60">
@@ -521,6 +554,6 @@ const ManageStudents = () => {
       </Card>
     </DashboardLayout>
   );
-};;
+};
 
 export default ManageStudents;
