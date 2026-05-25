@@ -30,17 +30,18 @@ import api from "@/lib/axios";
 
 const main = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
+   {
+    title: "Student Verification",
+    url: "/institute/student-verification",
+    icon: GraduationCap,
+  },
   {
     title: "Institute Profile",
     url: "/institute/institute-profile-details",
     icon: Building2,
   },
   { title: "Students", url: "/institute/students", icon: GraduationCap },
-  {
-    title: "Student Verification",
-    url: "/institute/student-verification",
-    icon: GraduationCap,
-  },
+ 
   {
     title: "Search Student",
     url: "/institute/search-student",

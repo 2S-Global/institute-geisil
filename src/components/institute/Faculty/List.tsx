@@ -4,6 +4,7 @@ import { Plus, Mail, Phone, Users, BookOpen, Award,  ChevronLeft,
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {nameFormate,timeAgo} from "../../../lib/utils"
 
 
 const List = ({data,openModalEdit}) => {
@@ -22,7 +23,7 @@ const List = ({data,openModalEdit}) => {
                     .split(" ")
                     .map((w) => w[0])
                     .slice(0, 2)
-                    .join("")}
+                    .join("").toUpperCase()}
                 </AvatarFallback>
               </Avatar>
 
@@ -31,7 +32,7 @@ const List = ({data,openModalEdit}) => {
                   to={`/institute/faculty/${f?._id}`}
                   className="font-semibold text-foreground truncate hover:text-primary transition-colors block"
                 >
-                  {f?.full_name||''}
+                  {nameFormate(f?.full_name||'')}
                 </Link>
 
                 <p className="text-sm text-muted-foreground">

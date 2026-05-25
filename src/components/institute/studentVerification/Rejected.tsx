@@ -30,7 +30,11 @@ const Rejected = () => {
   const [status, setStatus] = useState(null);
   const itemsPerPage = 2; // change as needed
 
-
+const statusName={
+    "verified":"Verified",
+    "unverified":"Pending",
+    "rejected":"Rejected",
+  }
 
 
   useEffect(() => {
@@ -220,7 +224,7 @@ useEffect(() => {
                       :  s?.status === "unverified"?"bg-orange-100 text-orange-700":"bg-red-100 text-red-700"
                   }`}
                 >
-                  {s?.status}
+                  {statusName[s?.status]}
                 </span>
               </td>
 

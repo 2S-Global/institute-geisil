@@ -25,6 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
+import {nameFormate,timeAgo} from "../lib/utils"
 import {
   Table,
   TableBody,
@@ -115,7 +116,7 @@ const FacultyDetail = () => {
 
       <PageHeader
         /*  eyebrow={`Faculty • ${id ?? "FAC-001"}`} */
-        title={faculty?.full_name||""}
+        title={nameFormate(faculty?.full_name||"")}
         description=""
         actions={
           <>
@@ -138,14 +139,14 @@ const FacultyDetail = () => {
                 {faculty?.full_name?.split(" ")
                 .map((w) => w[0])
                 .slice(0, 2)
-                .join("")}
+                .join("").toUpperCase()}
               </AvatarFallback>
             </Avatar>
 
             <div className="flex-1 min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="font-display text-xl font-bold text-white">
-                  {faculty?.full_name||""}
+                  {nameFormate(faculty?.full_name||"")}
                 </h2>
 
               {/*   <Badge

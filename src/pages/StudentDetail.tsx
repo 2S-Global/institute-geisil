@@ -16,6 +16,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
 import API from "../lib/axios";
 import {nameFormate} from "../lib/utils"
 const skills = [
@@ -87,7 +88,7 @@ const StudentDetail = () => {
 
       <PageHeader
         eyebrow={""}
-        title={profile?.name || ""}
+        title={nameFormate(profile?.name || "")}
         description=""
         actions={
           <>
@@ -106,14 +107,14 @@ const StudentDetail = () => {
       
       <Avatar className="h-20 w-20 border-4 border-card shadow-md">
         <AvatarFallback className="bg-primary-soft text-white font-display font-bold text-2xl">
-        { profile?.name.split(" ").map(w => w[0]).join("")}
+        { profile?.name.split(" ").map(w => w[0]).join("").toUpperCase()}
         </AvatarFallback>
       </Avatar>
 
       <div className="flex-1 min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <h2 className="font-display text-xl font-bold text-white">
-            {profile?.name||""}
+            {nameFormate(profile?.name||"")}
           </h2>
 {/* 
           <Badge

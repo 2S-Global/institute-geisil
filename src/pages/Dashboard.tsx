@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "@/lib/axios";
+import {nameFormate,timeAgo} from "../lib/utils"
 import {
   GraduationCap,
   Briefcase,
@@ -24,6 +25,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { Link } from "react-router-dom";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -83,7 +85,13 @@ const statusStyles: Record<string, string> = {
   Reviewing: "bg-warning/10 text-warning border-warning/20",
   Closed: "bg-muted text-muted-foreground border-border",
 };
+const date = new Date();
 
+const formatted = date.toLocaleDateString('en-GB', {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric'
+});
 const Dashboard = () => {
   const [stats, setStats] = useState({
     total: 0,
@@ -91,7 +99,8 @@ const Dashboard = () => {
     avgScore: 0,
     pending: 0,
   });
-
+ const [recruiters, setRecruiters] = useState([]);
+   const [evaluations, setEvaluations] = useState([]);
   const fetchStats = async () => {
       try {
         const res = await api.get("/api/institutestudent/get_students_counts");
@@ -109,8 +118,36 @@ const Dashboard = () => {
       }
     };
 
+      const fetchRecruiterList = async () => {
+    try {
+      const res = await api.get(
+        "/api/instituteprofile/get_all_companies_by_institute",
+      );
+      const data = res?.data?.data || [];
+      const newData=data.slice(0,5)
+      setRecruiters(newData);
+    } catch (err) {
+      console.error("Error fetching stats", err);
+    }
+  };
+
+ const fetchEvaluationList = async () => {
+    try {
+      const res = await api.get(
+        "/api/instituteprofile/get_evaluation",
+      );
+      const data = res?.data?.data || [];
+     const newData=data.slice(0,5)
+      setEvaluations(newData);
+    } catch (err) {
+      console.error("Error fetching stats", err);
+    }
+  };
+
       useEffect(() => {
     fetchStats();
+    fetchRecruiterList()
+    fetchEvaluationList()
   }, []);
   return (
     <DashboardLayout>
@@ -118,7 +155,7 @@ const Dashboard = () => {
       {/* Page header */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
         <div>
-          <p className="text-sm text-muted-foreground">Welcome back, Dr. Sharma 👋</p>
+          <p className="text-sm text-muted-foreground">Welcome back 👋</p>
           <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight text-foreground mt-1">
             Institute Dashboard  
           </h1>
@@ -129,15 +166,15 @@ const Dashboard = () => {
         <div className="flex items-center gap-2">
           <Button variant="outline" className="gap-2">
             <Calendar className="h-4 w-4" />
-            <span>Apr 2026</span>
+            <span>{formatted}</span>
           </Button>
-          <Button variant="outline" size="icon">
+       {/*    <Button variant="outline" size="icon">
             <Download className="h-4 w-4" />
           </Button>
           <Button className="gap-2 bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand">
             <Plus className="h-4 w-4" />
             New evaluation
-          </Button>
+          </Button> */}
         </div>
       </div>
 
@@ -248,9 +285,11 @@ const Dashboard = () => {
               <CardTitle className="text-lg font-display">Top Recruiters</CardTitle>
               <CardDescription>Active hiring partners this quarter</CardDescription>
             </div>
-            <Button variant="ghost" size="sm" className="text-primary gap-1">
+             <Link to='/institute/recruiters'>
+             <Button variant="ghost" size="sm" className="text-primary gap-1">
               View all <ArrowUpRight className="h-3.5 w-3.5" />
             </Button>
+            </Link>
           </CardHeader>
           <CardContent className="pt-2">
             <div className="overflow-x-auto">
@@ -258,29 +297,29 @@ const Dashboard = () => {
                 <thead>
                   <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground border-b border-border/60">
                     <th className="font-medium py-3">Company</th>
-                    <th className="font-medium py-3">Role</th>
-                    <th className="font-medium py-3 text-right">Students</th>
+                   {/*  <th className="font-medium py-3">Role</th>
+                    <th className="font-medium py-3 text-right">Students</th> */}
                     <th className="font-medium py-3 text-right">Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/60">
                   {recruiters.map((r) => (
-                    <tr key={r.name} className="hover:bg-muted/30 transition-colors">
+                    <tr key={r?.companyName} className="hover:bg-muted/30 transition-colors">
                       <td className="py-3">
                         <div className="flex items-center gap-3">
                           <Avatar className="h-9 w-9 border">
-                            <AvatarFallback className="bg-primary-soft text-primary text-xs font-semibold">
-                              {r.name.split(" ").map((w) => w[0]).slice(0, 2).join("")}
+                            <AvatarFallback className="bg-primary-soft text-primary text-xs font-semibold text-uppercase">
+                              {r?.companyName.split(" ").map((w) => w[0]).slice(0, 2).join("")}
                             </AvatarFallback>
                           </Avatar>
-                          <span className="font-semibold text-foreground">{r.name}</span>
+                          <span className="font-semibold text-foreground">{nameFormate(r?.companyName)}</span>
                         </div>
                       </td>
-                      <td className="py-3 text-muted-foreground">{r.role}</td>
-                      <td className="py-3 text-right font-semibold text-foreground">{r.students}</td>
+                     {/*  <td className="py-3 text-muted-foreground">{r.role}</td>
+                      <td className="py-3 text-right font-semibold text-foreground">{r.students}</td> */}
                       <td className="py-3 text-right">
-                        <Badge variant="outline" className={statusStyles[r.status]}>
-                          {r.status}
+                        <Badge variant="outline" className={statusStyles[r?.status]}>
+                          {r?.status}
                         </Badge>
                       </td>
                     </tr>
@@ -327,13 +366,18 @@ const Dashboard = () => {
             <CardTitle className="text-lg font-display">Recent Evaluations</CardTitle>
             <CardDescription>Latest student employability assessments</CardDescription>
           </div>
+           <Link to='/institute/evaluations'>
           <Button variant="ghost" size="sm" className="text-primary gap-1">
             View all <ArrowUpRight className="h-3.5 w-3.5" />
           </Button>
+          </Link>
         </CardHeader>
         <CardContent>
           <div className="space-y-1">
-            {evaluations.map((e) => (
+            {evaluations?.map((e) =>{ const last=e?.evaluations?.length-1;
+                let lastEvaluation=last>0?e?.evaluations[last]:e?.evaluations[0];
+                
+                return(
               <div
                 key={e.id}
                 className="grid grid-cols-12 items-center gap-3 px-3 py-3 rounded-md hover:bg-muted/40 transition-colors"
@@ -341,23 +385,23 @@ const Dashboard = () => {
                 <div className="col-span-12 sm:col-span-4 flex items-center gap-3">
                   <Avatar className="h-9 w-9 border">
                     <AvatarFallback className="bg-accent/10 text-accent text-xs font-semibold">
-                      {e.student.split(" ").map((w) => w[0]).join("")}
+                      {e?.student_name?.split(" ").map((w) => w[0]).join("").toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0">
-                    <p className="font-semibold text-foreground truncate">{e.student}</p>
-                    <p className="text-xs text-muted-foreground">{e.id} · {e.course}</p>
+                    <p className="font-semibold text-foreground truncate">{nameFormate(e?.student_name)}</p>
+                    <p className="text-xs text-muted-foreground">{e?.id} · {e?.course}</p>
                   </div>
                 </div>
                 <div className="col-span-7 sm:col-span-5">
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs text-muted-foreground">Employability score</span>
-                    <span className="text-sm font-semibold text-foreground">{e.score}/100</span>
+                    <span className="text-xs text-muted-foreground">Score</span>
+                    <span className="text-sm font-semibold text-foreground">{lastEvaluation?.score}/100</span>
                   </div>
-                  <Progress value={e.score} className="h-1.5" />
+                  <Progress value={lastEvaluation?.score} className="h-1.5" />
                 </div>
                 <div className="col-span-5 sm:col-span-3 flex justify-end">
-                  <Badge
+                 {/*  <Badge
                     variant="outline"
                     className={
                       e.trend >= 0
@@ -367,10 +411,18 @@ const Dashboard = () => {
                   >
                     {e.trend >= 0 ? "+" : ""}
                     {e.trend}% trend
-                  </Badge>
+                  </Badge> */}
+                    <Badge
+                                          variant="outline"
+                                          className={`${statusStyles[lastEvaluation?.status]} whitespace-nowrap`}
+                                        >
+                                          {lastEvaluation?.status}
+                                        </Badge>
                 </div>
               </div>
-            ))}
+                )
+              }
+            )}
           </div>
         </CardContent>
       </Card>

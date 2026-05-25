@@ -41,6 +41,11 @@ const sectors = [
 const recruiterSchema = z.object({
   numberOfHired: z.string().trim().min(2, "Hired is required"),
   numberOfOpenings: z.string().trim().min(2, "Opening is required"),
+  courses: z.string().trim().min(2, "Course is required"),
+  role: z.string().trim().min(2, "Role is required"),
+  tenTh: z.string().trim().min(2, "10th% is required").max(2, "Maximum 2 digits allowed"),
+  twelveTh: z.string().trim().min(2, "12th% is required").max(2, "Maximum 2 digits allowed"),
+  remarks: z.string().trim().optional(),
   
 });
 
@@ -48,7 +53,12 @@ type RecruiterForm = z.infer<typeof recruiterSchema>;
 
 const emptyForm: RecruiterForm = {
   numberOfHired: "",
-  numberOfOpenings: ""
+  numberOfOpenings: "",
+  courses: "",
+  tenTh: "",
+  twelveTh: "",
+  remarks:"",
+  role:"",
 };
 
 const FormModal = ({ show, onClose, data = {},recruiterID=null, setRefresh }) => {
@@ -105,10 +115,15 @@ const FormModal = ({ show, onClose, data = {},recruiterID=null, setRefresh }) =>
       return;
     }
     setErrors({});
-   
+   const courseOptions=courseSelected.map((item)=>item.value)
     const payload = {
       numberOfHired: result.data.numberOfHired,
       numberOfOpenings: result.data.numberOfOpenings,
+      tenth: result.data.tenTh,
+      twelvth: result.data.twelveTh,
+      remarks: result.data.remarks,
+      role: result.data.role,
+      courses:courseOptions,
       companyName:recruiterID
     };
 
@@ -188,6 +203,7 @@ const FormModal = ({ show, onClose, data = {},recruiterID=null, setRefresh }) =>
                         onChange={(value) => {
                           setCourseSelected(value);
                           //clearFieldError("courses");
+                          update("courses", value?.[0]?.value);
                         }}
                       />
 
@@ -277,6 +293,25 @@ const FormModal = ({ show, onClose, data = {},recruiterID=null, setRefresh }) =>
                     />
                     {errors.numberOfHired && (
                       <p className="text-xs text-destructive">{errors.numberOfHired}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-1.5 md:col-span-2">
+                    <Label htmlFor="notes">Role</Label>
+                   <Input
+                      id="role"
+                      type="text"
+                      value={form.role}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (/^[a-zA-Z,\s]*$/.test(value)) {
+                          update("role", value);
+                        }
+                      }}
+                      placeholder="Role"
+                    />
+                    {errors.role && (
+                      <p className="text-xs text-destructive">{errors.role}</p>
                     )}
                   </div>
 

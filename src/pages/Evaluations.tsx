@@ -178,6 +178,7 @@ const Evaluations = () => {
                     title: "success",
                     description: "Evaluations saved successfully",
                   });
+                  fetchEvaluationList()
             }
             else{
               toast({
@@ -240,7 +241,7 @@ const Evaluations = () => {
         description="Configure assessments, monitor results and review pending submissions."
         actions={
           <>
-            <Button variant="outline" className="gap-2"><Download className="h-4 w-4" />Export</Button>
+           {/*  <Button variant="outline" className="gap-2"><Download className="h-4 w-4" />Export</Button> */}
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
                 <Button className="gap-2 bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand">
@@ -536,9 +537,9 @@ const Evaluations = () => {
                     <td className="py-3 px-4 text-right">
                       <Badge
                         variant="outline"
-                        className={`${statusStyles[e?.evaluations[0]?.status]} whitespace-nowrap`}
+                        className={`${statusStyles[lastEvaluation?.status]} whitespace-nowrap`}
                       >
-                        {e?.evaluations[0]?.status}
+                        {lastEvaluation?.status}
                       </Badge>
                     </td>
                   </tr>

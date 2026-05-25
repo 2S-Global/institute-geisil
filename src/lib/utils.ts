@@ -49,3 +49,12 @@ export function timeAgo(dateInput) {
   }
   return "just now";
 }
+// date day month
+export function DM(dateInput) {
+const date = new Date(dateInput);
+const formatted = date.toLocaleDateString("en-GB", {
+  day: "numeric",
+  month: "short",
+});
+return formatted
+}
