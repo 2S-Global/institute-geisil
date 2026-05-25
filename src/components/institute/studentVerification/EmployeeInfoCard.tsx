@@ -1,5 +1,5 @@
 import React from "react";
-
+import { BadgeCheck ,ShieldCheck } from "lucide-react";
 const EmployeeInfoCard = ({ user }) => {
   return (
     <div
@@ -10,30 +10,31 @@ const EmployeeInfoCard = ({ user }) => {
         <h5 className="card-title mb-3">Academic Information</h5>
         <div className="row g-2">
           <div className="col-sm-6">
-            <strong>Level of Education:</strong> {user.levelname}
+            <div className="flex gap-2"><strong>Level of Education:</strong> {user.levelname} {user?.level_verified?<BadgeCheck className="text-green-500" size={20} />:<BadgeCheck className="text-red-500" size={20} />}</div>
           </div>
           <div className="col-sm-6">
-            <strong>Course Type:</strong>{" "}
-            {user.courseTypename
+               <div className="flex gap-2"><strong>Course Type:</strong>  {user.courseTypename
               ? user.courseTypename.charAt(0).toUpperCase() +
                 user.courseTypename.slice(1)
-              : ""}
+              : ""} {user?.courseType_verified?<BadgeCheck className="text-green-500" size={20} />:<BadgeCheck className="text-red-500" size={20} />}</div>
           </div>
           <div className="col-sm-6">
-            <strong>Course Name :</strong> {user.courseName}
+            <div className="flex gap-2"><strong>Course Name:</strong> {user.courseName} {user?.courseName_verified?<BadgeCheck className="text-green-500" size={20} />:<BadgeCheck className="text-red-500" size={20} />}</div>
           </div>
           <div className="col-sm-6">
-            <strong>Course Duration :</strong> {user.durationstring}
+            <div className="flex gap-2"><strong>Course Duration:</strong> {user.durationstring} {user?.duration_verified?<BadgeCheck className="text-green-500" size={20} />:<BadgeCheck className="text-red-500" size={20} />}</div>
           </div>
           <div className="col-sm-6">
-            <strong>Grading System : </strong>
-            {user.gradingSystem
+               <div className="flex gap-2"><strong>Grading System:</strong>  {user.gradingSystem
               ? user.gradingSystem.charAt(0).toUpperCase() +
                 user.gradingSystem.slice(1)
-              : ""}
+              : ""} {user?.gradingSystem_verified?<BadgeCheck className="text-green-500" size={20} />:<BadgeCheck className="text-red-500" size={20} />}</div>
           </div>
           <div className="col-sm-6">
-            <strong>Marks:</strong> {user.marks}
+            <div className="flex gap-2"><strong>Marks:</strong> {user.marks} {user?.marks_verified?<BadgeCheck className="text-green-500" size={20} />:<BadgeCheck className="text-red-500" size={20} />}</div>
+          </div>
+            <div className="col-sm-6">
+            <strong>Remarks:</strong> {user.remarks||""}
           </div>
         </div>
       </div>

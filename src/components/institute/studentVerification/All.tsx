@@ -30,6 +30,11 @@ const All = () => {
   const apiurl = import.meta.env.VITE_API_URL;
   const [status, setStatus] = useState(null);
   const itemsPerPage = 10; // change as needed
+  let statusName={
+    "verified":"Verified",
+    "unverified":"Pending",
+    "rejected":"Rejected",
+  }
   const { toast } = useToast();
   const {toggleSidebarOpen}=useSidebar()
   // ✅ Get token
@@ -203,7 +208,7 @@ useEffect(() => {
                       :  s?.status === "unverified"?"bg-orange-100 text-orange-700":"bg-red-100 text-red-700"
                   }`}
                 >
-                  {s?.status}
+                  {statusName[s?.status]}
                 </span>
               </td>
 

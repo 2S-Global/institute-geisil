@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import api from "@/lib/axios";
 import {
   GraduationCap,
   Briefcase,
@@ -83,6 +85,33 @@ const statusStyles: Record<string, string> = {
 };
 
 const Dashboard = () => {
+  const [stats, setStats] = useState({
+    total: 0,
+    placementReady: 0,
+    avgScore: 0,
+    pending: 0,
+  });
+
+  const fetchStats = async () => {
+      try {
+        const res = await api.get("/api/institutestudent/get_students_counts");
+
+        const data = res.data;
+
+        setStats({
+          total: data?.totalStudents || 0,
+          placementReady: data?.placement_ready || 0,
+          avgScore: data?.avg_score || 0,
+          pending: data?.pending_eval || 0,
+        });
+      } catch (err) {
+        console.error("Error fetching stats", err);
+      }
+    };
+
+      useEffect(() => {
+    fetchStats();
+  }, []);
   return (
     <DashboardLayout>
     
@@ -114,7 +143,7 @@ const Dashboard = () => {
 
        {/* KPIs */}
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Total Students" value="3,940" delta={12} icon={GraduationCap} tint="primary" link="/institute/all-student" />
+        <StatCard label="Total Students"   value={stats.total.toString()} delta={12} icon={GraduationCap} tint="primary" link="/institute/all-student" />
         <StatCard label="Active Recruiters" value="184" delta={8} icon={Briefcase} tint="accent" />
         <StatCard label="Evaluations (MTD)" value="1,267" delta={24} icon={ClipboardCheck} tint="success" />
         <StatCard label="Placement Rate" value="86.4%" delta={-2} icon={TrendingUp} tint="warning" />

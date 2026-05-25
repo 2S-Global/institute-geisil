@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useEffect } from "react";
+import API from "@/lib/axios";
+import { useEffect,useState } from "react";
 import Cookies from "js-cookie";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -42,13 +43,34 @@ import { AuthProvider } from "@/components/context/AuthContext.tsx";
 import ProtectedRoute from "@/components/ProtectedRoute";
 const queryClient = new QueryClient();
 const App = ()=>{ 
- 
+     const [profile, setProfile] = useState();
+   const FetchCompanyDetails = async () => {
+    try {
+      const response = await API.get(
+        `/api/instituteprofile/get_company_details`,
+      );
+
+      if (response.data.success) {
+        const data = response.data.data;
+        setProfile(data);
+
+        //setDisableform(false);
+      }
+    } catch (e) {
+      console.log(e);
+    } 
+  };
   useEffect(()=>{
          const token = Cookies.get("token");
           if(token){
               localStorage.setItem("token", token);
           }
+          
+        FetchCompanyDetails()
   },[])
+   useEffect(()=>{
+              localStorage.setItem("name",profile?.name||localStorage.getItem("name" ))
+  },[profile])
   return(
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>

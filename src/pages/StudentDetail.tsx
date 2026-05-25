@@ -232,7 +232,7 @@ const StudentDetail = () => {
               </CardContent>
             </Card>
             <Card className="border-border/60 shadow-sm">
-              <CardHeader><CardTitle className="text-base">Semester Marks</CardTitle><CardDescription></CardDescription></CardHeader>
+              <CardHeader><CardTitle className="text-base">Semester/Yearly Marks</CardTitle><CardDescription></CardDescription></CardHeader>
               <CardContent className="space-y-5">
                 {profile?.semesters.length > 0 && profile?.semesters.map(s => (
                   <div key={s.semester}>

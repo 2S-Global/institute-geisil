@@ -14,7 +14,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
@@ -27,7 +26,7 @@ const statusStyles: Record<string, string> = {
   Reviewing: "bg-warning/10 text-warning border-warning/20",
   Closed: "bg-muted text-muted-foreground border-border",
 };
-
+import Select from "react-select";
 const sectors = [
   "IT Services",
   "Consulting",
@@ -62,6 +61,8 @@ const FormModal = ({ show, onClose, data = {},recruiterID=null, setRefresh }) =>
 
    const [edit, setEdit] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
+   const [courses, setCourses] = useState([]);
+  const [courseSelected, setCourseSelected] = useState([]);
   const { toast } = useToast();
 
 
@@ -127,6 +128,7 @@ const FormModal = ({ show, onClose, data = {},recruiterID=null, setRefresh }) =>
       });
       //await fetchRecruiterList();
       setForm(emptyForm);
+       setCourseSelected([]);
     } catch (err) {
        if (err.response) {
           toast({
@@ -137,6 +139,26 @@ const FormModal = ({ show, onClose, data = {},recruiterID=null, setRefresh }) =>
         }
     }
   };
+
+    const fetchCourseList = async () => {
+    try {
+      const res = await API.get(
+        "/api/institute-course/course"
+      );
+      const data = res?.data?.data || [];
+      const options=data.map((item)=>({'value':item._id,'label':item.name}))
+      setCourses(options);
+     
+    } catch (err) {
+      console.error("Error fetching data", err);
+    }
+  };
+
+
+
+  useEffect(() => {
+    fetchCourseList();
+  }, []);
   if (!show) return null;
 
   return (
@@ -153,6 +175,69 @@ const FormModal = ({ show, onClose, data = {},recruiterID=null, setRefresh }) =>
 
     <form onSubmit={handleSubmit} className="space-y-5 pt-2">
                 <div className="grid gap-4 md:grid-cols-2">
+
+                   <div className="space-y-1.5 md:col-span-2">
+                      <Label htmlFor="Course">
+                        Course
+                      </Label>
+
+                      <Select
+                        options={courses}
+                        isMulti
+                        value={courseSelected}
+                        onChange={(value) => {
+                          setCourseSelected(value);
+                          //clearFieldError("courses");
+                        }}
+                      />
+
+                      {errors?.courses && (
+                        <p className="text-sm text-red-500">
+                          {errors.courses}
+                        </p>
+                      )}
+                  </div>
+
+                   <div className="space-y-1.5">
+                    <Label htmlFor="numberOfOpenings">10th (%) *</Label>
+
+                    <Input
+                      id="tenTh"
+                      value={form.tenTh}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (/^[0-9]*$/.test(value)) {
+                          update("tenTh", value);
+                        }
+                      }}
+                      placeholder="10th (%)"
+                    />
+
+                    {errors.tenTh && (
+                      <p className="text-xs text-destructive">
+                        {errors.tenTh}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="email">12th (%) *</Label>
+                    <Input
+                      id="twelveTh"
+                      type="text"
+                      value={form.twelveTh}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (/^[0-9]*$/.test(value)) {
+                          update("twelveTh", value);
+                        }
+                      }}
+                      placeholder="12th (%)"
+                    />
+                    {errors.twelveTh && (
+                      <p className="text-xs text-destructive">{errors.twelveTh}</p>
+                    )}
+                  </div>
 
                   <div className="space-y-1.5">
                     <Label htmlFor="numberOfOpenings">Openings *</Label>
