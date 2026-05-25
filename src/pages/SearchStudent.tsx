@@ -25,6 +25,7 @@ const ManageStudents = () => {
   const [gradMax, setGradMax] = useState(100);
 const [searchLoading, setSearchLoading] = useState(false);
 const [filterLoading, setFilterLoading] = useState(false);
+const [allStudents, setAllStudents] = useState([]);
   // FETCH COURSE LIST
   useEffect(() => {
     const token = localStorage.getItem("Institute_token");
@@ -123,7 +124,8 @@ const handleSearch = async () => {
       return genderMatch && tenMatch && twelveMatch && gradMatch;
     });
 
-    setStudents(data);
+setAllStudents(data);
+setStudents(data);
   } catch (err) {
     console.error(err);
   } finally {
@@ -163,7 +165,7 @@ const handleApplyFilter = async () => {
   try {
     setFilterLoading(true);
 
-    let data = [...students];
+    let data = [...allStudents];
 
     data = data.filter((item) => {
       const genderMatch = !gender || item?.gender === gender;
@@ -323,7 +325,12 @@ const handleApplyFilter = async () => {
                           value={
                             gender
                               ? {
-                                  label: gender === "m" ? "Male" : "Female",
+                                  label:
+                                    gender === "m"
+                                      ? "Male"
+                                      : gender === "f"
+                                        ? "Female"
+                                        : "Other",
                                   value: gender,
                                 }
                               : null
