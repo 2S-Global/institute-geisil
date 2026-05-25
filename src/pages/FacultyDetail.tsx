@@ -255,10 +255,10 @@ const FacultyDetail = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {faculty?.courses_name?.map((c) => (
-                    <TableRow key={c}>
+                  {faculty?.course_details?.map((c) => (
+                    <TableRow key={c?._id}>
                       <TableCell className="font-medium text-primary">
-                        {c}
+                        {c?.name}
                       </TableCell>
                    {/*    <TableCell className="text-foreground">
                         {c.name}

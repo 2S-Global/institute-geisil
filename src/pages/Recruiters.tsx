@@ -16,6 +16,7 @@ import {
   Globe,
   MapPin,
   Calendar,
+  UserPlus ,
   Copy,
 } from "lucide-react";
 import { z } from "zod";
@@ -54,6 +55,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import FormModal from "@/components/institute/Recruiters/FormModal";
+import RequirementModal from "@/components/institute/Recruiters/RequirementModal";
 import List  from "@/components/institute/Recruiters/List"
 
 const statusStyles: Record<string, string> = {
@@ -126,6 +128,7 @@ const Recruiters = () => {
 
   const [edit, setEdit] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isRequirementModalOpen, setRequirementModalOpen] = useState(false);
   const [refresh, setRefresh] = useState(0);
 
   const update = <K extends keyof RecruiterForm>(
@@ -144,12 +147,19 @@ const Recruiters = () => {
  const closeModalRH = () => {
     setEdit({});
     setIsModalOpen(false);
+    setRequirementModalOpen(false);
     //document.body.style.overflow = "auto";
   };
 
     const openModalEdit = (row) => {
     setEdit(row);
     setIsModalOpen(true);
+    //document.body.style.overflow = "hidden"; // Disable background scrolling
+  };
+
+   const requirementAdd = (row) => {
+    setEdit(row);
+    setRequirementModalOpen(true);
     //document.body.style.overflow = "hidden"; // Disable background scrolling
   };
 
@@ -533,7 +543,7 @@ const Recruiters = () => {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-       <List data={paginatedRecruiters} setContact={setContact}  openModalEdit={openModalEdit}/>
+       <List data={paginatedRecruiters} setContact={setContact}  openModalEdit={openModalEdit} requirementAdd={requirementAdd}/>
       </div>
       {/* Pagination */}
       <div className="flex items-center justify-between mt-4">
@@ -713,6 +723,13 @@ const Recruiters = () => {
         data={edit}
         setRefresh={setRefresh}
       />
+       <RequirementModal
+        show={isRequirementModalOpen}
+        onClose={closeModalRH}
+        recruiterID={edit?._id}
+        setRefresh={setRefresh}
+      />
+      
     </DashboardLayout>
   );
 };

@@ -1,7 +1,8 @@
 import { Link, useParams } from "react-router-dom";
+import {useState,useEffect} from "react"
 import {
   ArrowLeft, Mail, Phone, MapPin, GraduationCap, Award, Briefcase, Calendar,
-  Download, MessageSquare, FileText, CheckCircle2, Clock, XCircle,
+  Download, MessageSquare, FileText, CheckCircle2, Clock, XCircle,User
 } from "lucide-react";
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { DashboardLayout } from "@/components/DashboardLayout";
@@ -15,7 +16,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-
+import API from "../lib/axios";
+import {nameFormate} from "../lib/utils"
 const skills = [
   { skill: "Aptitude", value: 88 },
   { skill: "Coding", value: 92 },
@@ -47,9 +49,35 @@ const stage: Record<string, { cls: string; icon: any }> = {
 };
 
 const StudentDetail = () => {
+     const [loading, setLoading] = useState(false);
+     const [profile, setProfile] = useState();
   const { id } = useParams();
   const name = "Priya Menon";
   const initials = name.split(" ").map(w => w[0]).join("");
+
+    const FetchDetails = async () => {
+    setLoading(true);
+    try {
+      const response = await API.get(
+        `/api/institutestudent/institute-student-details-by-id?id=${id}`,
+      );
+
+      if (response.data.success) {
+        const data = response.data.data;
+        setProfile(data);
+
+        //setDisableform(false);
+      }
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(()=>{
+    FetchDetails()
+  },[])
 
   return (
     <DashboardLayout>
@@ -58,9 +86,9 @@ const StudentDetail = () => {
       </Button>
 
       <PageHeader
-        eyebrow={`Student • ${id ?? "STU-10241"}`}
-        title={name}
-        description="B.Tech Computer Science • Final Year • Cohort 2026"
+        eyebrow={""}
+        title={profile?.name || ""}
+        description=""
         actions={
           <>
             <Button variant="outline" className="gap-2"><Download className="h-4 w-4" /> Resume</Button>
@@ -78,16 +106,16 @@ const StudentDetail = () => {
       
       <Avatar className="h-20 w-20 border-4 border-card shadow-md">
         <AvatarFallback className="bg-primary-soft text-white font-display font-bold text-2xl">
-          {initials}
+        { profile?.name.split(" ").map(w => w[0]).join("")}
         </AvatarFallback>
       </Avatar>
 
       <div className="flex-1 min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <h2 className="font-display text-xl font-bold text-white">
-            {name}
+            {profile?.name||""}
           </h2>
-
+{/* 
           <Badge
             variant="outline"
             className="bg-success/10 text-success border-success/20"
@@ -97,11 +125,11 @@ const StudentDetail = () => {
 
           <Badge variant="outline" className="gap-1 bg-white">
             Employability 92
-          </Badge>
+          </Badge> */}
         </div>
 
         <p className="text-sm text-white mt-1">
-          B.Tech CSE • CGPA 9.2 • Specialization: AI / ML
+          {profile?.programDetails?.name||""}
         </p>
       </div>
     </div>
@@ -118,7 +146,7 @@ const StudentDetail = () => {
         <div className="min-w-0">
           <p className="text-muted-foreground text-xs">Email</p>
           <p className="text-foreground truncate">
-            priya.menon@geisil.in
+            {profile?.email||""}
           </p>
         </div>
       </div>
@@ -128,17 +156,18 @@ const StudentDetail = () => {
         <div className="min-w-0">
           <p className="text-muted-foreground text-xs">Phone</p>
           <p className="text-foreground truncate">
-            +91 98765 43210
+            {profile?.phoneNumber||""}
           </p>
         </div>
       </div>
 
       <div className="flex items-start gap-3">
-        <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+        <User className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0"/>
         <div className="min-w-0">
-          <p className="text-muted-foreground text-xs">Location</p>
+          <p className="text-muted-foreground text-xs">Gender</p>
+          
           <p className="text-foreground">
-            Bengaluru, KA
+            {nameFormate(profile?.gender||"")}
           </p>
         </div>
       </div>
@@ -146,16 +175,17 @@ const StudentDetail = () => {
       <div className="flex items-start gap-3">
         <Calendar className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
         <div className="min-w-0">
-          <p className="text-muted-foreground text-xs">Enrolled</p>
+          <p className="text-muted-foreground text-xs">Admission Year</p>
           <p className="text-foreground">
-            Aug 2022
+            {profile?.admissionYear||""}
+            
           </p>
         </div>
       </div>
     </div>
 
     {/* Optional Skills / Tags */}
-    <div className="mt-5 flex flex-wrap gap-2">
+   {/*  <div className="mt-5 flex flex-wrap gap-2">
       {["React", "Node.js", "AI/ML", "TypeScript"].map((skill) => (
         <Badge
           key={skill}
@@ -165,7 +195,7 @@ const StudentDetail = () => {
           {skill}
         </Badge>
       ))}
-    </div>
+    </div> */}
   </CardContent>
 </Card>
 
@@ -202,14 +232,15 @@ const StudentDetail = () => {
               </CardContent>
             </Card>
             <Card className="border-border/60 shadow-sm">
-              <CardHeader><CardTitle className="text-base">Detailed Breakdown</CardTitle><CardDescription>Score per competency</CardDescription></CardHeader>
+              <CardHeader><CardTitle className="text-base">Semester Marks</CardTitle><CardDescription></CardDescription></CardHeader>
               <CardContent className="space-y-5">
-                {skills.map(s => (
-                  <div key={s.skill}>
-                    <div className="flex justify-between text-sm mb-1.5"><span className="text-muted-foreground">{s.skill}</span><span className="font-semibold text-foreground">{s.value}</span></div>
-                    <Progress value={s.value} className="h-2" />
+                {profile?.semesters.length > 0 && profile?.semesters.map(s => (
+                  <div key={s.semester}>
+                    <div className="flex justify-between text-sm mb-1.5"><span className="text-muted-foreground">{s?.courseStructure==='semester'?"Sem":"Year"}{s.semester}</span><span className="font-semibold text-foreground">{s?.convertedMarks}</span></div>
+                    <Progress value={s?.convertedMarks} className="h-2" />
                   </div>
                 ))}
+                
               </CardContent>
             </Card>
           </div>

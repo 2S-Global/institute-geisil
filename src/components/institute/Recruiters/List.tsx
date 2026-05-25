@@ -18,6 +18,7 @@ import {
   Calendar,
   Copy,
   SquarePen,
+  UserPlus,
 } from "lucide-react";
 
 import {
@@ -41,7 +42,7 @@ const statusStyles: Record<string, string> = {
 
 
 
-const List = ({data,setContact,openModalEdit}) => {
+const List = ({data,setContact,openModalEdit,requirementAdd}) => {
    const {toggleSidebarOpen}=useSidebar()
   return (
         <>
@@ -89,38 +90,55 @@ const List = ({data,setContact,openModalEdit}) => {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex-1 gap-1"
-                  onClick={() => {setContact(r); toggleSidebarOpen()}}
-                >
-                  
-                  <Mail className="h-3.5 w-3.5" /> Contact
-                </Button>
-               
-                  <Link
-                    to={`/institute/recruiters/${r?._id}`}
-                  >
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-primary flex-1 gap-1"
-                    >
-                      View <ExternalLink className="h-3.5 w-3.5" />
-                    </Button>
-                  </Link>
-                   
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex-1 gap-1"
-                  onClick={() =>{openModalEdit(r); toggleSidebarOpen()}}
-                >
-                  <SquarePen className="h-3.5 w-3.5" /> Edit
-                </Button>
-              </div>
+          <div className="flex flex-wrap items-center gap-2">
+  <Button
+    variant="outline"
+    size="sm"
+    className="flex-1 min-w-[110px] gap-1"
+    onClick={() => {
+      setContact(r);
+      toggleSidebarOpen();
+    }}
+  >
+    <Mail className="h-3.5 w-3.5" />
+    Contact
+  </Button>
+
+  <Link to={`/institute/recruiters/${r?._id}`}>
+    <Button
+      variant="outline"
+      size="sm"
+      className="flex-1 min-w-[110px] gap-1"
+    >
+      View <ExternalLink className="h-3.5 w-3.5" />
+    </Button>
+  </Link>
+
+  <Button
+    variant="outline"
+    size="sm"
+    className="flex-1 min-w-[110px] gap-1"
+    onClick={() => {
+      openModalEdit(r);
+      toggleSidebarOpen();
+    }}
+  >
+    <SquarePen className="h-3.5 w-3.5" />
+    Edit
+  </Button>
+
+  <Button
+    variant="outline"
+    size="sm"
+    className="flex-1 min-w-[50px] gap-1"
+    onClick={() => {
+      requirementAdd(r);
+      toggleSidebarOpen();
+    }}
+  >
+    <UserPlus className="h-3.5 w-3.5" />
+  </Button>
+</div>
             </CardContent>
           </Card>
         ))}

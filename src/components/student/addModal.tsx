@@ -27,21 +27,24 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
   const [programDataResp, setProgramDataResp] = useState([]);
   const [selectProgram, setSelectProgram] = useState([]);
   const [marksType, setMarksType] = useState()
+  const [isProgramChange, setProgramChange] = useState(false);
   const [editSemesterCount, setEditSemesterCount] = useState(
     data?.semesters?.length || 0,
   );
+  console.log('data kkkk kkk',data?._id)
+
   const [formData, setFormData] = useState({
-    _id: data._id || "",
-    name: data.name || "",
-    USN: data.USN || "",
-    program: data.program || "",
-    gender: data.gender || "",
-    dob: data?.dob ? YMD(data.dob) : data.dob || "",
-    admissionYear: data.admissionYear || "",
-    tenTh: data.tenTh || "",
-    twelveTh: data.twelveTh || "",
-    email: data.email || "",
-    phoneNumber: data.phoneNumber || "",
+    _id: "",
+    name:  "",
+    USN: "",
+    program: "",
+    gender: "",
+    dob:  "",
+    admissionYear:"",
+    tenTh:"",
+    twelveTh:"",
+    email:"",
+    phoneNumber: "",
   });
   console.log("formData", formData);
   const [loading, setLoading] = useState(false);
@@ -52,7 +55,6 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
   const [err, setErr] = useState(null);
   const [disableSubmit, setDisableSubmit] = useState(false);
   const [fields, setFields] = useState([]);
-
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 50 }, (_, i) => currentYear - i);
   const Semesters = Array.from({ length: totalSemesters }, (_, i) => 1 + i);
@@ -109,14 +111,65 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
           }
         } */
 
-    let totalSem = totalSemesters || 0;
-    if (totalSem > 0) {
+        console.log('fileds 1st load',fields)
+
+  /*   let totalSem = totalSemesters || 0;
+    if (totalSem > 0 && fields.length < totalSem) {
       for (let i = 0; i < totalSem; i++) {
         setFields((fields) => [...fields, { value: "" }]);
       }
-    }
-  }, [totalSemesters]);
+    } */
 
+    
+  let totalSem = totalSemesters || 0;
+
+  if (totalSem > 0) {
+    const semesterFields = Array.from(
+      { length: totalSem },
+      () => ({ value: "" })
+    );
+
+    setFields(semesterFields);
+  } else {
+    setFields([]);
+  }
+
+  }, [totalSemesters]);
+ useEffect(() => {
+   if (data?._id) {
+     setFormData({
+    _id: data._id || "",
+    name: data.name || "",
+    USN: data.USN || "",
+    program: data.program || "",
+    gender: data.gender || "",
+    dob: data?.dob ? YMD(data.dob) : data.dob || "",
+    admissionYear: data.admissionYear || "",
+    tenTh: data.tenTh || "",
+    twelveTh: data.twelveTh || "",
+    email: data.email || "",
+    phoneNumber: data.phoneNumber || "",
+  });
+
+    console.log('fileds 2nd load',fields)
+   }
+   else{
+     setFormData({
+   _id: "",
+    name:  "",
+    USN: "",
+    program: "",
+    gender: "",
+    dob:  "",
+    admissionYear:"",
+    tenTh:"",
+    twelveTh:"",
+    email:"",
+    phoneNumber: "",
+   })
+   }
+   
+ }, [data?._id]);
   // Remove field
   const removeField = (index) => {
     const newFields = fields.filter((_, i) => i !== index);
@@ -132,6 +185,7 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
 
   const handleProgramSelect = (selectedOptions) => {
     if (selectedOptions?.value) {
+       setProgramChange(true)
       setErr((prev) => ({ ...prev, program: "" }));
       setFormData((prev) => ({ ...prev, program: selectedOptions?.value }));
       const findData = programDataResp.find(
@@ -220,15 +274,25 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
           setFields([]);
           setSelectProgram([]);
           setOpen(false);
+
+          if(isUpdate){
+              toast({
+              title: "Success!",
+              description: 'Student update successfully',
+            });
+          }
+          else{
              toast({
               title: "Success!",
               description: 'Student saved successfully',
             });
+          }
+             
         }
        
 
 
-        setRefresh(true);
+        setRefresh(p=>p+1);
 
         setTimeout(() => {
           setOpen(false);
@@ -248,11 +312,7 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await API.get(`/api/institute-course/course`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await API.get(`/api/institute-course/course`);
 
         const responseData = response?.data?.data.map((item) => ({
           label:
@@ -274,16 +334,16 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
   // edit selected course
 
   useEffect(() => {
-    if (data.program) {
+    if (data?._id  && !isProgramChange) {
       let obj = {
-        label:
-          data?.programDetails?.name + "(" + data?.programDetails?.type + ")",
+        label: data?.programDetails?.type!=='custom'?data?.programDetails?.name+'('+data?.programDetails?.type+')':data?.programDetails?.name,
         value: data?.programDetails?._id,
       };
       setSelectProgram(obj);
       let semestersData = data?.semesters || [];
+    
       console.log("semestersData", semestersData);
-      const updatedData = fields.map((item, index) => {
+      let updatedData = fields.map((item, index) => {
         const found = semestersData.find(
           (element) => index + 1 === element.semester,
         );
@@ -311,7 +371,7 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
       setCourseStructure(data?.programDetails?.courseStructure || "");
       setMarksType(data?.programDetails?.marksType || "")
     }
-  }, [data?.program, fields?.length]);
+  }, [data?._id, fields?.length]);
 
   return (
     <>

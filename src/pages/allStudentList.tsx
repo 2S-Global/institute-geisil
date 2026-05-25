@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "@/lib/axios";
 import { Link } from "react-router-dom";
-import { Filter, Plus, Search, Edit, Trash,ArrowLeft } from "lucide-react";
+import { Filter, Plus, Search, Edit, Trash,ArrowLeft ,Eye} from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { StatCard } from "@/components/dashboard/StatCard";
@@ -15,6 +15,12 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CoursesFormModal from "@/components/institute/courses/FormModal";
 import { useToast } from "@/hooks/use-toast";
 import {nameFormate} from "../lib/utils"
+import StudentModal from "@/components/student/addModal"
+import { useNavigate } from 'react-router-dom';
+
+
+
+
 const statusStyles: Record<string, string> = {
   Placed: "bg-success/10 text-success border-success/20",
   "In Process": "bg-accent/10 text-accent border-accent/20",
@@ -30,6 +36,7 @@ const AllStudentList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [refresh, setRefresh] = useState(0);
   const { toast } = useToast();
+  const navigate = useNavigate();
   const openModalRH = () => {
     setEdit({});
     setIsModalOpen(true);
@@ -73,44 +80,16 @@ const AllStudentList = () => {
       console.error("Error fetching stats", err);
     }
   };
-
   useEffect(() => {
-    fetchList();
+   fetchList()
+  }, []);
+  useEffect(() => {
+    if (refresh) {
+    window.location.reload();
+  }
   }, [refresh]);
 
-  const handleDelete = async (id) => {
-    try {
-      const response = await api.delete(
-        `/api/institutestudent/delete-custom-course`,
-        {
-          data: { courseId: id }, // ✅ matches backend
-        },
-      );
-
-      if (response.data.success) {
-        // ✅ OPTION 1 (current way)
-        toast({
-          title: "Success",
-          description: response.data.message,
-        });
-        setRefresh((p) => p + 1);
-
-        // ✅ OPTION 2 (better UX ⚡ instant)
-        // setTestimonials(prev => prev.filter(item => item._id !== id));
-
-        //setSuccess(response.data.message);
-      } else {
-        //setError(response.data.message);
-      }
-    } catch (err) {
-      //setError(err.response?.data?.message || "Delete failed");
-      toast({
-        title: "Error",
-        description: "Delete failed",
-      });
-    }
-  };
-
+ 
   return (
     <DashboardLayout>
         <Button asChild variant="ghost" size="sm" className="mb-4 -ml-2 text-muted-foreground hover:text-foreground">
@@ -122,16 +101,7 @@ const AllStudentList = () => {
         description=""
         actions=""
       />
-      {/*  <ImportModal open={importOpen} setOpen={setImportOpen} />
-      <CoursesFormModal show={addStudentOpen} onClose={setStudentOpen} /> */}
-
-      <CoursesFormModal
-        show={isModalOpen}
-        onClose={closeModalRH}
-        data={edit}
-        setRefresh={setRefresh}
-      />
-
+      
       <Card className="shadow-sm border-border/60">
         <CardContent className="p-4 md:p-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
@@ -181,7 +151,7 @@ const AllStudentList = () => {
               <tbody className="divide-y divide-border/60">
                 {paginatedLists.map((s) => (
                   <tr
-                    key={s?.id}
+                    key={'allStudent'+s?.id}
                     className="hover:bg-muted/30 transition-colors group"
                   >
                     <td className="py-4 px-4 text-left">
@@ -189,8 +159,8 @@ const AllStudentList = () => {
                         <div className="text-left sm:text-left max-w-[260px]">
                           <p className="font-semibold text-foreground group-hover:text-primary transition-colors truncate">
                             {s?.name?.length > 35
-                              ? `${s?.name?.slice(0, 35)}...`
-                              : s?.name||""}
+                              ? `${nameFormate(s?.name?.slice(0, 35))}...`
+                              : nameFormate(s?.name)||""}
                           </p>
 
                           <p className="text-xs text-muted-foreground truncate">
@@ -224,15 +194,13 @@ const AllStudentList = () => {
                       <div className="flex  gap-4">
                         <Edit
                           className="h-4 w-4 cursor-pointer"
-                          onClick={() => openModalEdit(s)}
+                          onClick={() => openModalEdit(()=>s)}
                         />
 
-                        <Trash
-                          className="h-4 w-4 cursor-pointer"
+                         <Eye
+                            className="h-4 w-4 cursor-pointer hover:text-primary"
                           onClick={() => {
-                            if (confirm("Delete this course?")) {
-                              handleDelete(s._id);
-                            }
+                            navigate(`/institute/students/${s?._id}`)
                           }}
                         />
                       </div>
@@ -282,6 +250,7 @@ const AllStudentList = () => {
           </div>
         </CardContent>
       </Card>
+       <StudentModal open={isModalOpen} setOpen={setIsModalOpen} data={edit} setRefresh={setRefresh}/>
     </DashboardLayout>
   );
 };
