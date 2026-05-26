@@ -33,9 +33,9 @@ const EmployeeInfoCard = ({ user }) => {
           <div className="col-sm-6">
             <div className="flex gap-2"><strong>Marks:</strong> {user.marks} {user?.marks_verified?<BadgeCheck className="text-green-500" size={20} />:<BadgeCheck className="text-red-500" size={20} />}</div>
           </div>
-            <div className="col-sm-6">
+            {user.is_verified && <div className="col-sm-6">
             <strong>Remarks:</strong> {user.remarks||""}
-          </div>
+           </div>}
         </div>
       </div>
     </div>

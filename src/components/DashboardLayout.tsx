@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode ,useEffect,useState} from "react";
 import { Bell, Search } from "lucide-react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
@@ -11,6 +11,16 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
+  const[name,setName]=useState()
+   useEffect(() => {
+
+    const timer = setTimeout(() => {
+      setName(localStorage.getItem("name"))
+    }, 1000);
+
+    return () => clearTimeout(timer);
+
+  }, []);
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
@@ -36,11 +46,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-destructive ring-2 ring-card" />
               </Button> */}
               <div className="hidden sm:block text-right leading-tight">
-                <p className="text-sm font-semibold text-foreground">{localStorage.getItem("name")||""}</p>
+                <p className="text-sm font-semibold text-foreground">{localStorage.getItem("name")==='null'?"":localStorage.getItem("name")||""}</p>
               {/*   <p className="text-xs text-muted-foreground">Institute Admin</p> */}
               </div>
               <Avatar className="h-9 w-9 border">
-                <AvatarFallback className="bg-primary text-primary-foreground font-semibold">{localStorage.getItem("name")?.split(" ")
+                <AvatarFallback className="bg-primary text-primary-foreground font-semibold">{localStorage.getItem("name")==='null'?"":localStorage.getItem("name")?.split(" ")
                     .map((w) => w[0])
                     .slice(0, 2)
                     .join("")||""}</AvatarFallback>
