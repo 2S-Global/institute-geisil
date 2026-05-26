@@ -39,7 +39,7 @@ const sectors = [
 ];
 
 const recruiterSchema = z.object({
-  numberOfHired: z.string().trim().min(2, "Hired is required"),
+  numberOfHired: z.string().trim().optional(),
   numberOfOpenings: z.string().trim().min(2, "Opening is required"),
   courses: z.string().trim().min(2, "Course is required"),
   role: z.string().trim().min(2, "Role is required"),
@@ -181,7 +181,7 @@ const FormModal = ({ show, onClose, data = {},recruiterID=null, setRefresh }) =>
   <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
     <DialogHeader>
       <DialogTitle className="font-display text-2xl">
-        {data?._id ? "Requirement Job" : "Requirement Job"}
+        {data?._id ? "Job Requirement" : "Job Requirement"}
       </DialogTitle>
 
       <DialogDescription>
@@ -276,7 +276,7 @@ const FormModal = ({ show, onClose, data = {},recruiterID=null, setRefresh }) =>
                       </p>
                     )}
                   </div>
-
+{/* 
                   <div className="space-y-1.5">
                     <Label htmlFor="email">Hired *</Label>
                     <Input
@@ -294,9 +294,9 @@ const FormModal = ({ show, onClose, data = {},recruiterID=null, setRefresh }) =>
                     {errors.numberOfHired && (
                       <p className="text-xs text-destructive">{errors.numberOfHired}</p>
                     )}
-                  </div>
+                  </div> */}
 
-                  <div className="space-y-1.5 md:col-span-2">
+                  <div className="space-y-1.5">
                     <Label htmlFor="notes">Role</Label>
                    <Input
                       id="role"
