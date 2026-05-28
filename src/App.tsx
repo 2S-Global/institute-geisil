@@ -38,6 +38,7 @@ import Assessments from "./pages/employer/Assessments.tsx";
 import EmployerReports from "./pages/employer/Reports.tsx";
 import Company from "./pages/employer/Company.tsx";
 import EmployerSettings from "./pages/employer/Settings.tsx";
+import CompanyProfile from "./pages/employer/CompanyProfile.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import { AuthProvider } from "@/components/context/AuthContext.tsx";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -120,6 +121,7 @@ const App = ()=>{
                     <Route path="/assessments" element={<Assessments />} />
                     <Route path="/reports" element={<EmployerReports />} />
                     <Route path="/company" element={<Company />} />
+                    <Route path="/company-profile" element={<CompanyProfile />} />
                     <Route path="/settings" element={<EmployerSettings />} />
                 </Routes>
               </ProtectedRoute>

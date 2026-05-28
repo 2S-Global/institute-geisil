@@ -4,14 +4,14 @@ import { PageHeader } from "@/components/dashboard/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-
+import { Link } from "react-router-dom";
 export default function Company() {
   return (
     <EmployerLayout>
       <PageHeader
         title="Company Profile"
         description="Information visible to candidates and partner institutes."
-        actions={<Button className="gap-2 shadow-brand"><Edit className="h-4 w-4" /> Edit profile</Button>}
+        actions={<Link to="/employer/company-profile"><Button className="gap-2 shadow-brand"><Edit className="h-4 w-4" /> Edit profile</Button></Link>}
       />
       <Card className="p-6 mb-6 border-border/60 shadow-sm bg-gradient-to-br from-primary-soft to-card">
         <div className="flex flex-col md:flex-row gap-6 md:items-center">

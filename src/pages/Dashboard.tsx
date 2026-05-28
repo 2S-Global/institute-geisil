@@ -134,7 +134,7 @@ const Dashboard = () => {
  const fetchEvaluationList = async () => {
     try {
       const res = await api.get(
-        "/api/instituteprofile/get_evaluation",
+        "/api/instituteprofile/get_evaluation_by_decending",
       );
       const data = res?.data?.data || [];
      const newData=data.slice(0,5)
@@ -390,7 +390,7 @@ const Dashboard = () => {
                   </Avatar>
                   <div className="min-w-0">
                     <p className="font-semibold text-foreground truncate">{nameFormate(e?.student_name)}</p>
-                    <p className="text-xs text-muted-foreground">{e?.id} · {e?.course}</p>
+                   {/*  <p className="text-xs text-muted-foreground">{e?.id} · {e?.course}</p> */}
                   </div>
                 </div>
                 <div className="col-span-7 sm:col-span-5">

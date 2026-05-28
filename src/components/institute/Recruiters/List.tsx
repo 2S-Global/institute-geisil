@@ -74,7 +74,7 @@ const List = ({data,setContact,openModalEdit,requirementAdd}) => {
                 <div>
                   <p className="text-xs text-muted-foreground">Openings</p>
                   <p className="font-display text-xl font-bold text-foreground">
-                    {r.openings}
+                    {r?.latestRequirement?.numberOfOpenings}
                   </p>
                 </div>
                 <div>

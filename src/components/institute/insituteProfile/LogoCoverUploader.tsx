@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Trash2 } from "lucide-react";
-//import Swal from "sweetalert2";
+import Swal from "sweetalert2";
 const LogoCoverUploader = ({ formdata, setFormdata, Deletecover }) => {
   const [logoImg, setLogoImg] = useState(null);
   const [coverImg, setCoverImg] = useState(null);
@@ -51,14 +51,14 @@ const LogoCoverUploader = ({ formdata, setFormdata, Deletecover }) => {
     setFormdata((prev) => ({ ...prev, cover: null, cover_preview: null }));
   };
   const DeleteCover = async () => {
-  /*   const confirmed = await Swal.fire({
+    const confirmed = await Swal.fire({
       title: "Are you sure?",
       text: "This will permanently delete the cover photo.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Yes, delete it!",
       cancelButtonText: "Cancel",
-    }); */
+    });
 
     if (confirmed.isConfirmed) {
       setCoverImg(null);

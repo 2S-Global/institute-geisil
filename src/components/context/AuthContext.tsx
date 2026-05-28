@@ -52,7 +52,7 @@ const [user, setUser] = useState<any>(() => {
     try {
       const token = Cookies.get("token");
       if(token){
-           localStorage.setItem("token", token);
+           localStorage.setItem("user", token);
       }
       setUser(user);
     } catch (error: any) {
