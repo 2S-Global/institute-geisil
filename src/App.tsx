@@ -42,6 +42,7 @@ import CompanyProfile from "./pages/employer/CompanyProfile.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import { AuthProvider } from "@/components/context/AuthContext.tsx";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import VerifyEmployee from "./pages/employer/VerifyEmployee.tsx";
 const queryClient = new QueryClient();
 const App = ()=>{ 
      const [profile, setProfile] = useState();
@@ -123,6 +124,7 @@ const App = ()=>{
                     <Route path="/company" element={<Company />} />
                     <Route path="/company-profile" element={<CompanyProfile />} />
                     <Route path="/settings" element={<EmployerSettings />} />
+                    <Route path="/verify-employee" element={<VerifyEmployee />} />
                 </Routes>
               </ProtectedRoute>
               } />

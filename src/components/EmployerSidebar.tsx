@@ -10,6 +10,7 @@ import {
   Building2,
   Settings,
   LogOut,
+  UserCheck,
 } from "lucide-react";
 import {
   Sidebar,
@@ -33,6 +34,7 @@ const main = [
   { title: "Interviews", url: "/employer/interviews", icon: CalendarCheck },
   { title: "Assessments", url: "/employer/assessments", icon: ClipboardList },
   { title: "Reports", url: "/employer/reports", icon: BarChart3 },
+  { title: "Verify Employee", url: "/employer/verify-employee", icon: UserCheck },
 ];
 
 const secondary = [
