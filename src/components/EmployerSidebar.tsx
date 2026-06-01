@@ -34,7 +34,7 @@ const main = [
   { title: "Interviews", url: "/employer/interviews", icon: CalendarCheck },
   { title: "Assessments", url: "/employer/assessments", icon: ClipboardList },
   { title: "Reports", url: "/employer/reports", icon: BarChart3 },
-  { title: "Post a New Job", url: "/employer/post-jobs", icon: BarChart3 },
+  { title: "Post a New Job", url: "/employer/post-jobs", icon: Briefcase },
   { title: "Verify Employee", url: "/employer/verify-employee", icon: UserCheck },
 ];
 
