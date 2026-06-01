@@ -17,6 +17,8 @@ import { validateDocuments } from "@/components/employer/verifyEmployee/validate
 
 import api from "@/lib/axios";
 
+import { toast } from "@/hooks/use-toast";
+
 const VerifyEmployee = () => {
   const [loading, setLoading] = useState(false);
 
@@ -29,6 +31,8 @@ const VerifyEmployee = () => {
   const [approvedFields, setApprovedFields] = useState<any>({});
 
   const [isChecked, setIsChecked] = useState(false);
+
+  const [validationErrors, setValidationErrors] = useState<any>({});
 
   const [formData, setFormData] = useState<any>({
     name: "",
@@ -182,6 +186,17 @@ const VerifyEmployee = () => {
     }));
   };
 
+  const isFormValid =
+    !validationErrors.email &&
+    !validationErrors.phone &&
+    !validationErrors.pannumber &&
+    !validationErrors.voternumber &&
+    !validationErrors.licensenumber &&
+    !validationErrors.name &&
+    !validationErrors.dob &&
+    !validationErrors.plan &&
+    Boolean(selectedPackage);
+
   // =====================================
   // FILE CHANGE
   // =====================================
@@ -193,6 +208,133 @@ const VerifyEmployee = () => {
     }));
   };
 
+  const handleValidation = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    // EMAIL
+    if (name === "email") {
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+      setValidationErrors((prev: any) => ({
+        ...prev,
+        email:
+          value === ""
+            ? "Email is required"
+            : emailRegex.test(value)
+              ? ""
+              : "Invalid email format",
+      }));
+    }
+
+    // PHONE
+    if (name === "phone") {
+      if (value === "") {
+        setValidationErrors((prev: any) => ({
+          ...prev,
+          phone: "",
+        }));
+      } else if (value.length !== 10) {
+        setValidationErrors((prev: any) => ({
+          ...prev,
+          phone: "Phone number must be exactly 10 digits",
+        }));
+      } else {
+        setValidationErrors((prev: any) => ({
+          ...prev,
+          phone: "",
+        }));
+      }
+    }
+
+    // PAN
+    if (name === "pannumber") {
+      const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+
+      setValidationErrors((prev: any) => ({
+        ...prev,
+        pannumber:
+          value === "" ? "" : panRegex.test(value) ? "" : "Invalid PAN format",
+      }));
+    }
+
+    // VOTER
+    if (name === "voternumber") {
+      const voterRegex = /^[A-Z]{3}[0-9]{7}$/;
+
+      setValidationErrors((prev: any) => ({
+        ...prev,
+        voternumber:
+          value === "" ? "" : voterRegex.test(value) ? "" : "Invalid Voter ID",
+      }));
+    }
+
+    // LICENSE
+    if (name === "licensenumber") {
+      const licenseRegex = /^[A-Z]{2}[0-9]{2}\\s?[0-9]{4}\\s?[0-9]{7}$/;
+
+      setValidationErrors((prev: any) => ({
+        ...prev,
+        licensenumber:
+          value === ""
+            ? ""
+            : licenseRegex.test(value)
+              ? ""
+              : "Invalid License format",
+      }));
+    }
+  };
+
+  // ✅ Form-level validation (show inline errors like FormModal)
+  const validate = () => {
+    const errors: any = {};
+
+    // NAME
+    if (!formData.name || !formData.name.trim()) {
+      errors.name = "Full Name is required";
+    }
+
+    // DOB
+    if (!formData.dob) {
+      errors.dob = "Date of Birth is required";
+    }
+
+    // EMAIL
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!formData.email || !formData.email.trim()) {
+      errors.email = "Email is required";
+    } else if (!emailRegex.test(formData.email)) {
+      errors.email = "Invalid email format";
+    }
+
+    // PHONE (optional)
+    if (formData.phone && formData.phone.length !== 10) {
+      errors.phone = "Phone number must be exactly 10 digits";
+    }
+
+    // PLAN
+    if (!selectedPackage) {
+      errors.plan = "Please select a plan";
+    }
+
+    // DOCUMENT NUMBERS (if provided validate format)
+    const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+    if (formData.pannumber && !panRegex.test(formData.pannumber)) {
+      errors.pannumber = "Invalid PAN format";
+    }
+
+    const voterRegex = /^[A-Z]{3}[0-9]{7}$/;
+    if (formData.voternumber && !voterRegex.test(formData.voternumber)) {
+      errors.voternumber = "Invalid Voter ID";
+    }
+
+    const licenseRegex = /^[A-Z]{2}[0-9]{2}\\s?[0-9]{4}\\s?[0-9]{7}$/;
+    if (formData.licensenumber && !licenseRegex.test(formData.licensenumber)) {
+      errors.licensenumber = "Invalid License format";
+    }
+
+    return errors;
+  };
+
   // =====================================
   // SUBMIT
   // =====================================
@@ -200,15 +342,43 @@ const VerifyEmployee = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const validationError = validateDocuments(formData);
+    // run form-level validation and show inline messages
+    const errors = validate();
+    setValidationErrors(errors);
 
-    if (validationError) {
-      alert(validationError);
+    if (Object.keys(errors).length > 0) {
       return;
     }
 
-    if (!selectedPackage) {
-      alert("Please select plan");
+    const dob = new Date(formData.dob);
+
+    const today = new Date();
+
+    let age = today.getFullYear() - dob.getFullYear();
+
+    const monthDiff = today.getMonth() - dob.getMonth();
+
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+      age--;
+    }
+
+    if (age < 18) {
+      toast({
+        title: "Validation Error",
+        description: "Employee must be at least 18 years old",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const validationError = validateDocuments(formData);
+
+    if (validationError) {
+      toast({
+        title: "Validation Error",
+        description: validationError,
+        variant: "destructive",
+      });
       return;
     }
 
@@ -277,7 +447,11 @@ const VerifyEmployee = () => {
       });
 
       if (response.data.success) {
-        alert("Employee verification submitted successfully");
+        // alert("Employee verification submitted successfully");
+        toast({
+          title: "Success",
+          description: "Employee verification submitted successfully",
+        });
 
         setFormData({
           name: "",
@@ -307,7 +481,12 @@ const VerifyEmployee = () => {
     } catch (error: any) {
       console.log(error);
 
-      alert(error?.response?.data?.message || "Something went wrong");
+      // alert(error?.response?.data?.message || "Something went wrong");?
+      toast({
+        title: "Error",
+        description: error?.response?.data?.message || "Something went wrong",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -331,25 +510,51 @@ const VerifyEmployee = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 {/* NAME */}
                 <div className="space-y-2">
-                  <Label>Full Name</Label>
+                  <Label>
+                    Full Name
+                    <span className="text-red-500">*</span>
+                  </Label>
 
                   <Input
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
                   />
+                  {validationErrors.name && (
+                    <p className="text-xs text-destructive">
+                      {validationErrors.name}
+                    </p>
+                  )}
                 </div>
 
                 {/* DOB */}
                 <div className="space-y-2">
-                  <Label>Date of Birth</Label>
+                  <Label>
+                    Date of Birth
+                    <span className="text-red-500">*</span>
+                  </Label>
 
-                  <Input
-                    type="date"
-                    name="dob"
-                    value={formData.dob}
-                    onChange={handleChange}
-                  />
+                  <div className="relative">
+                    <Input
+                      type="date"
+                      name="dob"
+                      value={formData.dob}
+                      onChange={handleChange}
+                      max={
+                        new Date(
+                          new Date().setFullYear(new Date().getFullYear() - 18),
+                        )
+                          .toISOString()
+                          .split("T")[0]
+                      }
+                      className="pr-10"
+                    />
+                    {validationErrors.dob && (
+                      <p className="text-xs text-destructive">
+                        {validationErrors.dob}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 {/* PHONE */}
@@ -360,18 +565,35 @@ const VerifyEmployee = () => {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
+                    onBlur={handleValidation}
                   />
+
+                  {validationErrors.phone && (
+                    <p className="text-xs text-destructive">
+                      {validationErrors.phone}
+                    </p>
+                  )}
                 </div>
 
                 {/* EMAIL */}
                 <div className="space-y-2">
-                  <Label>Email</Label>
+                  <Label>
+                    Email
+                    <span className="text-red-500">*</span>
+                  </Label>
 
                   <Input
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
+                    onBlur={handleValidation}
                   />
+
+                  {validationErrors.email && (
+                    <p className="text-xs text-destructive">
+                      {validationErrors.email}
+                    </p>
+                  )}
                 </div>
 
                 {/* GENDER */}
@@ -415,16 +637,18 @@ const VerifyEmployee = () => {
                     value={selectedPackage}
                     onChange={(e) => setSelectedPackage(e.target.value)}
                     className="h-10 w-full rounded-md border bg-background px-3"
-                    required
                   >
-                    <option value="">Select Plan</option>
-
                     {packages.map((item: any) => (
                       <option key={item._id} value={item._id}>
                         {item.name} (₹ {item.transaction_fee})
                       </option>
                     ))}
                   </select>
+                  {validationErrors.plan && (
+                    <p className="text-xs text-destructive">
+                      {validationErrors.plan}
+                    </p>
+                  )}
                 </div>
 
                 {/* ADDITIONAL FIELDS */}
@@ -442,6 +666,8 @@ const VerifyEmployee = () => {
                 onfieldChange={handleChange}
                 onFileChange={handleFileChange}
                 disabled={!approvedFields?.PAN}
+                numberError={validationErrors.pannumber}
+                onfieldValidation={handleValidation}
               />
 
               <DocumentUpload
@@ -453,6 +679,8 @@ const VerifyEmployee = () => {
                 onfieldChange={handleChange}
                 onFileChange={handleFileChange}
                 disabled={!approvedFields?.DL}
+                numberError={validationErrors.licensenumber}
+                onfieldValidation={handleValidation}
               />
 
               <DocumentUpload
@@ -464,6 +692,21 @@ const VerifyEmployee = () => {
                 onfieldChange={handleChange}
                 onFileChange={handleFileChange}
                 disabled={!approvedFields?.EPIC}
+                numberError={validationErrors.voternumber}
+                onfieldValidation={handleValidation}
+              />
+
+              <DocumentUpload
+                label="UAN"
+                name="uan"
+                valuename={formData.uanname}
+                numbername={formData.uannumber}
+                formData={formData}
+                onfieldChange={handleChange}
+                onFileChange={handleFileChange}
+                disabled={!approvedFields?.UAN}
+                numberError={validationErrors.uannumber}
+                onfieldValidation={handleValidation}
               />
 
               {/* TERMS */}
@@ -484,7 +727,9 @@ const VerifyEmployee = () => {
               {/* BUTTON */}
               <Button
                 type="submit"
-                disabled={!isChecked || loading || packageLoading}
+                disabled={
+                  !isChecked || loading || packageLoading
+                }
                 className="min-w-[180px]"
               >
                 {loading ? "Please wait..." : "Submit"}

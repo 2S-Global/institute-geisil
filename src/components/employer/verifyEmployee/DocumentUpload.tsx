@@ -15,6 +15,7 @@ interface Props {
   formData: any;
   onFileChange: (name: string, file: File | null) => void;
   onfieldChange: (e: any) => void;
+  onfieldValidation: (e: any) => void;
 }
 
 const DocumentUpload = ({
@@ -27,6 +28,7 @@ const DocumentUpload = ({
   formData,
   onFileChange,
   onfieldChange,
+  onfieldValidation,
 }: Props) => {
   const [file, setFile] = useState<File | null>(null);
   const [sameAsName, setSameAsName] = useState(false);
@@ -53,6 +55,7 @@ const DocumentUpload = ({
           name={`${name}number`}
           value={numbername}
           onChange={onfieldChange}
+          onBlur={onfieldValidation}
           placeholder={`Enter ${label} Number`}
         />
 
