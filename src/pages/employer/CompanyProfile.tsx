@@ -1,7 +1,13 @@
-import { Save, Upload,ArrowLeft } from "lucide-react";
+import { Save, Upload, ArrowLeft } from "lucide-react";
 import { EmployerLayout } from "@/components/EmployerLayout";
 import { PageHeader } from "@/components/dashboard/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,50 +36,43 @@ const CompanyProfile = () => {
 
   return (
     <EmployerLayout>
-        <Button asChild variant="ghost" size="sm" className="mb-4 -ml-2 text-muted-foreground hover:text-foreground">
-        <Link to="/employer/company"><ArrowLeft className="h-4 w-4" /> Back </Link>
+      <Button
+        asChild
+        variant="ghost"
+        size="sm"
+        className="mb-4 -ml-2 text-muted-foreground hover:text-foreground"
+      >
+        <Link to="/employer/company">
+          <ArrowLeft className="h-4 w-4" /> Back{" "}
+        </Link>
       </Button>
-      <PageHeader
-        eyebrow=""
-        title="Company Profile"
-        description=""
-      />
+      <PageHeader eyebrow="" title="Company Profile" description="" />
 
       <Tabs defaultValue="profile" className="space-y-6">
         <TabsList className="flex flex-wrap lg:flex-nowrap gap-2 h-auto justify-start ">
-  <TabsTrigger value="profile">
-    Company Profile
-  </TabsTrigger>
+          <TabsTrigger value="profile">Company Profile</TabsTrigger>
 
-  <TabsTrigger value="account">
-    Account Details
-  </TabsTrigger>
+          <TabsTrigger value="account">Account Details</TabsTrigger>
 
-  <TabsTrigger value="contact">
-    Contact Person Details
-  </TabsTrigger>
+          <TabsTrigger value="contact">Contact Person Details</TabsTrigger>
 
-  <TabsTrigger value="kyc">
-    KYC
-  </TabsTrigger>
+          <TabsTrigger value="kyc">KYC</TabsTrigger>
 
-  <TabsTrigger value="social">
-    Social Network
-  </TabsTrigger>
+          <TabsTrigger value="social">Social Network</TabsTrigger>
 
-  <TabsTrigger value="branch">
-    Branch
-  </TabsTrigger>
-</TabsList>
+          <TabsTrigger value="branch">Branch</TabsTrigger>
+        </TabsList>
 
         <TabsContent value="profile">
           <Card className="shadow-sm border-border/60">
             <CardHeader>
-              <CardTitle className="text-lg font-display">Company Profile</CardTitle>
+              <CardTitle className="text-lg font-display">
+                Company Profile
+              </CardTitle>
               <CardDescription></CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <Profile/>
+              <Profile />
             </CardContent>
           </Card>
         </TabsContent>
@@ -81,11 +80,13 @@ const CompanyProfile = () => {
         <TabsContent value="account">
           <Card className="shadow-sm border-border/60">
             <CardHeader>
-              <CardTitle className="text-lg font-display">Account Details</CardTitle>
+              <CardTitle className="text-lg font-display">
+                Account Details
+              </CardTitle>
               <CardDescription></CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-             <Account/>
+              <Account />
             </CardContent>
           </Card>
         </TabsContent>
@@ -93,23 +94,25 @@ const CompanyProfile = () => {
         <TabsContent value="contact">
           <Card className="shadow-sm border-border/60">
             <CardHeader>
-              <CardTitle className="text-lg font-display">Contact Person Details</CardTitle>
+              <CardTitle className="text-lg font-display">
+                Contact Person Details
+              </CardTitle>
               <CardDescription></CardDescription>
             </CardHeader>
             <CardContent className="divide-y divide-border/60">
-             <ContactInfoBox/>
+              <ContactInfoBox />
             </CardContent>
           </Card>
         </TabsContent>
 
-          <TabsContent value="kyc">
+        <TabsContent value="kyc">
           <Card className="shadow-sm border-border/60">
             <CardHeader>
               <CardTitle className="text-lg font-display">KYC</CardTitle>
               <CardDescription></CardDescription>
             </CardHeader>
             <CardContent className="divide-y divide-border/60">
-             <Kyc/>
+              <Kyc />
             </CardContent>
           </Card>
         </TabsContent>
@@ -117,23 +120,27 @@ const CompanyProfile = () => {
         <TabsContent value="social">
           <Card className="shadow-sm border-border/60">
             <CardHeader>
-              <CardTitle className="text-lg font-display">Social Network</CardTitle>
+              <CardTitle className="text-lg font-display">
+                Social Network
+              </CardTitle>
               <CardDescription></CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-             <SocialNetworkBox/>
+              <SocialNetworkBox />
             </CardContent>
           </Card>
         </TabsContent>
 
-          <TabsContent value="branch">
+        <TabsContent value="branch">
           <Card className="shadow-sm border-border/60">
             <CardHeader>
-              <CardTitle className="text-lg font-display">Branch Information</CardTitle>
+              <CardTitle className="text-lg font-display">
+                Branch Information
+              </CardTitle>
               <CardDescription></CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-             <BranchBox/>
+              <BranchBox />
             </CardContent>
           </Card>
         </TabsContent>

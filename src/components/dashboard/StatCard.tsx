@@ -33,9 +33,9 @@ export function StatCard({ label, value, delta, icon: Icon, tint = "primary", li
               positive ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
             )}
           >
-            {positive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-            {positive ? "+" : ""}
-            {delta}% vs last month
+            {/* {positive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+            {positive ? "+" : ""} */}
+            {/* {delta}% vs last month */}
           </div>
         </div>
         <div className={cn("h-11 w-11 rounded-lg flex items-center justify-center shrink-0", tints[tint])}>

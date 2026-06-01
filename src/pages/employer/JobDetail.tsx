@@ -36,6 +36,8 @@ export default function JobDetail() {
 
   const [jobDetails, setJobDetails] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+const [applicants, setApplicants] = useState<any[]>([]);
+
 
   const fetchJobDetails = async () => {
     try {
@@ -55,9 +57,24 @@ export default function JobDetail() {
     }
   };
 
+  const fetchApplicants = async () => {
+    try {
+      const response = await api.get(
+        `/api/jobposting/get_all_job_related_candidates?jobId=${id}`,
+      );
+
+      if (response.data.success) {
+        setApplicants(response.data.data || []);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     if (id) {
       fetchJobDetails();
+      fetchApplicants();
     }
   }, [id]);
 
@@ -135,28 +152,28 @@ export default function JobDetail() {
       <div className="grid gap-4 md:grid-cols-4 mb-6">
         <StatCard
           label="Applicants"
-          value="84"
+          value={jobDetails?.totalApplicants || 0}
           delta={18}
           icon={Users}
           tint="primary"
         />
         <StatCard
           label="Shortlisted"
-          value="22"
+          value={jobDetails?.totalShortlisted || 0}
           delta={12}
           icon={Briefcase}
           tint="accent"
         />
         <StatCard
           label="Interviews"
-          value="9"
+          value={jobDetails?.totalInterviewScheduled || 0}
           delta={28}
           icon={CalendarCheck}
           tint="success"
         />
         <StatCard
-          label="Match Quality"
-          value="82%"
+          label="Rejected"
+          value={jobDetails?.totalRejected || 0}
           delta={4}
           icon={TrendingUp}
           tint="warning"
@@ -166,7 +183,7 @@ export default function JobDetail() {
       <Tabs defaultValue="overview">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="candidates">Candidates</TabsTrigger>
+          <TabsTrigger value="candidates">Applicants</TabsTrigger>
           <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="mt-6">
@@ -485,42 +502,120 @@ export default function JobDetail() {
           </div>
         </TabsContent>
         <TabsContent value="candidates" className="mt-4">
-          <Card className="border-border/60 shadow-sm">
+          <Card className="border-border/60 shadow-sm overflow-hidden">
             <CardContent className="p-0 divide-y divide-border/60">
-              {candidates.map((c) => (
-                <div
-                  key={c.name}
-                  className="flex items-center gap-3 p-4 hover:bg-muted/30"
-                >
-                  <Avatar className="h-10 w-10 border">
-                    <AvatarFallback className="bg-primary-soft text-primary font-semibold">
-                      {c.name
-                        .split(" ")
-                        .map((w) => w[0])
-                        .join("")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-foreground">{c.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Match {c.score}/100
-                    </p>
-                  </div>
-                  <Badge
-                    variant="outline"
-                    className="bg-primary/10 text-primary border-primary/20"
+              {applicants?.length > 0 ? (
+                applicants.map((candidate: any) => (
+                  <div
+                    key={candidate._id}
+                    className="
+              flex flex-col lg:flex-row
+              lg:items-center
+              gap-4
+              p-4
+              hover:bg-muted/30
+              transition-colors
+            "
                   >
-                    {c.stage}
-                  </Badge>
-                  <Button asChild size="sm" variant="outline">
-                    <Link
-                      to={`/employer/candidates/${c.name.toLowerCase().replace(/\s+/g, "-")}`}
-                    >
-                      View
-                    </Link>
-                  </Button>
+                    {/* LEFT SECTION */}
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <Avatar className="h-12 w-12 border shrink-0">
+                        <img
+                          src={candidate?.profilePicture}
+                          alt={candidate?.candidateName}
+                          className="h-full w-full object-cover"
+                        />
+
+                        <AvatarFallback className="bg-primary-soft text-primary font-semibold">
+                          {candidate?.candidateName
+                            ?.split(" ")
+                            ?.map((w: string) => w[0])
+                            ?.join("")}
+                        </AvatarFallback>
+                      </Avatar>
+
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-semibold text-foreground truncate">
+                          {candidate?.candidateName}
+                        </h3>
+
+                        <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-xs text-muted-foreground">
+                          <span>{candidate?.jobRole || "N/A"}</span>
+
+                          <span>
+                            {candidate?.experienceLevel || 0} Years Exp
+                          </span>
+
+                          <span>
+                            {candidate?.currentLocation || "Location N/A"}
+                          </span>
+                        </div>
+
+                        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs">
+                          <span className="text-muted-foreground">
+                            Notice:
+                            <span className="ml-1 font-medium text-foreground">
+                              {candidate?.noticePeriod || "N/A"}
+                            </span>
+                          </span>
+
+                          <span className="text-muted-foreground">
+                            Salary:
+                            <span className="ml-1 font-medium text-foreground">
+                              ₹
+                              {candidate?.expectedSalary?.salary?.toLocaleString(
+                                "en-IN",
+                              ) || 0}
+                            </span>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* RIGHT SECTION */}
+                    <div className="flex items-center justify-between lg:justify-end gap-3">
+                      <Badge
+                        variant="outline"
+                        className={`
+                  capitalize
+
+                  ${
+                    candidate?.status === "applied"
+                      ? "bg-blue-500/10 text-blue-600 border-blue-200"
+                      : ""
+                  }
+
+                  ${
+                    candidate?.status === "offer_sent"
+                      ? "bg-emerald-500/10 text-emerald-600 border-emerald-200"
+                      : ""
+                  }
+
+                  ${
+                    candidate?.status === "offer_letter_rejected"
+                      ? "bg-red-500/10 text-red-600 border-red-200"
+                      : ""
+                  }
+                `}
+                      >
+                        {candidate?.status
+                          ?.replace(/_/g, " ")
+                          ?.replace(/\b\w/g, (l: string) => l.toUpperCase())}
+                      </Badge>
+
+                      <Button asChild size="sm" variant="outline">
+                        <Link to={`/employer/candidate/${candidate?._id}`}>
+                          View
+                        </Link>
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="p-10 text-center">
+                  <p className="text-muted-foreground">No applicants found</p>
                 </div>
-              ))}
+              )}
             </CardContent>
           </Card>
         </TabsContent>

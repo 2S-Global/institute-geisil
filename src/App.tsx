@@ -46,6 +46,7 @@ import PostEditJob from "./pages/employer/PostEditJob.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import { AuthProvider } from "@/components/context/AuthContext.tsx";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import VerifyEmployee from "./pages/employer/VerifyEmployee.tsx";
 const queryClient = new QueryClient();
 const App = ()=>{ 
      const [profile, setProfile] = useState();
@@ -131,6 +132,7 @@ const App = ()=>{
                     <Route path="/review-edit-jobs/:id" element={<ReviewEditJobs />} />
                     <Route path="/edit-jobs/:id" element={<PostEditJob />} />
                     <Route path="/settings" element={<EmployerSettings />} />
+                    <Route path="/verify-employee" element={<VerifyEmployee />} />
                 </Routes>
               </ProtectedRoute>
               } />
