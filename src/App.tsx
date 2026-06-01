@@ -39,6 +39,10 @@ import EmployerReports from "./pages/employer/Reports.tsx";
 import Company from "./pages/employer/Company.tsx";
 import EmployerSettings from "./pages/employer/Settings.tsx";
 import CompanyProfile from "./pages/employer/CompanyProfile.tsx";
+import PostNewJob from "./pages/employer/PostNewJob.tsx";
+import ReviewJobs from "./pages/employer/ReviewJobs.tsx";
+import ReviewEditJobs from "./pages/employer/ReviewEditJobs.tsx";
+import PostEditJob from "./pages/employer/PostEditJob.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import { AuthProvider } from "@/components/context/AuthContext.tsx";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -122,6 +126,10 @@ const App = ()=>{
                     <Route path="/reports" element={<EmployerReports />} />
                     <Route path="/company" element={<Company />} />
                     <Route path="/company-profile" element={<CompanyProfile />} />
+                    <Route path="/post-jobs" element={<PostNewJob />} />
+                    <Route path="/review-jobs/:id" element={<ReviewJobs />} />
+                    <Route path="/review-edit-jobs/:id" element={<ReviewEditJobs />} />
+                    <Route path="/edit-jobs/:id" element={<PostEditJob />} />
                     <Route path="/settings" element={<EmployerSettings />} />
                 </Routes>
               </ProtectedRoute>

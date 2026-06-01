@@ -130,16 +130,27 @@ const SocialNetworkBox = () => {
       if (response.data.success) {
         setSuccess(response.data.message);
         setMessageId(Date.now());
-
+  toast({
+                    title: "Success",
+                    description: response.data.message,
+                  });
         setTimeout(() => {
          /*  setActiveTab("brance"); */
         }, 2000);
       } else {
         setError(response.data.message);
+          toast({
+                    title: "Error",
+                    description: response.data.message,
+                  });
         setErrorId(Date.now());
       }
     } catch (error) {
       setError("please try again");
+      toast({
+                    title: "Error",
+                    description: "Please try again",
+                  });
       setErrorId(Date.now());
     } finally {
       setLoading(false);

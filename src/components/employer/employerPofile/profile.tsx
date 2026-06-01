@@ -230,7 +230,10 @@ const pathname = location.pathname;
         setErrorId(null);
         setSuccess(response.data.message);
         setMessageId(Date.now());
-
+        toast({
+                    title: "Success",
+                    description: response.data.message,
+                  });
         //wait for 2 seconds then setActiveTab= "account"
         setTimeout(() => {
           //setActiveTab("account");
@@ -238,6 +241,10 @@ const pathname = location.pathname;
       }
     } catch (error) {
       setError("Error Saving Details Please Try Again");
+       toast({
+                    title: "Error",
+                    description: "Error Saving Details Please Try Again",
+                  });
       setErrorId(Date.now());
     } finally {
       setLoading(false);

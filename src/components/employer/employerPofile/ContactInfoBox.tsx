@@ -27,7 +27,7 @@ const ContactInfoBox = () => {
   const [message_id, setMessageId] = useState(null);
   const [success, setSuccess] = useState(null);
   const token = localStorage.getItem("employer_token");
-
+const {toast}=useToast()
   useEffect(() => {
     FetchDetails();
   }, []);
@@ -110,16 +110,27 @@ const ContactInfoBox = () => {
         setMessageId(Date.now());
 
         FetchDetails();
-
+         toast({
+                    title: "Success",
+                    description: response.data.message,
+                  });
         setTimeout(() => {
           /* setActiveTab("kyc"); */
         }, 2000);
       } else {
         setError(response.data.message || "Something went wrong.");
+         toast({
+                    title: "Error",
+                    description: response.data.message,
+                  });
         setErrorId(Date.now());
       }
     } catch (err) {
       console.error(err);
+       toast({
+                    title: "Error",
+                    description: "Something went wrong. Please try again.",
+                  });
       setError("Something went wrong. Please try again.");
       setErrorId(Date.now());
     } finally {

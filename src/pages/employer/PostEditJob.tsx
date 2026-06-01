@@ -66,13 +66,15 @@ const customStyles = {
     color: "white",
   }), */
 };
-export default function PostNewJob() {
+export default function PostEditJob() {
   const { toast } = useToast();
   const router = useNavigate();
   const params = useParams(); // for dynamic route parts like [jobId]
   const [searchParams] = useSearchParams(); // for query params like ?type=jobTitle
-  const id = params.jobId; // from route /edit/[jobId]
+  const id = params.id; // from route /edit/[jobId]
   const type = searchParams?.get("type"); // from query string ?type=jobTitle
+  console.log('type',type)
+  const flag = searchParams.get("flag");
 
   const [showBy, setShowBy] = useState(""); // Track dropdown selection
   const [selectedJobTypes, setSelectedJobTypes] = useState([]);
@@ -222,7 +224,7 @@ export default function PostNewJob() {
     jobSkills: [],
   });
 
-  useEffect(() => {
+/*   useEffect(() => {
     if (!type) return;
 
     const timeout = setTimeout(() => {
@@ -230,16 +232,52 @@ export default function PostNewJob() {
       if (element) {
         element.scrollIntoView({ behavior: "smooth", block: "center" });
         if (type !== "all") {
-          element.classList.add("highlight");
+          element.classList.add("bg-yellow-300 inline px-1");
           setTimeout(() => {
-            element.classList.remove("highlight");
+            element.classList.remove("bg-yellow-300 inline px-1");
           }, 3000);
         }
       }
     }, 200); // small delay (200ms)
 
     return () => clearTimeout(timeout);
-  }, [type, formData.jobLocationType]);
+  }, [type, formData.jobLocationType]); */
+
+
+  useEffect(() => {
+  if (!type) return;
+
+  const timer = setTimeout(() => {
+    const element = document.getElementById(type);
+
+    if (!element) return;
+
+    element.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+
+    if (type !== "all") {
+      element.classList.add(
+        "bg-yellow-300",
+        "transition-all",
+        "duration-300",
+        "rounded",
+        "p-2",
+      );
+
+      setTimeout(() => {
+        element.classList.remove(
+          "bg-yellow-300",
+          "rounded",
+          "p-2",
+        );
+      }, 3000);
+    }
+  }, 300);
+
+  return () => clearTimeout(timer);
+}, [type, formData.jobLocationType]);
 
   useEffect(() => {
     // ✅ CREATE MODE → no loading screen
@@ -253,14 +291,13 @@ export default function PostNewJob() {
       setPageLoading(true);
 
       try {
-        const response = await api.get(
-          `/api/jobposting/get_job_posting_details`,
-          {
-            params: {
-              jobId: id,
-            },
-          },
-        );
+        const apiEndpoint =
+          flag === "review"
+            ? `/api/jobposting/get_temp_job_posting_details`
+            : `/api/jobposting/get_job_posting_details`;
+        const response = await api.get(apiEndpoint, {
+          params: flag === "review" ? { tempId: id } : { jobId: id },
+        });
 
         if (response.data.success) {
           const job = response.data.data;
@@ -323,7 +360,7 @@ export default function PostNewJob() {
     };
 
     fetchData();
-  }, [id]);
+  }, []);
 
   const fetchStates = async () => {
     try {
@@ -361,7 +398,7 @@ export default function PostNewJob() {
     const fetchRandomSkills = async () => {
       try {
         setJobTitleLoading(true);
-        const res = await api.get(`${apiurl}/api/sql/dropdown/Random_Skill`);
+        const res = await api.get(`/api/sql/dropdown/Random_Skill`);
         const data = res.data.data || [];
 
         console.log("Here is my all random skills::::'''''", data);
@@ -386,10 +423,10 @@ export default function PostNewJob() {
     if (!inputValue || inputValue.length < 2) return [];
 
     try {
-      const token = localStorage.getItem("candidate_token");
+      const token = localStorage.getItem("token");
 
       const response = await api.get(
-        `${apiurl}/api/sql/dropdown/matching_Skill?skill_name=${inputValue}`,
+        `/api/sql/dropdown/matching_Skill?skill_name=${inputValue}`,
       );
 
       const fetched = response.data.data || [];
@@ -399,7 +436,7 @@ export default function PostNewJob() {
       );
 
       const formatted = unique.map((skill) => ({
-        label: skill?.charAt(0).toUpperCase() + skill?.slice(1),
+        label: skill.charAt(0).toUpperCase() + skill.slice(1),
         value: skill,
       }));
 
@@ -463,7 +500,7 @@ export default function PostNewJob() {
   // 🔥 AUTO LOAD STATE & CITY IN EDIT MODE
   useEffect(() => {
     if (formData.country) {
-      fetchStates(formData?.country);
+      fetchStates(formData.country);
     }
   }, [formData.country]);
 
@@ -844,13 +881,9 @@ export default function PostNewJob() {
         };
 
         response = await api.post(
-          `/api/jobposting/edit_job_posting_details`,
+          `/api/jobposting/edit_live_job_posting_details`,
           payload,
           {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
             params: {
               jobId: id,
             },
@@ -923,19 +956,13 @@ export default function PostNewJob() {
         const jobId = response.data.jobId; // API returns saved job object
         const status = response.data.data.status; // draft
 
-        // router.push(`/employers-dashboard/post-jobs/review-jobs/${jobId}?status=${status}`);
-        if (id) {
-          // ✅ EDIT MODE → no review page, no status needed
-          router(
-            `/employer/review-jobs/${jobId}?status=${status}`,
-          );
-        } else {
-          // ✅ CREATE MODE → go to review page with status
-          router(
-            `/employer/review-jobs/${jobId}?status=${status}`,
-          );
-        }
-        // router.push(`/employers-dashboard/post-jobs/review-jobs`);
+        // router(`/employers-dashboard/post-jobs/review-jobs/${jobId}?status=${status}`);
+
+        router(
+          `/employer/review-edit-jobs/${jobId}?status=${status}`,
+        );
+
+        // router(`/employers-dashboard/post-jobs/review-jobs`);
         // OR if you want to pass as query: /review-job?jobId=...&status=...
       } else {
         throw new Error(response.data.message || "An error occurred");
@@ -961,7 +988,7 @@ export default function PostNewJob() {
         return;
       }
 
-      const res = await api.get(`${apiurl}/api/sql/dropdown/get_india_cities`, {
+      const res = await api.get(`/api/sql/dropdown/get_india_cities`, {
         params: { stateId }, // ✅ PASS stateId here
       });
 
@@ -985,10 +1012,9 @@ export default function PostNewJob() {
       </div>
     );
   }
-
   return (
     <EmployerLayout>
-      <PageHeader title="Post a New Job" description="" actions={""} />
+      <PageHeader title="Update Job" description="" actions={""} />
       <Card className="p-4 mb-4 border-border/60 shadow-sm">
         <div className="relative">
           <>
@@ -1007,6 +1033,14 @@ export default function PostNewJob() {
                     disablePortal
                     loading={jobTitleLoading}
                     options={jobTitleOptions}
+                     value={
+                      formData.jobTitleName
+                        ? {
+                            label: formData.jobTitleName,
+                            value: formData.jobTitleId,
+                          }
+                        : null
+                    }
                     getOptionLabel={(option) =>
                       typeof option === "string" ? option : option.label
                     }
@@ -2322,6 +2356,9 @@ export default function PostNewJob() {
     </label>
   </div>
 </div>
+
+
+
                 {/* Submit Button */}
                 <div className="w-full px-3 text-right">
                   <button

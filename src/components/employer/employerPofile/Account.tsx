@@ -26,7 +26,7 @@ const Account = () => {
   const [message_id, setMessageId] = useState(null);
   const [success, setSuccess] = useState(null);
   const token = localStorage.getItem("employer_token");
-
+  const {toast}=useToast()
   useEffect(() => {
     Fetchdetails();
   }, []);
@@ -73,18 +73,28 @@ const Account = () => {
       if (response.data.success) {
         setSuccess(response.data.message);
         setMessageId(Date.now());
+         toast({
+                    title: "Success",
+                    description: response.data.message,
+                  });
         setTimeout(() => {
           /* setActiveTab("contact") */;
         }, 2000);
       } else {
         console.error("Error saving personal details:", response.data.message);
-
+        toast({
+                    title: "Error",
+                    description: response.data.message,
+                  });
         setError(response.data.message);
         setErrorId(Date.now());
       }
     } catch (error) {
       console.error("Error saving personal details:", error);
-
+ toast({
+                    title: "Error",
+                    description: error,
+                  });
       setError("An error occurred while saving personal details.");
     } finally {
       setLoading(false);

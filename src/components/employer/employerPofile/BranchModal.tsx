@@ -6,6 +6,7 @@ import MessageComponent from "@/components/common/ResponseMsg" */;
 //import axios from "axios";
 //import { id } from "date-fns/locale";
 import API from "../../../lib/axios";
+import { useToast } from "@/hooks/use-toast";
 const BranchModal = ({
   show,
   onClose,
@@ -25,7 +26,7 @@ const BranchModal = ({
 
   const apiurl = "";
   const token = localStorage.getItem("token");
-
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     id: item._id || "",
     name: item.name || "",
@@ -145,6 +146,10 @@ const BranchModal = ({
       if (response.data.success) {
         setSuccess(response.data.message);
         setMessageId(Date.now());
+         toast({
+                    title: "Success",
+                    description: response.data.message,
+                  });
 
         // Close modal after short delay
         setTimeout(() => {
@@ -153,12 +158,20 @@ const BranchModal = ({
       } else {
         setError(response.data.message || "Operation failed");
         setErrorId(Date.now());
+        toast({
+                    title: "Error",
+                    description: response.data.message,
+                  });
       }
     } catch (error) {
       setError(
         error.response?.data?.message ||
           "Error saving details, please try again."
       );
+      toast({
+                    title: "Error",
+                    description: "Error saving details, please try again.",
+                  });
       setErrorId(Date.now());
     } finally {
       setRefresh(true);
