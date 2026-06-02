@@ -1002,7 +1002,7 @@ export default function PostEditJob() {
       setCity([]);
     }
   };
-  if (pageLoading) {
+/*   if (pageLoading) {
     return (
       <div
         className="d-flex justify-content-center align-items-center"
@@ -1011,7 +1011,7 @@ export default function PostEditJob() {
         <CircularProgress />
       </div>
     );
-  }
+  } */
   return (
     <EmployerLayout>
       <PageHeader title="Update Job" description="" actions={""} />

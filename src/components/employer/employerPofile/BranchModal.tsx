@@ -185,13 +185,13 @@ const BranchModal = ({
 
   return (
 <>
-  {loading && (
+{/*   {loading && (
     <div
       className="fixed inset-0 z-[1050] flex items-center justify-center bg-white/75"
     >
-      {/* <CustomizedProgressBars /> */}
+      
     </div>
-  )}
+  )} */}
 
   {/* Modal Overlay */}
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">

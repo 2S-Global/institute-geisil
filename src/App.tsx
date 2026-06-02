@@ -43,17 +43,18 @@ import PostNewJob from "./pages/employer/PostNewJob.tsx";
 import ReviewJobs from "./pages/employer/ReviewJobs.tsx";
 import ReviewEditJobs from "./pages/employer/ReviewEditJobs.tsx";
 import PostEditJob from "./pages/employer/PostEditJob.tsx";
-import NotFound from "./pages/NotFound.tsx";
 import { AuthProvider } from "@/components/context/AuthContext.tsx";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import VerifyEmployee from "./pages/employer/VerifyEmployee.tsx";
+import NotFound from "./pages/NotFound.tsx";
+import Unauthorized from "./pages/Unauthorized.tsx";
 const queryClient = new QueryClient();
 const App = ()=>{ 
      const [profile, setProfile] = useState();
    const FetchCompanyDetails = async () => {
     try {
       const response = await API.get(
-        `/api/instituteprofile/get_company_details`,
+        `/api/auth/get-user-details`,
       );
 
       if (response.data.success) {
@@ -76,6 +77,7 @@ const App = ()=>{
   },[])
    useEffect(()=>{
               localStorage.setItem("name",profile?.name||localStorage.getItem("name" ))
+              localStorage.setItem("role",profile?.role||localStorage.getItem("role" ))
   },[profile])
   return(
   <QueryClientProvider client={queryClient}>
@@ -86,11 +88,12 @@ const App = ()=>{
        
         <BrowserRouter>
           <Routes>
+            <Route path="/" element={<NotFound />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/" element={<Index />} />
              <Route path="/institute/*" element={
-              <ProtectedRoute role="2">
+              <ProtectedRoute role="3">
                  <Routes>
+                    <Route path="/" element={<Index />} />
                     <Route path="/students" element={<Students />} />
                     <Route path="/students/:id" element={<StudentDetail />} />
                     <Route path="/recruiters" element={<Recruiters />} />
@@ -110,6 +113,7 @@ const App = ()=>{
                     <Route path="/student-verification" element={<StudentVerification />} />
                     <Route path="/all-student" element={<AllStudentList />} />
                     <Route path="/search-student" element={<StudentSearch />} />
+                    <Route path="*" element={<NotFound />} />
                   </Routes>
               </ProtectedRoute>
                } />
@@ -133,10 +137,11 @@ const App = ()=>{
                     <Route path="/edit-jobs/:id" element={<PostEditJob />} />
                     <Route path="/settings" element={<EmployerSettings />} />
                     <Route path="/verify-employee" element={<VerifyEmployee />} />
+                    <Route path="*" element={<NotFound />} />
                 </Routes>
               </ProtectedRoute>
               } />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="/unauthorized" element={<Unauthorized />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

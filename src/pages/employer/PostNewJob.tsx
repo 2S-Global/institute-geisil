@@ -80,7 +80,7 @@ export default function PostNewJob() {
   const [advertiseCity, setAdvertiseCity] = useState("No"); // Yes or No
   const [salaryStructure, setSalaryStructure] = useState("");
 
-  const [pageLoading, setPageLoading] = useState(true);
+  const [pageLoading, setPageLoading] = useState(false);
   const [jobTitleLoading, setJobTitleLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [openExpiryPicker, setOpenExpiryPicker] = useState(false);
@@ -386,7 +386,7 @@ export default function PostNewJob() {
     if (!inputValue || inputValue.length < 2) return [];
 
     try {
-      const token = localStorage.getItem("candidate_token");
+      const token = localStorage.getItem("token");
 
       const response = await api.get(
         `${apiurl}/api/sql/dropdown/matching_Skill?skill_name=${inputValue}`,

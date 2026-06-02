@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import API from "../../../lib/axios";
-
+import { useToast } from "@/hooks/use-toast";
 
 
 import KycBox from "./Kycboxnew";
@@ -21,6 +21,7 @@ const KycModal = ({
   const [saving, setSaving] = useState(false);
   const apiurl = "";
   const token = localStorage.getItem("token");
+  const {toast}=useToast()
   /* 
   console.log("data", data); */
 
@@ -108,17 +109,29 @@ const KycModal = ({
 
       if (response.data.success) {
         setSuccess(response.data.message || "KYC updated successfully.");
+         toast({
+                    title: "Success",
+                    description:response.data.message || "KYC updated successfully.",
+                  });
         setMessageId(Date.now());
         setReload(true);
         onClose();
       }
 
       if (!response.data.success) {
+         toast({
+                    title: "Error",
+                    description:response.data.message || "Failed to update KYC.",
+                  });
         setError(response.data.message || "Failed to update KYC.");
         setErrorId(Date.now());
       }
     } catch (error) {
       console.error(error);
+      toast({
+                    title: "Error",
+                    description:"Failed to update KYC. Try again later.",
+                  });
       setError("Failed to update KYC. Try again later.");
     } finally {
       setSaving(false);

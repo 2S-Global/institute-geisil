@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode,useEffect,useState } from "react";
 import { Bell, Search } from "lucide-react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { EmployerSidebar } from "@/components/EmployerSidebar";
@@ -7,6 +7,16 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export function EmployerLayout({ children }: { children: ReactNode }) {
+  const[name,setName]=useState()
+     useEffect(() => {
+  
+      const timer = setTimeout(() => {
+        setName(localStorage.getItem("name"))
+      }, 1000);
+  
+      return () => clearTimeout(timer);
+  
+    }, []);
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
@@ -24,16 +34,19 @@ export function EmployerLayout({ children }: { children: ReactNode }) {
               </div>
             </div>
             <div className="ml-auto flex items-center gap-2 md:gap-3">
-              <Button variant="ghost" size="icon" className="relative">
+              {/* <Button variant="ghost" size="icon" className="relative">
                 <Bell className="h-5 w-5" />
                 <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-destructive ring-2 ring-card" />
-              </Button>
+              </Button> */}
               <div className="hidden sm:block text-right leading-tight">
-                <p className="text-sm font-semibold text-foreground">Acme Corp.</p>
-                <p className="text-xs text-muted-foreground">Talent Acquisition</p>
+                <p className="text-sm font-semibold text-foreground">{localStorage.getItem("name")==='null'?"":localStorage.getItem("name")||""}</p>{/* 
+                <p className="text-xs text-muted-foreground">Talent Acquisition</p> */}
               </div>
               <Avatar className="h-9 w-9 border">
-                <AvatarFallback className="bg-primary text-primary-foreground font-semibold">AC</AvatarFallback>
+                <AvatarFallback className="bg-primary text-primary-foreground font-semibold">{localStorage.getItem("name")==='null'?"":localStorage.getItem("name")?.split(" ")
+                    .map((w) => w[0])
+                    .slice(0, 2)
+                    .join("")||""}</AvatarFallback>
               </Avatar>
             </div>
           </header>
