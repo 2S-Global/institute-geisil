@@ -19,8 +19,11 @@ import api from "@/lib/axios";
 
 import { toast } from "@/hooks/use-toast";
 
+import { useNavigate } from "react-router-dom";
+
 const VerifyEmployee = () => {
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const [packageLoading, setPackageLoading] = useState(false);
 
@@ -447,36 +450,12 @@ const VerifyEmployee = () => {
       });
 
       if (response.data.success) {
-        // alert("Employee verification submitted successfully");
         toast({
           title: "Success",
           description: "Employee verification submitted successfully",
         });
 
-        setFormData({
-          name: "",
-          dob: "",
-          phone: "",
-          email: "",
-          gender: "",
-          address: "",
-
-          panname: "",
-          pannumber: "",
-          pandoc: null,
-
-          votername: "",
-          voternumber: "",
-          voterdoc: null,
-
-          licensename: "",
-          licensenumber: "",
-          licensedoc: null,
-
-          additionalfields: {},
-        });
-
-        setSelectedPackage("");
+        navigate("/employer/paynow");
       }
     } catch (error: any) {
       console.log(error);
@@ -727,9 +706,7 @@ const VerifyEmployee = () => {
               {/* BUTTON */}
               <Button
                 type="submit"
-                disabled={
-                  !isChecked || loading || packageLoading
-                }
+                disabled={!isChecked || loading || packageLoading}
                 className="min-w-[180px]"
               >
                 {loading ? "Please wait..." : "Submit"}
