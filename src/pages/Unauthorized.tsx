@@ -1,10 +1,25 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation,useNavigate } from "react-router-dom";
 import { Home, LogIn, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
+import { useEffect,useState } from "react";
 const Unauthorized = () => {
   const location = useLocation();
   const from = (location.state as { from?: string } | null)?.from;
+  const navigate = useNavigate();
+
+       useEffect(() => {
+        const timer = setTimeout(() => {
+            if(localStorage.getItem("role" )==='2'){
+              navigate('/employer')
+            }
+            if(localStorage.getItem("role" )==='3'){
+              navigate('/institute')
+            }
+        }, 500);
+    
+        return () => clearTimeout(timer);
+    
+      }, []);
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-6">
@@ -38,6 +53,9 @@ const Unauthorized = () => {
           </Button>}
            {localStorage.getItem("role" )==='3' && <Button asChild variant="outline">
             <Link to="/institute"><Home className="h-4 w-4" /> Back to home</Link>
+          </Button>}
+          {!localStorage.getItem("token") && <Button asChild className="gap-2 shadow-brand">
+            <Link to="https://geisil.com/"><LogIn className="h-4 w-4" /> Sign in</Link>
           </Button>}
          {/*  <Button asChild variant="outline" className="gap-2">
             <Link to="/"><Home className="h-4 w-4" /> Back to home</Link>

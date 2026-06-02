@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Compass, AlertTriangle } from "lucide-react";
+import { Home, Compass,LogIn, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const NotFound = () => {
@@ -42,6 +42,9 @@ const NotFound = () => {
            {localStorage.getItem("role" )==='3' && <Button asChild variant="outline">
             <Link to="/institute"><Home className="h-4 w-4" /> Back to home</Link>
           </Button>}
+        {/*    {!localStorage.getItem("token") && <Button asChild className="gap-2 shadow-brand">
+            <Link to="https://geisil.com/"><LogIn className="h-4 w-4" /> Sign in</Link>
+          </Button>} */}
         </div>
       </div>
     </main>

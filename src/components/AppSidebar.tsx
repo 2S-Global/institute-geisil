@@ -29,7 +29,7 @@ import {
 import api from "@/lib/axios";
 
 const main = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { title: "Dashboard", url: "/institute", icon: LayoutDashboard },
    {
     title: "Student Verification",
     url: "/institute/student-verification",

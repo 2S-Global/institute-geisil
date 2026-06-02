@@ -1,6 +1,6 @@
-import { Navigate,Outlet,useLocation,useNavigate } from "react-router-dom";
+import { Navigate,Outlet,useLocation } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
-import { useEffect } from "react";
+import { useEffect,useState } from "react";
 const ProtectedRoute = ({ children, role }: any) => {
 /*   const { user,setLogin } = useAuth();
 useEffect(()=>{
@@ -20,7 +20,13 @@ useEffect(()=>{
   return children; */
  const location = useLocation();
 if (!localStorage.getItem("token")) {
-   window.location.replace("https://geisil.com/");
+    return (
+      <Navigate
+        to="/"
+        replace
+        state={{ from: location.pathname }}
+      />
+    );
   }
 
   if (localStorage.getItem("token") && localStorage.getItem("role" )!==role) {
