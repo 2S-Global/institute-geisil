@@ -89,7 +89,7 @@ const App = ()=>{
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<NotFound />} />
-            <Route path="/login" element={<Login />} />
+           {/*  <Route path="/login" element={<Login />} /> */}
              <Route path="/institute/*" element={
               <ProtectedRoute role="3">
                  <Routes>
