@@ -27,6 +27,8 @@ const RazorpayCartPayment = ({
 
   const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY;
 
+//   console.log("Razorpay Key =>", import.meta.env.VITE_RAZORPAY_KEY);
+
   useEffect(() => {
     if (window.Razorpay) {
       setIsLoaded(true);
