@@ -273,14 +273,16 @@ const VerifyEmployee = () => {
 
     // LICENSE
     if (name === "licensenumber") {
-      const licenseRegex = /^[A-Z]{2}[0-9]{2}\\s?[0-9]{4}\\s?[0-9]{7}$/;
+      const normalized = value.toUpperCase().replace(/\s+/g, "");
+
+      const licenseRegex = /^[A-Z]{2}[0-9]{13}$/;
 
       setValidationErrors((prev: any) => ({
         ...prev,
         licensenumber:
-          value === ""
+          normalized === ""
             ? ""
-            : licenseRegex.test(value)
+            : licenseRegex.test(normalized)
               ? ""
               : "Invalid License format",
       }));
@@ -330,8 +332,18 @@ const VerifyEmployee = () => {
       errors.voternumber = "Invalid Voter ID";
     }
 
-    const licenseRegex = /^[A-Z]{2}[0-9]{2}\\s?[0-9]{4}\\s?[0-9]{7}$/;
-    if (formData.licensenumber && !licenseRegex.test(formData.licensenumber)) {
+    // const licenseRegex = /^[A-Z]{2}[0-9]{2}\\s?[0-9]{4}\\s?[0-9]{7}$/;
+    // if (formData.licensenumber && !licenseRegex.test(formData.licensenumber)) {
+    //   errors.licensenumber = "Invalid License format";
+    // }
+
+    const normalizedLicense = formData.licensenumber
+      ?.toUpperCase()
+      .replace(/\s+/g, "");
+
+    const licenseRegex = /^[A-Z]{2}[0-9]{13}$/;
+
+    if (normalizedLicense && !licenseRegex.test(normalizedLicense)) {
       errors.licensenumber = "Invalid License format";
     }
 
