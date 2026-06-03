@@ -1,4 +1,5 @@
 import { Navigate,Outlet,useLocation } from "react-router-dom";
+import Cookies from "js-cookie";
 import { useAuth } from "./context/AuthContext";
 import { useEffect,useState } from "react";
 const ProtectedRoute = ({ children, role }: any) => {
@@ -19,7 +20,14 @@ useEffect(()=>{
 
   return children; */
  const location = useLocation();
-if (!localStorage.getItem("token")) {
+
+  const token =
+    localStorage.getItem("token") ||
+    Cookies.get("token");
+
+  const userRole = localStorage.getItem("role");
+
+  if (!token) {
     return (
       <Navigate
         to="/"
@@ -29,7 +37,7 @@ if (!localStorage.getItem("token")) {
     );
   }
 
-  if (localStorage.getItem("token") && localStorage.getItem("role" )!==role) {
+  if (role && userRole !== role) {
     return (
       <Navigate
         to="/unauthorized"

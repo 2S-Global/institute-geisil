@@ -5,21 +5,16 @@ import { Button } from "@/components/ui/button";
 
 const NotFound = () => {
   const location = useLocation();
-   const navigate = useNavigate();
-  
-         useEffect(() => {
-          const timer = setTimeout(() => {
-              if(localStorage.getItem("role" )==='2'){
-                navigate('/employer')
-              }
-              if(localStorage.getItem("role" )==='3'){
-                navigate('/institute')
-              }
-          }, 500);
-      
-          return () => clearTimeout(timer);
-      
-        }, []);
+/*   const navigate = useNavigate();
+  useEffect(() => {
+      if(localStorage.getItem("role" )==='2'){
+        navigate('/employer')
+      }
+      if(localStorage.getItem("role" )==='3'){
+        navigate('/institute')
+      }
+
+}, [navigate]);  */
 
   useEffect(() => {
     console.error("404 Error: User attempted to access non-existent route:", location.pathname);

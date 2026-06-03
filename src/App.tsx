@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import API from "@/lib/axios";
 import { useEffect,useState } from "react";
 import Cookies from "js-cookie";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes ,useNavigate} from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -49,10 +49,13 @@ import VerifyEmployee from "./pages/employer/VerifyEmployee.tsx";
 import PayNow from "./pages/employer/PayNow.tsx";
 import DownloadCenter from "./pages/employer/DownloadCenter";
 import NotFound from "./pages/NotFound.tsx";
+import Loading from "./pages/Loading.tsx";
 import Unauthorized from "./pages/Unauthorized.tsx";
 const queryClient = new QueryClient();
 const App = ()=>{ 
-     const [profile, setProfile] = useState();
+  const [profile, setProfile] = useState();
+  const [loading, setLoading] = useState(true);
+  const [isSuccess, setSuccess] = useState(false);
    const FetchCompanyDetails = async () => {
     try {
       const response = await API.get(
@@ -60,9 +63,10 @@ const App = ()=>{
       );
 
       if (response.data.success) {
-        const data = response.data.data;
-        setProfile(data);
-
+         const data = response.data.data;
+         localStorage.setItem("role",data?.role)
+         setProfile(data);
+         setSuccess(true);
         //setDisableform(false);
       }
     } catch (e) {
@@ -74,13 +78,67 @@ const App = ()=>{
           if(token){
               localStorage.setItem("token", token);
           }
-          
         FetchCompanyDetails()
   },[])
+
    useEffect(()=>{
-              localStorage.setItem("name",profile?.name||localStorage.getItem("name" ))
-              localStorage.setItem("role",profile?.role||localStorage.getItem("role" ))
+    if(isSuccess){
+          localStorage.setItem("name",profile?.name||localStorage.getItem("name"))
+          localStorage.setItem("role",profile?.role||localStorage.getItem("role"))
+          setLoading(false)
+    }
+            
   },[profile])
+
+
+ if (loading) {
+    return  <>
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 flex items-center justify-center">
+      <div className="text-center">
+        {/* Logo */}
+        <div className="mb-10">
+        {/*   <h1 className="text-5xl font-bold text-white tracking-tight">
+            MyApp
+          </h1> */}
+          {/* <p className="text-slate-400 mt-3">
+            Loading your workspace...
+          </p> */}
+        </div>
+
+        {/* Spinner */}
+        <div className="relative w-24 h-24 mx-auto">
+          <div className="absolute inset-0 rounded-full border-4 border-white/10"></div>
+          <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-cyan-400 border-r-indigo-500 animate-spin"></div>
+
+          {/* Center Glow */}
+          <div className="absolute inset-5 rounded-full bg-gradient-to-r from-cyan-500 to-indigo-600 blur-md opacity-70"></div>
+        </div>
+
+        {/* Loading Text */}
+        <div className="mt-8">
+          <p className="text-white text-lg font-medium">Loading</p>
+
+          <div className="flex justify-center gap-2 mt-3">
+            <span className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></span>
+            <span
+              className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"
+              style={{ animationDelay: "0.15s" }}
+            ></span>
+            <span
+              className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"
+              style={{ animationDelay: "0.3s" }}
+            ></span>
+          </div>
+        </div>
+
+        {/* Progress Bar */}
+       {/*  <div className="w-72 h-2 bg-white/10 rounded-full overflow-hidden mt-8 mx-auto">
+          <div className="h-full w-1/2 bg-gradient-to-r from-cyan-400 to-indigo-500 animate-pulse rounded-full"></div>
+        </div> */}
+      </div>
+    </div>
+    </>
+  } 
   return(
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -90,8 +148,11 @@ const App = ()=>{
        
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<NotFound />} />
+            {/* <Route path="/" element={<NotFound />} /> */}
            {/*  <Route path="/login" element={<Login />} /> */}
+
+             <Route path="/" element={<Loading />} />
+
              <Route path="/institute/*" element={
               <ProtectedRoute role="3">
                  <Routes>

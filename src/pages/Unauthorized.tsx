@@ -5,22 +5,6 @@ import { useEffect,useState } from "react";
 const Unauthorized = () => {
   const location = useLocation();
   const from = (location.state as { from?: string } | null)?.from;
-  const navigate = useNavigate();
-
-       useEffect(() => {
-        const timer = setTimeout(() => {
-            if(localStorage.getItem("role" )==='2'){
-              navigate('/employer')
-            }
-            if(localStorage.getItem("role" )==='3'){
-              navigate('/institute')
-            }
-        }, 500);
-    
-        return () => clearTimeout(timer);
-    
-      }, []);
-
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-6">
       <div
