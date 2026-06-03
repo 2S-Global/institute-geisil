@@ -14,12 +14,14 @@ import {
   Loader2,
   CalendarClock,
   MessageSquare,
+  FileText,
 } from "lucide-react";
 import API from "@/lib/axios";
 import { useEffect, useState } from "react";
 import ShortlistInvitationModal from "@/components/employer/ShortlistedInvitationModal";
 import RescheduleInvitationModal from "@/components/employer/RescheduleModal";
 import RemarksModal from "@/components/employer/RemarksModal";
+import OfferLetterModal from "@/components/employer/OfferLetterModal";
 import {
   Dialog,
   DialogContent,
@@ -34,8 +36,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-
-
 
 const styles: Record<string, string> = {
   applied: "bg-amber-50 text-amber-700 border-amber-200",
@@ -79,6 +79,7 @@ function ApplicationTable({
   isShortlistedTab,
   actionLoading,
   setShowRemarksModal,
+  setIsOfferLetterModalOpen,
 }: {
   data: Applicant[];
   handleApplicationAction: (
@@ -92,7 +93,7 @@ function ApplicationTable({
   isInterviewTab: boolean;
   actionLoading: string | null;
   setShowRemarksModal: React.Dispatch<React.SetStateAction<boolean>>;
-  
+  setIsOfferLetterModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   return (
     <>
@@ -226,17 +227,39 @@ function ApplicationTable({
                               <CalendarClock className="h-3.5 w-3.5" />
                             </Button>
 
-                            {/* Remarks */}
                             <Button
                               size="icon"
-                              className="h-8 w-8 bg-purple-600 hover:bg-purple-700 text-white"
+                              disabled={a.isInterviewFeedbackSubmitted}
+                              className={`h-8 w-8 text-white ${
+                                a.isInterviewFeedbackSubmitted
+                                  ? "bg-gray-400 cursor-not-allowed"
+                                  : "bg-purple-600 hover:bg-purple-700"
+                              }`}
                               onClick={() => {
+                                if (a.isInterviewFeedbackSubmitted) return;
+
                                 setSelectedCandidate(a);
                                 setShowRemarksModal(true);
                               }}
-                              title="Interview Remarks"
+                              title={
+                                a.isInterviewFeedbackSubmitted
+                                  ? "Interview Feedback Already Submitted"
+                                  : "Interview Remarks"
+                              }
                             >
                               <MessageSquare className="h-3.5 w-3.5" />
+                            </Button>
+
+                            <Button
+                              size="icon"
+                              className="h-8 w-8 bg-green-600 hover:bg-green-700 text-white"
+                              onClick={() => {
+                                setSelectedCandidate(a);
+                                setIsOfferLetterModalOpen(true); // open offer letter modal
+                              }}
+                              title="Send Offer Letter"
+                            >
+                              <FileText className="h-3.5 w-3.5" />
                             </Button>
                           </>
                         )}
@@ -357,17 +380,43 @@ function ApplicationTable({
                 )}
 
                 {a.status === "invitation_sent" && (
-                  <Button
-                    size="icon"
-                    className="h-8 w-8 bg-orange-500 hover:bg-orange-600 text-white"
-                    onClick={() => {
-                      console.log("Opening reschedule modal");
-                      setSelectedCandidate(a);
-                      setIsRescheduleModalOpen(true);
-                    }}
-                  >
-                    <CalendarClock className="h-3.5 w-3.5" />
-                  </Button>
+                  <>
+                    <Button
+                      size="icon"
+                      className="h-8 w-8 bg-orange-500 hover:bg-orange-600 text-white"
+                      onClick={() => {
+                        console.log("Opening reschedule modal");
+                        setSelectedCandidate(a);
+                        setIsRescheduleModalOpen(true);
+                      }}
+                    >
+                      <CalendarClock className="h-3.5 w-3.5" />
+                    </Button>
+
+                    <Button
+                      size="icon"
+                      className="h-8 w-8 bg-purple-600 hover:bg-purple-700 text-white"
+                      onClick={() => {
+                        setSelectedCandidate(a);
+                        setShowRemarksModal(true);
+                      }}
+                      title="Interview Remarks"
+                    >
+                      <MessageSquare className="h-3.5 w-3.5" />
+                    </Button>
+
+                    <Button
+                      size="icon"
+                      className="h-8 w-8 bg-green-600 hover:bg-green-700 text-white"
+                      onClick={() => {
+                        setSelectedCandidate(a);
+                        setIsOfferLetterModalOpen(true);
+                      }}
+                      title="Send Offer Letter"
+                    >
+                      <FileText className="h-3.5 w-3.5" />
+                    </Button>
+                  </>
                 )}
 
                 {/* Reject */}
@@ -380,21 +429,6 @@ function ApplicationTable({
                     title="Reject Application"
                   >
                     <X className="h-3.5 w-3.5" />
-                  </Button>
-                )}
-
-                {/* Invitation Sent -> Reschedule Interview */}
-                {a.status === "invitation_sent" && (
-                  <Button
-                    size="icon"
-                    className="h-8 w-8 bg-orange-500 hover:bg-orange-600 text-white"
-                    onClick={() => {
-                      setSelectedCandidate(a);
-                      setIsRescheduleModalOpen(true);
-                    }}
-                    title="Reschedule Interview"
-                  >
-                    <CalendarClock className="h-3.5 w-3.5" />
                   </Button>
                 )}
               </div>
@@ -428,9 +462,9 @@ export default function Applications() {
   const [interviewDate, setInterviewDate] = useState("");
   const [interviewTime, setInterviewTime] = useState("");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
-const [showRemarksModal, setShowRemarksModal] = useState(false);
-
+  const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
+  const [showRemarksModal, setShowRemarksModal] = useState(false);
+  const [isOfferLetterModalOpen, setIsOfferLetterModalOpen] = useState(false);
   const closeInterviewModal = () => {
     setIsInterviewModalOpen(false);
     setSelectedCandidate(null);
@@ -557,6 +591,7 @@ const [showRemarksModal, setShowRemarksModal] = useState(false);
             isInterviewTab={false}
             actionLoading={actionLoading}
             setShowRemarksModal={setShowRemarksModal}
+            setIsOfferLetterModalOpen={setIsOfferLetterModalOpen}
           />
         </TabsContent>
 
@@ -572,6 +607,7 @@ const [showRemarksModal, setShowRemarksModal] = useState(false);
             isInterviewTab={false}
             actionLoading={actionLoading}
             setShowRemarksModal={setShowRemarksModal}
+            setIsOfferLetterModalOpen={setIsOfferLetterModalOpen}
           />
         </TabsContent>
 
@@ -587,6 +623,7 @@ const [showRemarksModal, setShowRemarksModal] = useState(false);
             isInterviewTab={true}
             actionLoading={actionLoading}
             setShowRemarksModal={setShowRemarksModal}
+            setIsOfferLetterModalOpen={setIsOfferLetterModalOpen}
           />
         </TabsContent>
 
@@ -602,6 +639,7 @@ const [showRemarksModal, setShowRemarksModal] = useState(false);
             isInterviewTab={false}
             actionLoading={actionLoading}
             setShowRemarksModal={setShowRemarksModal}
+            setIsOfferLetterModalOpen={setIsOfferLetterModalOpen}
           />
         </TabsContent>
       </Tabs>
@@ -640,6 +678,16 @@ const [showRemarksModal, setShowRemarksModal] = useState(false);
           setSelectedCandidate(null);
         }}
         selectedCandidate={selectedCandidate}
+        onSuccess={FetchApplicationDetails}
+      />
+
+      <OfferLetterModal
+        open={isOfferLetterModalOpen}
+        selectedCandidate={selectedCandidate}
+        closeModal={() => {
+          setIsOfferLetterModalOpen(false);
+          setSelectedCandidate(null);
+        }}
         onSuccess={FetchApplicationDetails}
       />
     </EmployerLayout>
