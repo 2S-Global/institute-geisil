@@ -466,6 +466,7 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
             </label>
 
             <input
+            style={{ position:"relative" }}
               type="date"
               max={new Date()?.toISOString().split("T")[0]}
               name="dob"
