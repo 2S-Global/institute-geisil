@@ -200,178 +200,179 @@ const Profile = () => {
 
   return (
     <>
-     <form
+      <form
         className="default-form"
         onSubmit={handelsubmit}
         type="multipart/form-data"
         method="post"
       >
         <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
+          <div className="space-y-2">
             <Label htmlFor="fname">
-                Institute Name{" "}
-                <span style={{ color: "red" }} className="ms-1">
+              Institute Name{" "}
+              <span style={{ color: "red" }} className="ms-1">
                 *
-                </span>
+              </span>
             </Label>
             <Input
-                type="text"
-                name="name"
-                placeholder="Enter institute name"
-                value={formdata.name}
-                onChange={(e) => setFormdata({ ...formdata, name: e.target.value })}
-                required
+              type="text"
+              name="name"
+              placeholder="Enter institute name"
+              value={formdata.name}
+              onChange={(e) =>
+                setFormdata({ ...formdata, name: e.target.value })
+              }
+              required
             />
-            </div>
-            <div className="space-y-2">
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="lname">
-                Email Address{" "}
-                <span style={{ color: "red" }} className="ms-1">
+              Email Address{" "}
+              <span style={{ color: "red" }} className="ms-1">
                 *
-                </span>
+              </span>
             </Label>
             <Input
-                type="email"
-                name="email"
-                placeholder="Enter email address"
-                value={formdata.email}
-                onChange={(e) =>
+              type="email"
+              name="email"
+              placeholder="Enter email address"
+              value={formdata.email}
+              onChange={(e) =>
                 setFormdata({ ...formdata, email: e.target.value })
-                }
-                required
+              }
+              required
             />
-            </div>
-            <div className="space-y-2">
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="email">
-                Phone{" "}
-                <span style={{ color: "red" }} className="ms-1">
+              Phone{" "}
+              <span style={{ color: "red" }} className="ms-1">
                 *
-                </span>
+              </span>
             </Label>
             <Input
-                type="text"
-                name="mobile"
-                placeholder="0 123 456 7890"
-                value={formdata.phone}
-                onChange={(e) =>
+              type="text"
+              name="mobile"
+              placeholder="0 123 456 7890"
+              value={formdata.phone}
+              onChange={(e) =>
                 setFormdata({ ...formdata, phone: e.target.value })
-                }
-                required
+              }
+              required
             />
-            </div>
-            <div className="space-y-2">
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="role">
-                Website{" "}
-                <span style={{ color: "red" }} className="ms-1">
+              Website{" "}
+              <span style={{ color: "red" }} className="ms-1">
                 *
-                </span>
+              </span>
             </Label>
 
             <Input
-                type="url"
-                name="website"
-                placeholder="https://www.example.com"
-                value={formdata.website}
-                onChange={(e) =>
+              type="url"
+              name="website"
+              placeholder="https://www.example.com"
+              value={formdata.website}
+              onChange={(e) =>
                 setFormdata({ ...formdata, website: e.target.value })
-                }
-                required
+              }
+              required
             />
-            </div>
+          </div>
 
-            <div className="space-y-2">
+          <div className="space-y-2">
             <Label htmlFor="role">
-                Est. Since
-                <span style={{ color: "red" }} className="ms-1">
+              Est. Since
+              <span style={{ color: "red" }} className="ms-1">
                 *
-                </span>
+              </span>
             </Label>
 
             <Input
-                type="date"
-                name="website"
-                placeholder="Est. Since"
-                value={YMD(formdata.established)}
-                onChange={(e) =>
+              style={{ position: "relative" }}
+              type="date"
+              name="website"
+              placeholder="Est. Since"
+              value={YMD(formdata.established)}
+              onChange={(e) =>
                 setFormdata({ ...formdata, established: e.target.value })
-                }
-                required
+              }
+              required
             />
-            </div>
+          </div>
 
-            <div className="space-y-2">
+          <div className="space-y-2">
             <Label htmlFor="role">Allow In Search & Listing</Label>
 
             <label></label>
             <select
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-                value={formdata.allowinsearch}
-                onChange={(e) =>
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+              value={formdata.allowinsearch}
+              onChange={(e) =>
                 setFormdata({ ...formdata, allowinsearch: e.target.value })
-                }
+              }
             >
-                <option value={true}>Yes</option>
-                <option value={false}>No</option>
+              <option value={true}>Yes</option>
+              <option value={false}>No</option>
             </select>
-            </div>
-            <div className="space-y-2">
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="role">
-                About Institute
-                <span style={{ color: "red" }} className="ms-1">
+              About Institute
+              <span style={{ color: "red" }} className="ms-1">
                 *
-                </span>
+              </span>
             </Label>
 
             <textarea
-                className="flex h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-                name="about"
-                required
-                value={formdata.about}
-                onChange={(e) =>
+              className="flex h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+              name="about"
+              required
+              value={formdata.about}
+              onChange={(e) =>
                 setFormdata({ ...formdata, about: e.target.value })
-                }
-                placeholder="Spent several years working on sheep on Wall Street. Had moderate success investing in Yugo's on Wall Street. Managed a small team buying and selling Pogo sticks for farmers. Spent several years licensing licorice in West Palm Beach, FL. Developed several new methods for working it banjos in the aftermarket. Spent a weekend importing banjos in West Palm Beach, FL.In this position, the Software Engineer collaborates with Evention's Development team to continuously enhance our current software solutions as well as create new solutions to eliminate the back-office operations and management challenges present"
+              }
+              placeholder="Spent several years working on sheep on Wall Street. Had moderate success investing in Yugo's on Wall Street. Managed a small team buying and selling Pogo sticks for farmers. Spent several years licensing licorice in West Palm Beach, FL. Developed several new methods for working it banjos in the aftermarket. Spent a weekend importing banjos in West Palm Beach, FL.In this position, the Software Engineer collaborates with Evention's Development team to continuously enhance our current software solutions as well as create new solutions to eliminate the back-office operations and management challenges present"
             ></textarea>
-            </div>
-            <div className="space-y-2">
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="role">
-                Institute Address
-                <span style={{ color: "red" }} className="ms-1">
+              Institute Address
+              <span style={{ color: "red" }} className="ms-1">
                 *
-                </span>
+              </span>
             </Label>
 
             <textarea
-                className="flex h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-                required
-                name="address"
-                value={formdata.address}
-                onChange={(e) =>
+              className="flex h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+              required
+              name="address"
+              value={formdata.address}
+              onChange={(e) =>
                 setFormdata({ ...formdata, address: e.target.value })
-                }
-                placeholder="Spent several years working on sheep on Wall Street. Had moderate success investing in Yugo's on Wall Street. Managed a small team buying and selling Pogo sticks for farmers. Spent several years licensing licorice in West Palm Beach, FL. Developed several new methods for working it banjos in the aftermarket. Spent a weekend importing banjos in West Palm Beach, FL.In this position, the Software Engineer collaborates with Evention's Development team to continuously enhance our current software solutions as well as create new solutions to eliminate the back-office operations and management challenges present"
+              }
+              placeholder="Spent several years working on sheep on Wall Street. Had moderate success investing in Yugo's on Wall Street. Managed a small team buying and selling Pogo sticks for farmers. Spent several years licensing licorice in West Palm Beach, FL. Developed several new methods for working it banjos in the aftermarket. Spent a weekend importing banjos in West Palm Beach, FL.In this position, the Software Engineer collaborates with Evention's Development team to continuously enhance our current software solutions as well as create new solutions to eliminate the back-office operations and management challenges present"
             ></textarea>
-
-            
-            </div>
-            <LogoCoverUploader
-                formdata={formdata}
-                setFormdata={setFormdata}
-                Deletecover={Deletecover}
-            />
+          </div>
+          <LogoCoverUploader
+            formdata={formdata}
+            setFormdata={setFormdata}
+            Deletecover={Deletecover}
+          />
         </div>
 
         <Button
-                className="gap-2 mt-3 bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand"
-                type="submit"
-                disabled={isDisabled}
-                style={{
-                cursor: isDisabled ? "not-allowed" : "pointer",
-                }}
-            >
-                {loading || submitting ? "Saving..." : "Save"}
+          className="gap-2 mt-3 bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand"
+          type="submit"
+          disabled={isDisabled}
+          style={{
+            cursor: isDisabled ? "not-allowed" : "pointer",
+          }}
+        >
+          {loading || submitting ? "Saving..." : "Save"}
         </Button>
-     </form>
+      </form>
     </>
   );
 };
