@@ -226,7 +226,7 @@ const VerificationDetails = () => {
           <AadhaarDetails user={user} />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <DlDetails user={user} />
           <EpicDetails user={user} />
         </div>
