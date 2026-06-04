@@ -298,7 +298,7 @@ export default function AadharVerification() {
         setRequest_id("");
         setOtp("");
         setTimeout(() => {
-          router("/employers-dashboard/download-center");
+          router("/employer/download-center");
         }, 5000);
       } else {
         console.log("Error submitting OTP:", response.data.message);
