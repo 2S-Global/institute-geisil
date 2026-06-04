@@ -11,6 +11,7 @@ import {
   Settings,
   LogOut,
   UserCheck,
+  BookmarkCheck 
 } from "lucide-react";
 import {
   Sidebar,
@@ -36,6 +37,7 @@ const main = [
   { title: "Assessments", url: "/employer/assessments", icon: ClipboardList },
   { title: "Reports", url: "/employer/reports", icon: BarChart3 },
   { title: "Verify Employee", url: "/employer/verify-employee", icon: UserCheck },
+  { title: "Aadhar Verification", url: "/employer/aadhar-verification", icon: BookmarkCheck  },
 ];
 
 const secondary = [

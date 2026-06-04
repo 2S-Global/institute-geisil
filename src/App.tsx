@@ -47,6 +47,7 @@ import { AuthProvider } from "@/components/context/AuthContext.tsx";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import VerifyEmployee from "./pages/employer/VerifyEmployee.tsx";
 import PayNow from "./pages/employer/PayNow.tsx";
+import AadharVerification from "./pages/employer/AadharVerification.tsx";
 import DownloadCenter from "./pages/employer/DownloadCenter";
 import NotFound from "./pages/NotFound.tsx";
 import Loading from "./pages/Loading.tsx";
@@ -202,6 +203,7 @@ const App = ()=>{
                     <Route path="/verify-employee" element={<VerifyEmployee />} />
                     <Route path="/paynow" element={<PayNow />} />
                     <Route path="/download-center" element={<DownloadCenter />} />
+                    <Route path="/aadhar-verification" element={<AadharVerification />} />
                     <Route path="*" element={<NotFound />} />
                 </Routes>
               </ProtectedRoute>
