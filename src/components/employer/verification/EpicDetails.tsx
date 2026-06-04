@@ -16,10 +16,7 @@ const EpicDetails = ({ user }: Props) => {
     user?.epic_response?.result || {};
 
   return (
-    <Card
-      id="epic_response"
-      className="xl:col-span-2"
-    >
+    <Card id="epic_response">
       <CardHeader>
         <CardTitle className="flex items-center gap-3">
           EPIC

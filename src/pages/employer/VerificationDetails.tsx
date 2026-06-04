@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 import { useSearchParams } from "react-router-dom";
 
 import api from "@/lib/axios";
@@ -37,6 +38,7 @@ const VerificationDetails = () => {
   const [loading, setLoading] = useState(true);
 
   const [user, setUser] = useState<any>(null);
+  const [pdfLoading, setPdfLoading] = useState(false);
 
   const fetchDetails = async () => {
     try {
@@ -49,6 +51,56 @@ const VerificationDetails = () => {
       console.log(error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDownload = async () => {
+    try {
+      setPdfLoading(true);
+
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/pdf/generate-pdf`,
+        {
+          order_id: user._id,
+        },
+        {
+          responseType: "blob",
+        },
+      );
+
+      const url = window.URL.createObjectURL(
+        new Blob([response.data], {
+          type: "application/pdf",
+        }),
+      );
+
+      const link = document.createElement("a");
+
+      link.href = url;
+
+      link.setAttribute(
+        "download",
+        `${user.candidate_name || "verification"}.pdf`,
+      );
+
+      document.body.appendChild(link);
+
+      link.click();
+
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
+    } catch (error: any) {
+      console.error("PDF Error:", error);
+
+      if (error?.response?.data instanceof Blob) {
+        const text = await error.response.data.text();
+        console.log("Backend Error:", text);
+      } else {
+        console.log("Backend Error:", error?.response?.data);
+      }
+
+      console.log("Status:", error?.response?.status);
     }
   };
 
@@ -209,8 +261,17 @@ const VerificationDetails = () => {
                     </TableCell>
 
                     <TableCell className="text-center">
-                      <Button variant="ghost" size="icon">
-                        <Download className="h-4 w-4 text-primary" />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleDownload}
+                        disabled={pdfLoading}
+                      >
+                        {pdfLoading ? (
+                          <span className="text-xs">...</span>
+                        ) : (
+                          <Download className="h-4 w-4 text-primary" />
+                        )}
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -226,7 +287,7 @@ const VerificationDetails = () => {
           <AadhaarDetails user={user} />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <DlDetails user={user} />
           <EpicDetails user={user} />
         </div>

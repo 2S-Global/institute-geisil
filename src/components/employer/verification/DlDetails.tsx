@@ -25,10 +25,7 @@ const DlDetails = ({ user }: Props) => {
     ) || null;
 
   return (
-    <Card
-      id="dl_response"
-      className="xl:col-span-2"
-    >
+    <Card id="dl_response">
       <CardHeader>
         <CardTitle className="flex items-center gap-3">
           Driving License
@@ -60,7 +57,7 @@ const DlDetails = ({ user }: Props) => {
               <img
                 src={`data:image/jpeg;base64,${dl.user_image}`}
                 alt="User"
-                className="h-40 w-40 rounded-lg border object-cover"
+                className="h-150 w-150 rounded-lg border object-cover"
               />
             ) : (
               <img
