@@ -273,7 +273,7 @@ const validate = () => {
   // =============================
   // 🔹 JSX
   // =============================
-  if (loading) return <>kkk</>;
+  if (loading) return <></>;
 
   return (
    <form
@@ -293,7 +293,7 @@ const validate = () => {
         </label>
 
         <div className="flex items-center gap-6">
-          <label className="flex items-center gap-2 cursor-pointer">
+          <label className="flex flex-col sm:flex-row gap-2 cursor-pointer">
             <input
               className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
               type="radio"
@@ -306,7 +306,7 @@ const validate = () => {
             <span className="text-sm text-gray-700">Yes</span>
           </label>
 
-          <label className="flex items-center gap-2 cursor-pointer">
+          <label className="flex flex-col sm:flex-row gap-2 cursor-pointer">
             <input
               className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
               type="radio"
@@ -359,7 +359,7 @@ const validate = () => {
             Level <span className="text-red-500">*</span>
           </label>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <select
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
               name="level"
@@ -416,7 +416,7 @@ const validate = () => {
               {courseModes.map((item) => (
                 <label
                   key={item.id}
-                  className="flex items-center gap-2 cursor-pointer"
+                  className="flex flex-col sm:flex-row gap-2 cursor-pointer"
                 >
                   <input
                     className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
@@ -469,7 +469,7 @@ const validate = () => {
             Course Name <span className="text-red-500">*</span>
           </label>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <div className="flex-1">
               <AsyncSelect
                 cacheOptions
@@ -541,7 +541,7 @@ const validate = () => {
             Course Duration <span className="text-red-500">*</span>
           </label>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <div className="flex-1">
               <div className="grid grid-cols-12 items-center gap-2">
                 <div className="col-span-5">
@@ -660,7 +660,7 @@ const validate = () => {
             Grading System <span className="text-red-500">*</span>
           </label>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <select
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
               name="grading_system"
@@ -713,7 +713,7 @@ const validate = () => {
             Marks <span className="text-red-500">*</span>
           </label>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <input
               type="number"
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"

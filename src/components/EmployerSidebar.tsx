@@ -11,6 +11,7 @@ import {
   Settings,
   LogOut,
   UserCheck,
+  BookmarkCheck, 
   Download,
 } from "lucide-react";
 import {
@@ -37,6 +38,7 @@ const main = [
   { title: "Assessments", url: "/employer/assessments", icon: ClipboardList },
   { title: "Reports", url: "/employer/reports", icon: BarChart3 },
   { title: "Verify Employee", url: "/employer/verify-employee", icon: UserCheck },
+  { title: "Aadhar Verification", url: "/employer/aadhar-verification", icon: BookmarkCheck  },
   {title: "Download Center", url: "/employer/download-center", icon: Download },
 ];
 

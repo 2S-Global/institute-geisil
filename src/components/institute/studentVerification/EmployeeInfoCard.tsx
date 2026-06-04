@@ -100,7 +100,7 @@ const EmployeeInfoCard = ({ user }) => {
           </div>
 
           {/* Remarks */}
-          {user.is_verified && (
+          {user.remarks && (
             <div className="md:col-span-2">
               <p className="text-sm text-gray-500 mb-1">Remarks</p>
 
