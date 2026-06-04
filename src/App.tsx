@@ -49,9 +49,11 @@ import VerifyEmployee from "./pages/employer/VerifyEmployee.tsx";
 import PayNow from "./pages/employer/PayNow.tsx";
 import AadharVerification from "./pages/employer/AadharVerification.tsx";
 import DownloadCenter from "./pages/employer/DownloadCenter";
+import VerificationDetails from "./pages/employer/VerificationDetails.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Loading from "./pages/Loading.tsx";
 import Unauthorized from "./pages/Unauthorized.tsx";
+
 const queryClient = new QueryClient();
 const App = ()=>{ 
   const [profile, setProfile] = useState();
@@ -203,6 +205,7 @@ const App = ()=>{
                     <Route path="/verify-employee" element={<VerifyEmployee />} />
                     <Route path="/paynow" element={<PayNow />} />
                     <Route path="/download-center" element={<DownloadCenter />} />
+                    <Route path="/verification-details" element={<VerificationDetails />} />
                     <Route path="/aadhar-verification" element={<AadharVerification />} />
                     <Route path="*" element={<NotFound />} />
                 </Routes>
@@ -219,4 +222,4 @@ const App = ()=>{
   </QueryClientProvider>
 );
 }
-export default App;
+export default App; 

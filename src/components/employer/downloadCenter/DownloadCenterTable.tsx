@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import api from "@/lib/axios";
+import { useNavigate } from "react-router-dom";
 
 import {
   CheckCircle,
@@ -62,6 +63,7 @@ interface Candidate {
 const PAGE_SIZE = 10;
 
 const DownloadCenterTable = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [search, setSearch] = useState("");
@@ -361,7 +363,7 @@ const DownloadCenterTable = () => {
                       </div>
                     </TableCell>
 
-                    <TableCell>
+                    <TableCell className="text-center">
                       {row.all_verified === 1
                         ? new Date(row.updatedAt).toLocaleDateString("en-GB")
                         : "-"}
@@ -369,7 +371,15 @@ const DownloadCenterTable = () => {
 
                     <TableCell>
                       <div className="flex justify-center gap-1">
-                        <Button variant="ghost" size="icon" disabled>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() =>
+                            navigate(
+                              `/employer/verification-details?id=${row._id}`,
+                            )
+                          }
+                        >
                           <Eye size={16} />
                         </Button>
 
