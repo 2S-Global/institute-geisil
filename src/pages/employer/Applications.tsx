@@ -172,7 +172,7 @@ function ApplicationTable({
                           className="h-8 w-8"
                           title="View Application"
                         >
-                          <Link to={`/employer/candidates/${a._id}`}>
+                          <Link to={`/employer/candidates/${a.userId}`}>
                             <Eye className="h-3.5 w-3.5" />
                           </Link>
                         </Button>
