@@ -144,7 +144,7 @@ useEffect(() => {
     
     {/* Header */}
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
-      <div className="text-base font-semibold">All Students</div>
+      <div className="text-base font-semibold">Rejected Students</div>
 
       <div className="flex items-center gap-2 w-full md:w-auto">
         <div className="relative w-full md:w-auto">
