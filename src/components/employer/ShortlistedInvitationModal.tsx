@@ -113,8 +113,9 @@ export default function InterviewInvitationModal({
             <input
               id="interviewDate"
               type="date"
-              style={{ position: "relative"}}
+              min={new Date().toISOString().split("T")[0]}
               value={interviewDate}
+              style={{ position: "relative" }}
               className={`w-full h-10 rounded-md border px-3 text-sm appearance-none ${
                 errors.interviewDate ? "border-red-500" : "border-input"
               }`}
