@@ -104,37 +104,29 @@ const DownloadCenterTable = () => {
     return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
   };
 
+  const isDocumentVerified = (response: any) => {
+    return (
+      response &&
+      (response?.response_code === "100" ||
+        response?.response_code === 100 ||
+        response?.status_code === 200)
+    );
+  };
+
   const renderDocStatus = (
     docNumber?: string,
     docName?: string,
     response?: any,
   ) => {
-    if (docNumber || docName) {
-      if (response) {
-        switch (response.response_code) {
-          case "100":
-            return (
-              <div title="Verified">
-                <CheckCircle size={18} className="text-green-600" />
-              </div>
-            );
+    if (!docNumber && !docName) {
+      return (
+        <div title="Not Applied">
+          <MinusCircle size={18} className="text-muted-foreground" />
+        </div>
+      );
+    }
 
-          case "101":
-            return (
-              <div title="Failed">
-                <XCircle size={18} className="text-red-600" />
-              </div>
-            );
-
-          default:
-            return (
-              <div title="Not Applied">
-                <MinusCircle size={18} className="text-yellow-500" />
-              </div>
-            );
-        }
-      }
-
+    if (!response) {
       return (
         <div title="Processing">
           <Clock3 size={18} className="text-blue-600" />
@@ -142,9 +134,17 @@ const DownloadCenterTable = () => {
       );
     }
 
+    if (isDocumentVerified(response)) {
+      return (
+        <div title="Verified">
+          <CheckCircle size={18} className="text-green-600" />
+        </div>
+      );
+    }
+
     return (
-      <div title="Not Applied">
-        <MinusCircle size={18} className="text-muted-foreground" />
+      <div title="Failed">
+        <XCircle size={18} className="text-red-600" />
       </div>
     );
   };
@@ -310,15 +310,6 @@ const DownloadCenterTable = () => {
     } finally {
       setPdfLoadingId(null);
     }
-  };
-
-  const isDocumentVerified = (response: any) => {
-    return (
-      response &&
-      (response?.response_code === "100" ||
-        response?.response_code === 100 ||
-        response?.status_code === 200)
-    );
   };
 
   const canDownloadPdf = (row: Candidate) => {
