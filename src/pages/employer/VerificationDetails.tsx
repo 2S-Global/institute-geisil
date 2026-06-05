@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import { CheckCircle, XCircle, AlertCircle, Download } from "lucide-react";
+import { CheckCircle, XCircle, AlertCircle, FileText } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -24,6 +24,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import { Loader2 } from "lucide-react";
 import PanDetails from "@/components/employer/verification/PanDetails";
 import PassportDetails from "@/components/employer/verification/PassportDetails";
 import AadhaarDetails from "@/components/employer/verification/AadhaarDetails";
@@ -59,7 +60,7 @@ const VerificationDetails = () => {
       setPdfLoading(true);
 
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/pdf/generate-pdf`,
+        `${import.meta.env.VITE_API_URL}/api/pdf/generate-pdf-employer`,
         {
           order_id: user._id,
         },
@@ -101,6 +102,8 @@ const VerificationDetails = () => {
       }
 
       console.log("Status:", error?.response?.status);
+    } finally {
+      setPdfLoading(false);
     }
   };
 
@@ -261,18 +264,29 @@ const VerificationDetails = () => {
                     </TableCell>
 
                     <TableCell className="text-center">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={handleDownload}
-                        disabled={pdfLoading}
-                      >
-                        {pdfLoading ? (
-                          <span className="text-xs">...</span>
-                        ) : (
-                          <Download className="h-4 w-4 text-primary" />
-                        )}
-                      </Button>
+                      <TableCell className="text-center">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={handleDownload}
+                          disabled={pdfLoading}
+                          title="Download Verification Report"
+                          className="
+                            transition-all
+                            duration-200
+                            hover:bg-red-50
+                            hover:shadow-md
+                            hover:scale-105
+                            rounded-full
+                          "
+                        >
+                          {pdfLoading ? (
+                            <Loader2 className="h-4 w-4 animate-spin text-red-600" />
+                          ) : (
+                            <FileText className="h-5 w-5 text-red-600 hover:text-red-700" />
+                          )}
+                        </Button>
+                      </TableCell>
                     </TableCell>
                   </TableRow>
                 </TableBody>
