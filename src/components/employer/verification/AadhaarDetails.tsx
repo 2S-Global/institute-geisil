@@ -12,6 +12,16 @@ interface Props {
 }
 
 const AadhaarDetails = ({ user }: Props) => {
+  const resp = user?.aadhaar_response;
+
+  const isNotApplied = !resp;
+
+  const isVerified = !!resp && (
+    resp?.response_code === "100" ||
+    resp?.response_code === 100 ||
+    resp?.status_code === 200
+  );
+
   return (
     <Card id="aadhaar_response">
       <CardHeader>
@@ -20,19 +30,13 @@ const AadhaarDetails = ({ user }: Props) => {
 
           <img
             src={
-              !user?.aadhaar_response
+              isNotApplied
                 ? "/images/resource/na.png"
-                : user?.aadhaar_response?.response_code == 100
+                : isVerified
                   ? "/images/resource/verified.png"
                   : "/images/resource/unverified.png"
             }
-            alt={
-              !user?.aadhaar_response
-                ? "Not Applied"
-                : user?.aadhaar_response?.response_code == 100
-                  ? "Verified"
-                  : "Unverified"
-            }
+            alt={isNotApplied ? "Not Applied" : isVerified ? "Verified" : "Unverified"}
             className="h-5 w-auto object-contain"
           />
         </CardTitle>

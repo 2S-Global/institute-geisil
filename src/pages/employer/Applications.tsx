@@ -539,7 +539,6 @@ export default function Applications() {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
         {[
-          ["Total", applications.length],
           [
             "Applied",
             applications.filter((a) => a.status === "applied").length,
@@ -555,6 +554,10 @@ export default function Applications() {
           [
             "Offer",
             applications.filter((a) => a.status === "offer_sent").length,
+          ],
+          [
+            "Rejected",
+            applications.filter((a) => a.status === "rejected").length,
           ],
         ].map(([label, value]) => (
           <Card key={String(label)} className="p-4 border-border/60 shadow-sm">
@@ -642,7 +645,7 @@ export default function Applications() {
             setIsOfferLetterModalOpen={setIsOfferLetterModalOpen}
           />
         </TabsContent>
-      </Tabs>
+      </Tabs> 
 
       <ShortlistInvitationModal
         open={isInterviewModalOpen}
