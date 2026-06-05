@@ -10,6 +10,7 @@ import {
   Eye,
   Download,
   Search,
+  Loader2,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +27,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
+import axios from "axios";
 
 interface Candidate {
   _id: string;
@@ -68,6 +71,7 @@ const DownloadCenterTable = () => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [pdfLoadingId, setPdfLoadingId] = useState<string | null>(null);
 
   const fetchCandidates = async () => {
     try {
@@ -100,37 +104,29 @@ const DownloadCenterTable = () => {
     return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
   };
 
+  const isDocumentVerified = (response: any) => {
+    return (
+      response &&
+      (response?.response_code === "100" ||
+        response?.response_code === 100 ||
+        response?.status_code === 200)
+    );
+  };
+
   const renderDocStatus = (
     docNumber?: string,
     docName?: string,
     response?: any,
   ) => {
-    if (docNumber || docName) {
-      if (response) {
-        switch (response.response_code) {
-          case "100":
-            return (
-              <div title="Verified">
-                <CheckCircle size={18} className="text-green-600" />
-              </div>
-            );
+    if (!docNumber && !docName) {
+      return (
+        <div title="Not Applied">
+          <MinusCircle size={18} className="text-muted-foreground" />
+        </div>
+      );
+    }
 
-          case "101":
-            return (
-              <div title="Failed">
-                <XCircle size={18} className="text-red-600" />
-              </div>
-            );
-
-          default:
-            return (
-              <div title="Not Applied">
-                <MinusCircle size={18} className="text-yellow-500" />
-              </div>
-            );
-        }
-      }
-
+    if (!response) {
       return (
         <div title="Processing">
           <Clock3 size={18} className="text-blue-600" />
@@ -138,9 +134,17 @@ const DownloadCenterTable = () => {
       );
     }
 
+    if (isDocumentVerified(response)) {
+      return (
+        <div title="Verified">
+          <CheckCircle size={18} className="text-green-600" />
+        </div>
+      );
+    }
+
     return (
-      <div title="Not Applied">
-        <MinusCircle size={18} className="text-muted-foreground" />
+      <div title="Failed">
+        <XCircle size={18} className="text-red-600" />
       </div>
     );
   };
@@ -230,6 +234,93 @@ const DownloadCenterTable = () => {
       </Card>
     );
   }
+
+  const isAadhaarVerified = (aadhaarResponse: any) => {
+    return (
+      aadhaarResponse &&
+      (aadhaarResponse?.response_code === "100" ||
+        aadhaarResponse?.response_code === 100 ||
+        aadhaarResponse?.status_code === 200)
+    );
+  };
+
+  const handleDownload = async (candidateId: string) => {
+    try {
+      setPdfLoadingId(candidateId);
+
+      const detailsResponse = await api.post("/api/verify/verifiedDetails", {
+        id: candidateId,
+      });
+
+      const user = detailsResponse.data.user;
+
+      const response = isAadhaarVerified(user?.aadhaar_response)
+        ? await api.post(
+            "/api/pdf/otp-generate-pdf",
+            {
+              order_id: user._id,
+            },
+            {
+              responseType: "blob",
+            },
+          )
+        : await axios.post(
+            `${import.meta.env.VITE_API_URL}/api/pdf/generate-pdf-employer`,
+            {
+              order_id: user._id,
+            },
+            {
+              responseType: "blob",
+            },
+          );
+
+      const url = window.URL.createObjectURL(
+        new Blob([response.data], {
+          type: "application/pdf",
+        }),
+      );
+
+      const link = document.createElement("a");
+
+      link.href = url;
+
+      link.setAttribute(
+        "download",
+        `${user.candidate_name || "verification"}.pdf`,
+      );
+
+      document.body.appendChild(link);
+
+      link.click();
+
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
+    } catch (error: any) {
+      console.error("PDF Error:", error);
+
+      if (error?.response?.data instanceof Blob) {
+        const text = await error.response.data.text();
+        console.log("Backend Error:", text);
+      } else {
+        console.log("Backend Error:", error?.response?.data);
+      }
+
+      console.log("Status:", error?.response?.status);
+    } finally {
+      setPdfLoadingId(null);
+    }
+  };
+
+  const canDownloadPdf = (row: Candidate) => {
+    return (
+      isDocumentVerified(row.pan_response) ||
+      isDocumentVerified(row.passport_response) ||
+      isDocumentVerified(row.aadhaar_response) ||
+      isDocumentVerified(row.dl_response) ||
+      isDocumentVerified(row.epic_response)
+    );
+  };
 
   return (
     <Card className="shadow-sm border">
@@ -374,17 +465,54 @@ const DownloadCenterTable = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() =>
-                            navigate(
-                              `/employer/verification-details?id=${row._id}`,
-                            )
-                          }
+                          onClick={() => {
+                            if (isAadhaarVerified(row.aadhaar_response)) {
+                              navigate(
+                                `/employer/verified-aadhar?id=${row._id}`,
+                              );
+                            } else {
+                              navigate(
+                                `/employer/verification-details?id=${row._id}`,
+                              );
+                            }
+                          }}
+                          title="View Details"
                         >
                           <Eye size={16} />
                         </Button>
 
-                        <Button variant="ghost" size="icon" disabled>
-                          <Download size={16} />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDownload(row._id)}
+                          disabled={
+                            pdfLoadingId === row._id || !canDownloadPdf(row)
+                          }
+                          title={
+                            !canDownloadPdf(row)
+                              ? "No verified document available"
+                              : "Download Verification Report"
+                          }
+                          className="
+                            transition-all
+                            duration-200
+                            hover:bg-blue-50
+                            hover:shadow-md
+                            hover:scale-105
+                            rounded-full
+                          "
+                        >
+                          {pdfLoadingId === row._id ? (
+                            <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                          ) : (
+                            <Download
+                              className={`h-4 w-4 ${
+                                canDownloadPdf(row)
+                                  ? "text-blue-600 hover:text-blue-700"
+                                  : "text-gray-400"
+                              }`}
+                            />
+                          )}
                         </Button>
                       </div>
                     </TableCell>
