@@ -50,6 +50,8 @@ import PayNow from "./pages/employer/PayNow.tsx";
 import AadharVerification from "./pages/employer/AadharVerification.tsx";
 import DownloadCenter from "./pages/employer/DownloadCenter";
 import VerificationDetails from "./pages/employer/VerificationDetails.tsx";
+import VerifiedDetailsPage from "./pages/employer/VerifiedDetailsPage.tsx";
+import VerifiedAadharPage from "./pages/employer/VerifiedAadharPage.tsx";
 import EmployeeVerification from "./pages/employer/EmployeeVerification.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Loading from "./pages/Loading.tsx";
@@ -207,6 +209,8 @@ const App = ()=>{
                     <Route path="/paynow" element={<PayNow />} />
                     <Route path="/download-center" element={<DownloadCenter />} />
                     <Route path="/verification-details" element={<VerificationDetails />} />
+                    <Route path="/verified-details" element={<VerifiedDetailsPage />} />
+                    <Route path="/verified-aadhar" element={<VerifiedAadharPage />} />
                     <Route path="/aadhar-verification" element={<AadharVerification />} />
                     <Route path="/employee-verification" element={<EmployeeVerification />} />
                     <Route path="*" element={<NotFound />} />

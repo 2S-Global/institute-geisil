@@ -27,7 +27,8 @@ import {
 import { Loader2 } from "lucide-react";
 import PanDetails from "@/components/employer/verification/PanDetails";
 import PassportDetails from "@/components/employer/verification/PassportDetails";
-import AadhaarDetails from "@/components/employer/verification/AadhaarDetails";
+// import AadhaarDetails from "@/components/employer/verification/AadhaarDetails";
+import AadhaarCard from "@/components/employer/verification/AadhaarCard";
 import DlDetails from "@/components/employer/verification/DlDetails";
 import EpicDetails from "@/components/employer/verification/EpicDetails";
 
@@ -54,6 +55,21 @@ const VerificationDetails = () => {
       setLoading(false);
     }
   };
+
+  const isDocumentVerified = (response: any) => {
+    return (
+      response?.response_code === "100" ||
+      response?.response_code === 100 ||
+      response?.status_code === 200
+    );
+  };
+
+  const canDownloadPdf =
+    isDocumentVerified(user?.pan_response) ||
+    isDocumentVerified(user?.passport_response) ||
+    isDocumentVerified(user?.aadhaar_response) ||
+    isDocumentVerified(user?.dl_response) ||
+    isDocumentVerified(user?.epic_response);
 
   const handleDownload = async () => {
     try {
@@ -109,7 +125,8 @@ const VerificationDetails = () => {
 
   const getStatusIcon = (response: any) => {
     if (!response) {
-      return <AlertCircle className="h-5 w-5 text-muted-foreground mx-auto" />;
+      // return <AlertCircle className="h-5 w-5 text-muted-foreground mx-auto" />;
+      return <AlertCircle className="h-5 w-5 text-red-600 mx-auto" />;
     }
 
     if (
@@ -268,21 +285,31 @@ const VerificationDetails = () => {
                         variant="ghost"
                         size="icon"
                         onClick={handleDownload}
-                        disabled={pdfLoading}
-                        title="Download Verification Report"
+                        disabled={pdfLoading || !canDownloadPdf}
+                        title={
+                          !canDownloadPdf
+                            ? "No verified document available"
+                            : "Download Verification Report"
+                        }
                         className="
-                            transition-all
-                            duration-200
-                            hover:bg-red-50
-                            hover:shadow-md
-                            hover:scale-105
-                            rounded-full
-                          "
+                          transition-all
+                          duration-200
+                          hover:bg-blue-50
+                          hover:shadow-md
+                          hover:scale-105
+                          rounded-full
+                        "
                       >
                         {pdfLoading ? (
-                          <Loader2 className="h-4 w-4 animate-spin text-red-600" />
+                          <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
                         ) : (
-                          <FileText className="h-5 w-5 text-red-600 hover:text-red-700" />
+                          <FileText
+                            className={`h-5 w-5 ${
+                              canDownloadPdf
+                                ? "text-blue-600 hover:text-blue-700"
+                                : "text-gray-400"
+                            }`}
+                          />
                         )}
                       </Button>
                     </TableCell>
@@ -296,7 +323,8 @@ const VerificationDetails = () => {
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           <PanDetails user={user} />
           <PassportDetails user={user} />
-          <AadhaarDetails user={user} />
+          {/* <AadhaarDetails user={user} /> */}
+          <AadhaarCard user={user} />
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">

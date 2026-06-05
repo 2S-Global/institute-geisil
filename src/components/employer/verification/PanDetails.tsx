@@ -7,6 +7,16 @@ interface Props {
 }
 
 const PanDetails = ({ user }: Props) => {
+  const pan = user?.pan_response;
+  const data = pan?.data || {};
+  const result = pan?.result || data || {};
+  const fullName = data?.full_name || result?.user_full_name || result?.name || "N/A";
+  const panNumber = result?.pan_number || result?.pan || "N/A";
+  const panType = result?.pan_type || result?.type || "N/A";
+
+  const isNotApplied = !pan;
+  const isVerified = !!pan && (pan?.response_code === "100" || pan?.response_code === 100 || pan?.status_code === 200);
+
   return (
     <Card id="pan_response">
       <CardHeader>
@@ -14,19 +24,13 @@ const PanDetails = ({ user }: Props) => {
           PAN
           <img
             src={
-              !user?.pan_response
+              isNotApplied
                 ? "/images/resource/na.png"
-                : user?.pan_response?.response_code == 100
+                : isVerified
                   ? "/images/resource/verified.png"
                   : "/images/resource/unverified.png"
             }
-            alt={
-              !user?.pan_response
-                ? "Not Applied"
-                : user?.pan_response?.response_code == 100
-                  ? "Verified"
-                  : "Unverified"
-            }
+            alt={isNotApplied ? "Not Applied" : isVerified ? "Verified" : "Unverified"}
             className="h-5 w-auto object-contain"
           />
         </CardTitle>
@@ -35,27 +39,21 @@ const PanDetails = ({ user }: Props) => {
       <CardContent className="space-y-3">
         <div>
           <span className="font-semibold">Full Name:</span>{" "}
-          {user?.pan_response?.result?.user_full_name || "N/A"}
+          {fullName}
         </div>
 
         <div>
           <span className="font-semibold">PAN Number:</span>{" "}
-          {user?.pan_response?.result?.pan_number || "N/A"}
+          {panNumber}
         </div>
 
         <div>
           <span className="font-semibold">Type:</span>{" "}
-          {user?.pan_response?.result?.pan_type || "N/A"}
+          {panType}
         </div>
 
         {user?.pan_image && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => window.open(user.pan_image, "_blank")}
-          >
-            View Document
-          </Button>
+          <Button variant="outline" size="sm" onClick={() => window.open(user.pan_image, "_blank")}>View Document</Button>
         )}
       </CardContent>
     </Card>
