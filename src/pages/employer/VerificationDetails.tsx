@@ -264,14 +264,13 @@ const VerificationDetails = () => {
                     </TableCell>
 
                     <TableCell className="text-center">
-                      <TableCell className="text-center">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={handleDownload}
-                          disabled={pdfLoading}
-                          title="Download Verification Report"
-                          className="
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleDownload}
+                        disabled={pdfLoading}
+                        title="Download Verification Report"
+                        className="
                             transition-all
                             duration-200
                             hover:bg-red-50
@@ -279,14 +278,13 @@ const VerificationDetails = () => {
                             hover:scale-105
                             rounded-full
                           "
-                        >
-                          {pdfLoading ? (
-                            <Loader2 className="h-4 w-4 animate-spin text-red-600" />
-                          ) : (
-                            <FileText className="h-5 w-5 text-red-600 hover:text-red-700" />
-                          )}
-                        </Button>
-                      </TableCell>
+                      >
+                        {pdfLoading ? (
+                          <Loader2 className="h-4 w-4 animate-spin text-red-600" />
+                        ) : (
+                          <FileText className="h-5 w-5 text-red-600 hover:text-red-700" />
+                        )}
+                      </Button>
                     </TableCell>
                   </TableRow>
                 </TableBody>
