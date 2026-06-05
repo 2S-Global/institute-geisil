@@ -73,20 +73,20 @@ const List = ({data,setContact,openModalEdit,requirementAdd}) => {
               <div className="grid grid-cols-3 gap-3 mb-4">
                 <div>
                   <p className="text-xs text-muted-foreground">Openings</p>
-                  <p className="font-display text-xl font-bold text-foreground">
-                    {r?.latestRequirement?.numberOfOpenings}
+                  <p className="font-display text-xl font-bold text-foreground h-8">
+                    {r?.latestRequirement?.numberOfOpenings || ""}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Hired</p>
-                  <p className="font-display text-xl font-bold text-foreground">
-                    {r.hired}
+                  <p className="font-display text-xl font-bold text-foreground h-8">
+                    {r.hired || ""}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Rating</p>
-                  <p className="font-display text-xl font-bold text-foreground">
-                    {r.rating}
+                  <p className="font-display text-xl font-bold text-foreground h-8">
+                    {r.rating || ""}
                   </p>
                 </div>
               </div>

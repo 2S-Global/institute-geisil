@@ -38,7 +38,7 @@ const InstituteProfile = () => {
       />
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList>
+        <TabsList className="flex flex-wrap lg:flex-nowrap gap-2 h-auto justify-start ">
           <TabsTrigger value="profile">Institute Profile</TabsTrigger>
           <TabsTrigger value="account">Account Details</TabsTrigger>
           <TabsTrigger value="contact">Contact Person Details</TabsTrigger>
