@@ -189,7 +189,15 @@ const AccountBox = () => {
           title="Enter valid 10-digit mobile number"
           pattern="^[0-9]{10}$"
           value={formdata.companyphone}
-          onChange={handleChange}
+          /* onChange={handleChange} */
+           onChange={(e) => {
+              const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+              setFormData({
+                ...formdata,
+                companyphone: value,
+              });
+               
+            }}
           onBlur={handleBlur}
           className={`${
             touched.companyphone && formErrors.companyphone

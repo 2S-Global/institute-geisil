@@ -774,7 +774,15 @@ const clearData=()=>{
               type="number"
               name="phoneNumber"
               value={formData.phoneNumber || ""}
-              onChange={handleChange}
+            /*   onChange={handleChange} */
+              onChange={(e) => {
+              const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+              setFormData({
+                ...formData,
+                phoneNumber: value,
+              });
+               setErr((prev) => ({ ...prev,"phoneNumber": "" }));
+            }}
               className="
                 mt-1
                 w-full

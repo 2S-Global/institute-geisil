@@ -98,6 +98,7 @@ const Settings = () => {
     } catch (error) {
       toast({
         title: "Error",
+         variant: "destructive",
         description: error?.response?.data?.message || "Something went wrong",
       });
     }

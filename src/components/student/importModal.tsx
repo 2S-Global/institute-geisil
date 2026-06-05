@@ -169,6 +169,7 @@ export default function AddStudentDialog({ open, setOpen }) {
         setError(err.response?.data?.message || "Import failed. Try again.");
          toast({
               title: "Error",
+               variant: "destructive",
               description: 'Import failed. Try again.',
             });
         setErrorId(Date.now());

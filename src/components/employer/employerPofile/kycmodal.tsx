@@ -121,6 +121,7 @@ const KycModal = ({
       if (!response.data.success) {
          toast({
                     title: "Error",
+                     variant: "destructive",
                     description:response.data.message || "Failed to update KYC.",
                   });
         setError(response.data.message || "Failed to update KYC.");
@@ -130,6 +131,7 @@ const KycModal = ({
       console.error(error);
       toast({
                     title: "Error",
+                     variant: "destructive",
                     description:"Failed to update KYC. Try again later.",
                   });
       setError("Failed to update KYC. Try again later.");

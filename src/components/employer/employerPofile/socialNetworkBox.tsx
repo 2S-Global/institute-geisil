@@ -141,6 +141,7 @@ const SocialNetworkBox = () => {
         setError(response.data.message);
           toast({
                     title: "Error",
+                     variant: "destructive",
                     description: response.data.message,
                   });
         setErrorId(Date.now());
@@ -149,6 +150,7 @@ const SocialNetworkBox = () => {
       setError("please try again");
       toast({
                     title: "Error",
+                     variant: "destructive",
                     description: "Please try again",
                   });
       setErrorId(Date.now());

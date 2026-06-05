@@ -260,9 +260,17 @@ const Profile = () => {
               value={formdata.phone}
               title="Enter valid 10-digit mobile number"
               pattern="^[0-9]{10}$"
-              onChange={(e) =>
+             /*  onChange={(e) =>
                 setFormdata({ ...formdata, phone: e.target.value })
-              }
+              } */
+               onChange={(e) => {
+              const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+                  setFormdata({
+                    ...formdata,
+                    phone: value,
+                  });
+                 
+            }}
               required
             />
           </div>

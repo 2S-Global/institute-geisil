@@ -85,6 +85,7 @@ const { toast } = useToast();
         setErrorId(Date.now());
          toast({
           title: "Error",
+           variant: "destructive",
           description: res.data.message,
         });
       }
@@ -93,6 +94,7 @@ const { toast } = useToast();
       setError("Failed to update KYC. Try again later.");
        toast({
           title: "Error",
+           variant: "destructive",
           description: 'Failed to update KYC. Try again later.',
         });
       setErrorId(Date.now());

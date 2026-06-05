@@ -243,6 +243,7 @@ const pathname = location.pathname;
       setError("Error Saving Details Please Try Again");
        toast({
                     title: "Error",
+                     variant: "destructive",
                     description: "Error Saving Details Please Try Again",
                   });
       setErrorId(Date.now());

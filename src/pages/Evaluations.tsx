@@ -183,6 +183,7 @@ const Evaluations = () => {
             else{
               toast({
                     title: "Error",
+                    variant: "destructive",
                     description:response?.data?.message ||"",
                   });
             }
@@ -194,6 +195,7 @@ const Evaluations = () => {
             console.log(err.response);
             toast({
               title: "Failed",
+              variant: "destructive",
               description: err?.response?.data?.message?.replace("_"," "),
             });
           }
@@ -258,7 +260,7 @@ const Evaluations = () => {
                 <form onSubmit={handleSubmit} className="space-y-5 pt-2">
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-1.5">
-                      <Label htmlFor="student">Student name *</Label>
+                      <Label htmlFor="student">Student name <span style={{color:"red"}}>*</span></Label>
                     {/*   <Input
                         id="student"
                         value={form.student}
@@ -282,7 +284,7 @@ const Evaluations = () => {
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label htmlFor="rollNo">USN</Label>
+                      <Label htmlFor="rollNo">University Registration Number</Label>
                       <Input
                         id="rollNo"
                         value={form.rollNo}
@@ -294,7 +296,7 @@ const Evaluations = () => {
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label>Evaluation type *</Label>
+                      <Label>Evaluation type <span style={{color:"red"}}>*</span></Label>
                       <Select value={form.type} onValueChange={(v) => update("type", v)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select type" />
@@ -309,7 +311,7 @@ const Evaluations = () => {
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label>Status *</Label>
+                      <Label>Status <span style={{color:"red"}}>*</span></Label>
                       <Select
                         value={form.status}
                         onValueChange={(v) => update("status", v as EvaluationForm["status"])}
@@ -326,21 +328,28 @@ const Evaluations = () => {
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label htmlFor="score">Score (0–100) *</Label>
+                      <Label htmlFor="score">Score (0–100) <span style={{color:"red"}}>*</span></Label>
                       <Input
                         id="score"
                         type="number"
                         min={0}
                         max={100}
                         value={form.score}
-                        onChange={(e) => update("score", Number(e.target.value) as never)}
+                       
+                         onChange={(e) => {
+    const value = e.target.value;
+
+    if (value.length <= 3) {
+      update("score", Number(value) as never);
+    }
+  }}
                         disabled={form.status === "Pending"}
                       />
                       {errors.score && <p className="text-xs text-destructive">{errors.score}</p>}
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label htmlFor="scheduledDate">Date *</Label>
+                      <Label htmlFor="scheduledDate">Date <span style={{color:"red"}}>*</span></Label>
                       <Input
                       style={{position:"relative"}}
                         id="scheduledDate"

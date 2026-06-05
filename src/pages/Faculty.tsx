@@ -245,6 +245,7 @@ const Faculty = () => {
       console.log(err.response.data.message);
        toast({
         title: "Error",
+         variant: "destructive",
         description: `${err.response.data.message || "Something went wrong"}`,
       });
      

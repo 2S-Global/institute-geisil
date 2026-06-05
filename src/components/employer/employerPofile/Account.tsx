@@ -84,6 +84,7 @@ const Account = () => {
         console.error("Error saving personal details:", response.data.message);
         toast({
                     title: "Error",
+                     variant: "destructive",
                     description: response.data.message,
                   });
         setError(response.data.message);
@@ -93,6 +94,7 @@ const Account = () => {
       console.error("Error saving personal details:", error);
  toast({
                     title: "Error",
+                     variant: "destructive",
                     description: error,
                   });
       setError("An error occurred while saving personal details.");

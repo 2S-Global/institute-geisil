@@ -148,6 +148,7 @@ const FormModal = ({ show, onClose, data = {},recruiterID=null, setRefresh }) =>
        if (err.response) {
           toast({
             title: "Error",
+             variant: "destructive",
             description: `${err.response.data.message || "Something went wrong"}`,
           });
         

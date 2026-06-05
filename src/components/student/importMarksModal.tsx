@@ -165,6 +165,7 @@ const fileInputRef = useRef(null);
         setError(err.response?.data?.message || "Import failed. Try again.");
         toast({
                       title: "Error",
+                       variant: "destructive",
                       description: 'Import failed. Try again.',
                     });
         setErrorId(Date.now());

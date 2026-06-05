@@ -160,6 +160,7 @@ const BranchModal = ({
         setErrorId(Date.now());
         toast({
                     title: "Error",
+                     variant: "destructive",
                     description: response.data.message,
                   });
       }
@@ -170,6 +171,7 @@ const BranchModal = ({
       );
       toast({
                     title: "Error",
+                     variant: "destructive",
                     description: "Error saving details, please try again.",
                   });
       setErrorId(Date.now());

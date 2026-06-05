@@ -121,6 +121,7 @@ const {toast}=useToast()
         setError(response.data.message || "Something went wrong.");
          toast({
                     title: "Error",
+                     variant: "destructive",
                     description: response.data.message,
                   });
         setErrorId(Date.now());
@@ -129,6 +130,7 @@ const {toast}=useToast()
       console.error(err);
        toast({
                     title: "Error",
+                     variant: "destructive",
                     description: "Something went wrong. Please try again.",
                   });
       setError("Something went wrong. Please try again.");

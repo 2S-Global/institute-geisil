@@ -201,6 +201,7 @@ const handleChange = (e) => {
         setError(err.response?.data?.message || "Something went wrong");
             toast({
                 title: "Error",
+                 variant: "destructive",
                 description: "Something went wrong",
             });
       } finally {

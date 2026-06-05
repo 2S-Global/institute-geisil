@@ -212,7 +212,18 @@ const ContactInfoBox = () => {
           name="phone"
          
           value={formData.phone}
-          onChange={handleChange}
+          /* onChange={handleChange} */
+          onChange={(e) => {
+              const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+                  setFormData({
+                    ...formData,
+                    phone: value,
+                  });
+                  setValidationErrors((prev) => ({
+              ...prev,
+              phone: "",
+            }))
+            }}
           onBlur={handleBlur}
           placeholder="1234567890"
           required

@@ -107,6 +107,7 @@ const ManageCourses = () => {
       //setError(err.response?.data?.message || "Delete failed");
       toast({
         title: "Error",
+         variant: "destructive",
         description: "Delete failed",
       });
     }

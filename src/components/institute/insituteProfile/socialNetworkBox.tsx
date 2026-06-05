@@ -136,6 +136,7 @@ const SocialNetworkBox = () => {
         setError(response.data.message);
           toast({
           title: "Error",
+           variant: "destructive",
           description: 'Something went wrong.',
         });
         setErrorId(Date.now());
