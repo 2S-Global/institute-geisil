@@ -151,6 +151,7 @@ const Profile = () => {
       setError("Error Saving Details Please Try Again");
        toast({
           title: "Error",
+           variant: "destructive",
           description: 'Error saving details please try again.',
         });
       setErrorId(Date.now());
@@ -236,6 +237,8 @@ const Profile = () => {
               type="email"
               name="email"
               placeholder="Enter email address"
+              pattern="^[^\s@]+@[^\s@]+\.[^\s@]{2,}$"
+              title="Please enter a valid email address (example: name@example.com)"
               value={formdata.email}
               onChange={(e) =>
                 setFormdata({ ...formdata, email: e.target.value })
@@ -251,10 +254,12 @@ const Profile = () => {
               </span>
             </Label>
             <Input
-              type="text"
+              type="tel"
               name="mobile"
-              placeholder="0 123 456 7890"
+              placeholder="Enter mobile number"
               value={formdata.phone}
+              title="Enter valid 10-digit mobile number"
+              pattern="^[0-9]{10}$"
               onChange={(e) =>
                 setFormdata({ ...formdata, phone: e.target.value })
               }

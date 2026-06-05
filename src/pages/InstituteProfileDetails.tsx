@@ -1,4 +1,4 @@
-import { Building2, Globe, MapPin, GraduationCap, Edit, Award, Users,Mail  } from "lucide-react";
+import { Building2, Globe, MapPin, GraduationCap, Edit, Award, Users,Mail,Phone  } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -85,7 +85,7 @@ export default function InstituteProfileDetails() {
 
       <Card className="p-6 mb-6 border-border/60 shadow-sm bg-gradient-to-br from-primary-soft to-card">
         <div className="flex flex-col md:flex-row gap-6 md:items-center">
-         <div className="h-20 w-20 rounded-full overflow-hidden shadow-brand">
+         <div className="h-20 w-20 rounded-full  mb-10">
             <img
               src={profile?.logo||''}
               alt="profile"
@@ -98,7 +98,7 @@ export default function InstituteProfileDetails() {
             <div className="flex flex-wrap gap-3 mt-3 text-sm text-muted-foreground">
               <span className="flex items-center gap-1"><Mail  className="h-4 w-4" />{profile?.email||''}</span>
               <span className="flex items-center gap-1"><Globe className="h-4 w-4" /> {websiteName(profile?.website)}</span>
-              <span className="flex items-center gap-1"><GraduationCap className="h-4 w-4" /> {student?.totalStudents||0} + students</span>
+              <span className="flex items-center gap-1"><Phone className="h-4 w-4" /> {profile?.phone||""}</span>
             </div>
             <div className="flex flex-wrap gap-3 mt-3 text-sm text-muted-foreground">
               <span className="flex items-center gap-1"><MapPin className="h-4 w-4" />{profile?.address||''}</span>

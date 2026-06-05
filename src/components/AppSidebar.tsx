@@ -55,7 +55,7 @@ const main = [
 ];
 
 const secondary = [
-  { title: "Faculty", url: "/institute/faculty", icon: Users },
+ /*  { title: "Faculty", url: "/institute/faculty", icon: Users }, */
   { title: "Settings", url: "/institute/settings", icon: Settings },
 ];
 

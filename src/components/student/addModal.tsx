@@ -5,6 +5,7 @@ import { Plus, UserPlus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import API from "../../lib/axios";
+import {email,phone,percentage} from "../../lib/utils";
 let YMD = (input) => {
   const date = new Date(input);
   const year = date.getFullYear();
@@ -31,7 +32,7 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
   const [editSemesterCount, setEditSemesterCount] = useState(
     data?.semesters?.length || 0,
   );
-  console.log('data kkkk kkk',data?._id)
+
 
   const [formData, setFormData] = useState({
     _id: "",
@@ -46,7 +47,7 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
     email:"",
     phoneNumber: "",
   });
-  console.log("formData", formData);
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -65,7 +66,7 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
       newErrors.name = "Name is required";
     }
     if (!formData.USN?.trim()) {
-      newErrors.USN = "USN is required";
+      newErrors.USN = "University registration number is required";
     }
     if (!formData.program?.trim()) {
       newErrors.program = "Program is required";
@@ -82,8 +83,26 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
     if (!formData.tenTh) {
       newErrors.tenTh = "10Th(%) is required";
     }
+    else if(formData.tenTh && percentage(formData.tenTh)){
+        newErrors.tenTh = "Invalid number";
+    }
     if (!formData.twelveTh) {
       newErrors.twelveTh = "12Th(%) is required";
+    }
+     else if(formData.twelveTh && percentage(formData.twelveTh)){
+        newErrors.twelveTh = "Invalid number";
+    }
+     if (!formData.email) {
+      newErrors.email = "Email is required";
+    }
+    else if(formData.email && email(formData.email)){
+        newErrors.email = "Invalid email";
+    }
+    if (!formData.phoneNumber) {
+      newErrors.phoneNumber = "Phone number is required";
+    }
+     else if(formData.phoneNumber && phone(formData.phoneNumber)){
+        newErrors.phoneNumber = "Invalid phone number";
     }
 
     return newErrors;
@@ -170,6 +189,24 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
    }
    
  }, [data?._id]);
+
+const clearData=()=>{
+   setFormData({
+   _id: "",
+    name:  "",
+    USN: "",
+    program: "",
+    gender: "",
+    dob:  "",
+    admissionYear:"",
+    tenTh:"",
+    twelveTh:"",
+    email:"",
+    phoneNumber: "",
+   });
+   setErr({});
+}
+
   // Remove field
   const removeField = (index) => {
     const newFields = fields.filter((_, i) => i !== index);
@@ -274,7 +311,7 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
           setFields([]);
           setSelectProgram([]);
           setOpen(false);
-
+          setRefresh((p)=>p+1)
           if(isUpdate){
               toast({
               title: "Success!",
@@ -430,7 +467,7 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="text-sm font-medium text-gray-700">
-              Student Name
+              Student Name <span className="text-red-500">*</span>
             </label>
 
             <input
@@ -462,7 +499,7 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
 
           <div>
             <label className="text-sm font-medium text-gray-700">
-              DOB
+              DOB <span className="text-red-500">*</span>
             </label>
 
             <input
@@ -499,7 +536,7 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="text-sm font-medium text-gray-700">
-              Gender
+              Gender <span className="text-red-500">*</span>
             </label>
 
             <select
@@ -535,7 +572,7 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
 
           <div>
             <label className="text-sm font-medium text-gray-700">
-              Admission Year
+              Admission Year <span className="text-red-500">*</span>
             </label>
 
             <select
@@ -575,7 +612,7 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="text-sm font-medium text-gray-700">
-              USN
+              University Registration Number <span className="text-red-500">*</span>
             </label>
 
             <input
@@ -607,8 +644,8 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
 
           <div>
             <label className="text-sm font-medium text-gray-700">
-              Program
-            </label>
+              Program <span className="text-red-500">*</span>
+            </label> 
 
             <Select
               options={programData}
@@ -631,7 +668,7 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="text-sm font-medium text-gray-700">
-              10th (%)
+              10th (%) <span className="text-red-500">*</span>
             </label>
 
             <input
@@ -639,6 +676,7 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
               name="tenTh"
               value={formData.tenTh || ""}
               onChange={handleChange}
+              maxlength="10"
               className="
                 mt-1
                 w-full
@@ -656,14 +694,14 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
 
             {err?.tenTh && (
               <div className="text-xs text-red-600 mt-1">
-                {err.tenTh}
+                {err.tenTh} 
               </div>
             )}
           </div>
 
           <div>
             <label className="text-sm font-medium text-gray-700">
-              12th (%)
+              12th (%) <span className="text-red-500">*</span>
             </label>
 
             <input
@@ -696,7 +734,7 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
           {/* Extra Field for Email */}
           <div>
             <label className="text-sm font-medium text-gray-700">
-              Email
+              Email <span className="text-red-500">*</span>
             </label>
 
             <input
@@ -729,7 +767,7 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
           {/* Extra Field for Phone Number */}
           <div>
             <label className="text-sm font-medium text-gray-700">
-              Phone Number
+              Phone Number <span className="text-red-500">*</span>
             </label>
 
             <input
@@ -764,10 +802,10 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
         <div>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
             <h6 className="text-sm sm:text-base font-semibold border-b pb-1">
-              Semester/Yearly Marks ({marksType})
+              Semester/Yearly Marks <span style={{textTransform: 'uppercase'}}>({marksType})</span>
             </h6>
 
-            <button
+           {/*  <button
               type="button"
               onClick={addField}
               className="
@@ -780,7 +818,7 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
               "
             >
               + Add {courseStructure === "year" ? "Year" : "Semester"}
-            </button>
+            </button> */}
           </div>
 
           <div className="space-y-3">
@@ -828,7 +866,7 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
                     disabled={isDisabled}
                   />
 
-                  {!formData._id && (
+             {/*      {!formData._id && (
                     <button
                       type="button"
                       onClick={() => removeField(index)}
@@ -842,7 +880,7 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
                     >
                       Delete
                     </button>
-                  )}
+                  )} */}
                 </div>
               );
             })}
@@ -864,7 +902,7 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
       >
         <button
           type="button"
-          onClick={() => setOpen(false)}
+          onClick={() =>{setOpen(false);clearData()}}
           className="
             w-full
             sm:w-auto

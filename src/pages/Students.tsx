@@ -40,8 +40,9 @@ const Students = () => {
   const [addStudentOpen, setStudentOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [studentList, setStudentList] = useState([]);
+  const [refresh, setRefresh] = useState(0);
 
-  const itemsPerPage = 2;
+  const itemsPerPage = 10;
   const filtered = studentList?.filter(
     (s) =>
       s.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -92,7 +93,7 @@ const Students = () => {
 
     fetchStats();
     fetchStudentList();
-  }, []);
+  }, [refresh]);
 
   return (
     <DashboardLayout>
@@ -131,7 +132,7 @@ const Students = () => {
         }
       />
       <ImportModal open={importOpen} setOpen={setImportOpen} />
-      <StudentModal open={addStudentOpen} setOpen={setStudentOpen} />
+      <StudentModal open={addStudentOpen} setOpen={setStudentOpen} setRefresh={setRefresh}/>
       <ImportMarksModal open={importMarksOpen} setOpen={setImportMarksOpen} />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 mb-6">

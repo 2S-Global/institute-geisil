@@ -78,9 +78,10 @@ const AccountBox = () => {
         }, 2000);
       } else {
         console.error("Error saving personal details:", response.data.message);
-   toast({
+        toast({
           title: "Error",
-          description: 'Error saving  details updated successfully.',
+          variant: "destructive",
+          description: response.data.message,
         });
         setError(response.data.message);
         setErrorId(Date.now());
@@ -167,6 +168,8 @@ const AccountBox = () => {
           type="email"
           name="companyemail"
           placeholder="Enter email address"
+           pattern="^[^\s@]+@[^\s@]+\.[^\s@]{2,}$"
+              title="Please enter a valid email address (example: name@example.com)"
           value={formdata.companyemail}
           readOnly
           className="bg-gray-100 cursor-not-allowed"
@@ -183,6 +186,8 @@ const AccountBox = () => {
           type="text"
           name="companyphone"
           placeholder="Enter Mobile Number"
+          title="Enter valid 10-digit mobile number"
+          pattern="^[0-9]{10}$"
           value={formdata.companyphone}
           onChange={handleChange}
           onBlur={handleBlur}

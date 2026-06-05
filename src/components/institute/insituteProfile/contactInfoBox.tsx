@@ -118,12 +118,18 @@ const ContactInfoBox = () => {
          toast({
           title: "Error",
           description: 'Something went wrong.',
+          variant: "destructive"
         });
         setErrorId(Date.now());
       }
     } catch (err) {
       console.error(err);
       setError("Something went wrong. Please try again.");
+       toast({
+          title: "Error",
+          description: 'Something went wrong. Please try again.',
+          variant: "destructive"
+        });
       setErrorId(Date.now());
     } finally {
       setSubmitting(false);
@@ -204,9 +210,7 @@ const ContactInfoBox = () => {
         <Input
           type="text"
           name="phone"
-          className={
-            touched.phone && formErrors.phone ? "border-red-500" : ""
-          }
+         
           value={formData.phone}
           onChange={handleChange}
           onBlur={handleBlur}
@@ -215,7 +219,7 @@ const ContactInfoBox = () => {
         />
 
         {validationErrors.phone && (
-          <small className="text-danger">
+          <small style={{ color: "red" }} className="ms-1">
             {validationErrors.phone}
           </small>
         )}

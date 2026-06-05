@@ -58,3 +58,35 @@ const formatted = date.toLocaleDateString("en-GB", {
 });
 return formatted
 }
+
+
+
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const phoneRegex = /^[0-9]{10}$/;
+
+// Percentage: 0 - 100
+const percentageRegex = /^(100(\.0+)?|[0-9]{1,2}(\.[0-9]{1,2})?)$/;
+
+// CGPA: 0 - 10   // DGPA: 0 - 10
+const cgpaDgpaRegex = /^(10(\.0+)?|[0-9](\.[0-9]{1,2})?)$/;
+
+export function email(email) {
+    if (!emailRegex.test(email)) {
+      return true
+    }
+}
+
+export function phone(phone) {
+    if (!phoneRegex.test(phone)) {
+      return true
+    }
+}
+
+
+export function percentage(val) {
+    if (!percentageRegex.test(val)) {
+      return true
+    }
+}
+
+
