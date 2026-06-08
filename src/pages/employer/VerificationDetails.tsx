@@ -149,9 +149,14 @@ const VerificationDetails = () => {
   if (loading) {
     return (
       <EmployerLayout>
-        <Card>
-          <CardContent className="py-10 text-center">Loading...</CardContent>
-        </Card>
+        <div className="flex justify-center items-center min-h-screen">
+          <div
+            className="h-10 w-10 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"
+            role="status"
+          >
+            <span className="sr-only">Loading...</span>
+          </div>
+        </div>
       </EmployerLayout>
     );
   }

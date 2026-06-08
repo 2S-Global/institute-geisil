@@ -177,6 +177,21 @@ const VerifiedAadharPage = () => {
       .join(" ");
   };
 
+  if (loading) {
+    return (
+      <EmployerLayout>
+        <div className="flex justify-center items-center min-h-screen">
+          <div
+            className="h-10 w-10 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"
+            role="status"
+          >
+            <span className="sr-only">Loading...</span>
+          </div>
+        </div>
+      </EmployerLayout>
+    );
+  }
+
   return (
     <EmployerLayout>
       <div className="space-y-6">
@@ -191,7 +206,7 @@ const VerifiedAadharPage = () => {
           </CardHeader>
 
           <CardContent>
-            {loading && <p className="text-center">Loading...</p>}
+            {/* {loading && <p className="text-center">Loading...</p>} */}
 
             {error && <p className="text-center text-red-600">{error}</p>}
 

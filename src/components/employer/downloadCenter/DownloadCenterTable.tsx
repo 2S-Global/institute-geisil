@@ -104,6 +104,17 @@ const DownloadCenterTable = () => {
     return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
   };
 
+  const formatCandidateName = (name?: string) => {
+    if (!name) return "-";
+
+    return name
+      .toLowerCase()
+      .split(" ")
+      .filter(Boolean)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
   const isDocumentVerified = (response: any) => {
     return (
       response &&
@@ -229,8 +240,17 @@ const DownloadCenterTable = () => {
 
   if (loading) {
     return (
-      <Card>
-        <CardContent className="py-10 text-center">Loading...</CardContent>
+      <Card className="shadow-sm border">
+        <CardContent>
+          <div className="flex justify-center items-center min-h-[400px]">
+            <div
+              className="h-10 w-10 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"
+              role="status"
+            >
+              <span className="sr-only">Loading...</span>
+            </div>
+          </div>
+        </CardContent>
       </Card>
     );
   }
@@ -386,10 +406,13 @@ const DownloadCenterTable = () => {
                     </TableCell>
 
                     <TableCell
-                      title={row.candidate_name}
+                      title={formatCandidateName(row.candidate_name)}
                       className="max-w-[180px]"
                     >
-                      {truncateText(row.candidate_name, 25)}
+                      {truncateText(
+                        formatCandidateName(row.candidate_name),
+                        25,
+                      )}
                     </TableCell>
 
                     <TableCell>{renderOverallStatus(row.status)}</TableCell>
