@@ -353,19 +353,31 @@ const handleApplyFilter = async () => {
                         <div className="flex gap-2">
                           <input
                             type="number"
-                            min="0"
-                            max="100"
+                            min={0}
+                            max={tenMax}
                             value={tenMin}
-                            onChange={(e) => setTenMin(e.target.value)}
+                            onChange={(e) => {
+                              const value = Math.max(
+                                0,
+                                Math.min(Number(e.target.value), tenMax),
+                              );
+                              setTenMin(value);
+                            }}
                             className="w-full border rounded-md px-3 py-2"
                           />
 
                           <input
                             type="number"
-                            min="0"
-                            max="100"
+                            min={tenMin}
+                            max={100}
                             value={tenMax}
-                            onChange={(e) => setTenMax(e.target.value)}
+                            onChange={(e) => {
+                              const value = Math.min(
+                                100,
+                                Math.max(Number(e.target.value), tenMin),
+                              );
+                              setTenMax(value);
+                            }}
                             className="w-full border rounded-md px-3 py-2"
                           />
                         </div>
@@ -384,19 +396,31 @@ const handleApplyFilter = async () => {
                         <div className="flex gap-2">
                           <input
                             type="number"
-                            min="0"
-                            max="100"
+                            min={0}
+                            max={twelveMax}
                             value={twelveMin}
-                            onChange={(e) => setTwelveMin(e.target.value)}
+                            onChange={(e) => {
+                              const value = Math.max(
+                                0,
+                                Math.min(Number(e.target.value), twelveMax),
+                              );
+                              setTwelveMin(value);
+                            }}
                             className="w-full border rounded-md px-3 py-2"
                           />
 
                           <input
                             type="number"
-                            min="0"
-                            max="100"
+                            min={twelveMin}
+                            max={100}
                             value={twelveMax}
-                            onChange={(e) => setTwelveMax(e.target.value)}
+                            onChange={(e) => {
+                              const value = Math.min(
+                                100,
+                                Math.max(Number(e.target.value), twelveMin),
+                              );
+                              setTwelveMax(value);
+                            }}
                             className="w-full border rounded-md px-3 py-2"
                           />
                         </div>
@@ -415,19 +439,31 @@ const handleApplyFilter = async () => {
                         <div className="flex gap-2">
                           <input
                             type="number"
-                            min="0"
-                            max="100"
+                            min={0}
+                            max={gradMax}
                             value={gradMin}
-                            onChange={(e) => setGradMin(e.target.value)}
+                            onChange={(e) => {
+                              const value = Math.max(
+                                0,
+                                Math.min(Number(e.target.value), gradMax),
+                              );
+                              setGradMin(value);
+                            }}
                             className="w-full border rounded-md px-3 py-2"
                           />
 
                           <input
                             type="number"
-                            min="0"
-                            max="100"
+                            min={gradMin}
+                            max={100}
                             value={gradMax}
-                            onChange={(e) => setGradMax(e.target.value)}
+                            onChange={(e) => {
+                              const value = Math.min(
+                                100,
+                                Math.max(Number(e.target.value), gradMin),
+                              );
+                              setGradMax(value);
+                            }}
                             className="w-full border rounded-md px-3 py-2"
                           />
                         </div>
