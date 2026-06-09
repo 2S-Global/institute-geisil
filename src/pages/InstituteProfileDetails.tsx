@@ -1,4 +1,4 @@
-import { Building2, Globe, MapPin, GraduationCap, Edit, Award, Users,Mail,Phone  } from "lucide-react";
+import { Building2, Globe, MapPin, GraduationCap, Edit, Award, Users,Mail,Phone, AlignJustify  } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import API from "../lib/axios";
-
+import noImage from "../assets/img/no-image.png"
 function websiteName(url) {
   try {
     return new URL(url).hostname.replace(/^www\./, '');
@@ -87,7 +87,7 @@ export default function InstituteProfileDetails() {
         <div className="flex flex-col md:flex-row gap-6 md:items-center">
          <div className="h-20 w-20 rounded-full  mb-10">
             <img
-              src={profile?.logo||''}
+              src={profile?.logo||noImage}
               alt="profile"
               className="h-full w-full object-cover"
             />
@@ -111,7 +111,7 @@ export default function InstituteProfileDetails() {
         <Card className="lg:col-span-2 border-border/60 shadow-sm">
           <CardHeader><CardTitle className="font-display">About</CardTitle></CardHeader>
           <CardContent className="text-muted-foreground text-sm space-y-3">
-           <p>{profile?.about||''}</p>
+           <p className="text-justify">{profile?.about||''}</p>
           </CardContent>
         </Card>
         <Card className="border-border/60 shadow-sm">

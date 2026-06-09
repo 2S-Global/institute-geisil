@@ -21,7 +21,7 @@ const PlacementDetail = () => {
   return (
     <DashboardLayout>
       <Button asChild variant="ghost" size="sm" className="mb-4 -ml-2 text-muted-foreground hover:text-foreground">
-        <Link to="/placements"><ArrowLeft className="h-4 w-4" /> Back to placements</Link>
+        <Link to="/institute/placements"><ArrowLeft className="h-4 w-4" /> Back to placements</Link>
       </Button>
 
       <PageHeader
