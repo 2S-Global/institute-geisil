@@ -702,8 +702,6 @@ export default function AddStudentDialog({
                       type="number"
                       name="tenTh"
                       value={formData.tenTh || ""}
-                      min="1"
-                      max="100"
                       onChange={(e) => {
                         const value = e.target.value;
 
@@ -749,8 +747,6 @@ export default function AddStudentDialog({
                       type="number"
                       name="twelveTh"
                       value={formData.twelveTh || ""}
-                      min="1"
-                      max="100"
                       onChange={(e) => {
                         const value = e.target.value;
 
