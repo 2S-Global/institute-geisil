@@ -912,8 +912,7 @@ export default function AddStudentDialog({
 
                           <input
                             type="number"
-                            min="0.01"
-                            max={maxValue}
+                        
                             className="
     flex-1
     rounded-xl

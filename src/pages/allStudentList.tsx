@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
 import api from "@/lib/axios";
 import { Link } from "react-router-dom";
-import { Filter, Plus, Search, Edit, Trash,ArrowLeft ,Eye} from "lucide-react";
+import {
+  Filter,
+  Plus,
+  Search,
+  Edit,
+  Trash,
+  ArrowLeft,
+  Eye,
+} from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { StatCard } from "@/components/dashboard/StatCard";
@@ -14,13 +22,12 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CoursesFormModal from "@/components/institute/courses/FormModal";
 import { useToast } from "@/hooks/use-toast";
-import {nameFormate} from "../lib/utils"
-import StudentModal from "@/components/student/addModal"
-import { useNavigate } from 'react-router-dom';
+import { nameFormate } from "../lib/utils";
+import StudentModal from "@/components/student/addModal";
+import { useNavigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
-
-
-
+import { Mail } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 const statusStyles: Record<string, string> = {
   Placed: "bg-success/10 text-success border-success/20",
@@ -57,20 +64,19 @@ const AllStudentList = () => {
   };
 
   const itemsPerPage = 10;
-  const filtered = list?.filter((s) =>
-    s?.name.toLowerCase().includes(query.toLowerCase())||
-    String(s?.admissionYear)?.includes(query)||
-    String(s?.USN)?.includes(query)||
-    String(s?.tenTh)?.includes(query)||
-    String(s?.twelveTh)?.includes(query)
+  const filtered = list?.filter(
+    (s) =>
+      s?.name.toLowerCase().includes(query.toLowerCase()) ||
+      String(s?.admissionYear)?.includes(query) ||
+      String(s?.USN)?.includes(query) ||
+      String(s?.tenTh)?.includes(query) ||
+      String(s?.twelveTh)?.includes(query),
   );
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
   const paginatedLists = filtered.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage,
   );
-
-
 
   const fetchList = async () => {
     try {
@@ -82,15 +88,35 @@ const AllStudentList = () => {
     }
   };
   useEffect(() => {
-   fetchList()
+    fetchList();
   }, []);
   useEffect(() => {
     if (refresh) {
-    window.location.reload();
-  }
+      window.location.reload();
+    }
   }, [refresh]);
 
- 
+
+   const sendReminderMail = async (id: string) => {
+     try {
+       const res = await api.get(
+         `/api/institutestudent/send-progress-mail?_id=${id}`,
+       );
+
+       toast({
+         title: "Success",
+         description: res?.data?.message || "Reminder mail sent successfully.",
+       });
+     } catch (error: any) {
+       toast({
+         title: "Error",
+         description:
+           error?.response?.data?.message || "Failed to send reminder mail.",
+         variant: "destructive",
+       });
+     }
+   };
+
   return (
     <>
       <Toaster />
@@ -147,6 +173,9 @@ const AllStudentList = () => {
                       Program
                     </th>
                     <th className="font-medium py-3 px-4 text-center">
+                      Profile Score(%)
+                    </th>
+                    <th className="font-medium py-3 px-4 text-center">
                       10th(%)
                     </th>
                     <th className="font-medium py-3 px-4 text-center">
@@ -194,6 +223,9 @@ const AllStudentList = () => {
                         {s?.programDetails?.name || ""}
                       </td>
                       <td className="py-4 px-4 text-muted-foreground text-center">
+                        {s?.progress || ""}
+                      </td>
+                      <td className="py-4 px-4 text-muted-foreground text-center">
                         {s?.tenTh || ""}
                       </td>
                       <td className="py-4 px-4 text-muted-foreground text-center">
@@ -201,11 +233,26 @@ const AllStudentList = () => {
                       </td>
 
                       <td className="py-4 px-4 text-center">
-                        <div className="flex  gap-4">
+                        <div className="flex  gap-4 items-center">
                           <Edit
                             className="h-4 w-4 cursor-pointer"
                             onClick={() => openModalEdit(() => s)}
                           />
+
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            title="Reminder Mail"
+                            aria-label="Reminder Mail"
+                            className="h-8 w-8 border-0 shadow-none"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              sendReminderMail(s._id);
+                            }}
+                          >
+                            <Mail className="h-4 w-4" title="Reminder Mail" />
+                          </Button>
 
                           <Eye
                             className="h-4 w-4 cursor-pointer hover:text-primary"
