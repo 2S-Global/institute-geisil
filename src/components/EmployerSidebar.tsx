@@ -40,6 +40,7 @@ const main = [
   { title: "Verify Employee", url: "/employer/verify-employee", icon: UserCheck },
   { title: "Aadhar Verification", url: "/employer/aadhar-verification", icon: BookmarkCheck  },
   {title: "Download Center", url: "/employer/download-center", icon: Download },
+  {title: "Verify Requests", url: "/employer/employee-verification", icon: Users },
 ];
 
 const secondary = [

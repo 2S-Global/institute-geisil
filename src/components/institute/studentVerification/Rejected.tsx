@@ -179,7 +179,7 @@ useEffect(() => {
           {currentItems.map((s, i) => (
             <tr
               key={s?.id}
-              className="hover:bg-muted/30 transition-colors cursor-pointer group"
+              className="hover:bg-muted/30 transition-colors  group"
             >
               <td className="py-3 px-3 whitespace-nowrap">
                 {i + 1}

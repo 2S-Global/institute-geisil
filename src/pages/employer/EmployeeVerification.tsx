@@ -3,10 +3,10 @@ import { PageHeader } from "@/components/dashboard/PageHeader";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 
-import All from "@/components/institute/studentVerification/All";
-import Pending from "@/components/institute/studentVerification/Pending";
-import Accepted from "@/components/institute/studentVerification/Accepted";
-import Rejected from "@/components/institute/studentVerification/Rejected";
+import All from "@/components/employer/employeeVerification/All";
+import Pending from "@/components/employer/employeeVerification/Pending";
+import Accepted from "@/components/employer/employeeVerification/Accepted";
+import Rejected from "@/components/employer/employeeVerification/Rejected";
 
 const EmployeeVerification = () => {
 
@@ -33,7 +33,7 @@ const EmployeeVerification = () => {
         <TabsList>
           <TabsTrigger value="all">All</TabsTrigger>
           <TabsTrigger value="pending">Pending</TabsTrigger>
-          <TabsTrigger value="accepted">Accepted</TabsTrigger>
+          <TabsTrigger value="accepted">Verified</TabsTrigger>
           <TabsTrigger value="rejected">Rejected</TabsTrigger>
         </TabsList>
 
