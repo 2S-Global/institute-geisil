@@ -5,7 +5,7 @@ import { Plus, UserPlus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import API from "../../lib/axios";
-import {email,phone,percentage} from "../../lib/utils";
+import { email, phone, percentage } from "../../lib/utils";
 let YMD = (input) => {
   const date = new Date(input);
   const year = date.getFullYear();
@@ -21,33 +21,37 @@ let DMY = (input) => {
   return `${day}-${month}-${year}`;
 };
 
-export default function AddStudentDialog({ open, setOpen, data = {},setRefresh}) {
+export default function AddStudentDialog({
+  open,
+  setOpen,
+  data = {},
+  setRefresh,
+}) {
   const [totalSemesters, setTotalSemesters] = useState(0);
   const [courseStructure, setCourseStructure] = useState();
   const [programData, setProgramData] = useState([]);
   const [programDataResp, setProgramDataResp] = useState([]);
   const [selectProgram, setSelectProgram] = useState([]);
-  const [marksType, setMarksType] = useState()
+  const [marksType, setMarksType] = useState();
   const [isProgramChange, setProgramChange] = useState(false);
   const [editSemesterCount, setEditSemesterCount] = useState(
     data?.semesters?.length || 0,
   );
 
-
   const [formData, setFormData] = useState({
     _id: "",
-    name:  "",
+    name: "",
     USN: "",
     program: "",
     gender: "",
-    dob:  "",
-    admissionYear:"",
-    tenTh:"",
-    twelveTh:"",
-    email:"",
+    dob: "",
+    admissionYear: "",
+    tenTh: "",
+    twelveTh: "",
+    email: "",
     phoneNumber: "",
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -59,6 +63,7 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 50 }, (_, i) => currentYear - i);
   const Semesters = Array.from({ length: totalSemesters }, (_, i) => 1 + i);
+
   // validation
   const validate = () => {
     let newErrors = {};
@@ -82,27 +87,23 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
     }
     if (!formData.tenTh) {
       newErrors.tenTh = "10Th(%) is required";
-    }
-    else if(formData.tenTh && percentage(formData.tenTh)){
-        newErrors.tenTh = "Invalid number";
+    } else if (formData.tenTh && percentage(formData.tenTh)) {
+      newErrors.tenTh = "Invalid number";
     }
     if (!formData.twelveTh) {
       newErrors.twelveTh = "12Th(%) is required";
+    } else if (formData.twelveTh && percentage(formData.twelveTh)) {
+      newErrors.twelveTh = "Invalid number";
     }
-     else if(formData.twelveTh && percentage(formData.twelveTh)){
-        newErrors.twelveTh = "Invalid number";
-    }
-     if (!formData.email) {
+    if (!formData.email) {
       newErrors.email = "Email is required";
-    }
-    else if(formData.email && email(formData.email)){
-        newErrors.email = "Invalid email";
+    } else if (formData.email && email(formData.email)) {
+      newErrors.email = "Invalid email";
     }
     if (!formData.phoneNumber) {
       newErrors.phoneNumber = "Phone number is required";
-    }
-     else if(formData.phoneNumber && phone(formData.phoneNumber)){
-        newErrors.phoneNumber = "Invalid phone number";
+    } else if (formData.phoneNumber && phone(formData.phoneNumber)) {
+      newErrors.phoneNumber = "Invalid phone number";
     }
 
     return newErrors;
@@ -130,82 +131,77 @@ export default function AddStudentDialog({ open, setOpen, data = {},setRefresh})
           }
         } */
 
-        console.log('fileds 1st load',fields)
+    console.log("fileds 1st load", fields);
 
-  /*   let totalSem = totalSemesters || 0;
+    /*   let totalSem = totalSemesters || 0;
     if (totalSem > 0 && fields.length < totalSem) {
       for (let i = 0; i < totalSem; i++) {
         setFields((fields) => [...fields, { value: "" }]);
       }
     } */
 
-    
-  let totalSem = totalSemesters || 0;
+    let totalSem = totalSemesters || 0;
 
-  if (totalSem > 0) {
-    const semesterFields = Array.from(
-      { length: totalSem },
-      () => ({ value: "" })
-    );
+    if (totalSem > 0) {
+      const semesterFields = Array.from({ length: totalSem }, () => ({
+        value: "",
+      }));
 
-    setFields(semesterFields);
-  } else {
-    setFields([]);
-  }
-
+      setFields(semesterFields);
+    } else {
+      setFields([]);
+    }
   }, [totalSemesters]);
- useEffect(() => {
-   if (data?._id) {
-     setFormData({
-    _id: data._id || "",
-    name: data.name || "",
-    USN: data.USN || "",
-    program: data.program || "",
-    gender: data.gender || "",
-    dob: data?.dob ? YMD(data.dob) : data.dob || "",
-    admissionYear: data.admissionYear || "",
-    tenTh: data.tenTh || "",
-    twelveTh: data.twelveTh || "",
-    email: data.email || "",
-    phoneNumber: data.phoneNumber || "",
-  });
+  useEffect(() => {
+    if (data?._id) {
+      setFormData({
+        _id: data._id || "",
+        name: data.name || "",
+        USN: data.USN || "",
+        program: data.program || "",
+        gender: data.gender || "",
+        dob: data?.dob ? YMD(data.dob) : data.dob || "",
+        admissionYear: data.admissionYear || "",
+        tenTh: data.tenTh || "",
+        twelveTh: data.twelveTh || "",
+        email: data.email || "",
+        phoneNumber: data.phoneNumber || "",
+      });
 
-    console.log('fileds 2nd load',fields)
-   }
-   else{
-     setFormData({
-   _id: "",
-    name:  "",
-    USN: "",
-    program: "",
-    gender: "",
-    dob:  "",
-    admissionYear:"",
-    tenTh:"",
-    twelveTh:"",
-    email:"",
-    phoneNumber: "",
-   })
-   }
-   
- }, [data?._id]);
+      console.log("fileds 2nd load", fields);
+    } else {
+      setFormData({
+        _id: "",
+        name: "",
+        USN: "",
+        program: "",
+        gender: "",
+        dob: "",
+        admissionYear: "",
+        tenTh: "",
+        twelveTh: "",
+        email: "",
+        phoneNumber: "",
+      });
+    }
+  }, [data?._id]);
 
-const clearData=()=>{
-   setFormData({
-   _id: "",
-    name:  "",
-    USN: "",
-    program: "",
-    gender: "",
-    dob:  "",
-    admissionYear:"",
-    tenTh:"",
-    twelveTh:"",
-    email:"",
-    phoneNumber: "",
-   });
-   setErr({});
-}
+  const clearData = () => {
+    setFormData({
+      _id: "",
+      name: "",
+      USN: "",
+      program: "",
+      gender: "",
+      dob: "",
+      admissionYear: "",
+      tenTh: "",
+      twelveTh: "",
+      email: "",
+      phoneNumber: "",
+    });
+    setErr({});
+  };
 
   // Remove field
   const removeField = (index) => {
@@ -222,7 +218,7 @@ const clearData=()=>{
 
   const handleProgramSelect = (selectedOptions) => {
     if (selectedOptions?.value) {
-       setProgramChange(true)
+      setProgramChange(true);
       setErr((prev) => ({ ...prev, program: "" }));
       setFormData((prev) => ({ ...prev, program: selectedOptions?.value }));
       const findData = programDataResp.find(
@@ -230,7 +226,7 @@ const clearData=()=>{
       );
       setTotalSemesters(findData?.total_number_of_semesters || 0);
       setCourseStructure(findData?.courseStructure || "");
-      setMarksType(findData?.marksType || "")
+      setMarksType(findData?.marksType || "");
       setFields([]);
     } else {
       setTotalSemesters(0);
@@ -297,7 +293,7 @@ const clearData=()=>{
         const response = await API({
           method,
           url,
-          data: payload
+          data: payload,
         });
 
         // Backend does not return success: true
@@ -305,39 +301,64 @@ const clearData=()=>{
           throw new Error(response.data?.message || "Operation failed");
         }
 
-        setSuccess(response.data.message);
-        if(response.data.message){
-          setFormData({});
-          setFields([]);
-          setSelectProgram([]);
-          setOpen(false);
-          setRefresh((p)=>p+1)
-          if(isUpdate){
-              toast({
-              title: "Success!",
-              description: 'Student update successfully',
-            });
-          }
-          else{
-             toast({
-              title: "Success!",
-              description: 'Student saved successfully',
-            });
-          }
-             
+        const res = response.data;
+
+        // Success
+        if (res.success === true) {
+          toast({
+            title: "Success!",
+            description: res.message || "Student created successfully.",
+          });
+
+          setTimeout(() => {
+            setFormData({});
+            setFields([]);
+            setSelectProgram([]);
+            setOpen(false);
+            setRefresh((p) => p + 1);
+          }, 500);
         }
-       
 
+        // Student already exists
+        else if (
+          res.success === false &&
+          res.message === "Student already exists"
+        ) {
+          toast({
+            variant: "destructive",
+            title: "Duplicate Student",
+            description: "Student already exists.",
+          });
+        }
 
-        setRefresh(p=>p+1);
+        // Validation failed
+        else if (res.success === false && res.message === "Validation failed") {
+          toast({
+            variant: "destructive",
+            title: "Validation Failed",
+            description:
+              res.audit?.errors?.join(", ") ||
+              "Please check the entered details.",
+          });
+        }
+        // setRefresh(p=>p+1);
 
-        setTimeout(() => {
-          setOpen(false);
-        }, 1500);
+        // setTimeout(() => {
+        //   setOpen(false);
+        // }, 1500);
       } catch (err) {
-        setError(
-          err.response?.data?.message || "Request failed. Please try again.",
-        );
+        const errorMessage =
+          err.response?.data?.audit?.errors?.join(", ") ||
+          err.response?.data?.message ||
+          "Request failed. Please try again.";
+
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: errorMessage,
+        });
+
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -371,14 +392,20 @@ const clearData=()=>{
   // edit selected course
 
   useEffect(() => {
-    if (data?._id  && !isProgramChange) {
+    if (data?._id && !isProgramChange) {
       let obj = {
-        label: data?.programDetails?.type!=='custom'?data?.programDetails?.name+'('+data?.programDetails?.type+')':data?.programDetails?.name,
+        label:
+          data?.programDetails?.type !== "custom"
+            ? data?.programDetails?.name +
+              "(" +
+              data?.programDetails?.type +
+              ")"
+            : data?.programDetails?.name,
         value: data?.programDetails?._id,
       };
       setSelectProgram(obj);
       let semestersData = data?.semesters || [];
-    
+
       console.log("semestersData", semestersData);
       let updatedData = fields.map((item, index) => {
         const found = semestersData.find(
@@ -406,25 +433,30 @@ const clearData=()=>{
 
       setTotalSemesters(data?.programDetails?.total_number_of_semesters || 0);
       setCourseStructure(data?.programDetails?.courseStructure || "");
-      setMarksType(data?.programDetails?.marksType || "")
+      setMarksType(data?.programDetails?.marksType || "");
     }
   }, [data?._id, fields?.length]);
 
+  const maxValue =
+    marksType?.toLowerCase() === "cgpa" || marksType?.toLowerCase() === "dgpa"
+      ? 10
+      : 100;
+
   return (
     <>
-    <Toaster position="top-center" />
+      {/* <Toaster position="top-center" /> */}
       {/* Modal */}
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
-  {/* Backdrop */}
-  <div
-    className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-    onClick={() => setOpen(false)}
-  />
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setOpen(false)}
+          />
 
-  {/* Dialog */}
-  <div
-    className="
+          {/* Dialog */}
+          <div
+            className="
        relative z-10
     w-full
     max-w-md
@@ -443,39 +475,35 @@ const clearData=()=>{
     flex flex-col
     overflow-hidden
     "
-    onClick={(e) => e.stopPropagation()}
-  >
-    {/* Header */}
-    <div className="p-4 sm:p-6 bg-[#112b5e] text-white shrink-0">
-      <div className="flex items-center gap-2">
-        <UserPlus className="h-5 w-5 shrink-0" />
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="p-4 sm:p-6 bg-[#112b5e] text-white shrink-0">
+              <div className="flex items-center gap-2">
+                <UserPlus className="h-5 w-5 shrink-0" />
 
-        <h2 className="text-base sm:text-lg font-semibold">
-          {formData._id ? "Update Student" : "Add New Student"}
-        </h2>
-      </div>
-    </div>
+                <h2 className="text-base sm:text-lg font-semibold">
+                  {formData._id ? "Update Student" : "Add New Student"}
+                </h2>
+              </div>
+            </div>
 
-    {/* Scrollable Content */}
-    <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-      <form
-        onSubmit={handleSubmit}
-        id="Form"
-        className="space-y-5"
-      >
-        {/* Name + DOB */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="text-sm font-medium text-gray-700">
-              Student Name <span className="text-red-500">*</span>
-            </label>
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+              <form onSubmit={handleSubmit} id="Form" className="space-y-5">
+                {/* Name + DOB */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Student Name <span className="text-red-500">*</span>
+                    </label>
 
-            <input
-              type="text"
-              name="name"
-              value={formData?.name || ""}
-              onChange={handleChange}
-              className="
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData?.name || ""}
+                      onChange={handleChange}
+                      className="
                 mt-1
                 w-full
                 rounded-xl
@@ -488,28 +516,28 @@ const clearData=()=>{
                 focus:ring-2
                 focus:ring-[#112b5e]
               "
-            />
+                    />
 
-            {err?.name && (
-              <div className="text-xs text-red-600 mt-1">
-                {err.name}
-              </div>
-            )}
-          </div>
+                    {err?.name && (
+                      <div className="text-xs text-red-600 mt-1">
+                        {err.name}
+                      </div>
+                    )}
+                  </div>
 
-          <div>
-            <label className="text-sm font-medium text-gray-700">
-              DOB <span className="text-red-500">*</span>
-            </label>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      DOB <span className="text-red-500">*</span>
+                    </label>
 
-            <input
-            style={{ position:"relative" }}
-              type="date"
-              max={new Date()?.toISOString().split("T")[0]}
-              name="dob"
-              value={formData?.dob || ""}
-              onChange={handleChange}
-              className="
+                    <input
+                      style={{ position: "relative" }}
+                      type="date"
+                      max={new Date()?.toISOString().split("T")[0]}
+                      name="dob"
+                      value={formData?.dob || ""}
+                      onChange={handleChange}
+                      className="
                 mt-1
                 w-full
                 rounded-xl
@@ -522,25 +550,23 @@ const clearData=()=>{
                 focus:ring-2
                 focus:ring-[#112b5e]
               "
-            />
+                    />
 
-            {err?.dob && (
-              <div className="text-xs text-red-600 mt-1">
-                {err.dob}
-              </div>
-            )}
-          </div>
-        </div>
+                    {err?.dob && (
+                      <div className="text-xs text-red-600 mt-1">{err.dob}</div>
+                    )}
+                  </div>
+                </div>
 
-        {/* Gender + Admission */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="text-sm font-medium text-gray-700">
-              Gender <span className="text-red-500">*</span>
-            </label>
+                {/* Gender + Admission */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Gender <span className="text-red-500">*</span>
+                    </label>
 
-            <select
-              className="
+                    <select
+                      className="
                 mt-1
                 w-full
                 rounded-xl
@@ -553,30 +579,30 @@ const clearData=()=>{
                 focus:ring-2
                 focus:ring-[#112b5e]
               "
-              name="gender"
-              onChange={handleChange}
-              value={formData.gender || ""}
-            >
-              <option value="">Please select</option>
-              <option value="m">Male</option>
-              <option value="f">Female</option>
-              <option value="o">Other</option>
-            </select>
+                      name="gender"
+                      onChange={handleChange}
+                      value={formData.gender || ""}
+                    >
+                      <option value="">Please select</option>
+                      <option value="m">Male</option>
+                      <option value="f">Female</option>
+                      <option value="o">Other</option>
+                    </select>
 
-            {err?.gender && (
-              <div className="text-xs text-red-600 mt-1">
-                {err.gender}
-              </div>
-            )}
-          </div>
+                    {err?.gender && (
+                      <div className="text-xs text-red-600 mt-1">
+                        {err.gender}
+                      </div>
+                    )}
+                  </div>
 
-          <div>
-            <label className="text-sm font-medium text-gray-700">
-              Admission Year <span className="text-red-500">*</span>
-            </label>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Admission Year <span className="text-red-500">*</span>
+                    </label>
 
-            <select
-              className="
+                    <select
+                      className="
                 mt-1
                 w-full
                 rounded-xl
@@ -589,38 +615,39 @@ const clearData=()=>{
                 focus:ring-2
                 focus:ring-[#112b5e]
               "
-              name="admissionYear"
-              onChange={handleChange}
-              value={formData.admissionYear || ""}
-            >
-              <option value="">Please select</option>
+                      name="admissionYear"
+                      onChange={handleChange}
+                      value={formData.admissionYear || ""}
+                    >
+                      <option value="">Please select</option>
 
-              {years?.map((year) => (
-                <option key={year}>{year}</option>
-              ))}
-            </select>
+                      {years?.map((year) => (
+                        <option key={year}>{year}</option>
+                      ))}
+                    </select>
 
-            {err?.admissionYear && (
-              <div className="text-xs text-red-600 mt-1">
-                {err.admissionYear}
-              </div>
-            )}
-          </div>
-        </div>
+                    {err?.admissionYear && (
+                      <div className="text-xs text-red-600 mt-1">
+                        {err.admissionYear}
+                      </div>
+                    )}
+                  </div>
+                </div>
 
-        {/* USN + Program */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="text-sm font-medium text-gray-700">
-              University Registration Number <span className="text-red-500">*</span>
-            </label>
+                {/* USN + Program */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      University Registration Number{" "}
+                      <span className="text-red-500">*</span>
+                    </label>
 
-            <input
-              type="text"
-              name="USN"
-              value={formData?.USN || ""}
-              onChange={handleChange}
-              className="
+                    <input
+                      type="text"
+                      name="USN"
+                      value={formData?.USN || ""}
+                      onChange={handleChange}
+                      className="
                 mt-1
                 w-full
                 rounded-xl
@@ -633,51 +660,147 @@ const clearData=()=>{
                 focus:ring-2
                 focus:ring-[#112b5e]
               "
-            />
+                    />
 
-            {err?.USN && (
-              <div className="text-xs text-red-600 mt-1">
-                {err?.USN}
-              </div>
-            )}
-          </div>
+                    {err?.USN && (
+                      <div className="text-xs text-red-600 mt-1">
+                        {err?.USN}
+                      </div>
+                    )}
+                  </div>
 
-          <div>
-            <label className="text-sm font-medium text-gray-700">
-              Program <span className="text-red-500">*</span>
-            </label> 
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Program <span className="text-red-500">*</span>
+                    </label>
 
-            <Select
-              options={programData}
-              value={selectProgram}
-              onChange={handleProgramSelect}
-              placeholder="Please select"
-              className="mt-1"
-              classNamePrefix="select"
-            />
+                    <Select
+                      options={programData}
+                      value={selectProgram}
+                      onChange={handleProgramSelect}
+                      placeholder="Please select"
+                      className="mt-1"
+                      classNamePrefix="select"
+                    />
 
-            {err?.program && (
-              <div className="text-xs text-red-600 mt-1">
-                {err.program}
-              </div>
-            )}
-          </div>
-        </div>
+                    {err?.program && (
+                      <div className="text-xs text-red-600 mt-1">
+                        {err.program}
+                      </div>
+                    )}
+                  </div>
+                </div>
 
-        {/* 10th + 12th */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="text-sm font-medium text-gray-700">
-              10th (%) <span className="text-red-500">*</span>
-            </label>
+                {/* 10th + 12th */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      10th (%) <span className="text-red-500">*</span>
+                    </label>
 
-            <input
-              type="number"
-              name="tenTh"
-              value={formData.tenTh || ""}
-              onChange={handleChange}
-              maxlength="10"
-              className="
+                    <input
+                      type="number"
+                      name="tenTh"
+                      value={formData.tenTh || ""}
+                      min="1"
+                      max="100"
+                      onChange={(e) => {
+                        const value = e.target.value;
+
+                        // Allow empty value while typing
+                        if (value === "") {
+                          setFormData({ ...formData, tenTh: "" });
+                          return;
+                        }
+
+                        const num = Number(value);
+
+                        if (num >= 1 && num <= 100) {
+                          setFormData({ ...formData, tenTh: value });
+                        }
+                      }}
+                      className="
+    mt-1
+    w-full
+    rounded-xl
+    border
+    border-gray-200
+    px-4
+    py-2.5
+    text-sm
+    focus:outline-none
+    focus:ring-2
+    focus:ring-[#112b5e]
+  "
+                    />
+                    {err?.tenTh && (
+                      <div className="text-xs text-red-600 mt-1">
+                        {err.tenTh}
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      12th (%) <span className="text-red-500">*</span>
+                    </label>
+
+                    <input
+                      type="number"
+                      name="twelveTh"
+                      value={formData.twelveTh || ""}
+                      min="1"
+                      max="100"
+                      onChange={(e) => {
+                        const value = e.target.value;
+
+                        if (value === "") {
+                          setFormData({ ...formData, twelveTh: "" });
+                          return;
+                        }
+
+                        const num = Number(value);
+
+                        if (num >= 1 && num <= 100) {
+                          setFormData({
+                            ...formData,
+                            twelveTh: value,
+                          });
+                        }
+                      }}
+                      className="
+    mt-1
+    w-full
+    rounded-xl
+    border
+    border-gray-200
+    px-4
+    py-2.5
+    text-sm
+    focus:outline-none
+    focus:ring-2
+    focus:ring-[#112b5e]
+  "
+                    />
+                    {err?.twelveTh && (
+                      <div className="text-xs text-red-600 mt-1">
+                        {err.twelveTh}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Extra Field for Email */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Email <span className="text-red-500">*</span>
+                    </label>
+
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email || ""}
+                      onChange={handleChange}
+                      className="
                 mt-1
                 w-full
                 rounded-xl
@@ -690,26 +813,38 @@ const clearData=()=>{
                 focus:ring-2
                 focus:ring-[#112b5e]
               "
-            />
+                      readOnly={!!formData._id}
+                    />
 
-            {err?.tenTh && (
-              <div className="text-xs text-red-600 mt-1">
-                {err.tenTh} 
-              </div>
-            )}
-          </div>
+                    {err?.email && (
+                      <div className="text-xs text-red-600 mt-1">
+                        {err.email}
+                      </div>
+                    )}
+                  </div>
 
-          <div>
-            <label className="text-sm font-medium text-gray-700">
-              12th (%) <span className="text-red-500">*</span>
-            </label>
+                  {/* Extra Field for Phone Number */}
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Phone Number <span className="text-red-500">*</span>
+                    </label>
 
-            <input
-              type="number"
-              name="twelveTh"
-              value={formData.twelveTh || ""}
-              onChange={handleChange}
-              className="
+                    <input
+                      type="number"
+                      name="phoneNumber"
+                      value={formData.phoneNumber || ""}
+                      /*   onChange={handleChange} */
+                      onChange={(e) => {
+                        const value = e.target.value
+                          .replace(/\D/g, "")
+                          .slice(0, 10);
+                        setFormData({
+                          ...formData,
+                          phoneNumber: value,
+                        });
+                        setErr((prev) => ({ ...prev, phoneNumber: "" }));
+                      }}
+                      className="
                 mt-1
                 w-full
                 rounded-xl
@@ -722,98 +857,27 @@ const clearData=()=>{
                 focus:ring-2
                 focus:ring-[#112b5e]
               "
-            />
+                    />
 
-            {err?.twelveTh && (
-              <div className="text-xs text-red-600 mt-1">
-                {err.twelveTh}
-              </div>
-            )}
-          </div>
+                    {err?.phoneNumber && (
+                      <div className="text-xs text-red-600 mt-1">
+                        {err.phoneNumber}
+                      </div>
+                    )}
+                  </div>
+                </div>
 
-          {/* Extra Field for Email */}
-          <div>
-            <label className="text-sm font-medium text-gray-700">
-              Email <span className="text-red-500">*</span>
-            </label>
+                {/* Semester / Year Marks */}
+                <div>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+                    <h6 className="text-sm sm:text-base font-semibold border-b pb-1">
+                      Semester/Yearly Marks{" "}
+                      <span style={{ textTransform: "uppercase" }}>
+                        ({marksType})
+                      </span>
+                    </h6>
 
-            <input
-              type="email"
-              name="email"
-              value={formData.email || ""}
-              onChange={handleChange}
-              className="
-                mt-1
-                w-full
-                rounded-xl
-                border
-                border-gray-200
-                px-4
-                py-2.5
-                text-sm
-                focus:outline-none
-                focus:ring-2
-                focus:ring-[#112b5e]
-              "
-            />
-
-            {err?.email && (
-              <div className="text-xs text-red-600 mt-1">
-                {err.email}
-              </div>
-            )}
-          </div>
-
-          {/* Extra Field for Phone Number */}
-          <div>
-            <label className="text-sm font-medium text-gray-700">
-              Phone Number <span className="text-red-500">*</span>
-            </label>
-
-            <input
-              type="number"
-              name="phoneNumber"
-              value={formData.phoneNumber || ""}
-            /*   onChange={handleChange} */
-              onChange={(e) => {
-              const value = e.target.value.replace(/\D/g, "").slice(0, 10);
-              setFormData({
-                ...formData,
-                phoneNumber: value,
-              });
-               setErr((prev) => ({ ...prev,"phoneNumber": "" }));
-            }}
-              className="
-                mt-1
-                w-full
-                rounded-xl
-                border
-                border-gray-200
-                px-4
-                py-2.5
-                text-sm
-                focus:outline-none
-                focus:ring-2
-                focus:ring-[#112b5e]
-              "
-            />
-
-            {err?.phoneNumber && (
-              <div className="text-xs text-red-600 mt-1">
-                {err.phoneNumber}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Semester / Year Marks */}
-        <div>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
-            <h6 className="text-sm sm:text-base font-semibold border-b pb-1">
-              Semester/Yearly Marks <span style={{textTransform: 'uppercase'}}>({marksType})</span>
-            </h6>
-
-           {/*  <button
+                    {/*  <button
               type="button"
               onClick={addField}
               className="
@@ -827,54 +891,70 @@ const clearData=()=>{
             >
               + Add {courseStructure === "year" ? "Year" : "Semester"}
             </button> */}
-          </div>
+                  </div>
 
-          <div className="space-y-3">
-            {fields.map((field, index) => {
-              const isDisabled =
-                index !== 0 && fields[index - 1]?.value === "";
+                  <div className="space-y-3">
+                    {fields.map((field, index) => {
+                      const isDisabled =
+                        index !== 0 && fields[index - 1]?.value === "";
 
-              return (
-                <div
-                  key={index}
-                  className="
+                      return (
+                        <div
+                          key={index}
+                          className="
                     flex
                     flex-col
                     sm:flex-row
                     sm:items-center
                     gap-3
                   "
-                >
-                  <span className="text-sm text-gray-600 sm:w-28">
-                    {courseStructure === "year"
-                      ? "Year"
-                      : "Semester"}{" "}
-                    {index + 1}
-                  </span>
+                        >
+                          <span className="text-sm text-gray-600 sm:w-28">
+                            {courseStructure === "year" ? "Year" : "Semester"}{" "}
+                            {index + 1}
+                          </span>
 
-                  <input
-                    type="number"
-                    className="
-                      flex-1
-                      rounded-xl
-                      border
-                      border-gray-200
-                      px-4
-                      py-2.5
-                      text-sm
-                      focus:outline-none
-                      focus:ring-2
-                      focus:ring-[#112b5e]
-                    "
-                    placeholder="Enter value"
-                    value={field.value}
-                    onChange={(e) =>
-                      handleSemesterChange(index, e)
-                    }
-                    disabled={isDisabled}
-                  />
+                          <input
+                            type="number"
+                            min="0.01"
+                            max={maxValue}
+                            className="
+    flex-1
+    rounded-xl
+    border
+    border-gray-200
+    px-4
+    py-2.5
+    text-sm
+    focus:outline-none
+    focus:ring-2
+    focus:ring-[#112b5e]
+  "
+                            placeholder={`Max ${maxValue}`}
+                            value={field.value}
+                            onChange={(e) => {
+                              const value = e.target.value;
 
-             {/*      {!formData._id && (
+                              if (value === "") {
+                                handleSemesterChange(index, e);
+                                return;
+                              }
+
+                              const num = Number(value);
+
+                              if (num > 0 && num <= maxValue) {
+                                handleSemesterChange(index, e);
+                              }
+                            }}
+                            onKeyDown={(e) => {
+                              if (["-", "+", "e", "E"].includes(e.key)) {
+                                e.preventDefault();
+                              }
+                            }}
+                            disabled={isDisabled}
+                          />
+
+                          {/*      {!formData._id && (
                     <button
                       type="button"
                       onClick={() => removeField(index)}
@@ -889,29 +969,32 @@ const clearData=()=>{
                       Delete
                     </button>
                   )} */}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              );
-            })}
-          </div>
-        </div>
-      </form>
-    </div>
+              </form>
+            </div>
 
-    {/* Footer */}
-    <div className="p-4 border-t bg-white shrink-0">
-      <div
-        className="
+            {/* Footer */}
+            <div className="p-4 border-t bg-white shrink-0">
+              <div
+                className="
           flex
           flex-col-reverse
           sm:flex-row
           justify-end
           gap-3
         "
-      >
-        <button
-          type="button"
-          onClick={() =>{setOpen(false);clearData()}}
-          className="
+              >
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    clearData();
+                  }}
+                  className="
             w-full
             sm:w-auto
             px-4
@@ -921,14 +1004,14 @@ const clearData=()=>{
             hover:bg-gray-50
             transition
           "
-        >
-          Cancel
-        </button>
+                >
+                  Cancel
+                </button>
 
-        <button
-          type="submit"
-          form="Form"
-          className="
+                <button
+                  type="submit"
+                  form="Form"
+                  className="
             w-full
             sm:w-auto
             px-5
@@ -943,19 +1026,18 @@ const clearData=()=>{
             disabled:cursor-not-allowed
             disabled:shadow-none
           "
-        >
-          {loading ? (
-            <>{formData._id ? "Updating" : "Submitting"}</>
-          ) : (
-            <>{formData._id ? "Update" : "Submit"}</>
-          )}
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
+                >
+                  {loading ? (
+                    <>{formData._id ? "Updating" : "Submitting"}</>
+                  ) : (
+                    <>{formData._id ? "Update" : "Submit"}</>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
 }
-
