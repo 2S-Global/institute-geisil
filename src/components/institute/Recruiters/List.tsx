@@ -136,7 +136,7 @@ const List = ({data,setContact,openModalEdit,requirementAdd}) => {
       toggleSidebarOpen();
     }}
   >
-    <UserPlus className="h-3.5 w-3.5" />
+    <UserPlus className="h-3.5 w-3.5" /> JD
   </Button>
 </div>
             </CardContent>

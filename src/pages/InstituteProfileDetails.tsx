@@ -144,10 +144,10 @@ export default function InstituteProfileDetails() {
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3 mt-6">
+      <div className="grid gap-4 md:grid-cols-2 mt-6">
         {[
           { icon: GraduationCap, label: "Students", value: student?.totalStudents||0} ,
-          { icon: Users, label: "Faculty", value: "286" },
+        
           { icon: Award, label: "Placement rate", value: "92%" },
         ].map(({ icon: Icon, label, value }) => (
           <Card key={label} className="border-border/60 shadow-sm">

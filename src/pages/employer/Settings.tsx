@@ -1,76 +1,247 @@
+import { useState } from "react";
+import { Save, Upload, Eye, EyeOff } from "lucide-react";
 import { EmployerLayout } from "@/components/EmployerLayout";
 import { PageHeader } from "@/components/dashboard/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle,CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import api from "@/lib/axios";
+import { Separator } from "@/components/ui/separator";
+const Settings = () => {
+  const { toast } = useToast();
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [errors, setErrors] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const handleSave = async () => {
+    const newErrors = {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    };
 
-export default function Settings() {
+    if (!currentPassword.trim()) {
+      newErrors.currentPassword = "Current password is required";
+    }
+
+    if (!newPassword.trim()) {
+      newErrors.newPassword = "New password is required";
+    } else {
+      const passwordRegex =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\[\]{}|;:,.<>?])[^\s]{8,}$/;
+
+      if (!passwordRegex.test(newPassword.trim())) {
+        newErrors.newPassword =
+          "Password must contain uppercase, lowercase, number, special character and 8 characters.";
+      }
+    }
+
+    if (!confirmPassword.trim()) {
+      newErrors.confirmPassword = "Confirm password is required";
+    } else if (newPassword.trim() !== confirmPassword.trim()) {
+      newErrors.confirmPassword =
+        "New password and confirm password must be same";
+    }
+
+    setErrors(newErrors);
+
+    if (
+      newErrors.currentPassword ||
+      newErrors.newPassword ||
+      newErrors.confirmPassword
+    ) {
+      return;
+    }
+
+    try {
+      const payload = {
+        currentPassword,
+        newPassword,
+      };
+
+      const res = await api.post("/api/auth/changepassword", payload);
+
+      toast({
+        title: "Success",
+        description: res?.data?.message || "Password changed successfully",
+      });
+
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+
+      setErrors({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+         variant: "destructive",
+        description: error?.response?.data?.message || "Something went wrong",
+      });
+    }
+  };
   return (
     <EmployerLayout>
-      <PageHeader title="Settings" description="Manage your account, team, and preferences." />
-      <Tabs defaultValue="profile">
-        <TabsList>
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="team">Team</TabsTrigger>
-          <TabsTrigger value="notifications">Notifications</TabsTrigger>
-          <TabsTrigger value="security">Security</TabsTrigger>
-        </TabsList>
-        <TabsContent value="profile" className="mt-4">
-          <Card className="border-border/60 shadow-sm">
-            <CardHeader><CardTitle className="font-display">Profile information</CardTitle></CardHeader>
-            <CardContent className="grid gap-4 md:grid-cols-2">
-              <div><Label>Full name</Label><Input defaultValue="Anita Sharma" className="mt-1.5" /></div>
-              <div><Label>Email</Label><Input defaultValue="anita@acme.com" className="mt-1.5" /></div>
-              <div><Label>Designation</Label><Input defaultValue="Talent Acquisition Lead" className="mt-1.5" /></div>
-              <div><Label>Phone</Label><Input defaultValue="+91 98765 43210" className="mt-1.5" /></div>
-              <div className="md:col-span-2"><Button className="shadow-brand">Save changes</Button></div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        <TabsContent value="team" className="mt-4">
-          <Card className="border-border/60 shadow-sm">
-            <CardHeader><CardTitle className="font-display">Team members</CardTitle></CardHeader>
-            <CardContent className="divide-y divide-border/60">
-              {[["Anita Sharma", "Admin"], ["Vikram Singh", "Recruiter"], ["Meera Joshi", "Interviewer"]].map(([n, r]) => (
-                <div key={n} className="flex items-center justify-between py-3">
-                  <div>
-                    <p className="font-semibold text-foreground">{n}</p>
-                    <p className="text-xs text-muted-foreground">{r}</p>
+      <PageHeader
+        eyebrow="Manage"
+        title="Settings"
+        description="Configure your security."
+        actions=""
+      />
+
+      <Tabs defaultValue="security" className="space-y-6">
+        <TabsContent value="security">
+          <Card className="shadow-sm border-border/60">
+            <CardHeader>
+              <CardTitle className="text-lg font-display">Security</CardTitle>
+              <CardDescription>Manage password</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid gap-4 md:grid-cols-3 ">
+                <div className="space-y-2">
+                  <Label>Current password</Label>
+
+                  <div className="relative">
+                    <Input
+                      type={showCurrent ? "text" : "password"}
+                      className="pr-10"
+                      value={currentPassword}
+                      onChange={(e) => {
+                        setCurrentPassword(e.target.value);
+                        setErrors({ ...errors, currentPassword: "" });
+                      }}
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => setShowCurrent(!showCurrent)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    >
+                      {showCurrent ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
                   </div>
-                  <Button size="sm" variant="outline">Manage</Button>
+
+                  {errors.currentPassword && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.currentPassword}
+                    </p>
+                  )}
                 </div>
-              ))}
-              <div className="pt-4"><Button>Invite member</Button></div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        <TabsContent value="notifications" className="mt-4">
-          <Card className="border-border/60 shadow-sm">
-            <CardHeader><CardTitle className="font-display">Notifications</CardTitle></CardHeader>
-            <CardContent className="space-y-4">
-              {["New applications", "Interview reminders", "Offer responses", "Weekly summary"].map(l => (
-                <div key={l} className="flex items-center justify-between">
-                  <Label>{l}</Label><Switch defaultChecked />
+
+                <div className="space-y-2">
+                  <Label>New password</Label>
+                  <div className="relative">
+                    <Input
+                      type={showNew ? "text" : "password"}
+                      className="pr-10"
+                      value={newPassword}
+                      onChange={(e) => {
+                        setNewPassword(e.target.value);
+                        setErrors({ ...errors, newPassword: "" });
+                      }}
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => setShowNew(!showNew)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    >
+                      {showNew ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                  {errors.newPassword && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.newPassword}
+                    </p>
+                  )}
                 </div>
-              ))}
-            </CardContent>
-          </Card>
-        </TabsContent>
-        <TabsContent value="security" className="mt-4">
-          <Card className="border-border/60 shadow-sm">
-            <CardHeader><CardTitle className="font-display">Security</CardTitle></CardHeader>
-            <CardContent className="space-y-4 max-w-md">
-              <div><Label>Current password</Label><Input type="password" className="mt-1.5" /></div>
-              <div><Label>New password</Label><Input type="password" className="mt-1.5" /></div>
-              <div className="flex items-center justify-between pt-2"><Label>Two-factor authentication</Label><Switch /></div>
-              <Button className="shadow-brand">Update password</Button>
+
+                <div className="space-y-2">
+                  <Label>Confirm password</Label>
+                  <div className="relative">
+                    <Input
+                      type={showConfirm ? "text" : "password"}
+                      className="pr-10"
+                      value={confirmPassword}
+                      onChange={(e) => {
+                        setConfirmPassword(e.target.value);
+                        setErrors({ ...errors, confirmPassword: "" });
+                      }}
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirm(!showConfirm)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    >
+                      {showConfirm ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                  {errors.confirmPassword && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.confirmPassword}
+                    </p>
+                  )}
+                </div>
+              </div>
+               <div className="flex justify-end">
+                  <Button className="shadow-brand" onClick={handleSave}>Update password</Button>
+                </div>
+              {/* <Separator /> */}
+              {/* <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-semibold text-foreground">
+                    Two-factor authentication
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Require a verification code in addition to your password.
+                  </p>
+                </div>
+                <Switch defaultChecked />
+              </div> */}
+              {/* <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-semibold text-foreground">
+                    Sign out other sessions
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    End all active sessions on other devices.
+                  </p>
+                </div>
+                <Button variant="outline">Sign out all</Button>
+              </div> */}
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
     </EmployerLayout>
   );
-}
+};
+
+export default Settings;

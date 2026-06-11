@@ -40,13 +40,41 @@ const sectors = [
 
 const recruiterSchema = z.object({
   numberOfHired: z.string().trim().optional(),
+  scheduledDate: z.string().trim().optional(),
   numberOfOpenings: z.string().trim().min(2, "Opening is required"),
   courses: z.string().trim().min(2, "Course is required"),
   role: z.string().trim().min(2, "Role is required"),
-  tenTh: z.string().trim().min(2, "10th% is required").max(2, "Maximum 2 digits allowed"),
-  twelveTh: z.string().trim().min(2, "12th% is required").max(2, "Maximum 2 digits allowed"),
+  tenTh: z
+    .string()
+    .trim()
+    .min(1, "10th% is required")
+    .refine(
+      (val) => {
+        const num = Number(val);
+        return (
+          /^\d+(\.\d{1,2})?$/.test(val) && !isNaN(num) && num >= 0 && num <= 100
+        );
+      },
+      {
+        message: "Percentage must be between 0 and 100",
+      },
+    ),
+  twelveTh: z
+    .string()
+    .trim()
+    .min(1, "12th% is required")
+    .refine(
+      (val) => {
+        const num = Number(val);
+        return (
+          /^\d+(\.\d{1,2})?$/.test(val) && !isNaN(num) && num >= 0 && num <= 100
+        );
+      },
+      {
+        message: "Percentage must be between 0 and 100",
+      },
+    ),
   remarks: z.string().trim().optional(),
-  
 });
 
 type RecruiterForm = z.infer<typeof recruiterSchema>;
@@ -57,34 +85,39 @@ const emptyForm: RecruiterForm = {
   courses: "",
   tenTh: "",
   twelveTh: "",
-  remarks:"",
-  role:"",
+  scheduledDate: "",
+  remarks: "",
+  role: "",
 };
 
-const FormModal = ({ show, onClose, data = {},recruiterID=null, setRefresh }) => {
-  const apiurl =  import.meta.env.VITE_API_URL;
+const FormModal = ({
+  show,
+  onClose,
+  data = {},
+  recruiterID = null,
+  setRefresh,
+}) => {
+  const apiurl = import.meta.env.VITE_API_URL;
   const [form, setForm] = useState<RecruiterForm>(emptyForm);
   const [errors, setErrors] = useState<
     Partial<Record<keyof RecruiterForm, string>>
   >({});
   //const [contact, setContact] = useState<Recruiter | null>(null);
 
-   const [edit, setEdit] = useState({});
+  const [edit, setEdit] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
-   const [courses, setCourses] = useState([]);
+  const [courses, setCourses] = useState([]);
   const [courseSelected, setCourseSelected] = useState([]);
   const { toast } = useToast();
 
-
-  useEffect(()=>{
-      if (show && data?._id) {
-          setForm({
-            numberOfHired:data?.numberOfHired||'' ,
-            numberOfOpenings: data?.numberOfOpenings||''
-          })
-      }
-
-  },[show && data?._id])
+  useEffect(() => {
+    if (show && data?._id) {
+      setForm({
+        numberOfHired: data?.numberOfHired || "",
+        numberOfOpenings: data?.numberOfOpenings || "",
+      });
+    }
+  }, [show && data?._id]);
 
   const update = <K extends keyof RecruiterForm>(
     key: K,
@@ -99,11 +132,11 @@ const FormModal = ({ show, onClose, data = {},recruiterID=null, setRefresh }) =>
   };
 
   // ✅ Submit
-   const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-        
+
     const result = recruiterSchema.safeParse(form);
-    console.log('result',result)
+    console.log("result", result);
     if (!result.success) {
       const fieldErrors: Partial<Record<keyof RecruiterForm, string>> = {};
       result.error.issues.forEach((i) => {
@@ -111,11 +144,11 @@ const FormModal = ({ show, onClose, data = {},recruiterID=null, setRefresh }) =>
         if (!fieldErrors[k]) fieldErrors[k] = i.message;
       });
       setErrors(fieldErrors);
-      console.log("fieldErrors",fieldErrors)
+      console.log("fieldErrors", fieldErrors);
       return;
     }
     setErrors({});
-   const courseOptions=courseSelected.map((item)=>item.value)
+    const courseOptions = courseSelected.map((item) => item.value);
     const payload = {
       numberOfHired: result.data.numberOfHired,
       numberOfOpenings: result.data.numberOfOpenings,
@@ -123,11 +156,10 @@ const FormModal = ({ show, onClose, data = {},recruiterID=null, setRefresh }) =>
       twelvth: result.data.twelveTh,
       remarks: result.data.remarks,
       role: result.data.role,
-      courses:courseOptions,
-      companyName:recruiterID
+      courses: courseOptions,
+      companyName: recruiterID,
     };
 
-   
     let response = "";
     try {
       response = await API({
@@ -136,41 +168,38 @@ const FormModal = ({ show, onClose, data = {},recruiterID=null, setRefresh }) =>
         data: payload,
       });
       onClose();
-      setRefresh((p)=>p+1)
+      setRefresh((p) => p + 1);
       toast({
         title: "Success",
         description: "Requirement save successfully",
       });
       //await fetchRecruiterList();
       setForm(emptyForm);
-       setCourseSelected([]);
+      setCourseSelected([]);
     } catch (err) {
-       if (err.response) {
-          toast({
-            title: "Error",
-             variant: "destructive",
-            description: `${err.response.data.message || "Something went wrong"}`,
-          });
-        
-        }
+      if (err.response) {
+        toast({
+          title: "Error",
+          variant: "destructive",
+          description: `${err.response.data.message || "Something went wrong"}`,
+        });
+      }
     }
   };
 
-    const fetchCourseList = async () => {
+  const fetchCourseList = async () => {
     try {
-      const res = await API.get(
-        "/api/institute-course/course"
-      );
+      const res = await API.get("/api/institute-course/course");
       const data = res?.data?.data || [];
-      const options=data.map((item)=>({'value':item._id,'label':item.name}))
+      const options = data.map((item) => ({
+        value: item._id,
+        label: item.name,
+      }));
       setCourses(options);
-     
     } catch (err) {
       console.error("Error fetching data", err);
     }
   };
-
-
 
   useEffect(() => {
     fetchCourseList();
@@ -178,106 +207,112 @@ const FormModal = ({ show, onClose, data = {},recruiterID=null, setRefresh }) =>
   if (!show) return null;
 
   return (
-   <Dialog open={show} onOpenChange={onClose}>
-  <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
-    <DialogHeader>
-      <DialogTitle className="font-display text-2xl">
-        {data?._id ? "Job Requirement" : "Job Requirement"}
-      </DialogTitle>
+    <Dialog open={show} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[1000px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="font-display text-2xl">
+            {data?._id ? "Job Requirement" : "Job Requirement"}
+          </DialogTitle>
 
-      <DialogDescription>
-      </DialogDescription>
-    </DialogHeader>
+          <DialogDescription></DialogDescription>
+        </DialogHeader>
 
-    <form onSubmit={handleSubmit} className="space-y-5 pt-2">
-                <div className="grid gap-4 md:grid-cols-2">
+        <form onSubmit={handleSubmit} className="space-y-5 pt-2">
+          <div className="grid gap-4 md:grid-cols-2">
+           
+              <div className="space-y-1.5 md:col-span-2">
+                <Label htmlFor="Course">
+                  Course <span className="text-red-500">*</span>
+                </Label>
 
-                   <div className="space-y-1.5 md:col-span-2">
-                      <Label htmlFor="Course">
-                        Course
-                      </Label>
+                <Select
+                  options={courses}
+                  isMulti
+                  value={courseSelected}
+                  onChange={(value) => {
+                    setCourseSelected(value);
+                    //clearFieldError("courses");
+                    update("courses", value?.[0]?.value);
+                  }}
+                />
 
-                      <Select
-                        options={courses}
-                        isMulti
-                        value={courseSelected}
-                        onChange={(value) => {
-                          setCourseSelected(value);
-                          //clearFieldError("courses");
-                          update("courses", value?.[0]?.value);
-                        }}
-                      />
+                {errors?.courses && (
+                  <p className="text-sm text-red-500">{errors.courses}</p>
+                )}
+              </div>
+            
+           
 
-                      {errors?.courses && (
-                        <p className="text-sm text-red-500">
-                          {errors.courses}
-                        </p>
-                      )}
-                  </div>
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="numberOfOpenings">
+                  10th (%) <span className="text-red-500">*</span>
+                </Label>
 
-                   <div className="space-y-1.5">
-                    <Label htmlFor="numberOfOpenings">10th (%) *</Label>
+                <Input
+                  id="tenTh"
+                  value={form.tenTh}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^[0-9.]*$/.test(value)) {
+                      update("tenTh", value);
+                    }
+                  }}
+                  placeholder="10th (%)"
+                />
 
-                    <Input
-                      id="tenTh"
-                      value={form.tenTh}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        if (/^[0-9]*$/.test(value)) {
-                          update("tenTh", value);
-                        }
-                      }}
-                      placeholder="10th (%)"
-                    />
+                {errors.tenTh && (
+                  <p className="text-xs text-destructive">{errors.tenTh}</p>
+                )}
+              </div>
 
-                    {errors.tenTh && (
-                      <p className="text-xs text-destructive">
-                        {errors.tenTh}
-                      </p>
-                    )}
-                  </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="email">
+                  12th (%) <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="twelveTh"
+                  type="text"
+                  value={form.twelveTh}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^[0-9.]*$/.test(value)) {
+                      update("twelveTh", value);
+                    }
+                  }}
+                  placeholder="12th (%)"
+                />
+                {errors.twelveTh && (
+                  <p className="text-xs text-destructive">{errors.twelveTh}</p>
+                )}
+              </div>
 
-                  <div className="space-y-1.5">
-                    <Label htmlFor="email">12th (%) *</Label>
-                    <Input
-                      id="twelveTh"
-                      type="text"
-                      value={form.twelveTh}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        if (/^[0-9]*$/.test(value)) {
-                          update("twelveTh", value);
-                        }
-                      }}
-                      placeholder="12th (%)"
-                    />
-                    {errors.twelveTh && (
-                      <p className="text-xs text-destructive">{errors.twelveTh}</p>
-                    )}
-                  </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="numberOfOpenings">
+                  Openings <span className="text-red-500">*</span>
+                </Label>
 
-                  <div className="space-y-1.5">
-                    <Label htmlFor="numberOfOpenings">Openings *</Label>
+                <Input
+                  id="numberOfOpenings"
+                  value={form.numberOfOpenings}
+                  maxLength="4"
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^[0-9]*$/.test(value)) {
+                      update("numberOfOpenings", value);
+                    }
+                  }}
+                  placeholder="Openings"
+                />
 
-                    <Input
-                      id="numberOfOpenings"
-                      value={form.numberOfOpenings}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        if (/^[0-9]*$/.test(value)) {
-                          update("numberOfOpenings", value);
-                        }
-                      }}
-                      placeholder="Openings"
-                    />
-
-                    {errors.numberOfOpenings && (
-                      <p className="text-xs text-destructive">
-                        {errors.numberOfOpenings}
-                      </p>
-                    )}
-                  </div>
-{/* 
+                {errors.numberOfOpenings && (
+                  <p className="text-xs text-destructive">
+                    {errors.numberOfOpenings}
+                  </p>
+                )}
+              </div>
+            </div>
+            {/* 
                   <div className="space-y-1.5">
                     <Label htmlFor="email">Hired *</Label>
                     <Input
@@ -297,56 +332,71 @@ const FormModal = ({ show, onClose, data = {},recruiterID=null, setRefresh }) =>
                     )}
                   </div> */}
 
-                  <div className="space-y-1.5">
-                    <Label htmlFor="notes">Role</Label>
-                   <Input
-                      id="role"
-                      type="text"
-                      value={form.role}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        if (/^[a-zA-Z,\s]*$/.test(value)) {
-                          update("role", value);
-                        }
-                      }}
-                      placeholder="Role"
-                    />
-                    {errors.role && (
-                      <p className="text-xs text-destructive">{errors.role}</p>
-                    )}
-                  </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="notes">
+                Role <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="role"
+                type="text"
+                value={form.role}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (/^[a-zA-Z,\s]*$/.test(value)) {
+                    update("role", value);
+                  }
+                }}
+                placeholder="Role"
+              />
+              {errors.role && (
+                <p className="text-xs text-destructive">{errors.role}</p>
+              )}
+            </div>
 
-                  <div className="space-y-1.5 md:col-span-2">
-                    <Label htmlFor="notes">Remarks</Label>
-                    <Textarea
-                      id="remarks"
-                      value={form.remarks}
-                      onChange={(e) => update("remarks", e.target.value)}
-                      placeholder="remarks"
-                      maxLength={500}
-                      rows={3}
-                    />
-                  </div>
-                </div>
+            <div className="space-y-1.5 ">
+              <Label htmlFor="notes">Remarks</Label>
+              <Textarea
+                id="remarks"
+                value={form.remarks}
+                onChange={(e) => update("remarks", e.target.value)}
+                placeholder="remarks"
+                maxLength={500}
+                rows={3}
+              />
+            </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="scheduledDate">
+                  Date 
+                </Label>
+                <Input
+                  style={{ position: "relative" }}
+                  id="scheduledDate"
+                  type="date"
+                  value={form.scheduledDate}
+                  onChange={(e) => update("scheduledDate", e.target.value)}
+                />
+                {errors.scheduledDate && (
+                  <p className="text-xs text-destructive">
+                    {errors.scheduledDate}
+                  </p>
+                )}
+              </div>
+          </div>
 
-                <DialogFooter className="gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => onClose()}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    className="bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand"
-                  >
-                    Save
-                  </Button>
-                </DialogFooter>
-              </form>
-  </DialogContent>
-   </Dialog>
+          <DialogFooter className="gap-2">
+            <Button type="button" variant="outline" onClick={() => onClose()}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              className="bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand"
+            >
+              Save
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };
 
