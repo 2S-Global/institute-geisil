@@ -702,8 +702,6 @@ export default function AddStudentDialog({
                       type="number"
                       name="tenTh"
                       value={formData.tenTh || ""}
-                      min="1"
-                      max="100"
                       onChange={(e) => {
                         const value = e.target.value;
 
@@ -749,8 +747,6 @@ export default function AddStudentDialog({
                       type="number"
                       name="twelveTh"
                       value={formData.twelveTh || ""}
-                      min="1"
-                      max="100"
                       onChange={(e) => {
                         const value = e.target.value;
 
@@ -916,8 +912,7 @@ export default function AddStudentDialog({
 
                           <input
                             type="number"
-                            min="0.01"
-                            max={maxValue}
+                        
                             className="
     flex-1
     rounded-xl

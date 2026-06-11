@@ -26,6 +26,9 @@ import ImportModal from "@/components/student/importModal";
 import StudentModal from "@/components/student/addModal";
 import ImportMarksModal from "@/components/student/importMarksModal";
 import { Toaster } from "@/components/ui/toaster";
+import { Mail } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+
 const statusStyles: Record<string, string> = {
   Placed: "bg-success/10 text-success border-success/20",
   "In Process": "bg-accent/10 text-accent border-accent/20",
@@ -95,6 +98,25 @@ const Students = () => {
     fetchStudentList();
   }, [refresh]);
 
+  const sendReminderMail = async (id: string) => {
+    try {
+      const res = await api.get(
+        `/api/institutestudent/send-progress-mail?_id=${id}`,
+      );
+
+      toast({
+        title: "Success",
+        description: res?.data?.message || "Reminder mail sent successfully.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description:
+          error?.response?.data?.message || "Failed to send reminder mail.",
+        variant: "destructive",
+      });
+    }
+  };
   return (
     <>
       <Toaster />
@@ -220,11 +242,11 @@ const Students = () => {
                     </th>
 
                     <th className="font-medium py-3 px-4 min-w-[220px] whitespace-nowrap">
-                      Employability
+                      Profile Score(%)
                     </th>
 
                     <th className="font-medium py-3 px-4 whitespace-nowrap">
-                      Status
+                      Action
                     </th>
                   </tr>
                 </thead>
@@ -263,23 +285,32 @@ const Students = () => {
                       <td className="py-4 px-4">
                         <div className="flex items-center justify-center gap-3 min-w-[180px]">
                           <Progress
-                            value={s.score}
+                            value={s.progress}
                             className="h-1.5 flex-1 max-w-[120px]"
                           />
 
                           <span className="text-sm font-semibold text-foreground w-10 text-right shrink-0">
-                            {s.score}
+                            {s.progress}
                           </span>
                         </div>
                       </td>
 
                       <td className="py-4 px-4 whitespace-nowrap">
-                        <Badge
-                          variant="outline"
-                          className={statusStyles[s.status]}
-                        >
-                          {s.status}
-                        </Badge>
+                        <div className="flex justify-center gap-2">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            title="Reminder Mail"
+                            className="h-8 w-8 border-0 shadow-none"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              sendReminderMail(s._id);
+                            }}
+                          >
+                            <Mail className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ))}
