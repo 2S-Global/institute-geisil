@@ -32,11 +32,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
             <div className="hidden md:flex items-center gap-2 flex-1 max-w-md ml-2">
               <div className="relative w-full">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                {/* <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search students, recruiters, evaluations…"
                   className="pl-9 h-10 bg-muted/40 border-transparent focus-visible:bg-background"
-                />
+                /> */}
               </div>
             </div>
 

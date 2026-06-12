@@ -9,7 +9,7 @@ import {
   Building2,
   Settings,
   LogOut,
-  BookOpen 
+  BookOpen,
 } from "lucide-react";
 import {
   Sidebar,
@@ -25,12 +25,11 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-
 import api from "@/lib/axios";
 
 const main = [
-  { title: "Dashboard", url: "/institute", icon: LayoutDashboard ,end: true },
-   {
+  { title: "Dashboard", url: "/institute", icon: LayoutDashboard, end: true },
+  {
     title: "Student Verification",
     url: "/institute/student-verification",
     icon: GraduationCap,
@@ -41,7 +40,7 @@ const main = [
     icon: Building2,
   },
   { title: "Students", url: "/institute/students", icon: GraduationCap },
- 
+
   {
     title: "Search Student",
     url: "/institute/search-student",
@@ -55,7 +54,8 @@ const main = [
 ];
 
 const secondary = [
- /*  { title: "Faculty", url: "/institute/faculty", icon: Users }, */
+  /*  { title: "Faculty", url: "/institute/faculty", icon: Users }, */
+  { title: "Campus", url: "/institute/manage-campus", icon: Settings },
   { title: "Settings", url: "/institute/settings", icon: Settings },
 ];
 
@@ -66,7 +66,9 @@ export function AppSidebar() {
   /* const isActive = (path: string) => (path === "/" ? pathname === "/" : pathname.startsWith(path)); */
 
   const isActive = (path: string, end?: boolean) =>
-    end ? pathname === path : pathname === path || pathname.startsWith(path + "/");
+    end
+      ? pathname === path
+      : pathname === path || pathname.startsWith(path + "/");
 
   const navigate = useNavigate();
 
@@ -126,7 +128,7 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
-                    isActive={isActive(item.url,item.end)}
+                    isActive={isActive(item.url, item.end)}
                     className="data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground data-[active=true]:font-semibold hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground text-sidebar-foreground rounded-md transition-colors"
                   >
                     <NavLink to={item.url} className="flex items-center gap-3">

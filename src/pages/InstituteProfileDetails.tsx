@@ -1,4 +1,15 @@
-import { Building2, Globe, MapPin, GraduationCap, Edit, Award, Users,Mail,Phone, AlignJustify  } from "lucide-react";
+import {
+  Building2,
+  Globe,
+  MapPin,
+  GraduationCap,
+  Edit,
+  Award,
+  Users,
+  Mail,
+  Phone,
+  AlignJustify,
+} from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,25 +18,25 @@ import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import API from "../lib/axios";
-import noImage from "../assets/img/no-image.png"
+import noImage from "../assets/img/no-image.png";
+import api from "@/lib/axios";
 function websiteName(url) {
   try {
-    return new URL(url).hostname.replace(/^www\./, '');
+    return new URL(url).hostname.replace(/^www\./, "");
   } catch {
     return "";
   }
 }
 
-
 export default function InstituteProfileDetails() {
-   const [loading, setLoading] = useState(false);
-   const [profile, setProfile] = useState();
-   const [student, setStudent] = useState();
-   const [course, setCourse] = useState();
-   const [showAllCourse, setShowAllCourse] = useState(false);
-  
-  
-  const navigate=useNavigate() 
+  const [loading, setLoading] = useState(false);
+  const [profile, setProfile] = useState();
+  const [student, setStudent] = useState();
+  const [course, setCourse] = useState();
+  const [showAllCourse, setShowAllCourse] = useState(false);
+  const [campus, setCampus] = useState([]);
+
+  const navigate = useNavigate();
 
   const FetchCompanyDetails = async () => {
     setLoading(true);
@@ -47,31 +58,43 @@ export default function InstituteProfileDetails() {
     }
   };
 
-    const courseData = async () => {
-      try {
-        const res = await API.get("/api/institute-course/course");
-        const data = res?.data?.data||[];
-        setCourse(data);
-      } catch (err) {
-        console.error("Error fetching stats", err);
-      }
-    };
+  const courseData = async () => {
+    try {
+      const res = await API.get("/api/institute-course/course");
+      const data = res?.data?.data || [];
+      setCourse(data);
+    } catch (err) {
+      console.error("Error fetching stats", err);
+    }
+  };
 
   const fetchStudentStatus = async () => {
-      try {
-        const res = await API.get("/api/institutestudent/get_students_counts");
-        const data = res.data;
-        setStudent(data);
-      } catch (err) {
-        console.error("Error fetching stats", err);
-      }
-    };
+    try {
+      const res = await API.get("/api/institutestudent/get_students_counts");
+      const data = res.data;
+      setStudent(data);
+    } catch (err) {
+      console.error("Error fetching stats", err);
+    }
+  };
 
-
-   useEffect(() => {
+  useEffect(() => {
     FetchCompanyDetails();
     fetchStudentStatus();
     courseData();
+  }, []);
+
+  const fetchList = async () => {
+    try {
+      const res = await api.get("/api/campus");
+      setCampus(res?.data?.data || []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchList();
   }, []);
 
   return (
@@ -80,28 +103,52 @@ export default function InstituteProfileDetails() {
         eyebrow="Manage"
         title="Institute Profile"
         description="Information visible to recruiters, students and partner organizations."
-        actions={<Button className="gap-2 shadow-brand" onClick={()=>navigate('/institute/institute-profile')}><Edit className="h-4 w-4" /> Edit profile</Button>}
+        actions={
+          <Button
+            className="gap-2 shadow-brand"
+            onClick={() => navigate("/institute/institute-profile")}
+          >
+            <Edit className="h-4 w-4" /> Edit profile
+          </Button>
+        }
       />
 
       <Card className="p-6 mb-6 border-border/60 shadow-sm bg-gradient-to-br from-primary-soft to-card">
         <div className="flex flex-col md:flex-row gap-6 md:items-center">
-         <div className="h-20 w-20 rounded-full  mb-10">
+          <div className="h-20 w-20 rounded-full  mb-10">
             <img
-              src={profile?.logo||noImage}
+              src={profile?.logo || noImage}
               alt="profile"
               className="h-full w-full object-cover"
             />
           </div>
           <div className="flex-1">
-            <h2 className="font-display text-3xl font-bold text-foreground">{profile?.name||''}</h2>
-            <p className="text-muted-foreground mt-1">Empowering students with industry-ready skills since {profile?.established && profile?.established.split('-')?.[0]||""}.</p>
+            <h2 className="font-display text-3xl font-bold text-foreground">
+              {profile?.name || ""}
+            </h2>
+            <p className="text-muted-foreground mt-1">
+              Empowering students with industry-ready skills since{" "}
+              {(profile?.established && profile?.established.split("-")?.[0]) ||
+                ""}
+              .
+            </p>
             <div className="flex flex-wrap gap-3 mt-3 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1"><Mail  className="h-4 w-4" />{profile?.email||''}</span>
-              <span className="flex items-center gap-1"><Globe className="h-4 w-4" /> {websiteName(profile?.website)}</span>
-              <span className="flex items-center gap-1"><Phone className="h-4 w-4" /> {profile?.phone||""}</span>
+              <span className="flex items-center gap-1">
+                <Mail className="h-4 w-4" />
+                {profile?.email || ""}
+              </span>
+              <span className="flex items-center gap-1">
+                <Globe className="h-4 w-4" /> {websiteName(profile?.website)}
+              </span>
+              <span className="flex items-center gap-1">
+                <Phone className="h-4 w-4" /> {profile?.phone || ""}
+              </span>
             </div>
             <div className="flex flex-wrap gap-3 mt-3 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1"><MapPin className="h-4 w-4" />{profile?.address||''}</span>
+              <span className="flex items-center gap-1">
+                <MapPin className="h-4 w-4" />
+                {profile?.address || ""}
+              </span>
             </div>
           </div>
         </div>
@@ -109,45 +156,50 @@ export default function InstituteProfileDetails() {
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2 border-border/60 shadow-sm">
-          <CardHeader><CardTitle className="font-display">About</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className="font-display">About</CardTitle>
+          </CardHeader>
           <CardContent className="text-muted-foreground text-sm space-y-3">
-           <p className="text-justify">{profile?.about||''}</p>
+            <p className="text-justify">{profile?.about || ""}</p>
           </CardContent>
         </Card>
         <Card className="border-border/60 shadow-sm">
-          <CardHeader><CardTitle className="font-display">Programs</CardTitle></CardHeader>
-         
+          <CardHeader>
+            <CardTitle className="font-display">Programs</CardTitle>
+          </CardHeader>
 
-             <CardContent className="flex flex-wrap gap-2">
-              {(showAllCourse ? course : course?.slice(0, 3))?.map((s) => (
-                <Badge
-                  key={s.id}
-                  variant="outline"
-                  className="bg-primary/10 text-primary border-primary/20"
-                >
-                  {s.name}
-                </Badge>
-              ))}
+          <CardContent className="flex flex-wrap gap-2">
+            {(showAllCourse ? course : course?.slice(0, 3))?.map((s) => (
+              <Badge
+                key={s.id}
+                variant="outline"
+                className="bg-primary/10 text-primary border-primary/20"
+              >
+                {s.name}
+              </Badge>
+            ))}
 
-              {course?.length > 3 && (
-                <button
-                  onClick={() => setShowAllCourse(!showAllCourse)}
-                  className="text-sm text-primary underline ml-2"
-                  style={{color:'#112B5F',fontWeight: '500'}}
-                >
-                  {showAllCourse ? "Show Less" : "Read More"}
-                </button>
-              )}
-            </CardContent>
-
-          
+            {course?.length > 3 && (
+              <button
+                onClick={() => setShowAllCourse(!showAllCourse)}
+                className="text-sm text-primary underline ml-2"
+                style={{ color: "#112B5F", fontWeight: "500" }}
+              >
+                {showAllCourse ? "Show Less" : "Read More"}
+              </button>
+            )}
+          </CardContent>
         </Card>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 mt-6">
         {[
-          { icon: GraduationCap, label: "Students", value: student?.totalStudents||0} ,
-        
+          {
+            icon: GraduationCap,
+            label: "Students",
+            value: student?.totalStudents || 0,
+          },
+
           { icon: Award, label: "Placement rate", value: "92%" },
         ].map(({ icon: Icon, label, value }) => (
           <Card key={label} className="border-border/60 shadow-sm">
@@ -157,7 +209,9 @@ export default function InstituteProfileDetails() {
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">{label}</p>
-                <p className="font-display text-2xl font-bold text-foreground">{value}</p>
+                <p className="font-display text-2xl font-bold text-foreground">
+                  {value}
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -165,14 +219,35 @@ export default function InstituteProfileDetails() {
       </div>
 
       <Card className="border-border/60 shadow-sm mt-6">
-        <CardHeader><CardTitle className="font-display">Campuses</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle className="font-display">Campuses</CardTitle>
+        </CardHeader>
+
         <CardContent className="grid gap-3 md:grid-cols-3">
-          {[["Bengaluru", "Main campus · 3,200 students"], ["Hyderabad", "Tech campus · 1,100"], ["Pune", "Business school · 512"]].map(([c, d]) => (
-            <div key={c} className="rounded-lg border border-border/60 p-4">
-              <p className="font-semibold text-foreground">{c}</p>
-              <p className="text-xs text-muted-foreground">{d}</p>
-            </div>
-          ))}
+          {campus?.length > 0 ? (
+            campus.map((item) => (
+              <div
+                key={item._id}
+                className="rounded-lg border border-border/60 p-4"
+              >
+                <p className="font-semibold text-foreground">
+                  {item.campus_name}
+                </p>
+
+                <p className="text-xs text-muted-foreground">
+                  {item.campus_type} ·{" "}
+                  {Number(item.total_students).toLocaleString()} students
+                </p>
+
+                <p className="text-xs text-muted-foreground mt-1">
+                  <MapPin className="h-3 w-3 inline mr-1" />
+                  {item.city}
+                </p>
+              </div>
+            ))
+          ) : (
+            <p className="text-muted-foreground">No campuses available</p>
+          )}
         </CardContent>
       </Card>
     </DashboardLayout>
