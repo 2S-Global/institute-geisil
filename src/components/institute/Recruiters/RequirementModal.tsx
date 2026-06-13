@@ -41,6 +41,7 @@ const sectors = [
 const recruiterSchema = z.object({
   numberOfHired: z.string().trim().optional(),
   scheduledDate: z.string().trim().optional(),
+  scheduledTime: z.string().trim().optional(),
   numberOfOpenings: z.string().trim().min(2, "Opening is required"),
   courses: z.string().trim().min(2, "Course is required"),
   role: z.string().trim().min(2, "Role is required"),
@@ -86,6 +87,7 @@ const emptyForm: RecruiterForm = {
   tenTh: "",
   twelveTh: "",
   scheduledDate: "",
+  scheduledTime: "",
   remarks: "",
   role: "",
 };
@@ -361,7 +363,7 @@ const FormModal = ({
                 onChange={(e) => update("remarks", e.target.value)}
                 placeholder="remarks"
                 maxLength={500}
-                rows={3}
+                rows={5}
               />
             </div>
               <div className="space-y-1.5">
@@ -380,7 +382,26 @@ const FormModal = ({
                     {errors.scheduledDate}
                   </p>
                 )}
+
+                <div className="space-y-1.5">
+                <Label htmlFor="scheduledDate">
+                  Time 
+                </Label>
+                <Input
+                  style={{ position: "relative" }}
+                  id="scheduledTime"
+                  type="time"
+                  value={form.scheduledTime}
+                  onChange={(e) => update("scheduledTime", e.target.value)}
+                />
+                {errors.scheduledTime && (
+                  <p className="text-xs text-destructive">
+                    {errors.scheduledTime}
+                  </p>
+                )}
               </div>
+              </div>
+               
           </div>
 
           <DialogFooter className="gap-2">
