@@ -31,118 +31,201 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-
-import { useSidebar } from "@/components/ui/sidebar"
-
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import API from "../../../lib/axios";
+import { useSidebar } from "@/components/ui/sidebar";
+import { Star } from "lucide-react";
 const statusStyles: Record<string, string> = {
   Active: "bg-success/10 text-success border-success/20",
   Reviewing: "bg-warning/10 text-warning border-warning/20",
   Closed: "bg-muted text-muted-foreground border-border",
 };
 
+const List = ({ data, setContact, openModalEdit, requirementAdd }) => {
+  const { toggleSidebarOpen } = useSidebar();
+  const [ratingModalOpen, setRatingModalOpen] = useState(false);
+  const [selectedRecruiter, setSelectedRecruiter] = useState(null);
+  const [ratings, setRatings] = useState({});
+  const [selectedStar, setSelectedStar] = useState(0);
 
+  useEffect(() => {
+    console.log("data", data);
 
-const List = ({data,setContact,openModalEdit,requirementAdd}) => {
-   const {toggleSidebarOpen}=useSidebar()
+    const loadRatings = async () => {
+      console.log("loadRatings called");
+
+      if (!data?.length) return;
+
+      await Promise.all(
+        data.map(async (r) => {
+          console.log("calling api for", r._id);
+
+          const res = await API.get(`/api/review/review/${r._id}`);
+          console.log(res.data);
+        }),
+      );
+    };
+
+    loadRatings();
+  }, [data]);
   return (
-        <>
-        {data?.map((r, i) => (
-          <Card
-            key={r?.companyName + i}
-            className="shadow-sm hover:shadow-md transition-shadow border-border/60"
-          >
-            <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
-              <div className="flex items-center gap-3 min-w-0">
-                <Avatar className="h-11 w-11 border">
-                  <AvatarFallback className="bg-primary-soft text-primary font-semibold">
-                    {r?.companyName.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="min-w-0">
-                  <CardTitle className="text-base truncate">
-                    {r?.companyName}
-                  </CardTitle>
-                  <CardDescription>{r.sector}</CardDescription>
-                </div>
+    <>
+      {data?.map((r, i) => (
+        <Card
+          key={r?.companyName + i}
+          className="shadow-sm hover:shadow-md transition-shadow border-border/60"
+        >
+          <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <Avatar className="h-11 w-11 border">
+                <AvatarFallback className="bg-primary-soft text-primary font-semibold">
+                  {r?.companyName.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0">
+                <CardTitle className="text-base truncate">
+                  {r?.companyName}
+                </CardTitle>
+                <CardDescription>{r.sector}</CardDescription>
               </div>
-              <Badge variant="outline" className={statusStyles[r?.status]}>
-                {r.status}
-              </Badge>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 gap-3 mb-4">
-                <div>
-                  <p className="text-xs text-muted-foreground">Openings</p>
-                  <p className="font-display text-xl font-bold text-foreground h-8">
-                    {r?.latestRequirement?.numberOfOpenings || ""}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Hired</p>
-                  <p className="font-display text-xl font-bold text-foreground h-8">
-                    {r.hired || ""}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Rating</p>
-                  <p className="font-display text-xl font-bold text-foreground h-8">
-                    {r.rating || ""}
-                  </p>
-                </div>
+            </div>
+            <Badge variant="outline" className={statusStyles[r?.status]}>
+              {r.status}
+            </Badge>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-3 mb-4">
+              <div>
+                <p className="text-xs text-muted-foreground">Openings</p>
+                <p className="font-display text-xl font-bold text-foreground h-8">
+                  {r?.latestRequirement?.numberOfOpenings || ""}
+                </p>
               </div>
-          <div className="flex flex-wrap items-center gap-2">
-  <Button
-    variant="outline"
-    size="sm"
-    className="flex-1 min-w-[110px] gap-1"
-    onClick={() => {
-      setContact(r);
-      toggleSidebarOpen();
-    }}
-  >
-    <Mail className="h-3.5 w-3.5" />
-    Contact
-  </Button>
+              <div>
+                <p className="text-xs text-muted-foreground">Hired</p>
+                <p className="font-display text-xl font-bold text-foreground h-8">
+                  {r.hired || ""}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Rating</p>
 
-  <Link to={`/institute/recruiters/${r?._id}`}>
-    <Button
-      variant="outline"
-      size="sm"
-      className="flex-1 min-w-[110px] gap-1"
-    >
-      View <ExternalLink className="h-3.5 w-3.5" />
-    </Button>
-  </Link>
+                <button
+                  className="font-display text-xl font-bold text-amber-500"
+                  onClick={() => {
+                    setSelectedRecruiter(r);
+                    setSelectedStar(ratings[r._id] ?? r.rating ?? 0);
+                    setRatingModalOpen(true);
+                  }}
+                >
+                  {ratings[r._id] ?? r.rating ?? 0}
+                </button>
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 min-w-[110px] gap-1"
+                onClick={() => {
+                  setContact(r);
+                  toggleSidebarOpen();
+                }}
+              >
+                <Mail className="h-3.5 w-3.5" />
+                Contact
+              </Button>
 
-  <Button
-    variant="outline"
-    size="sm"
-    className="flex-1 min-w-[110px] gap-1"
-    onClick={() => {
-      openModalEdit(r);
-      toggleSidebarOpen();
-    }}
-  >
-    <SquarePen className="h-3.5 w-3.5" />
-    Edit
-  </Button>
+              <Link to={`/institute/recruiters/${r?._id}`}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 min-w-[110px] gap-1"
+                >
+                  View <ExternalLink className="h-3.5 w-3.5" />
+                </Button>
+              </Link>
 
-  <Button
-    variant="outline"
-    size="sm"
-    className="flex-1 min-w-[50px] gap-1"
-    onClick={() => {
-      requirementAdd(r);
-      toggleSidebarOpen();
-    }}
-  >
-    <UserPlus className="h-3.5 w-3.5" /> JD
-  </Button>
-</div>
-            </CardContent>
-          </Card>
-        ))}
-        </>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 min-w-[110px] gap-1"
+                onClick={() => {
+                  openModalEdit(r);
+                  toggleSidebarOpen();
+                }}
+              >
+                <SquarePen className="h-3.5 w-3.5" />
+                Edit
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 min-w-[50px] gap-1"
+                onClick={() => {
+                  requirementAdd(r);
+                  toggleSidebarOpen();
+                }}
+              >
+                <UserPlus className="h-3.5 w-3.5" /> JD
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+
+      <Dialog open={ratingModalOpen} onOpenChange={setRatingModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rate Recruiter</DialogTitle>
+          </DialogHeader>
+
+          <div className="flex justify-center gap-2 py-4">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <button
+                key={star}
+                type="button"
+                onMouseEnter={() => setSelectedStar(star)}
+                onClick={async () => {
+                  try {
+                    await API.post("/api/review/review", {
+                      recruiter_id: selectedRecruiter._id,
+                      star,
+                    });
+
+                    setRatings((prev) => ({
+                      ...prev,
+                      [selectedRecruiter._id]: star,
+                    }));
+
+                    setSelectedStar(star);
+                    setRatingModalOpen(false);
+                  } catch (error) {
+                    console.log(error);
+                  }
+                }}
+                className="transition-transform hover:scale-110"
+              >
+                <Star
+                  size={36}
+                  className={
+                    star <= selectedStar
+                      ? "fill-yellow-400 text-yellow-400"
+                      : "text-gray-300"
+                  }
+                />
+              </button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
