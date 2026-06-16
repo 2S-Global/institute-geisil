@@ -71,7 +71,6 @@ const skillData = [
   { name: "Leadership", value: 18, color: "hsl(var(--warning))" },
 ];
 
-
 const statusStyles: Record<string, string> = {
   Active: "bg-success/10 text-success border-success/20",
   Reviewing: "bg-warning/10 text-warning border-warning/20",
@@ -94,7 +93,7 @@ const Dashboard = () => {
   const [recruiters, setRecruiters] = useState([]);
   const [evaluations, setEvaluations] = useState([]);
   const [departmentData, setDepartmentData] = useState([]); // ✅ move here
-  const [activeRecruiter,setActiveRecruiter]=useState([]);
+  const [activeRecruiter, setActiveRecruiter] = useState([]);
 
   // Add fetch function
   const fetchDepartmentData = async () => {
@@ -127,20 +126,19 @@ const Dashboard = () => {
     }
   };
 
+  const fetchActiveRecruiter = async () => {
+    try {
+      const res = await api.get("/api/institutestudent/get_total_recruit");
 
-    const fetchActiveRecruiter = async () => {
-      try {
-        const res = await api.get("/api/institutestudent/get_total_recruit");
+      const data = res.data;
 
-        const data = res.data;
-
-        setActiveRecruiter({
-          total: data?.totalStudents || 0,
-        });
-      } catch (err) {
-        console.error("Error fetching stats", err);
-      }
-    };
+      setActiveRecruiter({
+        total: data?.totalStudents || 0,
+      });
+    } catch (err) {
+      console.error("Error fetching stats", err);
+    }
+  };
 
   const fetchRecruiterList = async () => {
     try {
