@@ -251,6 +251,20 @@ const fetchEvaluations = async () => {
             <div className="flex items-start gap-3">
               <Mail className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
               <div className="min-w-0">
+                <p className="text-muted-foreground text-xs"> Date of Birth</p>
+                <p className="text-foreground truncate">
+                  {" "}
+                  {profile?.dob
+                    ? new Date(profile.dob)
+                        .toLocaleDateString("en-GB")
+                        .replace(/\//g, "-")
+                    : "-"}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <Mail className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+              <div className="min-w-0">
                 <p className="text-muted-foreground text-xs">Email</p>
                 <p className="text-foreground truncate">
                   {profile?.email || ""}
@@ -368,7 +382,7 @@ const fetchEvaluations = async () => {
                     </p>
                   </div>
 
-                  <div>
+                  {/* <div>
                     <p className="text-xs text-muted-foreground">
                       Date of Birth
                     </p>
@@ -379,7 +393,7 @@ const fetchEvaluations = async () => {
                             .replace(/\//g, "-")
                         : "-"}
                     </p>
-                  </div>
+                  </div> */}
                 </div>
 
                 {/* Academic Performance */}

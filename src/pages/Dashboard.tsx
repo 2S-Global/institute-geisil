@@ -56,14 +56,6 @@ const placementData = [
   { month: "Apr", placed: 392, offers: 458 },
 ];
 
-// const departmentData = [
-//   { name: "Engineering", students: 1240 },
-//   { name: "Management", students: 860 },
-//   { name: "Sciences", students: 640 },
-//   { name: "Arts", students: 480 },
-//   { name: "Commerce", students: 720 },
-// ];
-
 const skillData = [
   { name: "Technical", value: 38, color: "hsl(var(--primary))" },
   { name: "Communication", value: 24, color: "hsl(var(--accent))" },
@@ -173,6 +165,7 @@ const Dashboard = () => {
     fetchDepartmentData(); // <-- add this
     fetchActiveRecruiter();
   }, []);
+ 
   return (
     <DashboardLayout>
       {/* Page header */}

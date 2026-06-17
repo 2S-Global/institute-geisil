@@ -130,7 +130,7 @@ const Recruiters = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isRequirementModalOpen, setRequirementModalOpen] = useState(false);
   const [refresh, setRefresh] = useState(0);
-
+  const [activeRecruiters, setActiveRecruiters] = useState([]);
   const update = <K extends keyof RecruiterForm>(
     key: K,
     value: RecruiterForm[K],
@@ -251,8 +251,24 @@ const Recruiters = () => {
     }
   };
 
+    const fetchActiveRecruiter = async () => {
+      try {
+        const res = await API.get("/api/institutestudent/get_total_recruit");
+
+        const data = res.data;
+
+        setActiveRecruiters({
+          total: data?.totalStudents || 0,
+        });
+      } catch (err) {
+        console.error("Error fetching stats", err);
+      }
+    };
+
+
   useEffect(() => {
     fetchRecruiterList();
+    fetchActiveRecruiter();
   }, [recruiters.length,refresh]);
 
   const totalPages = Math.ceil(recruiters.length / ITEMS_PER_PAGE);
@@ -472,8 +488,10 @@ const Recruiters = () => {
                       maxLength={255}
                       rows={3}
                     />
-                       {errors.address && (
-                      <p className="text-xs text-destructive">{errors.address}</p>
+                    {errors.address && (
+                      <p className="text-xs text-destructive">
+                        {errors.address}
+                      </p>
                     )}
                   </div>
 
@@ -514,7 +532,7 @@ const Recruiters = () => {
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 mb-6">
         <StatCard
           label="Active Recruiters"
-          value={String(recruiters.length)}
+          value={String(activeRecruiters.total)}
           delta={8}
           icon={Briefcase}
           tint="primary"
@@ -543,12 +561,17 @@ const Recruiters = () => {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-       <List data={paginatedRecruiters} setContact={setContact}  openModalEdit={openModalEdit} requirementAdd={requirementAdd}/>
+        <List
+          data={paginatedRecruiters}
+          setContact={setContact}
+          openModalEdit={openModalEdit}
+          requirementAdd={requirementAdd}
+        />
       </div>
       {/* Pagination */}
       <div className="flex items-center justify-between mt-4">
         <p className="text-sm text-muted-foreground">
-          {totalPages>0 && `Page ${currentPage} of ${totalPages}`}
+          {totalPages > 0 && `Page ${currentPage} of ${totalPages}`}
         </p>
         {totalPages > 1 && (
           <div className="flex items-center justify-center gap-2">
@@ -717,19 +740,18 @@ const Recruiters = () => {
           )}
         </DialogContent>
       </Dialog>
-       <FormModal
+      <FormModal
         show={isModalOpen}
         onClose={closeModalRH}
         data={edit}
         setRefresh={setRefresh}
       />
-       <RequirementModal
+      <RequirementModal
         show={isRequirementModalOpen}
         onClose={closeModalRH}
         recruiterID={edit?._id}
         setRefresh={setRefresh}
       />
-      
     </DashboardLayout>
   );
 };
