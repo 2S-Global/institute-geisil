@@ -49,7 +49,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
 import API from "../lib/axios";
 import { nameFormate } from "../lib/utils";
 
@@ -155,24 +154,23 @@ const StudentDetail = () => {
     }
   };
 
+  const fetchEvaluations = async () => {
+    try {
+      const response = await API.get(
+        `/api/instituteprofile/get_evaluation_by_user_id?userId=${id}`,
+      );
 
-const fetchEvaluations = async () => {
-  try {
-    const response = await API.get(
-      `/api/instituteprofile/get_evaluation_by_user_id?userId=${id}`,
-    );
-
-    if (response.data.success) {
-      setStudentEvaluations(response.data.data);
+      if (response.data.success) {
+        setStudentEvaluations(response.data.data);
+      }
+    } catch (error) {
+      console.log(error);
     }
-  } catch (error) {
-    console.log(error);
-  }
-};
+  };
 
   useEffect(() => {
     FetchDetails();
-      fetchEvaluations();
+    fetchEvaluations();
   }, []);
 
   return (
@@ -223,17 +221,6 @@ const fetchEvaluations = async () => {
                 <h2 className="font-display text-xl font-bold text-white">
                   {nameFormate(profile?.name || "")}
                 </h2>
-                {/* 
-          <Badge
-            variant="outline"
-            className="bg-success/10 text-success border-success/20"
-          >
-            Placed
-          </Badge>
-
-          <Badge variant="outline" className="gap-1 bg-white">
-            Employability 92
-          </Badge> */}
               </div>
 
               <p className="text-sm text-white mt-1">
@@ -626,5 +613,6 @@ const fetchEvaluations = async () => {
     </DashboardLayout>
   );
 };
+
 
 export default StudentDetail;
