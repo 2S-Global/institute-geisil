@@ -449,15 +449,16 @@ const fetchEvaluations = async () => {
                 <CardTitle className="text-base">
                   Semester/Yearly Marks
                 </CardTitle>
-                <CardDescription></CardDescription>
+                <CardDescription />
               </CardHeader>
+
               <CardContent className="space-y-5">
-                {profile?.semesters.length > 0 &&
-                  profile?.semesters.map((s) => (
+                {profile?.semesters?.length > 0 ? (
+                  profile.semesters.map((s) => (
                     <div key={s.semester}>
                       <div className="flex justify-between text-sm mb-1.5">
                         <span className="text-muted-foreground">
-                          {s?.courseStructure === "semester" ? "Sem" : "Year"}
+                          {s?.courseStructure === "semester" ? "Sem" : "Year"}{" "}
                           {s.semester}
                         </span>
                         <span className="font-semibold text-foreground">
@@ -466,7 +467,12 @@ const fetchEvaluations = async () => {
                       </div>
                       <Progress value={s?.convertedMarks} className="h-2" />
                     </div>
-                  ))}
+                  ))
+                ) : (
+                  <div className="text-center text-muted-foreground py-4">
+                    No Semester/Yearly Marks Added
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

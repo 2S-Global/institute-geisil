@@ -155,9 +155,9 @@ const App = () => {
           <BrowserRouter>
             <Routes>
               {/* <Route path="/" element={<NotFound />} /> */}
-              {/*  <Route path="/login" element={<Login />} /> */}
+              {/* <Route path="/login" element={<Login />} /> */}
 
-              <Route path="/" element={<Loading />} />
+              <Route path="/" element={<Login />} />
 
               <Route
                 path="/institute/*"
