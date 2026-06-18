@@ -49,7 +49,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
 import API from "../lib/axios";
 import { nameFormate } from "../lib/utils";
 
@@ -155,24 +154,23 @@ const StudentDetail = () => {
     }
   };
 
+  const fetchEvaluations = async () => {
+    try {
+      const response = await API.get(
+        `/api/instituteprofile/get_evaluation_by_user_id?userId=${id}`,
+      );
 
-const fetchEvaluations = async () => {
-  try {
-    const response = await API.get(
-      `/api/instituteprofile/get_evaluation_by_user_id?userId=${id}`,
-    );
-
-    if (response.data.success) {
-      setStudentEvaluations(response.data.data);
+      if (response.data.success) {
+        setStudentEvaluations(response.data.data);
+      }
+    } catch (error) {
+      console.log(error);
     }
-  } catch (error) {
-    console.log(error);
-  }
-};
+  };
 
   useEffect(() => {
     FetchDetails();
-      fetchEvaluations();
+    fetchEvaluations();
   }, []);
 
   return (
@@ -223,17 +221,6 @@ const fetchEvaluations = async () => {
                 <h2 className="font-display text-xl font-bold text-white">
                   {nameFormate(profile?.name || "")}
                 </h2>
-                {/* 
-          <Badge
-            variant="outline"
-            className="bg-success/10 text-success border-success/20"
-          >
-            Placed
-          </Badge>
-
-          <Badge variant="outline" className="gap-1 bg-white">
-            Employability 92
-          </Badge> */}
               </div>
 
               <p className="text-sm text-white mt-1">
@@ -248,6 +235,20 @@ const fetchEvaluations = async () => {
           <Separator className="mb-5" />
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
+            <div className="flex items-start gap-3">
+              <Mail className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+              <div className="min-w-0">
+                <p className="text-muted-foreground text-xs"> Date of Birth</p>
+                <p className="text-foreground truncate">
+                  {" "}
+                  {profile?.dob
+                    ? new Date(profile.dob)
+                        .toLocaleDateString("en-GB")
+                        .replace(/\//g, "-")
+                    : "-"}
+                </p>
+              </div>
+            </div>
             <div className="flex items-start gap-3">
               <Mail className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
               <div className="min-w-0">
@@ -368,7 +369,7 @@ const fetchEvaluations = async () => {
                     </p>
                   </div>
 
-                  <div>
+                  {/* <div>
                     <p className="text-xs text-muted-foreground">
                       Date of Birth
                     </p>
@@ -379,7 +380,7 @@ const fetchEvaluations = async () => {
                             .replace(/\//g, "-")
                         : "-"}
                     </p>
-                  </div>
+                  </div> */}
                 </div>
 
                 {/* Academic Performance */}
@@ -435,15 +436,16 @@ const fetchEvaluations = async () => {
                 <CardTitle className="text-base">
                   Semester/Yearly Marks
                 </CardTitle>
-                <CardDescription></CardDescription>
+                <CardDescription />
               </CardHeader>
+
               <CardContent className="space-y-5">
-                {profile?.semesters.length > 0 &&
-                  profile?.semesters.map((s) => (
+                {profile?.semesters?.length > 0 ? (
+                  profile.semesters.map((s) => (
                     <div key={s.semester}>
                       <div className="flex justify-between text-sm mb-1.5">
                         <span className="text-muted-foreground">
-                          {s?.courseStructure === "semester" ? "Sem" : "Year"}
+                          {s?.courseStructure === "semester" ? "Sem" : "Year"}{" "}
                           {s.semester}
                         </span>
                         <span className="font-semibold text-foreground">
@@ -452,7 +454,12 @@ const fetchEvaluations = async () => {
                       </div>
                       <Progress value={s?.convertedMarks} className="h-2" />
                     </div>
-                  ))}
+                  ))
+                ) : (
+                  <div className="text-center text-muted-foreground py-4">
+                    No Semester/Yearly Marks Added
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -606,5 +613,6 @@ const fetchEvaluations = async () => {
     </DashboardLayout>
   );
 };
+
 
 export default StudentDetail;
