@@ -64,6 +64,8 @@ const Modal = ({
       const response = await API.get(
         `/api/institutestudent/get_student_details?userId=${can_id}&employmentId=${emp_id}`,
       );
+
+      console.log('get_student_details',response)
       if (response.data.success) {
         const data = response.data.data;
         setUser({

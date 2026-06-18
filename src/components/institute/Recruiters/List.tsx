@@ -72,10 +72,12 @@ const List = ({data,setContact,openModalEdit,requirementAdd}) => {
             <CardContent>
               <div className="grid grid-cols-3 gap-3 mb-4">
                 <div>
+                  <Link to={`/institute/requirement-detail/${r?.latestRequirement?._id}`}>
                   <p className="text-xs text-muted-foreground">Openings</p>
                   <p className="font-display text-xl font-bold text-foreground h-8">
                     {r?.latestRequirement?.numberOfOpenings || ""}
                   </p>
+                  </Link>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Hired</p>

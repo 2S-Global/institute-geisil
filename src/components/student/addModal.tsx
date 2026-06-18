@@ -168,7 +168,7 @@ export default function AddStudentDialog({
         phoneNumber: data.phoneNumber || "",
       });
 
-      console.log("fileds 2nd load", fields);
+      console.log("fileds 2nd load", data);
     } else {
       setFormData({
         _id: "",
@@ -403,6 +403,7 @@ export default function AddStudentDialog({
             : data?.programDetails?.name,
         value: data?.programDetails?._id,
       };
+      console.log('kkkkkkk',obj)
       setSelectProgram(obj);
       let semestersData = data?.semesters || [];
 

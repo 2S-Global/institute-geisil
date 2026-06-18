@@ -90,6 +90,8 @@ const emptyForm: RecruiterForm = {
   scheduledTime: "",
   remarks: "",
   role: "",
+  date: "",
+  time: "",
 };
 
 const FormModal = ({
@@ -160,6 +162,8 @@ const FormModal = ({
       role: result.data.role,
       courses: courseOptions,
       companyName: recruiterID,
+      date: form.date,
+      time: form.time,
     };
 
     let response = "";
@@ -372,14 +376,14 @@ const FormModal = ({
                 </Label>
                 <Input
                   style={{ position: "relative" }}
-                  id="scheduledDate"
+                  id="date"
                   type="date"
-                  value={form.scheduledDate}
-                  onChange={(e) => update("scheduledDate", e.target.value)}
+                  value={form.date}
+                  onChange={(e) => update("date", e.target.value)}
                 />
-                {errors.scheduledDate && (
+                {errors.date && (
                   <p className="text-xs text-destructive">
-                    {errors.scheduledDate}
+                    {errors.date}
                   </p>
                 )}
 
@@ -389,14 +393,14 @@ const FormModal = ({
                 </Label>
                 <Input
                   style={{ position: "relative" }}
-                  id="scheduledTime"
+                  id="time"
                   type="time"
-                  value={form.scheduledTime}
-                  onChange={(e) => update("scheduledTime", e.target.value)}
+                  value={form.time}
+                  onChange={(e) => update("time", e.target.value)}
                 />
-                {errors.scheduledTime && (
+                {errors.time && (
                   <p className="text-xs text-destructive">
-                    {errors.scheduledTime}
+                    {errors.time}
                   </p>
                 )}
               </div>

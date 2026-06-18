@@ -16,6 +16,7 @@ import StudentDetail from "./pages/StudentDetail.tsx";
 import AllStudentList from "./pages/allStudentList.tsx";
 import Recruiters from "./pages/Recruiters.tsx";
 import RecruiterDetail from "./pages/RecruiterDetail.tsx";
+import RecruiterRequirementDetail from "./pages/RecruiterRequirementDetail.tsx";
 import Evaluations from "./pages/Evaluations.tsx";
 import EvaluationDetail from "./pages/EvaluationDetail.tsx";
 import Placements from "./pages/Placements.tsx";
@@ -172,6 +173,11 @@ const App = () => {
                         path="/recruiters/:id"
                         element={<RecruiterDetail />}
                       />
+                      <Route
+                        path="/requirement-detail/:id"
+                        element={<RecruiterRequirementDetail />}
+                      />
+
                       <Route path="/evaluations" element={<Evaluations />} />
                       <Route
                         path="/evaluations/:id"
