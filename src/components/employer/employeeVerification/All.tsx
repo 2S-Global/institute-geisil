@@ -8,7 +8,7 @@ import Modal from "./Modal"
 import { Button } from "@/components/ui/button"
 import { useSidebar } from "@/components/ui/sidebar"
 import { Link } from "react-router-dom";
-const All = () => {
+const All = () => { 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [candidatesData, setCandidatesData] = useState([]);
