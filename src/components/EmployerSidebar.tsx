@@ -72,7 +72,7 @@ export function EmployerSidebar() {
       });
 
       // Redirect
-      navigate("https://geisil.com/");
+      navigate("/");
     } catch (error) {
       console.log(error);
     }

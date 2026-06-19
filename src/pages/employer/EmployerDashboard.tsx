@@ -91,7 +91,7 @@ const EmployerDashboard = () => {
     <EmployerLayout>
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
         <div>
-          <p className="text-sm text-muted-foreground">Welcome back, Acme Corp 👋</p>
+          {/* <p className="text-sm text-muted-foreground">Welcome back, Acme Corp 👋</p> */}
           <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight text-foreground mt-1">
             Employer Dashboard
           </h1>

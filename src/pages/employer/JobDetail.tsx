@@ -140,10 +140,10 @@ const [applicants, setApplicants] = useState<any[]>([]);
             <Button variant="outline" className="gap-2">
               <Share2 className="h-4 w-4" /> Share
             </Button>
-             <Link to={`/employer/edit-jobs/${id}`}>
-            <Button className="gap-2 shadow-brand">
-             <Edit className="h-4 w-4" /> Edit posting
-            </Button>
+            <Link to={`/employer/edit-jobs/${id}`}>
+              <Button className="gap-2 shadow-brand">
+                <Edit className="h-4 w-4" /> Edit posting
+              </Button>
             </Link>
           </div>
         </div>
@@ -604,7 +604,7 @@ const [applicants, setApplicants] = useState<any[]>([]);
                       </Badge>
 
                       <Button asChild size="sm" variant="outline">
-                        <Link to={`/employer/candidate/${candidate?._id}`}>
+                        <Link to={`/employer/candidates/${candidate?.userId}`}>
                           View
                         </Link>
                       </Button>

@@ -89,7 +89,7 @@ export function AppSidebar() {
       });
 
       // Redirect
-      navigate("https://geisil.com/");
+      navigate("/");
     } catch (error) {
       console.log(error);
     }

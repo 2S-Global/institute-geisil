@@ -39,7 +39,7 @@ const Unauthorized = () => {
             <Link to="/institute"><Home className="h-4 w-4" /> Back to home</Link>
           </Button>}
           {!localStorage.getItem("token") && <Button asChild className="gap-2 shadow-brand">
-            <Link to="https://geisil.com/"><LogIn className="h-4 w-4" /> Sign in</Link>
+            <Link to="/"><LogIn className="h-4 w-4" /> Sign in</Link>
           </Button>}
          {/*  <Button asChild variant="outline" className="gap-2">
             <Link to="/"><Home className="h-4 w-4" /> Back to home</Link>
