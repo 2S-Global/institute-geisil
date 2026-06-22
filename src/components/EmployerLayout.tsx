@@ -25,13 +25,13 @@ export function EmployerLayout({ children }: { children: ReactNode }) {
           <header className="sticky top-0 z-30 h-16 border-b bg-card/80 backdrop-blur-md flex items-center gap-3 px-4 md:px-6">
             <SidebarTrigger className="text-foreground" />
             <div className="hidden md:flex items-center gap-2 flex-1 max-w-md ml-2">
-              <div className="relative w-full">
+              {/* <div className="relative w-full">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search candidates, jobs, applications…"
                   className="pl-9 h-10 bg-muted/40 border-transparent focus-visible:bg-background"
                 />
-              </div>
+              </div> */}
             </div>
             <div className="ml-auto flex items-center gap-2 md:gap-3">
               {/* <Button variant="ghost" size="icon" className="relative">

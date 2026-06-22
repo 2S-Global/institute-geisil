@@ -67,27 +67,30 @@ const App = () => {
   const [isSuccess, setSuccess] = useState(false);
   const FetchCompanyDetails = async () => {
     try {
-      const response = await API.get(`/api/auth/get-user-details`);
+      const response = await API.get("/api/auth/get-user-details");
 
       if (response.data.success) {
         const data = response.data.data;
+
         localStorage.setItem("role", data?.role);
         setProfile(data);
         setSuccess(true);
-        //setDisableform(false);
       }
     } catch (e) {
       console.log(e);
+      setLoading(false); // important
     }
   };
-  useEffect(() => {
-    const token = Cookies.get("token");
-    if (token) {
-      localStorage.setItem("token", token);
-    }
-    FetchCompanyDetails();
-  }, []);
+useEffect(() => {
+  const token = localStorage.getItem("token") || Cookies.get("token");
 
+  if (!token) {
+    setLoading(false);
+    return;
+  }
+
+  FetchCompanyDetails();
+}, []);
   useEffect(() => {
     if (isSuccess) {
       localStorage.setItem(
