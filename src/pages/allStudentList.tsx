@@ -102,7 +102,7 @@ const AllStudentList = () => {
        const res = await api.get(
          `/api/institutestudent/send-progress-mail?_id=${id}`,
        );
-
+       setRefresh(p=>p+1)
        toast({
          title: "Success",
          description: res?.data?.message || "Reminder mail sent successfully.",
@@ -239,20 +239,13 @@ const AllStudentList = () => {
                             onClick={() => openModalEdit(() => s)}
                           />
 
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            title="Reminder Mail"
-                            aria-label="Reminder Mail"
-                            className="h-8 w-8 border-0 shadow-none"
-                            onClick={(e) => {
+                         
+                            <Mail className="h-4 w-4" title="Reminder Mail"   onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
                               sendReminderMail(s._id);
-                            }}
-                          >
-                            <Mail className="h-4 w-4" title="Reminder Mail" />
-                          </Button>
+                            }}/>
+                         
 
                           <Eye
                             className="h-4 w-4 cursor-pointer hover:text-primary"

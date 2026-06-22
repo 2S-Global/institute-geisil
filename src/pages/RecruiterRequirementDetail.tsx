@@ -253,8 +253,8 @@ const sendInterview = async () => {
       const res = await API.get(
         `/api/instituteprofile/get_company_requirement_by_id?id=${id}`,
       );
-      const data = res?.data?.data || {};
-      console.log('fetchRequirement',data)
+      const data = res?.data?.data || [];
+      //console.log('fetchRequirement',data)
       setRecruiter(data);
     } catch (err) {
       console.error("Error fetching stats", err);
@@ -263,11 +263,12 @@ const sendInterview = async () => {
 
   const fetchCompanyRequirementSudents= async (program,tenth,twelvth) => {
     try {
+      //console.log("gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg")
       const res = await API.get(
         `/api/institutestudent/company-requirement-sudents?program=${program}&tenth=${tenth}&twelvth=${twelvth}`,
       );
-      const data = res?.data?.data || {};
-      console.log('fetchRequirement',data)
+      const data = res?.data?.data || [];
+      //console.log('fetchRequirement',data)
       setRequirement(data);
     } catch (err) {
       console.error("Error fetching stats", err);
@@ -281,6 +282,7 @@ const sendInterview = async () => {
   }, []);
 
   useEffect(() => {
+    //console.log('recruiter?._id',recruiter?._id)
     if (recruiter?._id) {
       console.log('recruiter', recruiter);
       setForm({
@@ -297,9 +299,12 @@ const sendInterview = async () => {
       const program=[]
          const course=recruiter?.courses?.map((id)=>{
             const row=courses.find((item)=>item.value===id);
-            program.push(row.value)
-            return({'value':row.value,'label':row.label})
+            if(row){
+                program.push(row.value)
+                return({'value':row.value,'label':row.label})
+            }
           })
+          //console.log("ssssssssssssssssssssssssssssssssssssssssss",courses,course,program,recruiter?.courses,recruiter?.twelvth)
           fetchCompanyRequirementSudents(program,recruiter?.tenth,recruiter?.twelvth)
          setCourseSelected(()=>course||[])
     }
@@ -471,8 +476,8 @@ const StudentInterview= async () => {
 
                   <div className=" text-[14px] text-white">
                     {courseSelected.map((item, index) => (
-                      <span key={item.label}>
-                        {item.label}
+                      <span key={item?.label}>
+                        {item?.label}
                         {index < courseSelected.length - 1 && " | "}
                       </span>
                     ))}
@@ -658,12 +663,13 @@ const StudentInterview= async () => {
             </div>
               <div className="space-y-1.5">
                 <Label htmlFor="scheduledDate">
-                  Date 
+                  Exam Date 
                 </Label>
                 <Input
                   style={{ position: "relative" }}
                   id="date"
                   type="date"
+                  max={new Date().toISOString().split("T")[0]}
                   value={YMD(form.date)}
                   onChange={(e) => update("date", e.target.value)}
                 />
@@ -675,7 +681,7 @@ const StudentInterview= async () => {
 
                 <div className="space-y-1.5">
                 <Label htmlFor="time">
-                  Time 
+                  Exam Time 
                 </Label>
                 <Input
                   style={{ position: "relative" }}
