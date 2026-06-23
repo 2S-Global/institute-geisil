@@ -59,6 +59,8 @@ import EmployeeVerification from "./pages/employer/EmployeeVerification.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Loading from "./pages/Loading.tsx";
 import Unauthorized from "./pages/Unauthorized.tsx";
+import CandidateDashboard from "./pages/candidate/CandidateDashboard.tsx";
+import CandidateProfile from "./pages/candidate/CandidateProfile.tsx";
 
 const queryClient = new QueryClient();
 const App = () => {
@@ -286,6 +288,24 @@ useEffect(() => {
                         path="/employee-verification"
                         element={<EmployeeVerification />}
                       />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </ProtectedRoute>
+                }
+              />
+
+               <Route
+                path="/candidate/*"
+                element={
+                  <ProtectedRoute role="1">
+                    <Routes>
+                      <Route path="/" element={<CandidateDashboard />} />
+                      <Route path="/dashboard" element={<CandidateDashboard />} />
+                      <Route path="/profile" element={<CandidateProfile />} />
+                      <Route path="/my-profile" element={<CandidateProfile />} />
+                     
+                    
+
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </ProtectedRoute>
