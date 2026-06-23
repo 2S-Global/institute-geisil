@@ -59,7 +59,7 @@ import EmployeeVerification from "./pages/employer/EmployeeVerification.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Loading from "./pages/Loading.tsx";
 import Unauthorized from "./pages/Unauthorized.tsx";
-
+import ForgotPassword from "./pages/forgotPassword.tsx";
 const queryClient = new QueryClient();
 const App = () => {
   const [profile, setProfile] = useState();
@@ -162,6 +162,7 @@ useEffect(() => {
               {/* <Route path="/login" element={<Login />} /> */}
 
               <Route path="/" element={<Login />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
 
               <Route
                 path="/institute/*"
