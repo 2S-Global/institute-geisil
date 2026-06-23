@@ -27,20 +27,20 @@ export default function Login() {
       [e.target.name]: e.target.value,
     });
   };
-useEffect(() => {
-  const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
 
-  if (token) {
-    if (role === "3") {
-      navigate("/institute");
-    } else if (role === "2") {
-      navigate("/employer");
-    } else {
-      navigate("/");
+    if (token) {
+      if (role === "3") {
+        navigate("/institute");
+      } else if (role === "2") {
+        navigate("/employer");
+      } else {
+        navigate("/");
+      }
     }
-  }
-}, [navigate]);
+  }, [navigate]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -250,7 +250,7 @@ useEffect(() => {
               </div>
               <div className="flex justify-end mt-2">
                 <a
-                  href="#"
+                  href="/forgot-password"
                   className="text-xs font-medium text-primary hover:underline"
                 >
                   Forgot password?
@@ -258,7 +258,7 @@ useEffect(() => {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            {/* <div className="flex items-center gap-2">
               <Checkbox id="remember" defaultChecked />
               <Label
                 htmlFor="remember"
@@ -266,7 +266,7 @@ useEffect(() => {
               >
                 Keep me signed in for 30 days
               </Label>
-            </div>
+            </div> */}
 
             <Button
               type="submit"

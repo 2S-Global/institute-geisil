@@ -61,6 +61,7 @@ import Loading from "./pages/Loading.tsx";
 import Unauthorized from "./pages/Unauthorized.tsx";
 import CandidateDashboard from "./pages/candidate/CandidateDashboard.tsx";
 import CandidateProfile from "./pages/candidate/CandidateProfile.tsx";
+import ForgotPassword from "./pages/ForgotPassword.tsx";
 
 const queryClient = new QueryClient();
 const App = () => {
@@ -164,6 +165,7 @@ useEffect(() => {
               {/* <Route path="/login" element={<Login />} /> */}
 
               <Route path="/" element={<Login />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
 
               <Route
                 path="/institute/*"
