@@ -1,0 +1,421 @@
+import React, { useState, useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import API from "../../../lib/axios";
+import PersonalInfoForm from "./PersonalInfoForm";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+//import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+
+const FormModal = ({ show, onClose, data = {}, setRefresh,reload,error,
+  setReload,
+  setError,
+  focusSection,
+  setSuccess }) => {
+  const apiurl =  import.meta.env.VITE_API_URL;
+  console.log("show",show)
+ const [formData, setFormData] = useState({
+    gender: "",
+    dob: null,
+    more_info: [],
+    marital_status: "",
+    partner_name: "",
+    category: "",
+    differently_abled: "",
+    disability_type: "",
+    disability_description: "",
+    workplace_assistance: "",
+    career_break: "",
+    career_break_reason: "",
+    career_break_start_year: "",
+    career_break_start_month: "",
+    currently_on_career_break: false,
+    career_break_end_year: "",
+    career_break_end_month: "",
+    usa_visa_type: "",
+    work_permit_other_countries: [],
+    permanent_address: "",
+    hometown: "",
+    pincode: "",
+    languages: [],
+    have_usa_visa: false,
+  });
+
+  const formatPersonalDetailsResponse = (data) => {
+    return {
+      gender: String(data.gender || ""),
+      dob: data.dob ? new Date(data.dob) : null,
+      more_info: Array.isArray(data.more_info)
+        ? data.more_info.map(String)
+        : [],
+      have_usa_visa: data.have_usa_visa,
+      partner_name: data.partner_name || "",
+      marital_status: String(data.marital_status || ""),
+      category: String(data.category || ""),
+      differently_abled: data.differently_abled || "",
+      disability_type: String(data.disability_type || ""),
+      disability_description: data.disability_description || "",
+      workplace_assistance: data.workplace_assistance || "",
+      career_break: data.career_break || "",
+      career_break_reason: String(data.career_break_reason || ""),
+      career_break_start_year: String(data.career_break_start_year || ""),
+      career_break_start_month: String(data.career_break_start_month || ""),
+      currently_on_career_break: !!data.currently_on_career_break,
+      career_break_end_year: String(data.career_break_end_year || ""),
+      career_break_end_month: String(data.career_break_end_month || ""),
+      usa_visa_type: String(data.usa_visa_type || ""),
+      work_permit_other_countries: Array.isArray(
+        data.work_permit_other_countries
+      )
+        ? data.work_permit_other_countries.map(
+            Number
+          ) /* change to String if objectid */
+        : [],
+      permanent_address: data.permanent_address || "",
+      hometown: data.hometown || "",
+      pincode: data.pincode || "",
+      languages:
+        Array.isArray(data.languages) && data.languages.length > 0
+          ? data.languages.map((lang) => ({
+              language: String(lang.language || ""),
+              proficiency: String(lang.proficiency || ""),
+              read: !!lang.read,
+              write: !!lang.write,
+              speak: !!lang.speak,
+            }))
+          : [],
+    };
+  };
+
+  const [loading, setLoading] = useState(false);
+ // const apiurl = process.env.NEXT_PUBLIC_API_URL;
+  const token = localStorage.getItem("candidate_token");
+  if (!token) {
+    console.log("No token");
+  }
+  const [isFormValid, setIsFormValid] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [wrongdate, setWrongDate] = useState(false);
+  const [wrongdate2, setWrongDate2] = useState(false);
+
+  useEffect(() => {
+    /* /get_personal_details */
+    const fetchPersonalDetails = async () => {
+      setLoading(true);
+      try {
+        const response = await API.get(
+          `/api/candidate/personal/get_personal_details`,
+        );
+        if (response.status === 200) {
+          console.log("Personal details fetched successfully");
+          const formatted = formatPersonalDetailsResponse(response.data);
+          setFormData(formatted);
+        }
+      } catch (error) {
+        console.error("Error fetching personal details:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPersonalDetails();
+  }, [apiurl, token]);
+
+  useEffect(() => {
+    setIsFormValid(validateForm());
+  }, [formData]);
+
+  useEffect(() => {
+    if (formData.currently_on_career_break) {
+      setWrongDate2(false);
+    } else {
+      if (wrongdate) {
+        setWrongDate2(true);
+      } else {
+        setWrongDate2(false);
+      }
+    }
+  }, [formData?.currently_on_career_break]);
+
+  useEffect(() => {
+    setWrongDate2(wrongdate);
+  }, [wrongdate]);
+
+  const validateForm = () => {
+    if (!formData.gender || formData.gender.toString().trim() === "") {
+      return false;
+    }
+    if (!formData.dob) {
+      return false;
+    }
+    if (formData.differently_abled === "Yes") {
+      if (
+        !formData.disability_type ||
+        formData.disability_type.toString().trim() === ""
+      ) {
+        return false;
+      }
+      if (formData?.disability_type == 999) {
+        if (
+          !formData.disability_description ||
+          formData.disability_description.toString().trim() === ""
+        ) {
+          return false;
+        }
+      }
+    }
+    if (formData.career_break === "Yes") {
+      if (
+        !formData.career_break_reason ||
+        formData.career_break_reason.toString().trim() === ""
+      ) {
+        return false;
+      }
+      if (
+        !formData.career_break_start_year ||
+        formData.career_break_start_year.toString().trim() === ""
+      ) {
+        return false;
+      }
+      if (
+        !formData.career_break_start_month ||
+        formData.career_break_start_month.toString().trim() === ""
+      ) {
+        return false;
+      }
+
+      if (formData.currently_on_career_break === false) {
+        if (
+          !formData.career_break_end_year ||
+          formData.career_break_end_year.toString().trim() === ""
+        ) {
+          return false;
+        }
+        if (
+          !formData.career_break_end_month ||
+          formData.career_break_end_month.toString().trim() === ""
+        ) {
+          return false;
+        }
+      }
+    }
+    if (formData.languages.length > 0) {
+      for (let i = 0; i < formData.languages.length; i++) {
+        if (
+          !formData.languages[i].language ||
+          formData.languages[i].language.toString().trim() === ""
+        ) {
+          return false;
+        }
+        if (
+          !formData.languages[i].proficiency ||
+          formData.languages[i].proficiency.toString().trim() === ""
+        ) {
+          return false;
+        }
+        const lang = formData.languages[i];
+        if (!(lang.read || lang.write || lang.speak)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  };
+
+  if (!show) return null;
+
+  const handleSave = async () => {
+    if (!token) {
+      console.error("Authorization token is missing. Please log in.");
+      return;
+    }
+
+    if (!validateForm()) {
+      console.log("Please fill in all required fields.");
+      return;
+    }
+    setSaving(true);
+    try {
+      const response = await API.post(
+        `/api/candidate/personal/submit_personal_details`,
+        formData
+      );
+      console.log("Response:", response.data);
+      setSaving(false);
+      setReload(!reload);
+      setSuccess("Personal details updated successfully");
+
+      onClose();
+    } catch (error) {
+      console.error("Error saving personal details:", error);
+      setSaving(false);
+      setError("Error saving personal details. Please try again.");
+    }
+  };
+  if (!show) return null;
+
+  return (
+  <>
+    <style>
+      {`
+        .custom-textarea::placeholder {
+          color: #c7c5c5 !important;
+          font-size: 15px !important;
+        }
+
+        .option-btn {
+          border: 1px solid #8c8c8c;
+          color: #333;
+          background: white;
+          font-size: 15px;
+          padding: 6px 15px;
+          transition: all 0.2s ease-in-out;
+        }
+
+        .option-btn.active {
+          background: #f0efff;
+          font-weight: bold;
+          border-color: #635bff;
+          color: black;
+        }
+
+        .info-btn {
+          border: 1px solid #a5a5a5;
+          background: white;
+          color: #333;
+          font-size: 14px;
+          padding: 6px 12px;
+          transition: all 0.2s ease-in-out;
+        }
+
+        .info-btn.active {
+          background: #eaeafc;
+          font-weight: bold;
+          border-color: #635bff;
+          color: black;
+        }
+
+        .tooltip-wrapper {
+          position: relative;
+          display: inline-block;
+        }
+
+        .tooltip-wrapper .custom-tooltip {
+          visibility: hidden;
+          background-color: white;
+          color: red;
+          font-weight: bold;
+          border: 1px solid red;
+          border-radius: 4px;
+          padding: 5px 10px;
+          position: absolute;
+          bottom: 100%;
+          left: 0;
+          margin-bottom: 6px;
+          white-space: nowrap;
+          z-index: 10;
+        }
+
+        .tooltip-wrapper:hover .custom-tooltip {
+          visibility: visible;
+        }
+      `}
+    </style>
+
+    <Dialog open={show} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[750px] max-h-[90vh] overflow-y-auto">
+
+        {/* Header */}
+        <DialogHeader>
+          <DialogTitle className="font-display text-xl">
+            Personal Details
+          </DialogTitle>
+
+          <DialogDescription>
+            This information helps employers know you better.
+          </DialogDescription>
+        </DialogHeader>
+
+        {/* Body */}
+        <div className="space-y-4 pt-2">
+
+          {loading ? (
+           
+            "loading......"
+          ) : (
+            <>
+              {error && (
+                <div className="text-sm text-red-500 bg-red-50 p-2 rounded">
+                  {error}
+                </div>
+              )}
+
+              <PersonalInfoForm
+                formData={formData}
+                setFormData={setFormData}
+                focusSection={focusSection}
+                show={show}
+                setWrongDate={setWrongDate}
+              />
+            </>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="flex justify-end gap-3 pt-4">
+
+          <button
+            className="btn btn-secondary"
+            onClick={onClose}
+            type="button"
+          >
+            Cancel
+          </button>
+
+          <div className="tooltip-wrapper">
+            {!isFormValid && (
+              <div className="custom-tooltip">
+                Please fill all required fields
+              </div>
+            )}
+
+            {wrongdate2 && (
+              <div className="custom-tooltip">
+                Not valid Date Range
+              </div>
+            )}
+
+            <button
+              className="btn btn-primary"
+              onClick={handleSave}
+              disabled={!isFormValid || saving || wrongdate2}
+              type="button"
+            >
+              {saving ? "Saving..." : "Save"}
+            </button>
+          </div>
+        </div>
+
+      </DialogContent>
+    </Dialog>
+  </>
+  );
+};
+
+export default FormModal;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import {
   Pencil,
   Upload,
@@ -22,6 +22,9 @@ import {
   Download,
   Eye,
   Share2,
+  CircleX,
+  Banknote,
+  Camera 
 } from "lucide-react";
 import { CandidateLayout } from "@/components/CandidateLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,7 +38,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-
+import AboutFormModal from "@/components/candidate/myprofile/FormModal";
+import Profilepic from "@/components/candidate/profileImg/FormModal";
+import Kyc from "@/components/candidate/kyc/FormModal";
+import PersonalModal from "@/components/candidate/personal/PersonalModal";
+import API from "../../lib/axios";
+import noImage from "../../assets/img/no-man.jpg";
 const experiences = [
   {
     role: "Frontend Engineer",
@@ -108,63 +116,190 @@ export default function CandidateProfile() {
   const [editing, setEditing] = useState(false);
   const completed = checklist.filter((c) => c.done).length;
   const completion = Math.round((completed / checklist.length) * 100);
+  const [edit, setEdit] = useState({});
+  const [refresh, setRefresh] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalImg, setIsModalImg] = useState(false);
 
+  const [profile_pic, setProfile_pic] = useState();
+  const [progress, setProgress] = useState();
+  const [user, setUser] = useState();
+  const [kyc, setKyc] = useState();
+const [focusSection, setFocusSection] = useState(null);
+  const [isModalOpenotp, setIsModalOpenotp] = useState(false);
+
+  const openModalRH = () => {
+    setIsModalOpen(true);
+    document.body.style.overflow = "hidden"; // Disable background scrolling
+  };
+
+  const closeModalRH = () => {
+    setIsModalOpen(false);
+    document.body.style.overflow = "auto"; // Re-enable background scrolling
+  };
+
+  const openModalImg = () => {
+    setIsModalImg(true);
+    document.body.style.overflow = "hidden"; // Disable background scrolling
+  };
+  
+  const closeModalImg = () => {
+    setIsModalImg(false);
+    document.body.style.overflow = "auto"; // Re-enable background scrolling
+  };
+
+  const fetchProfilePic = async () => {
+    try {
+     
+      const response = await API.get(`/api/userdata/userdata`)
+      
+      if (response.data?.profilePicture) {
+        setProfile_pic(response.data.profilePicture);
+      }
+
+      if (response.data?.progress) {
+        setProgress(response.data.progress);
+      }
+      setUser(response.data);
+    } catch (error) {
+      console.error("Error fetching profile pic:", error);
+    } 
+  };
+
+    const FetchKyc = async () => {
+    try {
+      const response = await  API.get(`/api/candidatekyc/kyc`)
+      if (response.data.success) {
+        setKyc(response.data.kyc);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(()=>{
+    fetchProfilePic();
+    FetchKyc();
+  },[])
+    useEffect(()=>{
+      fetchProfilePic();
+  },[refresh])
   return (
     <CandidateLayout>
       <div className="space-y-6 max-w-7xl mx-auto">
         {/* Header / Hero */}
-        <Card className="overflow-hidden border-border/60">
-          <div className="h-32 md:h-40 bg-gradient-to-r from-primary/80 via-primary to-primary/60 relative">
-            <Button
-              size="sm"
-              variant="secondary"
-              className="absolute top-3 right-3 gap-1.5"
-            >
-              <Pencil className="h-3.5 w-3.5" /> Edit cover
-            </Button>
+       <Card className="overflow-hidden border-border/60">
+  {/* Cover */}
+  <div className="relative h-28 bg-gradient-to-r from-primary/80 via-primary to-primary/60">
+    <Button
+      size="sm"
+      variant="secondary"
+      className="absolute top-4 right-4"
+      onClick={() => openModalRH()}
+    >
+      <Pencil className="h-4 w-4 mr-1" />
+      Edit Profile
+    </Button>
+  </div>
+
+  <CardContent className="relative pt-0 pb-6">
+    {/* Profile Header */}
+    <div className="flex flex-col lg:flex-row lg:justify-between">
+      {/* Left Side */}
+      <div className="flex flex-col sm:flex-row gap-4 -mt-14">
+
+
+              
+
+                  <div className="relative w-28 h-28">
+  <Avatar className="h-28 w-28 border-4 border-background shadow-lg">
+    <AvatarFallback className="bg-primary text-primary-foreground text-2xl font-bold p-0">
+      <img
+        src={profile_pic ? profile_pic : noImage}
+        alt="Profile"
+        className="w-full h-full rounded-full object-cover"
+      />
+    </AvatarFallback>
+  </Avatar>
+
+  <div
+    className="absolute bottom-1 right-1 bg-primary text-white p-2 rounded-full cursor-pointer shadow-md"
+    onClick={openModalImg}
+  >
+    <Camera size={18} />
+  </div>
+</div>
+
+        <div className="pt-14 sm:pt-14">
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-3xl font-bold">
+              {user?.name||""}
+            </h1>
+            {user?.gender_name && '('+ user?.gender_name +")"}
+            {user?.isVerified?<Badge className="bg-green-500/15 text-green-600 border-0">
+              <CheckCircle2 className="h-3 w-3 mr-1" />
+              Verified
+            </Badge>:<Badge className="bg-red-500/15 text-red-600 border-0">
+               <CircleX className="h-3 w-3 mr-1"/>
+              Unverified
+            </Badge>}
+
+            <Badge variant="outline">
+              <Sparkles className="h-3 w-3 mr-1" />
+              Open to work
+            </Badge>
           </div>
-          <CardContent className="pt-0">
-            <div className="flex flex-col md:flex-row md:items-end gap-4 md:gap-6 -mt-12 md:-mt-14">
-              <Avatar className="h-24 w-24 md:h-28 md:w-28 ring-4 ring-card shadow-md">
-                <AvatarFallback className="bg-primary text-primary-foreground text-2xl font-bold">
-                  RS
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground">
-                    Riya Sharma
-                  </h1>
-                  <Badge className="bg-green-500/15 text-green-600 hover:bg-green-500/15 border-0 gap-1">
-                    <CheckCircle2 className="h-3 w-3" /> Verified
-                  </Badge>
-                  <Badge variant="outline" className="gap-1">
-                    <Sparkles className="h-3 w-3" /> Open to work
-                  </Badge>
-                </div>
-                <p className="text-muted-foreground mt-1">
-                  Frontend Engineer · Building accessible, fast web products
-                </p>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground mt-2 flex-wrap">
-                  <span className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" /> Bengaluru, India</span>
-                  <span className="flex items-center gap-1.5"><Briefcase className="h-3.5 w-3.5" /> 2+ yrs experience</span>
-                  <span className="flex items-center gap-1.5"><GraduationCap className="h-3.5 w-3.5" /> IIIT'23</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 md:self-center">
-                <Button variant="outline" size="sm" className="gap-1.5">
-                  <Share2 className="h-4 w-4" /> Share
-                </Button>
-                <Button variant="outline" size="sm" className="gap-1.5">
-                  <Download className="h-4 w-4" /> Resume
-                </Button>
-                <Button size="sm" className="gap-1.5" onClick={() => setEditing((v) => !v)}>
-                  <Pencil className="h-4 w-4" /> {editing ? "Done" : "Edit profile"}
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+
+          <p className="mt-1 text-muted-foreground">
+           
+          </p>
+
+          <div className="flex flex-wrap gap-4 mt-3 text-sm text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <MapPin className="h-4 w-4" />
+               {user?.currentLocation}
+            </span>
+
+            <span className="flex items-center gap-1">
+              <Banknote className="h-4 w-4" />
+              {user?.currency} {user?.salary}
+            </span>
+
+            <span className="flex items-center gap-1">
+              <Phone className="h-4 w-4" />
+              {user?.phone_number}
+            </span>
+             <span className="flex items-center gap-1">
+              <Mail className="h-4 w-4" />
+              {user?.email}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Side Buttons */}
+      <div className="flex flex-wrap gap-2 mt-4 lg:mt-6 lg:self-start">
+        <Button variant="outline" size="sm">
+          <Share2 className="h-4 w-4 mr-1" />
+          Share
+        </Button>
+
+        <Button variant="outline" size="sm">
+          <Download className="h-4 w-4 mr-1" />
+          Resume
+        </Button>
+
+       {/*  <Button
+          size="sm"
+          onClick={() => setEditing((v) => !v)}
+        >
+          <Pencil className="h-4 w-4 mr-1" />
+          {editing ? "Done" : "Edit Profile"}
+        </Button> */}
+      </div>
+    </div>
+  </CardContent>
+</Card>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left column */}
@@ -182,10 +317,10 @@ export default function CandidateProfile() {
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between">
                     <div>
-                      <CardTitle className="text-lg">About me</CardTitle>
+                      <CardTitle className="text-lg">Resume Headline</CardTitle>
                       <CardDescription>A short summary recruiters see first.</CardDescription>
                     </div>
-                    <Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" ><Pencil className="h-4 w-4" /></Button>
                   </CardHeader>
                   <CardContent>
                     {editing ? (
@@ -476,6 +611,40 @@ export default function CandidateProfile() {
           </div>
         </div>
       </div>
+
+      {isModalOpen && <AboutFormModal
+        show={isModalOpen}
+        onClose={closeModalRH}
+        data={edit}
+        setRefresh={setRefresh}
+      />}
+
+{/*  {isModalOpen && <Kyc
+        show={isModalOpen}
+        onClose={closeModalRH}
+        data={edit}
+        setReload={setRefresh}
+          focusSection={focusSection}
+            data={kyc}
+      />}
+        {isModalImg && (
+        <Profilepic
+          show={isModalImg}
+          onClose={closeModalImg}
+          imageSrc={profile_pic}
+          setRefresh={setRefresh}
+        />
+      )}
+
+     {isModalOpen && (
+        <PersonalModal
+          show={isModalOpen}
+          onClose={closeModalRH}
+         
+         
+        />
+      )} */}
+
     </CandidateLayout>
   );
 }
