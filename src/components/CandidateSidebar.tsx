@@ -34,11 +34,11 @@ const main = [
     end: true,
   },
   { title: "My Profile", url: "/candidate/profile", icon: User },
-  // { title: "Browse Jobs", url: "/candidate/jobs", icon: Briefcase },
-  { title: "Applications", url: "/candidate/applications", icon: FileText },
+  { title: "Browse Jobs", url: "/candidate/jobs", icon: Briefcase },
+  { title: "Applied Jobs", url: "/candidate/applications", icon: FileText },
+  { title: "Saved Jobs", url: "/candidate/saved-jobs", icon: Bookmark },
   { title: "Interviews", url: "/candidate/interviews", icon: CalendarCheck },
   { title: "Assessments", url: "/candidate/assessments", icon: ClipboardList },
-  { title: "Saved Jobs", url: "/candidate/saved", icon: Bookmark },
 ];
 
 const secondary = [

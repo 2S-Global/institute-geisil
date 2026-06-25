@@ -1,0 +1,835 @@
+import { useMemo, useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import {
+  Search,
+  MapPin,
+  Briefcase,
+  Building2,
+  Clock,
+  IndianRupee,
+  Bookmark,
+  BookmarkCheck,
+  Filter,
+  SlidersHorizontal,
+  Star,
+  TrendingUp,
+  Send,
+  Grid3x3,
+  List,
+} from "lucide-react";
+import { CandidateLayout } from "@/components/CandidateLayout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Separator } from "@/components/ui/separator";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import API from "@/lib/axios";
+type Job = {
+  id: string;
+  title: string;
+  company: string;
+  logo: string;
+  location: string;
+  type: string;
+  workMode: "Remote" | "Hybrid" | "On-site";
+  experience: string;
+  salary: string;
+  salaryNum: number;
+  posted: string;
+  match: number;
+  tags: string[];
+  category: string;
+  featured?: boolean;
+  urgent?: boolean;
+  description: string;
+};
+
+const allJobs: Job[] = [
+  {
+    id: "j1",
+    title: "Senior Frontend Engineer",
+    company: "Vercel",
+    logo: "https://logo.clearbit.com/vercel.com",
+    location: "Bengaluru, IN",
+    type: "Full-time",
+    workMode: "Hybrid",
+    experience: "3-5 yrs",
+    salary: "₹22 - 32 LPA",
+    salaryNum: 27,
+    posted: "2 days ago",
+    match: 94,
+    tags: ["React", "TypeScript", "Next.js", "Tailwind"],
+    category: "Engineering",
+    featured: true,
+    description:
+      "Build the next generation of web tooling. Work with React, Next.js and a modern edge-first stack.",
+  },
+  {
+    id: "j2",
+    title: "Product Designer",
+    company: "Linear",
+    logo: "https://logo.clearbit.com/linear.app",
+    location: "Remote",
+    type: "Full-time",
+    workMode: "Remote",
+    experience: "2-4 yrs",
+    salary: "₹18 - 26 LPA",
+    salaryNum: 22,
+    posted: "5 days ago",
+    match: 87,
+    tags: ["Figma", "Design Systems", "Prototyping"],
+    category: "Design",
+    description:
+      "Design beautiful, focused product experiences for a fast-moving collaborative tool.",
+  },
+  {
+    id: "j3",
+    title: "Backend Developer (Node.js)",
+    company: "Razorpay",
+    logo: "https://logo.clearbit.com/razorpay.com",
+    location: "Bengaluru, IN",
+    type: "Full-time",
+    workMode: "On-site",
+    experience: "2-5 yrs",
+    salary: "₹16 - 24 LPA",
+    salaryNum: 20,
+    posted: "1 week ago",
+    match: 82,
+    tags: ["Node.js", "PostgreSQL", "AWS", "Microservices"],
+    category: "Engineering",
+    urgent: true,
+    description:
+      "Own and scale payment systems handling millions of transactions a day.",
+  },
+  {
+    id: "j4",
+    title: "Data Scientist",
+    company: "Swiggy",
+    logo: "https://logo.clearbit.com/swiggy.com",
+    location: "Hyderabad, IN",
+    type: "Full-time",
+    workMode: "Hybrid",
+    experience: "3-6 yrs",
+    salary: "₹20 - 30 LPA",
+    salaryNum: 25,
+    posted: "3 days ago",
+    match: 78,
+    tags: ["Python", "ML", "SQL", "TensorFlow"],
+    category: "Data",
+    description:
+      "Build models that power discovery, ranking and recommendation across the app.",
+  },
+  {
+    id: "j5",
+    title: "DevOps Engineer",
+    company: "Freshworks",
+    logo: "https://logo.clearbit.com/freshworks.com",
+    location: "Chennai, IN",
+    type: "Full-time",
+    workMode: "On-site",
+    experience: "4-7 yrs",
+    salary: "₹18 - 28 LPA",
+    salaryNum: 23,
+    posted: "6 days ago",
+    match: 73,
+    tags: ["Kubernetes", "AWS", "Terraform", "CI/CD"],
+    category: "Engineering",
+    description:
+      "Improve developer velocity by building robust, secure platforms.",
+  },
+  {
+    id: "j6",
+    title: "Marketing Manager",
+    company: "Zerodha",
+    logo: "https://logo.clearbit.com/zerodha.com",
+    location: "Bengaluru, IN",
+    type: "Full-time",
+    workMode: "Hybrid",
+    experience: "5-8 yrs",
+    salary: "₹14 - 22 LPA",
+    salaryNum: 18,
+    posted: "1 day ago",
+    match: 68,
+    tags: ["Growth", "SEO", "Content", "Analytics"],
+    category: "Marketing",
+    featured: true,
+    description:
+      "Lead brand and growth marketing for India's largest retail broker.",
+  },
+  {
+    id: "j7",
+    title: "Mobile Engineer (React Native)",
+    company: "CRED",
+    logo: "https://logo.clearbit.com/cred.club",
+    location: "Bengaluru, IN",
+    type: "Full-time",
+    workMode: "On-site",
+    experience: "2-5 yrs",
+    salary: "₹20 - 30 LPA",
+    salaryNum: 25,
+    posted: "4 days ago",
+    match: 81,
+    tags: ["React Native", "iOS", "Android", "TypeScript"],
+    category: "Engineering",
+    description:
+      "Build premium mobile experiences for India's most rewarding member club.",
+  },
+  {
+    id: "j8",
+    title: "HR Business Partner",
+    company: "Flipkart",
+    logo: "https://logo.clearbit.com/flipkart.com",
+    location: "Bengaluru, IN",
+    type: "Full-time",
+    workMode: "Hybrid",
+    experience: "6-10 yrs",
+    salary: "₹16 - 24 LPA",
+    salaryNum: 20,
+    posted: "2 weeks ago",
+    match: 60,
+    tags: ["People Ops", "Hiring", "Culture"],
+    category: "HR",
+    description:
+      "Partner with engineering leaders to shape org design and talent strategy.",
+  },
+  {
+    id: "j9",
+    title: "QA Automation Engineer",
+    company: "Postman",
+    logo: "https://logo.clearbit.com/postman.com",
+    location: "Remote",
+    type: "Contract",
+    workMode: "Remote",
+    experience: "2-4 yrs",
+    salary: "₹12 - 18 LPA",
+    salaryNum: 15,
+    posted: "1 week ago",
+    match: 75,
+    tags: ["Cypress", "Playwright", "API Testing"],
+    category: "Engineering",
+    description:
+      "Automate test suites for one of the world's most loved developer tools.",
+  },
+];
+
+const datePosted = [
+  { id: 1, name: "All", value: "all", isChecked: false },
+  { id: 2, name: "Last Hour", value: "last-hour", isChecked: false },
+  { id: 3, name: "Last 24 Hours", value: "last-24-hour", isChecked: false },
+  { id: 4, name: "Last 7 Days", value: "last-7-days", isChecked: false },
+  { id: 5, name: "Last 14 Days", value: "last-14-days", isChecked: false },
+  { id: 6, name: "Last 30 Days", value: "last-30-days", isChecked: false },
+];
+// const jobTypes = ["Full-time", "Part-time", "Contract", "Internship"];
+const workModes = ["Remote", "On-site"];
+const experienceLevels = ["Fresher", "1-3 yrs", "3-5 yrs", "5-8 yrs", "8+ yrs"];
+const locations = [
+  "Bengaluru",
+  "Hyderabad",
+  "Chennai",
+  "Mumbai",
+  "Delhi NCR",
+  "Remote",
+];
+
+const modeStyles: Record<string, string> = {
+  Remote: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+  Hybrid: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+  "On-site": "bg-amber-500/10 text-amber-700 border-amber-500/20",
+};
+
+function FilterPanel({
+  jobTypes,
+  experienceLevels,
+  selectedCategories,
+  setSelectedCategories,
+  selectedTypes,
+  setSelectedTypes,
+  selectedModes,
+  setSelectedModes,
+  selectedExp,
+  setSelectedExp,
+  salary,
+  setSalary,
+  onReset,
+}: {
+  jobTypes: string[];
+  selectedCategories: string[];
+  experienceLevels: string[];
+  setSelectedCategories: (v: string[]) => void;
+  selectedTypes: string[];
+  setSelectedTypes: (v: string[]) => void;
+  selectedModes: string[];
+  setSelectedModes: (v: string[]) => void;
+  selectedExp: string[];
+  setSelectedExp: (v: string[]) => void;
+  salary: number[];
+  setSalary: (v: number[]) => void;
+  onReset: () => void;
+}) {
+  const toggle = (arr: string[], v: string, set: (x: string[]) => void) =>
+    set(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
+
+  const Section = ({
+    title,
+    items,
+    selected,
+    onToggle,
+  }: {
+    title: string;
+    items: string[];
+    selected: string[];
+    onToggle: (v: string) => void;
+  }) => (
+    <div className="space-y-3">
+      <h4 className="text-sm font-semibold text-foreground">{title}</h4>
+      <div className="space-y-2">
+        {items.map((item) => (
+          <label
+            key={item}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer"
+          >
+            <Checkbox
+              checked={selected.includes(item)}
+              onCheckedChange={() => onToggle(item)}
+            />
+            <span>{item}</span>
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h3 className="font-display text-base font-semibold flex items-center gap-2">
+          <SlidersHorizontal className="h-4 w-4 text-primary" />
+          Filters
+        </h3>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onReset}
+          className="h-7 text-xs"
+        >
+          Reset
+        </Button>
+      </div>
+      <Separator />
+      <Section
+        title="Job Type"
+        items={jobTypes}
+        selected={selectedTypes}
+        onToggle={(v) => toggle(selectedTypes, v, setSelectedTypes)}
+      />
+      <Section
+        title="Date Posted"
+        items={datePosted.map((item) => item.name)}
+        selected={selectedCategories}
+        onToggle={(v) => toggle(selectedCategories, v, setSelectedCategories)}
+      />
+      <Separator />
+
+      <Separator />
+      <Section
+        title="Work Mode"
+        items={workModes}
+        selected={selectedModes}
+        onToggle={(v) => toggle(selectedModes, v, setSelectedModes)}
+      />
+      <Separator />
+      <Section
+        title="Experience"
+        items={experienceLevels}
+        selected={selectedExp}
+        onToggle={(v) => toggle(selectedExp, v, setSelectedExp)}
+      />
+      <Separator />
+      {/* <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h4 className="text-sm font-semibold">Salary (LPA)</h4>
+          <span className="text-xs text-muted-foreground">
+            ₹{salary[0]} - ₹{salary[1]}
+          </span>
+        </div>
+        <Slider
+          value={salary}
+          onValueChange={setSalary}
+          min={0}
+          max={50}
+          step={1}
+          className="mt-2"
+        />
+      </div> */}
+    </div>
+  );
+}
+
+export default function CandidateJobs() {
+  const [query, setQuery] = useState("");
+  const [location, setLocation] = useState("all");
+  const [sort, setSort] = useState("match");
+  const [view, setView] = useState<"grid" | "list">("list");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [selectedModes, setSelectedModes] = useState<string[]>([]);
+  const [selectedExp, setSelectedExp] = useState<string[]>([]);
+  const [salary, setSalary] = useState<number[]>([0, 50]);
+  const [saved, setSaved] = useState<Set<string>>(new Set(["j2", "j6"]));
+
+  const [jobTypes, setJobTypes] = useState<string[]>([]);
+  const [experienceLevels, setExperienceLevels] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetchJobTypes();
+    fetchExperienceLevels();
+  }, []);
+
+  const fetchJobTypes = async () => {
+    try {
+      const res = await API.get("/api/jobposting/all_job_types");
+
+      if (res.data.success) {
+        setJobTypes(res.data.data.map((item: any) => item.name));
+      }
+    } catch (error) {
+      console.error("Job Types API Error:", error);
+      setJobTypes([]);
+    }
+  };
+
+  const fetchExperienceLevels = async () => {
+    try {
+      const res = await API.get("/api/jobposting/all_job_experience_levels");
+
+      if (res.data.success) {
+        setExperienceLevels(res.data.data.map((item: any) => item.name));
+      }
+    } catch (error) {
+      console.error("Experience Levels API Error:", error);
+      setExperienceLevels([]);
+    }
+  };
+
+  const reset = () => {
+    setSelectedCategories([]);
+    setSelectedTypes([]);
+    setSelectedModes([]);
+    setSelectedExp([]);
+    setSalary([0, 50]);
+    setLocation("all");
+    setQuery("");
+  };
+
+  const toggleSave = (id: string) => {
+    setSaved((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+        toast.success("Removed from saved jobs");
+      } else {
+        next.add(id);
+        toast.success("Job saved");
+      }
+      return next;
+    });
+  };
+
+  const jobs = useMemo(() => {
+    let list = allJobs.filter((j) => {
+      const q = query.trim().toLowerCase();
+      const matchQ =
+        !q ||
+        j.title.toLowerCase().includes(q) ||
+        j.company.toLowerCase().includes(q) ||
+        j.tags.some((t) => t.toLowerCase().includes(q));
+      const matchLoc =
+        location === "all" ||
+        j.location.toLowerCase().includes(location.toLowerCase());
+      const matchCat =
+        !selectedCategories.length || selectedCategories.includes(j.category);
+      const matchType = !selectedTypes.length || selectedTypes.includes(j.type);
+      const matchMode =
+        !selectedModes.length || selectedModes.includes(j.workMode);
+      const matchExp =
+        !selectedExp.length || selectedExp.includes(j.experience);
+      const matchSal = j.salaryNum >= salary[0] && j.salaryNum <= salary[1];
+      return (
+        matchQ &&
+        matchLoc &&
+        matchCat &&
+        matchType &&
+        matchMode &&
+        matchExp &&
+        matchSal
+      );
+    });
+
+    list = [...list].sort((a, b) => {
+      if (sort === "match") return b.match - a.match;
+      if (sort === "salary") return b.salaryNum - a.salaryNum;
+      return 0;
+    });
+    return list;
+  }, [
+    query,
+    location,
+    sort,
+    selectedCategories,
+    selectedTypes,
+    selectedModes,
+    selectedExp,
+    salary,
+  ]);
+
+  const JobCard = ({ job }: { job: Job }) => {
+    const isSaved = saved.has(job.id);
+    return (
+      <Card className="group relative overflow-hidden border-border/60 hover:border-primary/40 hover:shadow-lg transition-all">
+        {/* {job.featured && (
+          <div className="absolute top-0 right-0 bg-gradient-to-l from-primary to-primary/70 text-primary-foreground text-[10px] font-semibold px-3 py-1 rounded-bl-md uppercase tracking-wider">
+            Featured
+          </div>
+        )} */}
+        <CardContent className="p-5">
+          <div className="flex items-start gap-4">
+            <div className="h-12 w-12 shrink-0 rounded-lg border bg-muted/40 flex items-center justify-center overflow-hidden">
+              <img
+                src={job.logo}
+                alt={job.company}
+                className="h-full w-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = "none";
+                }}
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <h3 className="font-display font-semibold text-base text-foreground truncate group-hover:text-primary transition-colors">
+                    {job.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-0.5">
+                    <Building2 className="h-3.5 w-3.5" />
+                    {job.company}
+                  </p>
+                </div>
+                <button
+                  onClick={() => toggleSave(job.id)}
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                  aria-label="Save job"
+                >
+                  {isSaved ? (
+                    <BookmarkCheck className="h-5 w-5 fill-primary text-primary" />
+                  ) : (
+                    <Bookmark className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-3 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <MapPin className="h-3.5 w-3.5" />
+                  {job.location}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Briefcase className="h-3.5 w-3.5" />
+                  {job.experience}
+                </span>
+                <span className="flex items-center gap-1">
+                  <IndianRupee className="h-3.5 w-3.5" />
+                  {job.salary}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Clock className="h-3.5 w-3.5" />
+                  {job.posted}
+                </span>
+              </div>
+
+              <div className="flex flex-wrap gap-1.5 mt-3">
+                <Badge
+                  variant="outline"
+                  className={cn("text-[10px]", modeStyles[job.workMode])}
+                >
+                  {job.workMode}
+                </Badge>
+                <Badge variant="secondary" className="text-[10px]">
+                  {job.type}
+                </Badge>
+                {job.urgent && (
+                  <Badge className="text-[10px] bg-destructive/10 text-destructive border-destructive/20 border">
+                    Urgent
+                  </Badge>
+                )}
+                {job.tags.slice(0, 3).map((t) => (
+                  <Badge
+                    key={t}
+                    variant="outline"
+                    className="text-[10px] font-normal"
+                  >
+                    {t}
+                  </Badge>
+                ))}
+              </div>
+
+              <p className="text-sm text-muted-foreground mt-3 line-clamp-2">
+                {job.description}
+              </p>
+
+              <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/60">
+                <div className="flex items-center gap-1.5">
+                  <div className="h-7 w-7 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                    <Star className="h-3.5 w-3.5 text-emerald-600 fill-emerald-600" />
+                  </div>
+                  <div className="leading-tight">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">
+                      Match
+                    </p>
+                    <p className="text-xs font-bold text-emerald-600">
+                      {job.match}%
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" asChild>
+                    <Link to={`/candidate/jobs/${job.id}`}>View</Link>
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => toast.success(`Applied to ${job.title}`)}
+                    className="gap-1.5"
+                  >
+                    <Send className="h-3.5 w-3.5" />
+                    Apply
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  return (
+    <CandidateLayout>
+      <div className="space-y-6">
+        {/* Hero search */}
+        <Card className="border-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
+          <CardContent className="p-6 md:p-8">
+            <div className="max-w-3xl">
+              <h1 className="font-display text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+                Find your next opportunity
+              </h1>
+              <p className="text-muted-foreground mt-1.5">
+                {allJobs.length}+ jobs from top companies, curated for your
+                profile.
+              </p>
+            </div>
+            <div className="mt-5 grid grid-cols-1 md:grid-cols-[1fr_220px_auto] gap-2 max-w-4xl">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Job title, company, or skill"
+                  className="pl-9 h-11 bg-background"
+                />
+              </div>
+              <Select value={location} onValueChange={setLocation}>
+                <SelectTrigger className="h-11 bg-background">
+                  <MapPin className="h-4 w-4 text-muted-foreground mr-1" />
+                  <SelectValue placeholder="Location" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All locations</SelectItem>
+                  {locations.map((l) => (
+                    <SelectItem key={l} value={l}>
+                      {l}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button size="lg" className="h-11 px-6">
+                Search
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
+          {/* Sidebar filters - desktop */}
+          <aside className="hidden lg:block">
+            <Card className="sticky top-20">
+              <CardContent className="p-5">
+                <FilterPanel
+                  jobTypes={jobTypes}
+                  experienceLevels={experienceLevels}
+                  selectedCategories={selectedCategories}
+                  setSelectedCategories={setSelectedCategories}
+                  selectedTypes={selectedTypes}
+                  setSelectedTypes={setSelectedTypes}
+                  selectedModes={selectedModes}
+                  setSelectedModes={setSelectedModes}
+                  selectedExp={selectedExp}
+                  setSelectedExp={setSelectedExp}
+                  salary={salary}
+                  setSalary={setSalary}
+                  onReset={reset}
+                />
+              </CardContent>
+            </Card>
+          </aside>
+
+          {/* Job listing */}
+          <div className="space-y-4 min-w-0">
+            <Card>
+              <CardContent className="p-4 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <Sheet>
+                    <SheetTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="lg:hidden gap-1.5"
+                      >
+                        <Filter className="h-4 w-4" />
+                        Filters
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent
+                      side="left"
+                      className="w-[300px] overflow-y-auto"
+                    >
+                      <SheetHeader>
+                        <SheetTitle>Filters</SheetTitle>
+                      </SheetHeader>
+                      <div className="mt-4">
+                        <FilterPanel
+                          jobTypes={jobTypes}
+                          experienceLevels={experienceLevels}
+                          selectedCategories={selectedCategories}
+                          setSelectedCategories={setSelectedCategories}
+                          selectedTypes={selectedTypes}
+                          setSelectedTypes={setSelectedTypes}
+                          selectedModes={selectedModes}
+                          setSelectedModes={setSelectedModes}
+                          selectedExp={selectedExp}
+                          setSelectedExp={setSelectedExp}
+                          salary={salary}
+                          setSalary={setSalary}
+                          onReset={reset}
+                        />
+                      </div>
+                    </SheetContent>
+                  </Sheet>
+                  <p className="text-sm text-muted-foreground">
+                    Showing{" "}
+                    <span className="font-semibold text-foreground">
+                      {jobs.length}
+                    </span>{" "}
+                    of {allJobs.length} jobs
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Select value={sort} onValueChange={setSort}>
+                    <SelectTrigger className="h-9 w-[170px]">
+                      <TrendingUp className="h-3.5 w-3.5 mr-1 text-muted-foreground" />
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="match">Best Match</SelectItem>
+                      <SelectItem value="recent">Most Recent</SelectItem>
+                      <SelectItem value="salary">Highest Salary</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <div className="hidden sm:flex border rounded-md p-0.5">
+                    <Button
+                      variant={view === "list" ? "secondary" : "ghost"}
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => setView("list")}
+                    >
+                      <List className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant={view === "grid" ? "secondary" : "ghost"}
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => setView("grid")}
+                    >
+                      <Grid3x3 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {jobs.length === 0 ? (
+              <Card>
+                <CardContent className="p-12 text-center">
+                  <div className="mx-auto h-14 w-14 rounded-full bg-muted flex items-center justify-center mb-4">
+                    <Search className="h-6 w-6 text-muted-foreground" />
+                  </div>
+                  <h3 className="font-display font-semibold">
+                    No jobs match your filters
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Try adjusting search terms or resetting filters.
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-4"
+                    onClick={reset}
+                  >
+                    Reset filters
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div
+                className={cn(
+                  "grid gap-4",
+                  view === "grid"
+                    ? "grid-cols-1 md:grid-cols-2"
+                    : "grid-cols-1",
+                )}
+              >
+                {jobs.map((j) => (
+                  <JobCard key={j.id} job={j} />
+                ))}
+              </div>
+            )}
+
+            {jobs.length > 0 && (
+              <div className="flex justify-center pt-2">
+                <Button variant="outline">Load more jobs</Button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </CandidateLayout>
+  );
+}

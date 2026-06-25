@@ -63,6 +63,10 @@ import CandidateDashboard from "./pages/candidate/CandidateDashboard.tsx";
 import CandidateProfile from "./pages/candidate/CandidateProfile.tsx";
 import ForgotPassword from "./pages/ForgotPassword.tsx";
 import CandidateAppliedJobs from "./pages/candidate/CandidateAppliedJobs.tsx";
+import CandidateJobs from "./pages/candidate/CandidateJobs.tsx";
+import CandidateSavedJobs from "./pages/candidate/CandidateSavedJobs.tsx";
+
+
 const queryClient = new QueryClient();
 const App = () => {
   const [profile, setProfile] = useState();
@@ -316,7 +320,11 @@ const App = () => {
                         path="/applications"
                         element={<CandidateAppliedJobs />}
                       />
-
+                      <Route path="/jobs" element={<CandidateJobs />} />
+                      <Route
+                        path="/saved-jobs"
+                        element={<CandidateSavedJobs />}
+                      />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </ProtectedRoute>

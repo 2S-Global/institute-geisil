@@ -51,71 +51,9 @@ const activity = [
   { d: "Sun", views: 22, apps: 4 },
 ];
 
-const recommended = [
-  {
-    id: "JD-2104",
-    title: "Frontend Engineer",
-    company: "Acme Corp",
-    loc: "Bengaluru",
-    type: "Full-time",
-    salary: "₹12–18 LPA",
-    match: 94,
-  },
-  {
-    id: "JD-2098",
-    title: "React Developer",
-    company: "Lumen Labs",
-    loc: "Remote",
-    type: "Contract",
-    salary: "₹10–14 LPA",
-    match: 89,
-  },
-  {
-    id: "JD-2087",
-    title: "UI Engineer",
-    company: "Northwind",
-    loc: "Hyderabad",
-    type: "Full-time",
-    salary: "₹14–20 LPA",
-    match: 82,
-  },
-  {
-    id: "JD-2079",
-    title: "Full-stack Engineer",
-    company: "Pixel Forge",
-    loc: "Pune",
-    type: "Full-time",
-    salary: "₹16–22 LPA",
-    match: 78,
-  },
-];
 
-const applications = [
-  {
-    role: "Product Designer",
-    company: "Acme Corp",
-    date: "Apr 18",
-    stage: "Interview",
-  },
-  {
-    role: "Frontend Engineer",
-    company: "Lumen Labs",
-    date: "Apr 14",
-    stage: "Shortlisted",
-  },
-  {
-    role: "UX Researcher",
-    company: "Northwind",
-    date: "Apr 11",
-    stage: "Under Review",
-  },
-  {
-    role: "React Developer",
-    company: "Pixel Forge",
-    date: "Apr 06",
-    stage: "Rejected",
-  },
-];
+
+
 
 const interviews = [
   {
@@ -159,35 +97,83 @@ const statusStyles: Record<string, string> = {
 };
 
 const CandidateDashboard = () => {
-  const completion = Math.round(
-    (checklist.filter((c) => c.done).length / checklist.length) * 100,
-  );
+  const [stats, setStats] = useState({
+    appliedJobs: 0,
+    shortlistedJobs: 0,
+    interviewScheduled: 0,
+    offersReceived: 0,
+  });
 
-   const [stats, setStats] = useState({
-     appliedJobs: 0,
-     shortlistedJobs: 0,
-     interviewScheduled: 0,
-     offersReceived: 0,
-   });
+  const [progress, setProgress] = useState(0);
+  const [applications, setApplications] = useState<any[]>([]);
+const [recommended, setRecommended] = useState<any[]>([]);
+  const statusStyles = {
+    applied: "bg-primary/10 text-primary border-primary/20",
+    shortlisted: "bg-success/10 text-success border-success/20",
+    interview: "bg-accent/10 text-accent border-accent/20",
+    rejected: "bg-destructive/10 text-destructive border-destructive/20",
+  };
+  const completion = progress;
+  useEffect(() => {
+    fetchDashboardData();
+    fetchUserData();
+    fetchAppliedJobs();
+      fetchRecommendedJobs();
+  }, []);
 
-   useEffect(() => {
-     fetchDashboardData();
-   }, []);
+  const fetchDashboardData = async () => {
+    try {
+      const res = await API.get(
+        "/api/candidate/candidateDetails/get_candidate_dashboard_data",
+      );
 
-   const fetchDashboardData = async () => {
-     try {
-       const res = await API.get(
-         "/api/candidate/candidateDetails/get_candidate_dashboard_data",
-       );
+      if (res.data.success) {
+        setStats(res.data.data);
+      }
+    } catch (error) {
+      console.error("Dashboard API Error:", error);
+    }
+  };
 
-       if (res.data.success) {
-         setStats(res.data.data);
-       }
-     } catch (error) {
-       console.error("Dashboard API Error:", error);
-     }
-   };
+  const fetchUserData = async () => {
+    try {
+      const res = await API.get("/api/userdata/userdata");
 
+      if (res.data?.progress !== undefined) {
+        setProgress(res.data.progress);
+      }
+    } catch (error) {
+      console.error("User Data API Error:", error);
+    }
+  };
+
+  const fetchAppliedJobs = async () => {
+    try {
+      const res = await API.get("/api/jobposting/get_all_my_applied_job");
+
+      if (res.data.success) {
+        setApplications(res.data.data);
+      }
+    } catch (error) {
+      console.error("Applied Jobs API Error:", error);
+    }
+  };
+
+  const fetchRecommendedJobs = async () => {
+    try {
+      const res = await API.get(
+        "/api/candidate/joblisting/get_job_recommendation",
+      );
+
+      if (res.data.success) {
+        setRecommended(res.data.jobs || []);
+      }
+    } catch (error) {
+      console.error("Recommended Jobs API Error:", error);
+    }
+  };
+
+  
   return (
     <CandidateLayout>
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
@@ -360,12 +346,6 @@ const CandidateDashboard = () => {
               <span className="font-display text-3xl font-bold text-foreground">
                 {completion}%
               </span>
-              <Badge
-                variant="outline"
-                className="bg-primary/10 text-primary border-primary/20"
-              >
-                {completion >= 80 ? "Almost there" : "Keep going"}
-              </Badge>
             </div>
             <Progress value={completion} className="h-2 mt-3" />
             <ul className="mt-4 space-y-2.5">
@@ -404,7 +384,7 @@ const CandidateDashboard = () => {
                 Recommended for You
               </CardTitle>
               <CardDescription>
-                Roles matched to your skills and preferences
+                Roles matched to your Industry Type
               </CardDescription>
             </div>
             <Button
@@ -419,55 +399,73 @@ const CandidateDashboard = () => {
             </Button>
           </CardHeader>
           <CardContent className="pt-2 space-y-3">
-            {recommended.map((j) => (
-              <div
-                key={j.id}
-                className="flex items-center gap-4 p-3 rounded-lg border border-border/60 hover:bg-muted/30 transition-colors"
-              >
-                <div className="h-11 w-11 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                  <Building2 className="h-5 w-5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <Link
-                      to={`/candidate/jobs/${j.id}`}
-                      className="font-semibold text-foreground hover:text-primary truncate"
-                    >
-                      {j.title}
-                    </Link>
-                    <Badge
-                      variant="outline"
-                      className="bg-success/10 text-success border-success/20 text-xs"
-                    >
-                      {j.match}% match
-                    </Badge>
+            {recommended.length > 0 ? (
+              recommended.map((j) => (
+                <div
+                  key={j._id}
+                  className="flex items-center gap-4 p-3 rounded-lg border border-border/60 hover:bg-muted/30 transition-colors"
+                >
+                  <div className="h-11 w-11 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                    <Building2 className="h-5 w-5" />
                   </div>
-                  <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <Building2 className="h-3 w-3" />
-                      {j.company}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <MapPin className="h-3 w-3" />
-                      {j.loc}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
-                      {j.type}
-                    </span>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <Link
+                        to={`/candidate/jobs/${j._id}`}
+                        className="font-semibold text-foreground hover:text-primary truncate"
+                      >
+                        {j.jobTitle}
+                      </Link>
+
+                      <Badge
+                        variant="outline"
+                        className="bg-success/10 text-success border-success/20 text-xs"
+                      >
+                        Recommended
+                      </Badge>
+                    </div>
+
+                    <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <Building2 className="h-3 w-3" />
+                        {j.userId?.name || "Company"}
+                      </span>
+
+                      <span className="flex items-center gap-1">
+                        <MapPin className="h-3 w-3" />
+                        {j.jobLocationType || "N/A"}
+                      </span>
+
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        {j.jobType?.map((t: any) => t.name).join(", ")}
+                      </span>
+                    </div>
                   </div>
+
+                  <div className="hidden md:block text-right">
+                    <p className="text-sm font-semibold text-foreground">
+                      {j.salary?.currency}
+                      {j.salary?.min?.toLocaleString()} - {j.salary?.currency}
+                      {j.salary?.max?.toLocaleString()}
+                    </p>
+
+                    <p className="text-xs text-muted-foreground">
+                      {j.salary?.rate}
+                    </p>
+                  </div>
+
+                  <Button size="sm" variant="outline">
+                    Apply
+                  </Button>
                 </div>
-                <div className="hidden md:block text-right">
-                  <p className="text-sm font-semibold text-foreground">
-                    {j.salary}
-                  </p>
-                  <p className="text-xs text-muted-foreground">est. CTC</p>
-                </div>
-                <Button size="sm" variant="outline">
-                  Apply
-                </Button>
+              ))
+            ) : (
+              <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
+                No recommended jobs found.
               </div>
-            ))}
+            )}
           </CardContent>
         </Card>
 
@@ -564,62 +562,62 @@ const CandidateDashboard = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground border-b border-border/60">
+                <tr className="text-center text-xs uppercase tracking-wider text-muted-foreground border-b border-border/60">
                   <th className="font-medium py-3">Role</th>
                   <th className="font-medium py-3">Company</th>
                   <th className="font-medium py-3">Applied</th>
-                  <th className="font-medium py-3 text-right">Status</th>
+                  <th className="font-medium py-3">Status</th>
                 </tr>
               </thead>
+
               <tbody className="divide-y divide-border/60">
-                {applications.map((a) => (
-                  <tr
-                    key={a.role + a.company}
-                    className="hover:bg-muted/30 transition-colors"
-                  >
-                    <td className="py-3 font-semibold text-foreground">
-                      {a.role}
-                    </td>
-                    <td className="py-3 text-muted-foreground">{a.company}</td>
-                    <td className="py-3 text-muted-foreground">{a.date}</td>
-                    <td className="py-3 text-right">
-                      <Badge
-                        variant="outline"
-                        className={statusStyles[a.stage]}
-                      >
-                        {a.stage}
-                      </Badge>
+                {applications.length > 0 ? (
+                  applications.map((app) => (
+                    <tr
+                      key={app._id}
+                      className="hover:bg-muted/30 transition-colors text-center"
+                    >
+                      <td className="py-3 font-semibold text-foreground">
+                        {app.jobId?.jobTitle}
+                      </td>
+
+                      <td className="py-3 text-muted-foreground">
+                        {app.jobId?.userId?.name}
+                      </td>
+
+                      <td className="py-3 text-muted-foreground">
+                        {new Date(app.appliedAt)
+                          .toLocaleDateString("en-GB")
+                          .replace(/\//g, "-")}
+                      </td>
+
+                      <td className="py-3">
+                        <Badge
+                          variant="outline"
+                          className={statusStyles[app.status] || ""}
+                        >
+                          {app.status?.toUpperCase()}
+                        </Badge>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan={4}
+                      className="py-8 text-center text-muted-foreground"
+                    >
+                      No applications found
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="shadow-sm border-border/60 mt-6 bg-gradient-to-br from-primary/5 via-card to-accent/5">
-        <CardContent className="p-6 flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6">
-          <div className="h-12 w-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-            <GraduationCap className="h-6 w-6" />
-          </div>
-          <div className="flex-1">
-            <h3 className="font-display font-semibold text-foreground">
-              Take a skill assessment
-            </h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              Verified scores help employers shortlist you faster. New
-              assessments added every week.
-            </p>
-          </div>
-          <Button
-            asChild
-            className="bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground"
-          >
-            <Link to="/candidate/assessments">Browse assessments</Link>
-          </Button>
-        </CardContent>
-      </Card>
+     
     </CandidateLayout>
   );
 };
