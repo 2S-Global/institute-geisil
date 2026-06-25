@@ -618,7 +618,14 @@ const [focusSection, setFocusSection] = useState(null);
         data={edit}
         setRefresh={setRefresh}
       />}
-
+ {isModalImg && (
+        <Profilepic
+          show={isModalImg}
+          onClose={closeModalImg}
+          imageSrc={profile_pic}
+          setRefresh={setRefresh}
+        />
+      )}
 {/*  {isModalOpen && <Kyc
         show={isModalOpen}
         onClose={closeModalRH}
@@ -627,14 +634,7 @@ const [focusSection, setFocusSection] = useState(null);
           focusSection={focusSection}
             data={kyc}
       />}
-        {isModalImg && (
-        <Profilepic
-          show={isModalImg}
-          onClose={closeModalImg}
-          imageSrc={profile_pic}
-          setRefresh={setRefresh}
-        />
-      )}
+       
 
      {isModalOpen && (
         <PersonalModal
