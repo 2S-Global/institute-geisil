@@ -26,12 +26,6 @@ useEffect(()=>{
     Cookies.get("token");
 
   const userRole = localStorage.getItem("role");
-
-  if (role && 1== role) {
-    return children;
-  }
-
-
   if (!token) {
     return (
       <Navigate
