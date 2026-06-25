@@ -32,9 +32,11 @@ export default function Login() {
     const role = localStorage.getItem("role");
 
     if (token) {
-      if (role === "3") {
-        navigate("/institute");
+      if (role === "1") {
+        navigate("/candidate");
       } else if (role === "2") {
+        navigate("/employer");
+      } else if (role === "3") {
         navigate("/employer");
       } else {
         navigate("/");
@@ -73,8 +75,12 @@ export default function Login() {
         title: "Login Successful",
         description: response.data.message || "Welcome back!",
       });
-
-      if (role == "2") {
+      if (role == "1") {
+        localStorage.setItem("token", token);
+        // localStorage.setItem("candidate_name", candidateName);
+        localStorage.setItem("role", role);
+         window.location.href = "/candidate";
+      } else if (role == "2") {
         localStorage.setItem("token", token);
         localStorage.setItem("employer_name", employerName);
         localStorage.setItem("role", role);

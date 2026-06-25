@@ -62,7 +62,7 @@ import Unauthorized from "./pages/Unauthorized.tsx";
 import CandidateDashboard from "./pages/candidate/CandidateDashboard.tsx";
 import CandidateProfile from "./pages/candidate/CandidateProfile.tsx";
 import ForgotPassword from "./pages/ForgotPassword.tsx";
-
+import CandidateAppliedJobs from "./pages/candidate/CandidateAppliedJobs.tsx";
 const queryClient = new QueryClient();
 const App = () => {
   const [profile, setProfile] = useState();
@@ -84,16 +84,16 @@ const App = () => {
       setLoading(false); // important
     }
   };
-useEffect(() => {
-  const token = localStorage.getItem("token") || Cookies.get("token");
+  useEffect(() => {
+    const token = localStorage.getItem("token") || Cookies.get("token");
 
-  if (!token) {
-    setLoading(false);
-    return;
-  }
+    if (!token) {
+      setLoading(false);
+      return;
+    }
 
-  FetchCompanyDetails();
-}, []);
+    FetchCompanyDetails();
+  }, []);
   useEffect(() => {
     if (isSuccess) {
       localStorage.setItem(
@@ -296,17 +296,26 @@ useEffect(() => {
                 }
               />
 
-               <Route
+              <Route
                 path="/candidate/*"
                 element={
                   <ProtectedRoute role="1">
                     <Routes>
                       <Route path="/" element={<CandidateDashboard />} />
-                      <Route path="/dashboard" element={<CandidateDashboard />} />
+                      <Route
+                        path="/dashboard"
+                        element={<CandidateDashboard />}
+                      />
                       <Route path="/profile" element={<CandidateProfile />} />
-                      <Route path="/my-profile" element={<CandidateProfile />} />
-                     
-                    
+                      <Route
+                        path="/my-profile"
+                        element={<CandidateProfile />}
+                      />
+
+                      <Route
+                        path="/applications"
+                        element={<CandidateAppliedJobs />}
+                      />
 
                       <Route path="*" element={<NotFound />} />
                     </Routes>
