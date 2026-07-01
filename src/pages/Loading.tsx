@@ -1,17 +1,65 @@
-import { useEffect } from "react";
+import { useEffect,useState } from "react";
 import { Link, useLocation,useNavigate } from "react-router-dom";
+import API from "@/lib/axios";
+import Cookies from "js-cookie";
 const Loading = () => {
+   const [profile, setProfile] = useState();
+    const [loading, setLoading] = useState(true);
+    const [isSuccess, setSuccess] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  useEffect(() => {
-      if(localStorage.getItem("role" )==='2'){
-        navigate('/employer')
+  const FetchCompanyDetails = async () => {
+    try {
+      const response = await API.get("/api/auth/get-user-details");
+
+      if (response.data.success) {
+        const data = response.data.data;
+
+        localStorage.setItem("role", data?.role);
+        setProfile(data);
+        setSuccess(true);
       }
-      if(localStorage.getItem("role" )==='3'){
-        navigate('/institute')
+    } catch (e) {
+      console.log(e);
+      setLoading(false); // important
+    }
+  };
+  useEffect(() => {
+    const token = localStorage.getItem("token") || Cookies.get("token");
+     localStorage.setItem("token", token);
+console.log( Cookies.get("token"),localStorage.getItem("token"))
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    FetchCompanyDetails();
+  }, []);
+  useEffect(() => {
+    if (isSuccess) {
+      localStorage.setItem(
+        "name",
+        profile?.name || localStorage.getItem("name"),
+      );
+      localStorage.setItem(
+        "role",
+        profile?.role || localStorage.getItem("role"),
+      );
+      setLoading(false);
+    }
+  }, [profile]);
+  useEffect(() => {
+      if (localStorage.getItem("role") === "1") {
+          navigate("/candidate");
+      }
+      if(localStorage.getItem("role")==='2'){
+          navigate('/employer')
+      }
+      if(localStorage.getItem("role")==='3'){
+          navigate('/institute')
       }
 
-}, [navigate]); 
+}, [navigate,profile]); 
 
 
   return (

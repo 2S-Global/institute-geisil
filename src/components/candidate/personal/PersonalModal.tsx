@@ -105,7 +105,7 @@ const FormModal = ({ show, onClose, data = {}, setRefresh,reload,error,
 
   const [loading, setLoading] = useState(false);
  // const apiurl = process.env.NEXT_PUBLIC_API_URL;
-  const token = localStorage.getItem("candidate_token");
+  const token = localStorage.getItem("token");
   if (!token) {
     console.log("No token");
   }
@@ -117,7 +117,7 @@ const FormModal = ({ show, onClose, data = {}, setRefresh,reload,error,
   useEffect(() => {
     /* /get_personal_details */
     const fetchPersonalDetails = async () => {
-      setLoading(true);
+      //setLoading(true);
       try {
         const response = await API.get(
           `/api/candidate/personal/get_personal_details`,

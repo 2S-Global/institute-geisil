@@ -65,7 +65,7 @@ import ForgotPassword from "./pages/ForgotPassword.tsx";
 import CandidateAppliedJobs from "./pages/candidate/CandidateAppliedJobs.tsx";
 import CandidateJobs from "./pages/candidate/CandidateJobs.tsx";
 import CandidateSavedJobs from "./pages/candidate/CandidateSavedJobs.tsx";
-
+import CandidateApplicationDetail from "./pages/candidate/CandidateApplicationDetail.tsx";
 
 const queryClient = new QueryClient();
 const App = () => {
@@ -169,6 +169,7 @@ const App = () => {
               {/* <Route path="/login" element={<Login />} /> */}
 
               <Route path="/" element={<Login />} />
+              <Route path="/loading" element={<Loading />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
 
               <Route
@@ -325,6 +326,7 @@ const App = () => {
                         path="/saved-jobs"
                         element={<CandidateSavedJobs />}
                       />
+                       <Route path="/applied-jobs/:id" element={<CandidateApplicationDetail />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </ProtectedRoute>

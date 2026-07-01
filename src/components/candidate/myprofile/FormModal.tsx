@@ -30,7 +30,7 @@ const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
   const [isResidingInIndia, setIsResidingInIndia] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-
+  const { toast } = useToast();
   const salaryCurrencies = [
     { label: "₹", value: "INR" },
     { label: "$", value: "USD" },
@@ -229,16 +229,27 @@ const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
           },
         }
       );
 
       console.log("Upload successful:", response.data);
       if (!response.data.success) {
+         toast({
+          title: "Error",
+          variant: "destructive",
+          description: response.data.message || "An error occurred",
+        })
         throw new Error(response.data.message || "An error occurred");
+         
+      }else{
+        toast({
+          title: "Success",
+          description: "Details updated successfully!",
+        });
       }
       setSuccess("Details updated successfully!");
+
       //setSuccess_main("Details updated successfully!");
       setRefresh(v=>v+1);
       setTimeout(() => onClose(), 1500); // Close modal after success

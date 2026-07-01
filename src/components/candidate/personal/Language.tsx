@@ -27,20 +27,27 @@ const Language = ({ formData, setFormData }) => {
   const apiurl =  import.meta.env.VITE_API_URL;
    //list
   
-const [languages, setLanguages] = useState(formData.languages || []);
+const [languages, setLanguages] = useState([]);
 
   const [languageOptions, setLanguageOptions] = useState([]);
   const [languageproficiencyOptions, setLanguageproficiencyOptions] = useState(
     []
   );
   const [loading, setLoading] = useState(true);
+    useEffect(() => {
+    if (Array.isArray(formData?.languages)) {
+      setLanguages(formData.languages);
+    }
+  }, [formData?.languages]);
   useEffect(() => {
-    setFormData((prevData) => ({ ...prevData, languages }));
+     if (Array.isArray(formData?.languages) && formData?.languages?.length>0) {
+          setFormData((prevData) => ({ ...prevData, languages }));
+     }
   }, [languages]);
 
   useEffect(() => {
     const fetchLanguageOptions = async () => {
-      setLoading(true);
+      //setLoading(true);
       try {
         const response = await fetch(`${apiurl}/api/sql/dropdown/language`);
         const data = await response.json();
@@ -53,7 +60,7 @@ const [languages, setLanguages] = useState(formData.languages || []);
     };
     /* /api/sql/dropdown/language_proficiency */
     const fetchLanguageproficiencyOptions = async () => {
-      setLoading(true);
+      //setLoading(true);
       try {
         const response = await fetch(
           `${apiurl}/api/sql/dropdown/language_proficiency`

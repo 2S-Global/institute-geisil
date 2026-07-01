@@ -23,12 +23,12 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import Disability from "./Disability";
 import CareerBreak from "./CareerBreak";
-import LanguageProficiency from "./language"
+import LanguageProficiency from "./Language"
 const FormModal = ({ show, onClose, data = {}, setRefresh, formData,setFormData,
   focusSection,
   setWrongDate }) => {
   const apiurl =  import.meta.env.VITE_API_URL;
-  console.log("show",show)
+  //console.log("show",show)
    //list
   const [Genders, setGenders] = useState([]);
 
@@ -130,7 +130,7 @@ const FormModal = ({ show, onClose, data = {}, setRefresh, formData,setFormData,
 
   useEffect(() => {
     const fetchGenders = async () => {
-      setLoading(true);
+      //setLoading(true);
       try {
         const response = await fetch(`${apiurl}/api/sql/dropdown/All_gender`);
         const data = await response.json();
@@ -142,7 +142,7 @@ const FormModal = ({ show, onClose, data = {}, setRefresh, formData,setFormData,
       }
     };
     const fetchMoreInfoList = async () => {
-      setLoading(true);
+      //setLoading(true);
       try {
         const response = await fetch(
           `${apiurl}/api/sql/dropdown/more_information`
@@ -157,7 +157,7 @@ const FormModal = ({ show, onClose, data = {}, setRefresh, formData,setFormData,
     };
 
     const fetchMarriageStatusList = async () => {
-      setLoading(true);
+      //setLoading(true);
       try {
         const response = await fetch(
           `${apiurl}/api/sql/dropdown/marital_status`
@@ -173,7 +173,7 @@ const FormModal = ({ show, onClose, data = {}, setRefresh, formData,setFormData,
     };
 
     const fetchCategories = async () => {
-      setLoading(true);
+      //setLoading(true);
       try {
         const response = await fetch(
           `${apiurl}/api/sql/dropdown/category_details`
@@ -187,7 +187,7 @@ const FormModal = ({ show, onClose, data = {}, setRefresh, formData,setFormData,
       }
     };
     const fetchUsaVisaList = async () => {
-      setLoading(true);
+      //setLoading(true);
       try {
         const response = await fetch(`${apiurl}/api/sql/dropdown/visa_type`);
         const data = await response.json();
@@ -200,7 +200,7 @@ const FormModal = ({ show, onClose, data = {}, setRefresh, formData,setFormData,
     };
 
     const fetchCountries = async () => {
-      setLoading(true);
+      //setLoading(true);
       try {
         const response = await fetch(`${apiurl}/api/sql/dropdown/All_contry`);
         const data = await response.json();
@@ -394,6 +394,18 @@ const FormModal = ({ show, onClose, data = {}, setRefresh, formData,setFormData,
               <label className="block text-sm font-semibold mb-2">
                 Date of Birth <span className="text-red-500">*</span>
               </label>
+              <input
+    type="date"
+    className="w-full border rounded-md px-3 py-2 text-sm relative"
+    value={formData?.dob? new Date(formData.dob).toISOString().split("T")[0]:""}
+     onChange={(e) =>
+      setFormData({
+        ...formData,
+        dob: e.target.value,
+      })
+    }
+    max={eighteenYearsAgo.toISOString().split("T")[0]}
+  />
 
         {/*  <LocalizationProvider dateAdapter={AdapterDateFns}>
                 <DatePicker

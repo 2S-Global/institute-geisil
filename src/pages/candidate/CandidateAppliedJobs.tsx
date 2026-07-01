@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { CandidateLayout } from "@/components/CandidateLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -366,8 +367,10 @@ export default function CandidateAppliedJobs() {
                       </div>
 
                       <div className="flex items-center gap-2 md:flex-col md:items-end">
-                        <Button size="sm" variant="outline" className="gap-2">
-                          <Eye className="h-4 w-4" /> View
+                        <Button size="sm" variant="outline" className="gap-2" asChild>
+                          <Link to={`/candidate/applied-jobs/${j.id}`}>
+                            <Eye className="h-4 w-4" /> View
+                          </Link>
                         </Button>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>

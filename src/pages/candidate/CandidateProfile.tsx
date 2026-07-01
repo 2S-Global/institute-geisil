@@ -40,10 +40,14 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import AboutFormModal from "@/components/candidate/myprofile/FormModal";
 import Profilepic from "@/components/candidate/profileImg/FormModal";
-import Kyc from "@/components/candidate/kyc/FormModal";
+import PersonalSection from "@/components/candidate/personal/PersonalSection";
 import PersonalModal from "@/components/candidate/personal/PersonalModal";
 import API from "../../lib/axios";
 import noImage from "../../assets/img/no-man.jpg";
+import KycSection from "@/components/candidate/kyc/KycSection";
+import ResumeHeadlineSection from "@/components/candidate/resumeHeadline/ResumeHeadlineSection";
+import ProfileSummarySection from "@/components/candidate/ProfileSummarySection/ProfileSummarySection";
+import AcademicSection from "@/components/candidate/academics/AcademicSection";
 const experiences = [
   {
     role: "Frontend Engineer",
@@ -314,31 +318,11 @@ const [focusSection, setFocusSection] = useState(null);
               </TabsList>
 
               <TabsContent value="about" className="space-y-6 mt-6">
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between">
-                    <div>
-                      <CardTitle className="text-lg">Resume Headline</CardTitle>
-                      <CardDescription>A short summary recruiters see first.</CardDescription>
-                    </div>
-                    <Button variant="ghost" size="icon" ><Pencil className="h-4 w-4" /></Button>
-                  </CardHeader>
-                  <CardContent>
-                    {editing ? (
-                      <Textarea
-                        rows={5}
-                        defaultValue="Frontend engineer with 2+ years of experience building production React apps. I care about accessibility, performance, and clean design systems. Currently exploring senior IC roles in product-led companies."
-                      />
-                    ) : (
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        Frontend engineer with 2+ years of experience building production React apps.
-                        I care about accessibility, performance, and clean design systems. Currently
-                        exploring senior IC roles in product-led companies.
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
-
-                <Card>
+                <KycSection/>
+                <ResumeHeadlineSection/>
+                <ProfileSummarySection/>
+                <PersonalSection/>
+               {/*  <Card>
                   <CardHeader className="flex flex-row items-center justify-between">
                     <div>
                       <CardTitle className="text-lg">Personal information</CardTitle>
@@ -401,7 +385,7 @@ const [focusSection, setFocusSection] = useState(null);
                       </div>
                     ))}
                   </CardContent>
-                </Card>
+                </Card> */}
               </TabsContent>
 
               <TabsContent value="experience" className="space-y-4 mt-6">
@@ -409,6 +393,7 @@ const [focusSection, setFocusSection] = useState(null);
                   <h2 className="font-display text-lg font-semibold">Work experience</h2>
                   <Button size="sm" className="gap-1.5"><Plus className="h-4 w-4" /> Add experience</Button>
                 </div>
+                 <AcademicSection/>
                 <div className="space-y-4">
                   {experiences.map((e, i) => (
                     <Card key={i}>

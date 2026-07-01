@@ -25,22 +25,23 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import KycBox from "./KycBox";
-const FormModal = ({ show, onClose, data = {}, setRefresh, 
-
+const KycModal = ({ show,
+  onClose,
+  setError,
+  setSuccess,
   setMessageId,
   setErrorId,
   setReload,
-  focusSection }) => {
+  focusSection,
+  data,}) => {
   const apiurl =  import.meta.env.VITE_API_URL;
  // console.log("show",show)
-    const [isFormValid, setIsFormValid] = useState(false);
+   const [isFormValid, setIsFormValid] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState();
-  const [success, setSuccess] = useState();
   const token = localStorage.getItem("token");
   /* 
   console.log("data", data); */
-
+   const { toast } = useToast();
   const [formData, setFormData] = useState({
     pan_number: data?.pan_number || "",
     pan_name: data?.pan_name || "",
@@ -128,32 +129,47 @@ const FormModal = ({ show, onClose, data = {}, setRefresh,
     setSaving(true);
     setError(null);
     setSuccess(null);
-    //setMessageId(null);
-    //setErrorId(null);
-    //console.log("formData kkkkkkkkkkkkkkkk lllllllllllllllllllllll",formData)
+    setMessageId(null);
+    setErrorId(null);
+
     try {
       const response = await API.post(
-        `/api/candidatekyc/kyc`,
-        formData
+        `${apiurl}/api/candidatekyc/kyc`,
+        formData,
+       
       );
 
       if (response.data.success) {
         setSuccess(response.data.message || "KYC updated successfully.");
-        //setMessageId(Date.now());
-        setTimeout(() => {
-            setReload(p=>p+1);
-            onClose();
-        }, 2000);
+         toast({
+          title: "Success",
+          description: response.data.message || "KYC updated successfully.",
+        });
+        setMessageId(Date.now());
+        setReload(true);
+        onClose();
       }
 
       if (!response.data.success) {
         setError(response.data.message || "Failed to update KYC.");
-        //setErrorId(Date.now());
+         toast({
+          title: "Error",
+          variant: "destructive",
+          description: response.data.message || "Failed to update KYC.",
+        })
+        setErrorId(Date.now());
       }
     } catch (error) {
-      //console.error(error);
+      console.error(error);
       setError("Failed to update KYC. Try again later.");
-    } 
+        toast({
+          title: "Error",
+          variant: "destructive",
+          description: "Failed to update KYC. Try again later.",
+        })
+    } finally {
+      setSaving(false);
+    }
   };
   if (!show) return null;
 
@@ -214,7 +230,7 @@ const FormModal = ({ show, onClose, data = {}, setRefresh,
 
     </form>
        {/* Messages */}
-      {success && (
+    {/*   {success && (
         <div className="text-sm text-green-600 bg-green-50 p-2 rounded">
           {success}
         </div>
@@ -224,11 +240,11 @@ const FormModal = ({ show, onClose, data = {}, setRefresh,
         <div className="text-sm text-red-500 bg-red-50 p-2 rounded">
           {error}
         </div>
-      )}
+      )} */}
 
   </DialogContent>
 </Dialog>
   );
 };
 
-export default FormModal;
+export default KycModal;
