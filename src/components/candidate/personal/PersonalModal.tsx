@@ -30,6 +30,7 @@ const FormModal = ({ show, onClose, data = {}, setRefresh,reload,error,
   setSuccess }) => {
   const apiurl =  import.meta.env.VITE_API_URL;
   console.log("show",show)
+  const { toast } = useToast();
  const [formData, setFormData] = useState({
     gender: "",
     dob: null,
@@ -259,13 +260,22 @@ const FormModal = ({ show, onClose, data = {}, setRefresh,reload,error,
       console.log("Response:", response.data);
       setSaving(false);
       setReload(!reload);
-      setSuccess("Personal details updated successfully");
+      //setSuccess("Personal details updated successfully");
+       toast({
+          title: "Success",
+          description: "Personal details updated successfully",
+        });
 
       onClose();
     } catch (error) {
       console.error("Error saving personal details:", error);
       setSaving(false);
       setError("Error saving personal details. Please try again.");
+       toast({
+          title: "Error",
+          variant: "destructive",
+          description:"Error saving personal details. Please try again.",
+        })
     }
   };
   if (!show) return null;
@@ -378,7 +388,7 @@ const FormModal = ({ show, onClose, data = {}, setRefresh,reload,error,
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-3 pt-4">
+       {/*  <div className="flex justify-end gap-3 pt-4">
 
           <button
             className="btn btn-secondary"
@@ -410,7 +420,73 @@ const FormModal = ({ show, onClose, data = {}, setRefresh,reload,error,
               {saving ? "Saving..." : "Save"}
             </button>
           </div>
-        </div>
+        </div> */}
+
+        <div className="flex justify-end gap-3 pt-4">
+  <button
+    className="px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-100"
+    onClick={onClose}
+    type="button"
+  >
+    Cancel
+  </button>
+
+  <div className="relative group">
+    {(!isFormValid || wrongdate2) && (
+      <div className="absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-gray-800 px-3 py-2 text-sm text-white shadow-lg">
+        {!isFormValid
+          ? "Please fill all required fields"
+          : "Not valid Date Range"}
+
+        {/* Tooltip Arrow */}
+        <div className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+      </div>
+    )}
+
+    <button
+      className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+      onClick={handleSave}
+      disabled={!isFormValid || saving || wrongdate2}
+      type="button"
+    >
+      {saving ? "Saving..." : "Save"}
+    </button>
+  </div>
+</div>
+
+
+        {/* <div className="flex justify-end gap-3 pt-4">
+
+           {!isFormValid && (
+              <div className="custom-tooltip">
+                Please fill all required fields
+              </div>
+            )}
+
+            {wrongdate2 && (
+              <div className="custom-tooltip">
+                Not valid Date Range
+              </div>
+            )}
+
+       
+  <button
+    type="button"
+    onClick={onClose}
+    className="px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-colors"
+  >
+    Cancel
+  </button>
+
+  <button
+    type="button"
+    onClick={handleSave}
+              disabled={!isFormValid || saving || wrongdate2}
+    className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed"
+  >
+     {saving ? "Saving..." : "Save"}
+  </button>
+</div> */}
 
       </DialogContent>
     </Dialog>
