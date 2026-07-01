@@ -63,174 +63,6 @@ type Job = {
   description: string;
 };
 
-const allJobs: Job[] = [
-  {
-    id: "j1",
-    title: "Senior Frontend Engineer",
-    company: "Vercel",
-    logo: "https://logo.clearbit.com/vercel.com",
-    location: "Bengaluru, IN",
-    type: "Full-time",
-    workMode: "Hybrid",
-    experience: "3-5 yrs",
-    salary: "₹22 - 32 LPA",
-    salaryNum: 27,
-    posted: "2 days ago",
-    match: 94,
-    tags: ["React", "TypeScript", "Next.js", "Tailwind"],
-    category: "Engineering",
-    featured: true,
-    description:
-      "Build the next generation of web tooling. Work with React, Next.js and a modern edge-first stack.",
-  },
-  {
-    id: "j2",
-    title: "Product Designer",
-    company: "Linear",
-    logo: "https://logo.clearbit.com/linear.app",
-    location: "Remote",
-    type: "Full-time",
-    workMode: "Remote",
-    experience: "2-4 yrs",
-    salary: "₹18 - 26 LPA",
-    salaryNum: 22,
-    posted: "5 days ago",
-    match: 87,
-    tags: ["Figma", "Design Systems", "Prototyping"],
-    category: "Design",
-    description:
-      "Design beautiful, focused product experiences for a fast-moving collaborative tool.",
-  },
-  {
-    id: "j3",
-    title: "Backend Developer (Node.js)",
-    company: "Razorpay",
-    logo: "https://logo.clearbit.com/razorpay.com",
-    location: "Bengaluru, IN",
-    type: "Full-time",
-    workMode: "On-site",
-    experience: "2-5 yrs",
-    salary: "₹16 - 24 LPA",
-    salaryNum: 20,
-    posted: "1 week ago",
-    match: 82,
-    tags: ["Node.js", "PostgreSQL", "AWS", "Microservices"],
-    category: "Engineering",
-    urgent: true,
-    description:
-      "Own and scale payment systems handling millions of transactions a day.",
-  },
-  {
-    id: "j4",
-    title: "Data Scientist",
-    company: "Swiggy",
-    logo: "https://logo.clearbit.com/swiggy.com",
-    location: "Hyderabad, IN",
-    type: "Full-time",
-    workMode: "Hybrid",
-    experience: "3-6 yrs",
-    salary: "₹20 - 30 LPA",
-    salaryNum: 25,
-    posted: "3 days ago",
-    match: 78,
-    tags: ["Python", "ML", "SQL", "TensorFlow"],
-    category: "Data",
-    description:
-      "Build models that power discovery, ranking and recommendation across the app.",
-  },
-  {
-    id: "j5",
-    title: "DevOps Engineer",
-    company: "Freshworks",
-    logo: "https://logo.clearbit.com/freshworks.com",
-    location: "Chennai, IN",
-    type: "Full-time",
-    workMode: "On-site",
-    experience: "4-7 yrs",
-    salary: "₹18 - 28 LPA",
-    salaryNum: 23,
-    posted: "6 days ago",
-    match: 73,
-    tags: ["Kubernetes", "AWS", "Terraform", "CI/CD"],
-    category: "Engineering",
-    description:
-      "Improve developer velocity by building robust, secure platforms.",
-  },
-  {
-    id: "j6",
-    title: "Marketing Manager",
-    company: "Zerodha",
-    logo: "https://logo.clearbit.com/zerodha.com",
-    location: "Bengaluru, IN",
-    type: "Full-time",
-    workMode: "Hybrid",
-    experience: "5-8 yrs",
-    salary: "₹14 - 22 LPA",
-    salaryNum: 18,
-    posted: "1 day ago",
-    match: 68,
-    tags: ["Growth", "SEO", "Content", "Analytics"],
-    category: "Marketing",
-    featured: true,
-    description:
-      "Lead brand and growth marketing for India's largest retail broker.",
-  },
-  {
-    id: "j7",
-    title: "Mobile Engineer (React Native)",
-    company: "CRED",
-    logo: "https://logo.clearbit.com/cred.club",
-    location: "Bengaluru, IN",
-    type: "Full-time",
-    workMode: "On-site",
-    experience: "2-5 yrs",
-    salary: "₹20 - 30 LPA",
-    salaryNum: 25,
-    posted: "4 days ago",
-    match: 81,
-    tags: ["React Native", "iOS", "Android", "TypeScript"],
-    category: "Engineering",
-    description:
-      "Build premium mobile experiences for India's most rewarding member club.",
-  },
-  {
-    id: "j8",
-    title: "HR Business Partner",
-    company: "Flipkart",
-    logo: "https://logo.clearbit.com/flipkart.com",
-    location: "Bengaluru, IN",
-    type: "Full-time",
-    workMode: "Hybrid",
-    experience: "6-10 yrs",
-    salary: "₹16 - 24 LPA",
-    salaryNum: 20,
-    posted: "2 weeks ago",
-    match: 60,
-    tags: ["People Ops", "Hiring", "Culture"],
-    category: "HR",
-    description:
-      "Partner with engineering leaders to shape org design and talent strategy.",
-  },
-  {
-    id: "j9",
-    title: "QA Automation Engineer",
-    company: "Postman",
-    logo: "https://logo.clearbit.com/postman.com",
-    location: "Remote",
-    type: "Contract",
-    workMode: "Remote",
-    experience: "2-4 yrs",
-    salary: "₹12 - 18 LPA",
-    salaryNum: 15,
-    posted: "1 week ago",
-    match: 75,
-    tags: ["Cypress", "Playwright", "API Testing"],
-    category: "Engineering",
-    description:
-      "Automate test suites for one of the world's most loved developer tools.",
-  },
-];
-
 const datePosted = [
   { id: 1, name: "All", value: "all", isChecked: false },
   { id: 2, name: "Last Hour", value: "last-hour", isChecked: false },
@@ -241,15 +73,8 @@ const datePosted = [
 ];
 // const jobTypes = ["Full-time", "Part-time", "Contract", "Internship"];
 const workModes = ["Remote", "On-site"];
-const experienceLevels = ["Fresher", "1-3 yrs", "3-5 yrs", "5-8 yrs", "8+ yrs"];
-const locations = [
-  "Bengaluru",
-  "Hyderabad",
-  "Chennai",
-  "Mumbai",
-  "Delhi NCR",
-  "Remote",
-];
+
+const locations = ["Remote"];
 
 const modeStyles: Record<string, string> = {
   Remote: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
@@ -388,9 +213,9 @@ function FilterPanel({
 export default function CandidateJobs() {
   const [query, setQuery] = useState("");
   const [location, setLocation] = useState("all");
-  const [sort, setSort] = useState("match");
+  const [sort, setSort] = useState("recent");
   const [view, setView] = useState<"grid" | "list">("list");
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedDatePosted, setSelectedDatePosted] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedModes, setSelectedModes] = useState<string[]>([]);
   const [selectedExp, setSelectedExp] = useState<string[]>([]);
@@ -399,11 +224,40 @@ export default function CandidateJobs() {
 
   const [jobTypes, setJobTypes] = useState<string[]>([]);
   const [experienceLevels, setExperienceLevels] = useState<string[]>([]);
-
+  const [allJobs, setAllJobs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [visibleJobs, setVisibleJobs] = useState(6);
   useEffect(() => {
     fetchJobTypes();
     fetchExperienceLevels();
+    fetchJobs();
   }, []);
+
+  useEffect(() => {
+    setVisibleJobs(6);
+  }, [
+    query,
+    location,
+    selectedTypes,
+    selectedModes,
+    selectedExp,
+    selectedDatePosted,
+  ]);
+
+  const fetchJobs = async () => {
+    try {
+      const res = await API.get("/api/candidate/joblisting/get_all_job_list");
+
+      if (res.data.success) {
+        setAllJobs(res.data.data);
+      }
+    } catch (error) {
+      console.error(error);
+      setAllJobs([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchJobTypes = async () => {
     try {
@@ -416,6 +270,16 @@ export default function CandidateJobs() {
       console.error("Job Types API Error:", error);
       setJobTypes([]);
     }
+  };
+
+  const formatSalary = (salary: any) => {
+    if (!salary) return "Salary not disclosed";
+
+    if (salary.structure === "range") {
+      return `${salary.currency}${salary.min.toLocaleString()} - ${salary.currency}${salary.max.toLocaleString()} ${salary.rate}`;
+    }
+
+    return `${salary.currency}${salary.amount.toLocaleString()} ${salary.rate}`;
   };
 
   const fetchExperienceLevels = async () => {
@@ -432,7 +296,7 @@ export default function CandidateJobs() {
   };
 
   const reset = () => {
-    setSelectedCategories([]);
+    setSelectedDatePosted([]);
     setSelectedTypes([]);
     setSelectedModes([]);
     setSelectedExp([]);
@@ -456,54 +320,118 @@ export default function CandidateJobs() {
   };
 
   const jobs = useMemo(() => {
+    const now = new Date();
+
     let list = allJobs.filter((j) => {
-      const q = query.trim().toLowerCase();
+      const q = query.toLowerCase();
+
+      // Search
       const matchQ =
         !q ||
-        j.title.toLowerCase().includes(q) ||
-        j.company.toLowerCase().includes(q) ||
-        j.tags.some((t) => t.toLowerCase().includes(q));
+        j.jobTitle.toLowerCase().includes(q) ||
+        j.companyName.toLowerCase().includes(q);
+
+      // Location
       const matchLoc =
         location === "all" ||
-        j.location.toLowerCase().includes(location.toLowerCase());
-      const matchCat =
-        !selectedCategories.length || selectedCategories.includes(j.category);
-      const matchType = !selectedTypes.length || selectedTypes.includes(j.type);
+        (j.location || "").toLowerCase().includes(location.toLowerCase());
+
+      // Job Type
+      const matchType =
+        !selectedTypes.length ||
+        j.jobType.some((type: string) => selectedTypes.includes(type));
+
+      // Work Mode
       const matchMode =
-        !selectedModes.length || selectedModes.includes(j.workMode);
+        !selectedModes.length ||
+        selectedModes.some(
+          (mode) =>
+            mode.toLowerCase().trim() ===
+            j.jobLocationType?.toLowerCase().trim(),
+        );
+
+      // Experience
       const matchExp =
-        !selectedExp.length || selectedExp.includes(j.experience);
-      const matchSal = j.salaryNum >= salary[0] && j.salaryNum <= salary[1];
+        !selectedExp.length || selectedExp.includes(j.jobExperienceLevel);
+
+      // Date Posted
+      let matchDate = true;
+
+      if (selectedDatePosted.length && !selectedDatePosted.includes("All")) {
+        const created = new Date(j.createdDate);
+        const diffHours =
+          (now.getTime() - created.getTime()) / (1000 * 60 * 60);
+
+        matchDate = selectedDatePosted.some((item) => {
+          switch (item) {
+            case "Last Hour":
+              return diffHours <= 1;
+
+            case "Last 24 Hours":
+              return diffHours <= 24;
+
+            case "Last 7 Days":
+              return diffHours <= 24 * 7;
+
+            case "Last 14 Days":
+              return diffHours <= 24 * 14;
+
+            case "Last 30 Days":
+              return diffHours <= 24 * 30;
+
+            default:
+              return true;
+          }
+        });
+      }
+
       return (
-        matchQ &&
-        matchLoc &&
-        matchCat &&
-        matchType &&
-        matchMode &&
-        matchExp &&
-        matchSal
+        matchQ && matchLoc && matchType && matchMode && matchExp && matchDate
       );
     });
 
-    list = [...list].sort((a, b) => {
-      if (sort === "match") return b.match - a.match;
-      if (sort === "salary") return b.salaryNum - a.salaryNum;
-      return 0;
-    });
+    // Sorting
+    switch (sort) {
+      case "recent":
+        list.sort(
+          (a, b) =>
+            new Date(b.createdDate).getTime() -
+            new Date(a.createdDate).getTime(),
+        );
+        break;
+
+      case "salary":
+        list.sort((a, b) => {
+          const salaryA =
+            a.salary?.max ?? a.salary?.amount ?? a.salary?.min ?? 0;
+
+          const salaryB =
+            b.salary?.max ?? b.salary?.amount ?? b.salary?.min ?? 0;
+
+          return salaryB - salaryA;
+        });
+        break;
+
+      default:
+        break;
+    }
+
     return list;
   }, [
+    allJobs,
     query,
     location,
     sort,
-    selectedCategories,
     selectedTypes,
     selectedModes,
     selectedExp,
-    salary,
+    selectedDatePosted,
   ]);
 
   const JobCard = ({ job }: { job: Job }) => {
-    const isSaved = saved.has(job.id);
+    const isSaved = job.isBookmarked;
+    const workMode =
+      job.jobLocationType?.toLowerCase() === "remote" ? "Remote" : "On-site";
     return (
       <Card className="group relative overflow-hidden border-border/60 hover:border-primary/40 hover:shadow-lg transition-all">
         {/* {job.featured && (
@@ -527,15 +455,15 @@ export default function CandidateJobs() {
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <h3 className="font-display font-semibold text-base text-foreground truncate group-hover:text-primary transition-colors">
-                    {job.title}
+                    {job.jobTitle}
                   </h3>
                   <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-0.5">
                     <Building2 className="h-3.5 w-3.5" />
-                    {job.company}
+                    {job.companyName}
                   </p>
                 </div>
                 <button
-                  onClick={() => toggleSave(job.id)}
+                  onClick={() => toggleSave(job._id)}
                   className="text-muted-foreground hover:text-primary transition-colors"
                   aria-label="Save job"
                 >
@@ -550,44 +478,44 @@ export default function CandidateJobs() {
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-3 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <MapPin className="h-3.5 w-3.5" />
-                  {job.location}
+                  {job.jobLocationType === "remote"
+                    ? "Remote"
+                    : job.location || job.advertiseCityName || "On-site"}
                 </span>
                 <span className="flex items-center gap-1">
                   <Briefcase className="h-3.5 w-3.5" />
-                  {job.experience}
+                  {job.jobExperienceLevel}
                 </span>
                 <span className="flex items-center gap-1">
                   <IndianRupee className="h-3.5 w-3.5" />
-                  {job.salary}
+                  {formatSalary(job.salary)}
                 </span>
                 <span className="flex items-center gap-1">
                   <Clock className="h-3.5 w-3.5" />
-                  {job.posted}
+                  {job.createdAgo}
                 </span>
               </div>
 
               <div className="flex flex-wrap gap-1.5 mt-3">
                 <Badge
                   variant="outline"
-                  className={cn("text-[10px]", modeStyles[job.workMode])}
+                  className={cn("text-[10px]", modeStyles[workMode])}
                 >
-                  {job.workMode}
+                  {workMode}
                 </Badge>
-                <Badge variant="secondary" className="text-[10px]">
-                  {job.type}
-                </Badge>
+
                 {job.urgent && (
                   <Badge className="text-[10px] bg-destructive/10 text-destructive border-destructive/20 border">
                     Urgent
                   </Badge>
                 )}
-                {job.tags.slice(0, 3).map((t) => (
+                {job.jobType?.map((type: string) => (
                   <Badge
-                    key={t}
+                    key={type}
                     variant="outline"
                     className="text-[10px] font-normal"
                   >
-                    {t}
+                    {type}
                   </Badge>
                 ))}
               </div>
@@ -598,21 +526,13 @@ export default function CandidateJobs() {
 
               <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/60">
                 <div className="flex items-center gap-1.5">
-                  <div className="h-7 w-7 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                  {/* <div className="h-7 w-7 rounded-full bg-emerald-500/10 flex items-center justify-center">
                     <Star className="h-3.5 w-3.5 text-emerald-600 fill-emerald-600" />
-                  </div>
-                  <div className="leading-tight">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">
-                      Match
-                    </p>
-                    <p className="text-xs font-bold text-emerald-600">
-                      {job.match}%
-                    </p>
-                  </div>
+                  </div> */}
                 </div>
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" asChild>
-                    <Link to={`/candidate/jobs/${job.id}`}>View</Link>
+                    <Link to={`/candidate/jobs/${job._id}`}>View</Link>
                   </Button>
                   <Button
                     size="sm"
@@ -646,13 +566,13 @@ export default function CandidateJobs() {
                 profile.
               </p>
             </div>
-            <div className="mt-5 grid grid-cols-1 md:grid-cols-[1fr_220px_auto] gap-2 max-w-4xl">
+            <div className="mt-5 grid grid-cols-1 md:grid-cols-[1fr_220px_auto] gap-2 max-w-5xl">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Job title, company, or skill"
+                  placeholder="Job title, company"
                   className="pl-9 h-11 bg-background"
                 />
               </div>
@@ -670,9 +590,6 @@ export default function CandidateJobs() {
                   ))}
                 </SelectContent>
               </Select>
-              <Button size="lg" className="h-11 px-6">
-                Search
-              </Button>
             </div>
           </CardContent>
         </Card>
@@ -685,8 +602,8 @@ export default function CandidateJobs() {
                 <FilterPanel
                   jobTypes={jobTypes}
                   experienceLevels={experienceLevels}
-                  selectedCategories={selectedCategories}
-                  setSelectedCategories={setSelectedCategories}
+                  selectedCategories={selectedDatePosted}
+                  setSelectedCategories={setSelectedDatePosted}
                   selectedTypes={selectedTypes}
                   setSelectedTypes={setSelectedTypes}
                   selectedModes={selectedModes}
@@ -728,8 +645,8 @@ export default function CandidateJobs() {
                         <FilterPanel
                           jobTypes={jobTypes}
                           experienceLevels={experienceLevels}
-                          selectedCategories={selectedCategories}
-                          setSelectedCategories={setSelectedCategories}
+                          selectedCategories={selectedDatePosted}
+                          setSelectedCategories={setSelectedDatePosted}
                           selectedTypes={selectedTypes}
                           setSelectedTypes={setSelectedTypes}
                           selectedModes={selectedModes}
@@ -758,7 +675,7 @@ export default function CandidateJobs() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="match">Best Match</SelectItem>
+                      {/* <SelectItem value="match">Best Match</SelectItem> */}
                       <SelectItem value="recent">Most Recent</SelectItem>
                       <SelectItem value="salary">Highest Salary</SelectItem>
                     </SelectContent>
@@ -816,15 +733,20 @@ export default function CandidateJobs() {
                     : "grid-cols-1",
                 )}
               >
-                {jobs.map((j) => (
-                  <JobCard key={j.id} job={j} />
+                {jobs.slice(0, visibleJobs).map((j) => (
+                  <JobCard key={j._id} job={j} />
                 ))}
               </div>
             )}
 
-            {jobs.length > 0 && (
+            {visibleJobs < jobs.length && (
               <div className="flex justify-center pt-2">
-                <Button variant="outline">Load more jobs</Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setVisibleJobs((prev) => prev + 6)}
+                >
+                  Load More Jobs
+                </Button>
               </div>
             )}
           </div>
