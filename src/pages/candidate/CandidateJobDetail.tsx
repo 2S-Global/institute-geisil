@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   MapPin,
@@ -42,77 +42,35 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
+import api from "@/lib/axios";
 
-const job = {
-  id: "69941b53e55513b264bcb358",
-  title: "Senior Product Designer",
-  company: "Geisil Technologies",
-  logo: "https://logo.clearbit.com/figma.com",
-  cover:
-    "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=80",
-  location: "Bengaluru, Karnataka, India",
-  type: "Full-time",
-  workMode: "Hybrid",
-  experience: "4-7 years",
-  salary: "₹24 - 36 LPA",
-  posted: "Posted 3 days ago",
-  applyBy: "Apply by 25 Jul 2026",
-  openings: 2,
-  applicants: 142,
-  match: 92,
-  featured: true,
-  urgent: false,
-  about:
-    "We are looking for a Senior Product Designer to craft delightful, accessible, and conversion-optimised experiences across our flagship hiring platform. You will partner closely with PMs, engineers, and researchers to shape end-to-end journeys — from discovery to onboarding — while raising the design quality bar across the org.",
-  responsibilities: [
-    "Own end-to-end design of major product surfaces, from research to ship.",
-    "Drive design systems contributions and component-level quality.",
-    "Collaborate with PM and engineering on product strategy and roadmap.",
-    "Run usability studies and synthesise insights into design decisions.",
-    "Mentor 2-3 mid-level designers and review their work weekly.",
-  ],
-  requirements: [
-    "4+ years of product design experience, ideally in B2B SaaS.",
-    "Strong portfolio showcasing end-to-end shipped product work.",
-    "Mastery of Figma, prototyping, and modern design systems.",
-    "Working knowledge of HTML, CSS, and component libraries.",
-    "Excellent written and verbal communication.",
-  ],
-  niceToHave: [
-    "Experience designing AI-assisted workflows.",
-    "Background in hiring, HRTech, or marketplaces.",
-    "Motion design / micro-interactions skills.",
-  ],
-  benefits: [
-    "Competitive salary + ESOPs",
-    "Comprehensive health insurance for you and family",
-    "Flexible hybrid work, 4 days WFH/month",
-    "Annual learning budget of ₹60,000",
-    "Wellness, gym, and home-office stipend",
-    "26 days paid leave + 12 public holidays",
-  ],
-  skills: [
-    { name: "Figma", level: 95 },
-    { name: "Design Systems", level: 90 },
-    { name: "User Research", level: 80 },
-    { name: "Prototyping", level: 88 },
-    { name: "Interaction Design", level: 85 },
-  ],
-  tags: ["Figma", "Design Systems", "Prototyping", "User Research", "B2B SaaS"],
-};
+// ==================== TYPES ====================
+interface Salary {
+  structure: string;
+  currency?: string;
+  min?: number;
+  max?: number;
+  amount?: number;
+  rate?: string;
+}
 
-const company = {
-  name: "Geisil Technologies",
-  industry: "HR Technology • SaaS",
-  size: "201-500 employees",
-  founded: 2017,
-  hq: "Bengaluru, India",
-  website: "geisil.com",
-  about:
-    "Geisil is building the operating system for modern hiring teams — combining ATS, assessments, and AI screening into one delightful product used by 1,200+ companies across India and SEA.",
-};
+interface JobPreviewDetails {
+  title?: string;
+  companyName?: string;
+  logoImage?: string;
+  location?: string;
+  industry?: string;
+  createdAgo?: string;
+  salary?: Salary;
+  jobType?: string[];
+  experience?: string;
+  jobDescription?: string;
+  jobSkills?: string[];
+  companyWebsite?: string;
+  aboutCompany?: string;
+}
 
+// ==================== STATIC FALLBACKS ====================
 const similarJobs = [
   {
     id: "s1",
@@ -144,17 +102,112 @@ const similarJobs = [
 ];
 
 export default function CandidateJobDetail() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
+
+  const [jobData, setJobData] = useState<JobPreviewDetails | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [applied, setApplied] = useState(false);
+  const [alreadyApplied, setAlreadyApplied] = useState(false);
   const [coverLetter, setCoverLetter] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
+
+  // Fetch Job Details
+  useEffect(() => {
+    const fetchJobDetails = async () => {
+      if (!id) {
+        setError("Job ID not found");
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await api.get("/api/jobposting/get_job_preview_details", {
+          params: { jobId: id },
+        });
+
+        if (response.data?.success && response.data?.data) {
+          setJobData(response.data.data);
+        } else {
+          setError("Failed to load job details");
+        }
+      } catch (err: any) {
+        console.error("Error fetching job:", err);
+        setError("Something went wrong while loading the job");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJobDetails();
+  }, [id]);
+
+  // Check Application Status
+  useEffect(() => {
+    const checkApplicationStatus = async () => {
+      if (!id) return;
+
+      try {
+        const response = await api.get("/api/jobposting/check-application-status", {
+          params: { jobId: id },
+        });
+
+        if (response.data?.success) {
+          setAlreadyApplied(!!response.data.alreadyApplied);
+        }
+      } catch (err) {
+        console.error("Error checking application status:", err);
+      }
+    };
+
+    checkApplicationStatus();
+  }, [id]);
+
+  const formatSalary = (salary?: Salary): string => {
+    if (!salary) return "Salary not disclosed";
+
+    const { structure, currency = "₹", min, max, amount, rate = "LPA" } = salary;
+
+    switch (structure?.toLowerCase()) {
+      case "range":
+        return `${currency}${min?.toLocaleString("en-IN")} - ${currency}${max?.toLocaleString("en-IN")} ${rate}`;
+      case "starting amount":
+        return `From ${currency}${amount?.toLocaleString("en-IN")} ${rate}`;
+      case "maximum amount":
+        return `Up to ${currency}${amount?.toLocaleString("en-IN")} ${rate}`;
+      case "exact amount":
+        return `${currency}${amount?.toLocaleString("en-IN")} ${rate}`;
+      default:
+        return "Salary not disclosed";
+    }
+  };
+
+  const stripHtmlTags = (value?: string): string => {
+    if (!value) return "";
+
+    return value
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<\/(p|div|li|ul|ol|h[1-6])>/gi, "\n")
+      .replace(/<[^>]+>/g, "")
+      .replace(/&nbsp;/gi, " ")
+      .replace(/&amp;/gi, "&")
+      .replace(/&quot;/gi, '"')
+      .replace(/&#39;/gi, "'")
+      .replace(/&lt;/gi, "<")
+      .replace(/&gt;/gi, ">")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+  };
 
   const handleApply = () => {
     setApplied(true);
     setDialogOpen(false);
     toast.success("Application submitted!", {
-      description: `Your application for ${job.title} has been sent.`,
+      description: `Your application for ${jobData?.title || "this role"} has been sent.`,
     });
   };
 
@@ -163,6 +216,64 @@ export default function CandidateJobDetail() {
       navigator.clipboard.writeText(window.location.href);
       toast.success("Link copied to clipboard");
     }
+  };
+
+  if (loading) {
+    return (
+      <CandidateLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <p className="text-lg text-muted-foreground">Loading job details...</p>
+        </div>
+      </CandidateLayout>
+    );
+  }
+
+  if (error || !jobData) {
+    return (
+      <CandidateLayout>
+        <div className="text-center py-20">
+          <p className="text-red-500 mb-4">{error || "Job not found"}</p>
+          <Link to="/candidate/jobs" className="text-primary hover:underline">
+            ← Back to Jobs
+          </Link>
+        </div>
+      </CandidateLayout>
+    );
+  }
+
+  // Map API data to your UI
+  const job = {
+    title: jobData.title || "Job Title",
+    company: jobData.companyName || "Company",
+    logo: jobData.logoImage || "/images/resource/no_user.png",
+    location: jobData.location || "Location not specified",
+    type: jobData.jobType?.[0] || "Full-time",
+    workMode: "Hybrid", // Keep static for now
+    experience: jobData.experience || "Experience not specified",
+    salary: formatSalary(jobData.salary),
+    posted: jobData.createdAgo || "Recently posted",
+    applyBy: "Apply by 25 Jul 2026", // Keep static
+    openings: 2,
+    applicants: 142,
+    match: 92,
+    featured: true,
+    about: stripHtmlTags(jobData.jobDescription) || "No description available.",
+    tags: jobData.jobSkills || [],
+    responsibilities: [], // Keep static until API provides
+    requirements: [],
+    niceToHave: [],
+    benefits: [],
+    skills: [],
+  };
+
+  const company = {
+    name: jobData.companyName || "Company",
+    industry: jobData.industry || "Industry not specified",
+    size: "201-500 employees",
+    founded: 2017,
+    hq: jobData.location || "Bengaluru, India",
+    website: jobData.companyWebsite || "#",
+    about: stripHtmlTags(jobData.aboutCompany) || "Company information coming soon.",
   };
 
   return (
@@ -184,12 +295,12 @@ export default function CandidateJobDetail() {
           <ArrowLeft className="h-4 w-4" /> Back to jobs
         </Link>
 
-        {/* Hero card */}
+        {/* Hero card - Your exact UI */}
         <Card className="overflow-hidden">
           <div
             className="h-32 md:h-40 bg-gradient-to-r from-primary/20 via-primary/10 to-accent/20 relative"
             style={{
-              backgroundImage: `linear-gradient(to right, hsl(var(--primary) / 0.85), hsl(var(--primary) / 0.45)), url(${job.cover})`,
+              backgroundImage: `linear-gradient(to right, hsl(var(--primary) / 0.85), hsl(var(--primary) / 0.45)), ur[](https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=80)`,
               backgroundSize: "cover",
               backgroundPosition: "center",
             }}
@@ -248,8 +359,8 @@ export default function CandidateJobDetail() {
             <div className="flex flex-wrap gap-2 mt-5">
               <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button size="lg" disabled={applied} className="gap-2">
-                    {applied ? (
+                  <Button size="lg" disabled={applied || alreadyApplied} className="gap-2">
+                    {(applied || alreadyApplied) ? (
                       <>
                         <CheckCircle2 className="h-4 w-4" /> Applied
                       </>
@@ -318,7 +429,7 @@ export default function CandidateJobDetail() {
           </CardContent>
         </Card>
 
-        {/* Body */}
+        {/* Body - Your exact structure */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <Tabs defaultValue="overview" className="w-full">
@@ -376,7 +487,7 @@ export default function CandidateJobDetail() {
                     <div className="flex items-center gap-3">
                       <Avatar className="h-12 w-12">
                         <AvatarImage src={job.logo} />
-                        <AvatarFallback>GE</AvatarFallback>
+                        <AvatarFallback>CO</AvatarFallback>
                       </Avatar>
                       <div>
                         <CardTitle className="text-lg">{company.name}</CardTitle>
@@ -417,7 +528,7 @@ export default function CandidateJobDetail() {
                       </div>
                     </div>
                     <div className="space-y-3">
-                      {job.skills.map((s) => (
+                      {job.skills.map((s: any) => (
                         <div key={s.name}>
                           <div className="flex justify-between mb-1.5">
                             <span className="text-sm font-medium">{s.name}</span>
@@ -433,7 +544,7 @@ export default function CandidateJobDetail() {
             </Tabs>
           </div>
 
-          {/* Sidebar */}
+          {/* Sidebar - unchanged */}
           <aside className="space-y-6">
             <Card>
               <CardHeader>
@@ -500,6 +611,7 @@ export default function CandidateJobDetail() {
   );
 }
 
+// ==================== HELPER COMPONENTS (Unchanged) ====================
 function Stat({
   icon: Icon,
   label,
@@ -536,12 +648,16 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function BulletList({ items }: { items: string[] }) {
   return (
     <ul className="space-y-2">
-      {items.map((item) => (
-        <li key={item} className="flex items-start gap-2 text-sm text-muted-foreground">
-          <span className="mt-2 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
-          <span>{item}</span>
-        </li>
-      ))}
+      {items.length > 0 ? (
+        items.map((item, i) => (
+          <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+            <span className="mt-2 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+            <span>{item}</span>
+          </li>
+        ))
+      ) : (
+        <p className="text-sm text-muted-foreground">No data available</p>
+      )}
     </ul>
   );
 }
