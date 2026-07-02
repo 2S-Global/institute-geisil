@@ -48,6 +48,7 @@ import KycSection from "@/components/candidate/kyc/KycSection";
 import ResumeHeadlineSection from "@/components/candidate/resumeHeadline/ResumeHeadlineSection";
 import ProfileSummarySection from "@/components/candidate/ProfileSummarySection/ProfileSummarySection";
 import AcademicSection from "@/components/candidate/academics/AcademicSection";
+import KeySkills from "@/components/candidate/keySkill/KeySkills";
 const experiences = [
   {
     role: "Frontend Engineer",
@@ -321,6 +322,7 @@ const [focusSection, setFocusSection] = useState(null);
                 <KycSection/>
                 <ResumeHeadlineSection/>
                 <ProfileSummarySection/>
+                <KeySkills/>
                 <PersonalSection/>
                {/*  <Card>
                   <CardHeader className="flex flex-row items-center justify-between">
