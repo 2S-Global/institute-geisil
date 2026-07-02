@@ -47,7 +47,7 @@ const AcademicSection = () => {
   const [edit_id, setEdit_id] = useState("");
 
   const [sectionloading, setSectionloading] = useState(false);
-
+  const { toast } = useToast();
   useEffect(() => {
     if (reload) {
       fetchuserdata();

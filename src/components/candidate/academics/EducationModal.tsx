@@ -5,6 +5,7 @@ import { Trash2, Sparkles } from "lucide-react";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker"
+import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
@@ -24,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
+
 import EducationForm from "./EducationForm"
 const EducationModal = ({ show,
   onClose,
@@ -66,7 +67,7 @@ const EducationModal = ({ show,
   const [isFormValid, setIsFormValid] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  const { toast } = useToast();
   useEffect(() => {
     if (selectedLevel) {
       console.log("selectedLevel from useEffect", selectedLevel);
@@ -220,13 +221,21 @@ const EducationModal = ({ show,
         );
         console.log("Education data saved successfully:", response.data);
       }
-
+    toast({
+          title: "Success",
+          description: "Education data saved successfully",
+        });
       setSuccess("Education data saved successfully");
       setReload(true);
       onClose();
     } catch (error) {
       console.error("Error saving education data:", error);
       setError("Error saving education data");
+      toast({
+          title: "Error",
+          variant: "destructive",
+          description: "Error saving education data",
+        })
     } finally {
       setSaving(false);
     }
