@@ -472,6 +472,18 @@ const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
             <label className="text-sm font-medium">
               Date of Birth <span className="text-red-500">*</span>
             </label>
+             <input
+    type="date"
+    className="w-full border rounded-md px-3 py-2 text-sm relative"
+    value={formData?.dob? new Date(formData.dob).toISOString().split("T")[0]:""}
+     onChange={(e) =>
+      setFormData({
+        ...formData,
+        dob: e.target.value,
+      })
+    }
+    max={eighteenYearsAgo.toISOString().split("T")[0]}
+  />
 
           {/*   <LocalizationProvider dateAdapter={AdapterDateFns}>
               <DatePicker

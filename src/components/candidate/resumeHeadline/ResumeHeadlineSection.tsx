@@ -89,7 +89,7 @@ const ResumeHeadlineSection = ({ show, onClose, data = {}, setRefresh ,setReload
       'loading.............'
     ) : (
       <div className="mt-4">
-        <p className="text-justify leading-7 text-gray-600">
+        <p className="text-sm font-medium text-gray-700">
           {resumeHeadline?.trim() || "Add Your Resume Headline"}
         </p>
       </div>

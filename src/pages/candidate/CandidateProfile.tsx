@@ -393,7 +393,6 @@ const [focusSection, setFocusSection] = useState(null);
                   <h2 className="font-display text-lg font-semibold">Work experience</h2>
                   <Button size="sm" className="gap-1.5"><Plus className="h-4 w-4" /> Add experience</Button>
                 </div>
-                 <AcademicSection/>
                 <div className="space-y-4">
                   {experiences.map((e, i) => (
                     <Card key={i}>
@@ -427,10 +426,8 @@ const [focusSection, setFocusSection] = useState(null);
               </TabsContent>
 
               <TabsContent value="education" className="space-y-4 mt-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="font-display text-lg font-semibold">Education</h2>
-                  <Button size="sm" className="gap-1.5"><Plus className="h-4 w-4" /> Add education</Button>
-                </div>
+                
+                 <AcademicSection/>
                 <div className="space-y-4">
                   {education.map((e, i) => (
                     <Card key={i}>

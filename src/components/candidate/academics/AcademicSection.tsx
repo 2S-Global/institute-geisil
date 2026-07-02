@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import API from "../../../lib/axios";
-
-import { CheckCircle, CircleX,Pencil } from "lucide-react";
+import { BadgeCheck, BadgeAlert,Pencil,GraduationCap ,Calendar,Info,Plus} from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker"
@@ -171,25 +171,37 @@ const AcademicSection = () => {
       {sectionloading ? (
         'loading............'
       ) : (
+        <>
+        <div className="flex items-center justify-between mb-3">
+                  <h2 className="font-display text-lg font-semibold">Education</h2>
+                  <Button size="sm" className="gap-1.5"  onClick={() => openModalRH()}><Plus className="h-4 w-4" /> Add education</Button>
+                </div>
         <div>
           {/* Existing Education List */}
-          <div>
+          <div className="space-y-4">
             {userdata.map((item, index) => (
               <div
                 key={index}
-                className="border rounded-lg p-4 bg-white shadow-sm"
+               
               >
                 {item.level_id == 1 || item.level_id == 2 ? (
+                  <>
                   <SchoolDisplay
                     data={item}
                     openModalRH={openModalRH}
                   />
+                    </>
                 ) : (
-                  <ClgDisplay
+                  <>
+                   <ClgDisplay
                     data={item}
                     openModalRH={openModalRH}
                   />
+                 
+                  </>
+                 
                 )}
+              
               </div>
             ))}
           </div>
@@ -200,7 +212,7 @@ const AcademicSection = () => {
               {missingLevels.map((level) => (
                 <span
                   key={level.id}
-                  className="block font-bold text-blue-600 cursor-pointer hover:underline"
+                  className="block font-bold text-blue-600 cursor-pointer hover:underline mt-3"
                   onClick={() => openModalRH(level.id)}
                 >
                   Add {level.level}
@@ -209,8 +221,11 @@ const AcademicSection = () => {
             </div>
           )}
         </div>
+        </>
       )}
+      
     </div>
+    
  {/*  </Card> */}
 
   {/* Modal */}

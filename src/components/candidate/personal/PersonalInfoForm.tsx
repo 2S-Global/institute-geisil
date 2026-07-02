@@ -14,12 +14,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 //import { Textarea } from "@/components/ui/textarea";
 import {
-  Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import Select from "react-select";
 import { useToast } from "@/hooks/use-toast";
 import Disability from "./Disability";
 import CareerBreak from "./CareerBreak";
@@ -593,7 +593,9 @@ const FormModal = ({ show, onClose, data = {}, setRefresh, formData,setFormData,
 
           {/* Address */}
           <div ref={address} id="address" className="space-y-3">
-
+                <label className="block text-sm font-semibold mb-2">
+               Permanent address
+              </label>
             <input
               className="w-full border px-3 py-2 rounded-md"
               placeholder="Permanent address"
@@ -605,7 +607,9 @@ const FormModal = ({ show, onClose, data = {}, setRefresh, formData,setFormData,
                 })
               }
             />
-
+  {/* <label className="block text-sm font-semibold mb-2">
+               Hometown
+              </label>
             <input
               className="w-full border px-3 py-2 rounded-md"
               placeholder="Hometown"
@@ -619,6 +623,9 @@ const FormModal = ({ show, onClose, data = {}, setRefresh, formData,setFormData,
             />
 
             <div>
+              <label className="block text-sm font-semibold mb-2">
+               Pin
+              </label>
               <input
                 className="w-full border px-3 py-2 rounded-md"
                 placeholder="Pincode"
@@ -638,7 +645,7 @@ const FormModal = ({ show, onClose, data = {}, setRefresh, formData,setFormData,
                     Pincode must be exactly 6 digits.
                   </p>
                 )}
-            </div>
+            </div> */}
           </div>
         </>
       )}
