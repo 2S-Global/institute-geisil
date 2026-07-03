@@ -40,6 +40,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { useEffect, useState } from "react";
 import API from "@/lib/axios";
+import { formatStatus } from "./helpers/formatStatus";
 
 const activity = [
   { d: "Mon", views: 4, apps: 1 },
@@ -106,13 +107,27 @@ const CandidateDashboard = () => {
 
   const [progress, setProgress] = useState(0);
   const [applications, setApplications] = useState<any[]>([]);
-const [recommended, setRecommended] = useState<any[]>([]);
-  const statusStyles = {
-    applied: "bg-primary/10 text-primary border-primary/20",
-    shortlisted: "bg-success/10 text-success border-success/20",
-    interview: "bg-accent/10 text-accent border-accent/20",
-    rejected: "bg-destructive/10 text-destructive border-destructive/20",
+  const [recommended, setRecommended] = useState<any[]>([]);
+  const statusStyles: Record<string, string> = {
+    applied: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+    "in review": "bg-amber-500/10 text-amber-600 border-amber-500/20",
+    in_review: "bg-amber-500/10 text-amber-600 border-amber-500/20",
+    "under review": "bg-amber-500/10 text-amber-600 border-amber-500/20",
+    under_review: "bg-amber-500/10 text-amber-600 border-amber-500/20",
+    shortlisted: "bg-violet-500/10 text-violet-600 border-violet-500/20",
+    interview: "bg-primary/10 text-primary border-primary/20",
+    invitation_sent: "bg-primary/10 text-primary border-primary/20",
+    offered: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+    offer: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+    offer_sent: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+    offer_letter_sent: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+    rejected: "bg-rose-500/10 text-rose-600 border-rose-500/20",
+    offer_letter_accepted: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+    offer_letter_rejected: "bg-rose-500/10 text-rose-600 border-rose-500/20",
+    completed: "bg-indigo-500/10 text-indigo-600 border-indigo-500/20",
   };
+
+
   const completion = progress;
   useEffect(() => {
     fetchDashboardData();
@@ -594,9 +609,9 @@ const [recommended, setRecommended] = useState<any[]>([]);
                       <td className="py-3">
                         <Badge
                           variant="outline"
-                          className={statusStyles[app.status] || ""}
+                          className={statusStyles[app.status?.toLowerCase()] || ""}
                         >
-                          {app.status?.toUpperCase()}
+                          {formatStatus(app.status)}
                         </Badge>
                       </td>
                     </tr>
