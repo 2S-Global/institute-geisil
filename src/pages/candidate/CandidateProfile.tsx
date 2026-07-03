@@ -422,7 +422,7 @@ export default function CandidateProfile() {
                     <Plus className="h-4 w-4" /> Add experience
                   </Button>
                 </div>
-                <AcademicSection />
+                
                 <div className="space-y-4">
                   {experiences.map((e, i) => (
                     <Card key={i}>
@@ -478,14 +478,9 @@ export default function CandidateProfile() {
               </TabsContent>
 
               <TabsContent value="education" className="space-y-4 mt-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="font-display text-lg font-semibold">
-                    Education
-                  </h2>
-                  <Button size="sm" className="gap-1.5">
-                    <Plus className="h-4 w-4" /> Add education
-                  </Button>
-                </div>
+               
+                
+                 <AcademicSection/>
                 <div className="space-y-4">
                   {education.map((e, i) => (
                     <Card key={i}>
