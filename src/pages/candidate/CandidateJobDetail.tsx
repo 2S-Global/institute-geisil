@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   MapPin,
   Briefcase,
@@ -109,7 +109,7 @@ const similarJobs = [
 export default function CandidateJobDetail() {
   const { id } = useParams<{ id: string }>();
   const { handleBookmark, bookmarkLoading } = useBookmarkJob();
-
+  const navigate = useNavigate()
   const [jobData, setJobData] = useState<JobPreviewDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -258,9 +258,12 @@ export default function CandidateJobDetail() {
       <CandidateLayout>
         <div className="text-center py-20">
           <p className="text-red-500 mb-4">{error || "Job not found"}</p>
-          <Link to="/candidate/jobs" className="text-primary hover:underline">
-            ← Back to Jobs
-          </Link>
+          <button
+            onClick={() => navigate(-1)}
+            className="text-primary hover:underline"
+          >
+            ← Back
+          </button>
         </div>
       </CandidateLayout>
     );
