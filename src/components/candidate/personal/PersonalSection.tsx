@@ -138,7 +138,7 @@ const PersonalSection = () => {
               <div>
                 <strong>Personal</strong>
 
-                <div className="mt-2 text-sm font-medium text-gray-700">
+                <div className="mt-2  ">
                   <div>
                     {[
                       personalDetails.gender,
@@ -170,7 +170,7 @@ const PersonalSection = () => {
                   <strong>Partner Name</strong>
 
                   <div
-                    className="mt-2 truncate text-sm font-medium text-gray-700"
+                    className="mt-2 truncate "
                     title={personalDetails.partner_name || ""}
                   >
                     {personalDetails.partner_name || "N/A"}
@@ -182,7 +182,7 @@ const PersonalSection = () => {
               <div>
                 <strong>Career Break</strong>
 
-                <div className="mt-2 text-sm font-medium text-gray-700">
+                <div className="mt-2 ">
                   {personalDetails.careerBreak ? (
                     personalDetails.careerBreak.toLowerCase() === "yes" ? (
                       <div>
@@ -226,7 +226,7 @@ const PersonalSection = () => {
               <div>
                 <strong>Date of Birth</strong>
 
-                <div className="mt-2 text-sm font-medium text-gray-700">
+                <div className="mt-2 ">
                   {getFormattedDOB(personalDetails.dob) || (
                     <span
                       className="cursor-pointer font-semibold text-blue-600"
@@ -242,7 +242,7 @@ const PersonalSection = () => {
               <div>
                 <strong>Category</strong>
 
-                <div className="mt-2 text-sm font-medium text-gray-700">
+                <div className="mt-2 ">
                   {personalDetails.category || (
                     <span
                       className="cursor-pointer font-semibold text-blue-600"
@@ -258,7 +258,7 @@ const PersonalSection = () => {
               <div>
                 <strong>Work Permit</strong>
 
-                <div className="mt-2 text-sm font-medium text-gray-700 space-y-1">
+                <div className="mt-2  space-y-1">
                   {personalDetails.usa_visa_type && (
                     <div>{personalDetails.usa_visa_type}</div>
                   )}
@@ -279,11 +279,13 @@ const PersonalSection = () => {
                 </div>
               </div>
 
+            
+
               {/* Address */}
               <div>
-                <strong>Address</strong>
+                <strong>Permanent address</strong>
 
-                <div className="mt-2 text-sm font-medium text-gray-700">
+                <div className="mt-2">
                   {personalDetails.address || (
                     <span
                       className="cursor-pointer font-semibold text-blue-600"
@@ -299,7 +301,7 @@ const PersonalSection = () => {
               <div>
                 <strong>Differently Abled</strong>
 
-                <div className="mt-2 text-sm font-medium text-gray-700">
+                <div className="mt-2">
                   {personalDetails.differentlyAbled ? (
                     personalDetails.differentlyAbled.toLowerCase() ===
                     "yes" ? (

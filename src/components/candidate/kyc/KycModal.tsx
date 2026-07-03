@@ -200,7 +200,7 @@ const KycModal = ({ show,
       </div>
 
       {/* Footer */}
-      <DialogFooter className="gap-2 pt-2">
+      {/* <DialogFooter className="gap-2 pt-2">
 
         <Button
           type="button"
@@ -210,23 +210,55 @@ const KycModal = ({ show,
           Cancel
         </Button>
 
-        {/* Tooltip Wrapper */}
-        <div className="relative group">
-          {!isFormValid && (
-            <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block bg-white text-red-600 font-semibold border border-red-500 rounded px-3 py-1 text-xs whitespace-nowrap shadow">
-              {formerrors}
-            </div>
-          )}
+     
 
-          <Button
-            type="submit"
-            disabled={!isFormValid || saving}
-          >
-            {saving ? "Saving..." : "Save"}
-          </Button>
-        </div>
 
-      </DialogFooter>
+<div className="relative inline-block">
+  {(!isFormValid) && (
+    <div className="absolute bottom-full right-0 mb-2 z-50 w-max max-w-[220px] rounded bg-gray-800 px-3 py-2 text-sm text-white shadow-lg">
+      {!isFormValid
+        ? "Please fill all required fields"
+        : "Not valid Date Range"}
+
+      <div className="absolute right-6 top-full border-4 border-transparent border-t-gray-800" />
+    </div>
+  )}
+
+  <Button  disabled={!isFormValid || saving}>
+    {saving ? "Saving..." : "Save"}
+  </Button>
+</div>
+
+      </DialogFooter> */}
+
+      <DialogFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+  <Button
+    type="button"
+    variant="outline"
+    onClick={onClose}
+    className="w-full sm:w-auto"
+  >
+    Cancel
+  </Button>
+
+  <div className="relative w-full sm:w-auto">
+    {!isFormValid && (
+      <div className="absolute bottom-full right-0 mb-2 z-50 w-max max-w-[220px] rounded bg-gray-800 px-3 py-2 text-sm text-white shadow-lg">
+        Please fill all required fields
+
+        <div className="absolute right-6 top-full border-4 border-transparent border-t-gray-800" />
+      </div>
+    )}
+
+    <Button
+      type="submit"
+      disabled={!isFormValid || saving}
+      className="w-full sm:w-auto"
+    >
+      {saving ? "Saving..." : "Save"}
+    </Button>
+  </div>
+</DialogFooter>
 
     </form>
        {/* Messages */}

@@ -184,7 +184,7 @@ const KycSection = ({ show, onClose, data = {}, setRefresh
                   </div>
                 ) : (
                   <span
-                    className="font-bold text-blue-600 cursor-pointer"
+                    className="font-semibold text-blue-600 cursor-pointer"
                     onClick={() => openModalRH("pan")}
                   >
                     Add PAN info
@@ -237,7 +237,7 @@ const KycSection = ({ show, onClose, data = {}, setRefresh
                   </div>
                 ) : (
                   <span
-                    className="font-bold text-blue-600 cursor-pointer"
+                    className="font-semibold text-blue-600 cursor-pointer"
                     onClick={() => openModalRH("dl")}
                   >
                     Add Driving License Info
@@ -284,7 +284,7 @@ const KycSection = ({ show, onClose, data = {}, setRefresh
                   </div>
                 ) : (
                   <span
-                    className="font-bold text-blue-600 cursor-pointer"
+                    className="font-semibold text-blue-600 cursor-pointer"
                     onClick={() => openModalRH("epic")}
                   >
                     Add EPIC Details
