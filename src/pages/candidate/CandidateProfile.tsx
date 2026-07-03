@@ -56,6 +56,7 @@ import ProfileSummarySection from "@/components/candidate/ProfileSummarySection/
 import AcademicSection from "@/components/candidate/academics/AcademicSection";
 import KeySkills from "@/components/candidate/keySkill/KeySkills";
 import Project from "@/components/candidate/project/Project";
+import WorkProfileList from "../../components/candidate/experience/Workexperience"
 const experiences = [
   {
     role: "Frontend Engineer",
@@ -414,7 +415,7 @@ export default function CandidateProfile() {
               </TabsContent>
 
               <TabsContent value="experience" className="space-y-4 mt-6">
-                <div className="flex items-center justify-between">
+                {/* <div className="flex items-center justify-between">
                   <h2 className="font-display text-lg font-semibold">
                     Work experience
                   </h2>
@@ -474,7 +475,8 @@ export default function CandidateProfile() {
                       </CardContent>
                     </Card>
                   ))}
-                </div>
+                </div> */}
+                <WorkProfileList/>
               </TabsContent>
 
               <TabsContent value="education" className="space-y-4 mt-6">
