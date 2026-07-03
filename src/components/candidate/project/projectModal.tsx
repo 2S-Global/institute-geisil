@@ -72,7 +72,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
   const [childerror, setChildError] = useState<string | null>(null);
   const [wrongDate, setWrongDate] = useState<boolean>(false);
 
-  // Normalize titles and descriptions handling both incoming schemas safely
+  
   const initialTitle = item?.project_title || item?.project_name || item?.title || "";
   const initialDescription = item?.project_description || item?.description || "";
 
@@ -316,7 +316,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
 
         <form onSubmit={(e) => e.preventDefault()} className="space-y-4 my-4">
           
-          {/* Project Title */}
+          
           <div className="space-y-1.5">
             <label htmlFor="projectTitle" className="text-sm font-medium leading-none">
               Project Title <span className="text-destructive">*</span>
@@ -332,7 +332,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
             />
           </div>
 
-          {/* Tag Dropdown */}
+          
           {tagoptions.length > 0 && (
             <div className="space-y-1.5">
               <label htmlFor="projectTag" className="text-sm font-medium leading-none">
@@ -355,7 +355,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
             </div>
           )}
 
-          {/* Client */}
+          
           <div className="space-y-1.5">
             <label htmlFor="projectClient" className="text-sm font-medium leading-none">Client</label>
             <Input
@@ -368,7 +368,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
             />
           </div>
 
-          {/* Project Status */}
+          
           <div className="space-y-2">
             <label className="text-sm font-medium leading-none block">Project Status</label>
             <div className="flex items-center gap-4">
@@ -397,7 +397,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
             </div>
           </div>
 
-          {/* Worked From */}
+          
           <div className="space-y-1.5">
             <label className="text-sm font-medium leading-none">Worked from</label>
             <div className="grid grid-cols-2 gap-2">
@@ -433,7 +433,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
             </div>
           </div>
 
-          {/* Worked Till */}
+          
           {formData.status !== "in-progress" && formData.status !== "currently working" && (
             <div className="space-y-1.5">
               <label className="text-sm font-medium leading-none">Worked till</label>
@@ -472,7 +472,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
             </div>
           )}
 
-          {/* Description */}
+          
           <div className="space-y-1.5">
             <label className="text-sm font-medium leading-none">Description</label>
             <textarea

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Pencil } from "lucide-react";
 import API from "../../../lib/axios";
@@ -49,7 +48,9 @@ const KeySkills = () => {
 
     fetchKeySkills();
   }, []);
-
+   
+  
+     
   return (
     <>
       <Card>
