@@ -1,4 +1,5 @@
-import { useState } from "react";
+//New CandidateJobDetail.tsx
+import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   MapPin,
@@ -42,77 +43,35 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
+import api from "@/lib/axios";
 
-const job = {
-  id: "69941b53e55513b264bcb358",
-  title: "Senior Product Designer",
-  company: "Geisil Technologies",
-  logo: "https://logo.clearbit.com/figma.com",
-  cover:
-    "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=80",
-  location: "Bengaluru, Karnataka, India",
-  type: "Full-time",
-  workMode: "Hybrid",
-  experience: "4-7 years",
-  salary: "₹24 - 36 LPA",
-  posted: "Posted 3 days ago",
-  applyBy: "Apply by 25 Jul 2026",
-  openings: 2,
-  applicants: 142,
-  match: 92,
-  featured: true,
-  urgent: false,
-  about:
-    "We are looking for a Senior Product Designer to craft delightful, accessible, and conversion-optimised experiences across our flagship hiring platform. You will partner closely with PMs, engineers, and researchers to shape end-to-end journeys — from discovery to onboarding — while raising the design quality bar across the org.",
-  responsibilities: [
-    "Own end-to-end design of major product surfaces, from research to ship.",
-    "Drive design systems contributions and component-level quality.",
-    "Collaborate with PM and engineering on product strategy and roadmap.",
-    "Run usability studies and synthesise insights into design decisions.",
-    "Mentor 2-3 mid-level designers and review their work weekly.",
-  ],
-  requirements: [
-    "4+ years of product design experience, ideally in B2B SaaS.",
-    "Strong portfolio showcasing end-to-end shipped product work.",
-    "Mastery of Figma, prototyping, and modern design systems.",
-    "Working knowledge of HTML, CSS, and component libraries.",
-    "Excellent written and verbal communication.",
-  ],
-  niceToHave: [
-    "Experience designing AI-assisted workflows.",
-    "Background in hiring, HRTech, or marketplaces.",
-    "Motion design / micro-interactions skills.",
-  ],
-  benefits: [
-    "Competitive salary + ESOPs",
-    "Comprehensive health insurance for you and family",
-    "Flexible hybrid work, 4 days WFH/month",
-    "Annual learning budget of ₹60,000",
-    "Wellness, gym, and home-office stipend",
-    "26 days paid leave + 12 public holidays",
-  ],
-  skills: [
-    { name: "Figma", level: 95 },
-    { name: "Design Systems", level: 90 },
-    { name: "User Research", level: 80 },
-    { name: "Prototyping", level: 88 },
-    { name: "Interaction Design", level: 85 },
-  ],
-  tags: ["Figma", "Design Systems", "Prototyping", "User Research", "B2B SaaS"],
-};
+// ==================== TYPES ====================
+interface Salary {
+  structure: string;
+  currency?: string;
+  min?: number;
+  max?: number;
+  amount?: number;
+  rate?: string;
+}
 
-const company = {
-  name: "Geisil Technologies",
-  industry: "HR Technology • SaaS",
-  size: "201-500 employees",
-  founded: 2017,
-  hq: "Bengaluru, India",
-  website: "geisil.com",
-  about:
-    "Geisil is building the operating system for modern hiring teams — combining ATS, assessments, and AI screening into one delightful product used by 1,200+ companies across India and SEA.",
-};
+interface JobPreviewDetails {
+  title?: string;
+  companyName?: string;
+  logoImage?: string;
+  location?: string;
+  industry?: string;
+  createdAgo?: string;
+  salary?: Salary;
+  jobType?: string[];
+  experience?: string;
+  jobDescription?: string;
+  jobSkills?: string[];
+  companyWebsite?: string;
+  aboutCompany?: string;
+}
 
+// ==================== STATIC FALLBACKS ====================
 const similarJobs = [
   {
     id: "s1",
@@ -144,17 +103,125 @@ const similarJobs = [
 ];
 
 export default function CandidateJobDetail() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
+
+  const [jobData, setJobData] = useState<JobPreviewDetails | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [applied, setApplied] = useState(false);
+  const [alreadyApplied, setAlreadyApplied] = useState(false);
   const [coverLetter, setCoverLetter] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
+
+  // Fetch Job Details
+  useEffect(() => {
+    const fetchJobDetails = async () => {
+      if (!id) {
+        setError("Job ID not found");
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await api.get(
+          "/api/jobposting/get_job_preview_details",
+          {
+            params: { jobId: id },
+          },
+        );
+
+        if (response.data?.success && response.data?.data) {
+          setJobData(response.data.data);
+        } else {
+          setError("Failed to load job details");
+        }
+      } catch (err: any) {
+        console.error("Error fetching job:", err);
+        setError("Something went wrong while loading the job");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJobDetails();
+  }, [id]);
+
+  // Check Application Status
+  useEffect(() => {
+    const checkApplicationStatus = async () => {
+      if (!id) return;
+
+      try {
+        const response = await api.get(
+          "/api/jobposting/check-application-status",
+          {
+            params: { jobId: id },
+          },
+        );
+
+        if (response.data?.success) {
+          setAlreadyApplied(!!response.data.alreadyApplied);
+        }
+      } catch (err) {
+        console.error("Error checking application status:", err);
+      }
+    };
+
+    checkApplicationStatus();
+  }, [id]);
+
+  const formatSalary = (salary?: Salary): string => {
+    if (!salary) return "Salary not disclosed";
+
+    const {
+      structure,
+      currency = "₹",
+      min,
+      max,
+      amount,
+      rate = "LPA",
+    } = salary;
+
+    switch (structure?.toLowerCase()) {
+      case "range":
+        return `${currency}${min?.toLocaleString("en-IN")} - ${currency}${max?.toLocaleString("en-IN")} ${rate}`;
+      case "starting amount":
+        return `From ${currency}${amount?.toLocaleString("en-IN")} ${rate}`;
+      case "maximum amount":
+        return `Up to ${currency}${amount?.toLocaleString("en-IN")} ${rate}`;
+      case "exact amount":
+        return `${currency}${amount?.toLocaleString("en-IN")} ${rate}`;
+      default:
+        return "Salary not disclosed";
+    }
+  };
+
+  const stripHtmlTags = (value?: string): string => {
+    if (!value) return "";
+
+    return value
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<\/(p|div|li|ul|ol|h[1-6])>/gi, "\n")
+      .replace(/<[^>]+>/g, "")
+      .replace(/&nbsp;/gi, " ")
+      .replace(/&amp;/gi, "&")
+      .replace(/&quot;/gi, '"')
+      .replace(/&#39;/gi, "'")
+      .replace(/&lt;/gi, "<")
+      .replace(/&gt;/gi, ">")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+  };
 
   const handleApply = () => {
     setApplied(true);
     setDialogOpen(false);
     toast.success("Application submitted!", {
-      description: `Your application for ${job.title} has been sent.`,
+      description: `Your application for ${jobData?.title || "this role"} has been sent.`,
     });
   };
 
@@ -165,16 +232,83 @@ export default function CandidateJobDetail() {
     }
   };
 
+  if (loading) {
+    return (
+      <CandidateLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <p className="text-lg text-muted-foreground">
+            Loading job details...
+          </p>
+        </div>
+      </CandidateLayout>
+    );
+  }
+
+  if (error || !jobData) {
+    return (
+      <CandidateLayout>
+        <div className="text-center py-20">
+          <p className="text-red-500 mb-4">{error || "Job not found"}</p>
+          <Link to="/candidate/jobs" className="text-primary hover:underline">
+            ← Back to Jobs
+          </Link>
+        </div>
+      </CandidateLayout>
+    );
+  }
+
+  // Map API data to your UI
+  const job = {
+    title: jobData.title || "Job Title",
+    company: jobData.companyName || "Company",
+    logo: jobData.logoImage || "/images/resource/no_user.png",
+    location: jobData.location || "Location not specified",
+    type: jobData.jobType?.[0] || "Full-time",
+    workMode: "Hybrid", // Keep static for now
+    experience: jobData.experience || "Experience not specified",
+    salary: formatSalary(jobData.salary),
+    posted: jobData.createdAgo || "Recently posted",
+    applyBy: "Apply by 25 Jul 2026", // Keep static
+    openings: 2,
+    applicants: 142,
+    match: 92,
+    featured: true,
+    about: stripHtmlTags(jobData.jobDescription) || "No description available.",
+    tags: jobData.jobSkills || [],
+    responsibilities: [], // Keep static until API provides
+    requirements: [],
+    niceToHave: [],
+    benefits: [],
+    skills: [],
+  };
+
+  const company = {
+    name: jobData.companyName || "Company",
+    industry: jobData.industry || "Industry not specified",
+    size: "201-500 employees",
+    founded: 2017,
+    hq: jobData.location || "Bengaluru, India",
+    website: jobData.companyWebsite || "#",
+    about:
+      stripHtmlTags(jobData.aboutCompany) || "Company information coming soon.",
+  };
+
   return (
     <CandidateLayout>
       <div className="space-y-6 max-w-6xl mx-auto">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Link to="/candidate/dashboard" className="hover:text-foreground">Dashboard</Link>
+          <Link to="/candidate/dashboard" className="hover:text-foreground">
+            Dashboard
+          </Link>
           <ChevronRight className="h-4 w-4" />
-          <Link to="/candidate/jobs" className="hover:text-foreground">Browse Jobs</Link>
+          <Link to="/candidate/jobs" className="hover:text-foreground">
+            Browse Jobs
+          </Link>
           <ChevronRight className="h-4 w-4" />
-          <span className="text-foreground font-medium truncate">{job.title}</span>
+          <span className="text-foreground font-medium truncate">
+            {job.title}
+          </span>
         </div>
 
         <Link
@@ -184,12 +318,17 @@ export default function CandidateJobDetail() {
           <ArrowLeft className="h-4 w-4" /> Back to jobs
         </Link>
 
-        {/* Hero card */}
+        {/* Hero card - Your exact UI */}
         <Card className="overflow-hidden">
           <div
             className="h-32 md:h-40 bg-gradient-to-r from-primary/20 via-primary/10 to-accent/20 relative"
             style={{
-              backgroundImage: `linear-gradient(to right, hsl(var(--primary) / 0.85), hsl(var(--primary) / 0.45)), url(${job.cover})`,
+              backgroundImage: `linear-gradient(
+                to right,
+                hsl(var(--primary) / 0.85),
+                hsl(var(--primary) / 0.45)
+              ),
+              url("https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=80")`,
               backgroundSize: "cover",
               backgroundPosition: "center",
             }}
@@ -230,9 +369,13 @@ export default function CandidateJobDetail() {
               <div className="flex flex-col items-end gap-2 shrink-0">
                 <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
                   <TrendingUp className="h-4 w-4" />
-                  <span className="text-sm font-semibold">{job.match}% match</span>
+                  <span className="text-sm font-semibold">
+                    {job.match}% match
+                  </span>
                 </div>
-                <p className="text-xs text-muted-foreground">{job.applicants} applicants</p>
+                <p className="text-xs text-muted-foreground">
+                  {job.applicants} applicants
+                </p>
               </div>
             </div>
 
@@ -240,16 +383,32 @@ export default function CandidateJobDetail() {
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Stat icon={IndianRupee} label="Salary" value={job.salary} />
-              <Stat icon={Briefcase} label="Experience" value={job.experience} />
-              <Stat icon={Users} label="Openings" value={String(job.openings)} />
-              <Stat icon={Calendar} label="Deadline" value={job.applyBy.replace("Apply by ", "")} />
+              <Stat
+                icon={Briefcase}
+                label="Experience"
+                value={job.experience}
+              />
+              <Stat
+                icon={Users}
+                label="Openings"
+                value={String(job.openings)}
+              />
+              <Stat
+                icon={Calendar}
+                label="Deadline"
+                value={job.applyBy.replace("Apply by ", "")}
+              />
             </div>
 
             <div className="flex flex-wrap gap-2 mt-5">
               <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button size="lg" disabled={applied} className="gap-2">
-                    {applied ? (
+                  <Button
+                    size="lg"
+                    disabled={applied || alreadyApplied}
+                    className="gap-2"
+                  >
+                    {applied || alreadyApplied ? (
                       <>
                         <CheckCircle2 className="h-4 w-4" /> Applied
                       </>
@@ -277,11 +436,17 @@ export default function CandidateJobDetail() {
                       onChange={(e) => setCoverLetter(e.target.value)}
                     />
                     <p className="text-xs text-muted-foreground">
-                      Using resume: <span className="font-medium text-foreground">Riya_Sharma_Resume.pdf</span>
+                      Using resume:{" "}
+                      <span className="font-medium text-foreground">
+                        Riya_Sharma_Resume.pdf
+                      </span>
                     </p>
                   </div>
                   <DialogFooter>
-                    <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                    <Button
+                      variant="outline"
+                      onClick={() => setDialogOpen(false)}
+                    >
                       Cancel
                     </Button>
                     <Button onClick={handleApply}>Submit application</Button>
@@ -294,7 +459,9 @@ export default function CandidateJobDetail() {
                 variant="outline"
                 onClick={() => {
                   setSaved((s) => !s);
-                  toast.success(saved ? "Removed from saved" : "Saved to your list");
+                  toast.success(
+                    saved ? "Removed from saved" : "Saved to your list",
+                  );
                 }}
                 className="gap-2"
               >
@@ -308,17 +475,26 @@ export default function CandidateJobDetail() {
                   </>
                 )}
               </Button>
-              <Button size="lg" variant="outline" onClick={handleShare} className="gap-2">
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={handleShare}
+                className="gap-2"
+              >
                 <Share2 className="h-4 w-4" /> Share
               </Button>
-              <Button size="lg" variant="ghost" className="gap-2 text-muted-foreground">
+              <Button
+                size="lg"
+                variant="ghost"
+                className="gap-2 text-muted-foreground"
+              >
                 <Flag className="h-4 w-4" /> Report
               </Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* Body */}
+        {/* Body - Your exact structure */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <Tabs defaultValue="overview" className="w-full">
@@ -330,7 +506,9 @@ export default function CandidateJobDetail() {
 
               <TabsContent value="overview" className="space-y-6 mt-6">
                 <Section title="About the role">
-                  <p className="text-sm text-muted-foreground leading-relaxed">{job.about}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {job.about}
+                  </p>
                 </Section>
 
                 <Section title="Key responsibilities">
@@ -376,22 +554,40 @@ export default function CandidateJobDetail() {
                     <div className="flex items-center gap-3">
                       <Avatar className="h-12 w-12">
                         <AvatarImage src={job.logo} />
-                        <AvatarFallback>GE</AvatarFallback>
+                        <AvatarFallback>CO</AvatarFallback>
                       </Avatar>
                       <div>
-                        <CardTitle className="text-lg">{company.name}</CardTitle>
-                        <p className="text-xs text-muted-foreground">{company.industry}</p>
+                        <CardTitle className="text-lg">
+                          {company.name}
+                        </CardTitle>
+                        <p className="text-xs text-muted-foreground">
+                          {company.industry}
+                        </p>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <p className="text-sm text-muted-foreground leading-relaxed">{company.about}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {company.about}
+                    </p>
                     <Separator />
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <InfoRow icon={Users} label="Size" value={company.size} />
-                      <InfoRow icon={Calendar} label="Founded" value={String(company.founded)} />
-                      <InfoRow icon={MapPin} label="Headquarters" value={company.hq} />
-                      <InfoRow icon={Globe} label="Website" value={company.website} />
+                      <InfoRow
+                        icon={Calendar}
+                        label="Founded"
+                        value={String(company.founded)}
+                      />
+                      <InfoRow
+                        icon={MapPin}
+                        label="Headquarters"
+                        value={company.hq}
+                      />
+                      <InfoRow
+                        icon={Globe}
+                        label="Website"
+                        value={company.website}
+                      />
                     </div>
                   </CardContent>
                 </Card>
@@ -401,13 +597,16 @@ export default function CandidateJobDetail() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-lg flex items-center gap-2">
-                      <Sparkles className="h-5 w-5 text-primary" /> Your match analysis
+                      <Sparkles className="h-5 w-5 text-primary" /> Your match
+                      analysis
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="flex items-center gap-4 p-4 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
                       <div className="h-16 w-16 rounded-full bg-emerald-500/15 flex items-center justify-center">
-                        <span className="text-2xl font-bold text-emerald-600">{job.match}%</span>
+                        <span className="text-2xl font-bold text-emerald-600">
+                          {job.match}%
+                        </span>
                       </div>
                       <div>
                         <p className="font-semibold">Excellent match</p>
@@ -417,11 +616,15 @@ export default function CandidateJobDetail() {
                       </div>
                     </div>
                     <div className="space-y-3">
-                      {job.skills.map((s) => (
+                      {job.skills.map((s: any) => (
                         <div key={s.name}>
                           <div className="flex justify-between mb-1.5">
-                            <span className="text-sm font-medium">{s.name}</span>
-                            <span className="text-sm text-muted-foreground">{s.level}%</span>
+                            <span className="text-sm font-medium">
+                              {s.name}
+                            </span>
+                            <span className="text-sm text-muted-foreground">
+                              {s.level}%
+                            </span>
                           </div>
                           <Progress value={s.level} className="h-2" />
                         </div>
@@ -433,7 +636,7 @@ export default function CandidateJobDetail() {
             </Tabs>
           </div>
 
-          {/* Sidebar */}
+          {/* Sidebar - unchanged */}
           <aside className="space-y-6">
             <Card>
               <CardHeader>
@@ -441,11 +644,23 @@ export default function CandidateJobDetail() {
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
                 <InfoRow icon={Briefcase} label="Role" value={job.title} />
-                <InfoRow icon={Clock} label="Type" value={`${job.type} • ${job.workMode}`} />
-                <InfoRow icon={GraduationCap} label="Experience" value={job.experience} />
+                <InfoRow
+                  icon={Clock}
+                  label="Type"
+                  value={`${job.type} • ${job.workMode}`}
+                />
+                <InfoRow
+                  icon={GraduationCap}
+                  label="Experience"
+                  value={job.experience}
+                />
                 <InfoRow icon={IndianRupee} label="Salary" value={job.salary} />
                 <InfoRow icon={MapPin} label="Location" value={job.location} />
-                <InfoRow icon={Calendar} label="Deadline" value={job.applyBy.replace("Apply by ", "")} />
+                <InfoRow
+                  icon={Calendar}
+                  label="Deadline"
+                  value={job.applyBy.replace("Apply by ", "")}
+                />
               </CardContent>
             </Card>
 
@@ -467,11 +682,15 @@ export default function CandidateJobDetail() {
                       <AvatarFallback>{s.company.slice(0, 2)}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold truncate">{s.title}</p>
+                      <p className="text-sm font-semibold truncate">
+                        {s.title}
+                      </p>
                       <p className="text-xs text-muted-foreground truncate">
                         {s.company} • {s.location}
                       </p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{s.salary}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {s.salary}
+                      </p>
                     </div>
                     <Badge variant="secondary" className="text-xs shrink-0">
                       {s.match}%
@@ -486,7 +705,8 @@ export default function CandidateJobDetail() {
                 <Sparkles className="h-6 w-6" />
                 <h3 className="font-semibold">Boost your profile</h3>
                 <p className="text-sm text-primary-foreground/80">
-                  Candidates with a complete profile are 4× more likely to be shortlisted.
+                  Candidates with a complete profile are 4× more likely to be
+                  shortlisted.
                 </p>
                 <Button variant="secondary" size="sm" asChild>
                   <Link to="/candidate/profile">Complete profile</Link>
@@ -500,6 +720,7 @@ export default function CandidateJobDetail() {
   );
 }
 
+// ==================== HELPER COMPONENTS (Unchanged) ====================
 function Stat({
   icon: Icon,
   label,
@@ -522,7 +743,13 @@ function Stat({
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <Card>
       <CardHeader>
@@ -536,12 +763,19 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function BulletList({ items }: { items: string[] }) {
   return (
     <ul className="space-y-2">
-      {items.map((item) => (
-        <li key={item} className="flex items-start gap-2 text-sm text-muted-foreground">
-          <span className="mt-2 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
-          <span>{item}</span>
-        </li>
-      ))}
+      {items.length > 0 ? (
+        items.map((item, i) => (
+          <li
+            key={i}
+            className="flex items-start gap-2 text-sm text-muted-foreground"
+          >
+            <span className="mt-2 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+            <span>{item}</span>
+          </li>
+        ))
+      ) : (
+        <p className="text-sm text-muted-foreground">No data available</p>
+      )}
     </ul>
   );
 }
@@ -559,7 +793,9 @@ function InfoRow({
     <div className="flex items-center gap-2">
       <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
       <span className="text-muted-foreground">{label}:</span>
-      <span className="font-medium text-foreground truncate ml-auto">{value}</span>
+      <span className="font-medium text-foreground truncate ml-auto">
+        {value}
+      </span>
     </div>
   );
 }
