@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import API from "@/lib/axios";
+import { useToast } from "@/hooks/use-toast";
 
 interface RescheduleInterviewModalProps {
   open: boolean;
@@ -34,6 +35,8 @@ export default function RescheduleInterviewModal({
     interviewDate: "",
     interviewTime: "",
   });
+
+  const { toast } = useToast()
 
   const [loading, setLoading] = useState(false);
 
@@ -62,7 +65,7 @@ export default function RescheduleInterviewModal({
     try {
       setLoading(true);
 
-      const response = await API.patch("/api/jobposting/reschedule_interview", {
+      const response = await API.patch("api/jobposting/accept_shortlisted_candidates_reschedule", {
         applicationId: selectedCandidate._id,
         interviewDate,
         interviewTime,
@@ -74,7 +77,12 @@ export default function RescheduleInterviewModal({
       }
     } catch (error: any) {
       console.error(error);
-      alert(error?.response?.data?.message || "Failed to reschedule interview");
+      // alert(error?.response?.data?.message || "Failed to reschedule interview");
+      toast({
+        title: "Error",
+        description: error?.response?.data?.message || "Failed to reschedule interview",
+        variant: "destructive",
+      })
     } finally {
       setLoading(false);
     }
@@ -127,10 +135,9 @@ export default function RescheduleInterviewModal({
               type="date"
               min={new Date().toISOString().split("T")[0]}
               value={interviewDate}
-              className={`w-full rounded-md border px-3 py-2 ${
-                errors.interviewDate ? "border-red-500" : "border-input"
-              }`}
-              style={{ position: "relative"}}
+              className={`w-full rounded-md border px-3 py-2 ${errors.interviewDate ? "border-red-500" : "border-input"
+                }`}
+              style={{ position: "relative" }}
               onChange={(e) => {
                 setInterviewDate(e.target.value);
                 setErrors((prev) => ({
@@ -151,9 +158,8 @@ export default function RescheduleInterviewModal({
             <input
               type="time"
               value={interviewTime}
-              className={`w-full rounded-md border px-3 py-2 ${
-                errors.interviewTime ? "border-red-500" : "border-input"
-              }`}
+              className={`w-full rounded-md border px-3 py-2 ${errors.interviewTime ? "border-red-500" : "border-input"
+                }`}
               onChange={(e) => {
                 setInterviewTime(e.target.value);
                 setErrors((prev) => ({
