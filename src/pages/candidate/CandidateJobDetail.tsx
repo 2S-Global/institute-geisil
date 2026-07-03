@@ -219,9 +219,35 @@ export default function CandidateJobDetail() {
     return (
       <CandidateLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
-          <p className="text-lg text-muted-foreground">
-            Loading job details...
-          </p>
+          <div className="text-center">
+            {/* Spinner */}
+            <div className="relative w-20 h-20 mx-auto mb-6">
+              <div className="absolute inset-0 rounded-full border-4 border-slate-200 dark:border-slate-700"></div>
+              <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-primary border-r-accent animate-spin"></div>
+
+              {/* Center Glow */}
+              <div className="absolute inset-4 rounded-full bg-gradient-to-r from-primary to-accent blur-md opacity-60"></div>
+            </div>
+
+            {/* Loading Text */}
+            <div>
+              <p className="text-foreground text-base font-medium">
+                Loading job details
+              </p>
+
+              <div className="flex justify-center gap-2 mt-4">
+                <span className="w-2 h-2 bg-primary rounded-full animate-bounce"></span>
+                <span
+                  className="w-2 h-2 bg-primary rounded-full animate-bounce"
+                  style={{ animationDelay: "0.15s" }}
+                ></span>
+                <span
+                  className="w-2 h-2 bg-primary rounded-full animate-bounce"
+                  style={{ animationDelay: "0.3s" }}
+                ></span>
+              </div>
+            </div>
+          </div>
         </div>
       </CandidateLayout>
     );
