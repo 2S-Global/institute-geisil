@@ -11,6 +11,7 @@ import {
   Share2,
   Send,
   CheckCircle2,
+  Loader2,
   GraduationCap,
   Users,
   Globe,
@@ -27,20 +28,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { useBookmarkJob } from "./hooks/useBookmarkJob";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import CandidateApplyModal from "@/components/candidate/CandidateApplyModal";
 import { toast } from "sonner";
 import api from "@/lib/axios";
 
@@ -114,6 +106,7 @@ const similarJobs = [
 
 export default function CandidateJobDetail() {
   const { id } = useParams<{ id: string }>();
+  const { handleBookmark, bookmarkLoading } = useBookmarkJob();
 
   const [jobData, setJobData] = useState<JobPreviewDetails | null>(null);
   const [loading, setLoading] = useState(true);
@@ -121,7 +114,6 @@ export default function CandidateJobDetail() {
   const [saved, setSaved] = useState(false);
   const [applied, setApplied] = useState(false);
   const [alreadyApplied, setAlreadyApplied] = useState(false);
-  const [coverLetter, setCoverLetter] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
 
   // Fetch Job Details
@@ -146,6 +138,8 @@ export default function CandidateJobDetail() {
 
         if (response.data?.success && response.data?.data) {
           setJobData(response.data.data);
+          setAlreadyApplied(!!response.data.data.isApplied);
+          setSaved(!!response.data.data.isBookmarked);
         } else {
           setError("Failed to load job details");
         }
@@ -161,28 +155,28 @@ export default function CandidateJobDetail() {
   }, [id]);
 
   // Check Application Status
-  useEffect(() => {
-    const checkApplicationStatus = async () => {
-      if (!id) return;
-
-      try {
-        const response = await api.get(
-          "/api/jobposting/check-application-status",
-          {
-            params: { jobId: id },
-          },
-        );
-
-        if (response.data?.success) {
-          setAlreadyApplied(!!response.data.alreadyApplied);
-        }
-      } catch (err) {
-        console.error("Error checking application status:", err);
-      }
-    };
-
-    checkApplicationStatus();
-  }, [id]);
+  // useEffect(() => {
+  //   const checkApplicationStatus = async () => {
+  //     if (!id) return;
+  // 
+  //     try {
+  //       const response = await api.get(
+  //         "/api/jobposting/check-application-status",
+  //         {
+  //           params: { jobId: id },
+  //         },
+  //       );
+  // 
+  //       if (response.data?.success) {
+  //         setAlreadyApplied(!!response.data.alreadyApplied);
+  //       }
+  //     } catch (err) {
+  //       console.error("Error checking application status:", err);
+  //     }
+  //   };
+  // 
+  //   checkApplicationStatus();
+  // }, [id]);
 
   const formatSalary = (salary?: Salary): string => {
     if (!salary) return "Salary not disclosed";
@@ -227,13 +221,7 @@ export default function CandidateJobDetail() {
       .trim();
   };
 
-  const handleApply = () => {
-    setApplied(true);
-    setDialogOpen(false);
-    toast.success("Application submitted!", {
-      description: `Your application for ${jobData?.title || "this role"} has been sent.`,
-    });
-  };
+
 
   const handleShare = () => {
     if (navigator.clipboard) {
@@ -414,77 +402,58 @@ export default function CandidateJobDetail() {
             </div>
 
             <div className="flex flex-wrap gap-2 mt-5">
-              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button
-                    size="lg"
-                    disabled={applied || alreadyApplied}
-                    className="gap-2"
-                  >
-                    {applied || alreadyApplied ? (
-                      <>
-                        <CheckCircle2 className="h-4 w-4" /> Applied
-                      </>
-                    ) : (
-                      <>
-                        <Send className="h-4 w-4" /> Apply now
-                      </>
-                    )}
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-lg">
-                  <DialogHeader>
-                    <DialogTitle>Apply for {job.title}</DialogTitle>
-                    <DialogDescription>
-                      Your profile and resume will be shared with {job.company}.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-3">
-                    <Label htmlFor="cover">Cover note (optional)</Label>
-                    <Textarea
-                      id="cover"
-                      placeholder="Tell the hiring team why you're a great fit…"
-                      rows={5}
-                      value={coverLetter}
-                      onChange={(e) => setCoverLetter(e.target.value)}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Using resume:{" "}
-                      <span className="font-medium text-foreground">
-                        Riya_Sharma_Resume.pdf
-                      </span>
-                    </p>
-                  </div>
-                  <DialogFooter>
-                    <Button
-                      variant="outline"
-                      onClick={() => setDialogOpen(false)}
-                    >
-                      Cancel
-                    </Button>
-                    <Button onClick={handleApply}>Submit application</Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+              <Button
+                size="lg"
+                disabled={applied || alreadyApplied}
+                className="gap-2"
+                onClick={() => setDialogOpen(true)}
+              >
+                {applied || alreadyApplied ? (
+                  <>
+                    <CheckCircle2 className="h-4 w-4" /> Applied
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4" /> Apply now
+                  </>
+                )}
+              </Button>
+
+
+
+
+
+              <CandidateApplyModal
+                open={dialogOpen}
+                onClose={() => setDialogOpen(false)}
+                job={{ _id: id, jobTitle: job.title, companyName: job.company }}
+                onSuccess={() => setApplied(true)}
+              />
 
               <Button
                 size="lg"
                 variant="outline"
-                onClick={() => {
-                  setSaved((s) => !s);
-                  toast.success(
-                    saved ? "Removed from saved" : "Saved to your list",
-                  );
+                onClick={async () => {
+                  if (id) {
+                    await handleBookmark(id, saved, () => {
+                      setSaved((s) => !s);
+                    });
+                  }
                 }}
+                disabled={bookmarkLoading[id || ""]}
                 className="gap-2"
               >
-                {saved ? (
+                {bookmarkLoading[id || ""] ? (
                   <>
-                    <BookmarkCheck className="h-4 w-4" /> Saved
+                    <Loader2 className="h-4 w-4 animate-spin" /> Checking...
+                  </>
+                ) : saved ? (
+                  <>
+                    <BookmarkCheck className="h-4 w-4 fill-primary text-primary" /> Saved
                   </>
                 ) : (
                   <>
-                    <Bookmark className="h-4 w-4" /> Save
+                    <Bookmark className="h-4 w-4" /> Save Job
                   </>
                 )}
               </Button>

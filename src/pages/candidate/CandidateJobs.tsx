@@ -16,6 +16,8 @@ import {
   Send,
   Grid3x3,
   List,
+  CheckCircle2,
+  Loader2,
 } from "lucide-react";
 import { CandidateLayout } from "@/components/CandidateLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,9 +42,11 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import CandidateApplyModal from "@/components/candidate/CandidateApplyModal";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import API from "@/lib/axios";
+import { useBookmarkJob } from "./hooks/useBookmarkJob";
 type Job = {
   id: string;
   title: string;
@@ -211,6 +215,9 @@ function FilterPanel({
 }
 
 export default function CandidateJobs() {
+  //custom hook for bookmark
+  const { handleBookmark, bookmarkLoading } = useBookmarkJob();
+
   const [query, setQuery] = useState("");
   const [location, setLocation] = useState("all");
   const [sort, setSort] = useState("recent");
@@ -227,6 +234,8 @@ export default function CandidateJobs() {
   const [allJobs, setAllJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [visibleJobs, setVisibleJobs] = useState(6);
+  const [applyingJob, setApplyingJob] = useState<any | null>(null);
+  const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set());
   useEffect(() => {
     fetchJobTypes();
     fetchExperienceLevels();
@@ -305,17 +314,15 @@ export default function CandidateJobs() {
     setQuery("");
   };
 
-  const toggleSave = (id: string) => {
-    setSaved((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-        toast.success("Removed from saved jobs");
-      } else {
-        next.add(id);
-        toast.success("Job saved");
-      }
-      return next;
+
+
+  const toggleSave = async (id: string, isCurrentlyBookmarked: boolean) => {
+    await handleBookmark(id, isCurrentlyBookmarked, () => {
+      setAllJobs((prev) =>
+        prev.map((job) =>
+          job._id === id ? { ...job, isBookmarked: !isCurrentlyBookmarked } : job
+        )
+      );
     });
   };
 
@@ -428,10 +435,12 @@ export default function CandidateJobs() {
     selectedDatePosted,
   ]);
 
-  const JobCard = ({ job }: { job: Job }) => {
-    const isSaved = job.isBookmarked;
-    const workMode =
-      job.jobLocationType?.toLowerCase() === "remote" ? "Remote" : "On-site";
+  const JobCard = ({ job }: { job: any }) => {
+
+    //destructure
+    const isSaved = job?.isBookmarked
+    const workMode = job?.jobLocationType?.toLowerCase() === "remote" ? "Remote" : "On-site";
+    const isApplied = job?.isApplied || appliedJobIds.has(job?._id);
     return (
       <Card className="group relative overflow-hidden border-border/60 hover:border-primary/40 hover:shadow-lg transition-all">
         {/* {job.featured && (
@@ -439,6 +448,7 @@ export default function CandidateJobs() {
             Featured
           </div>
         )} */}
+        <Link to={`/candidate/jobs/${job._id}`}>
         <CardContent className="p-5">
           <div className="flex items-start gap-4">
             <div className="h-12 w-12 shrink-0 rounded-lg border bg-muted/40 flex items-center justify-center overflow-hidden">
@@ -463,11 +473,23 @@ export default function CandidateJobs() {
                   </p>
                 </div>
                 <button
-                  onClick={() => toggleSave(job._id)}
-                  className="text-muted-foreground hover:text-primary transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    if (!bookmarkLoading[job._id]) {
+                      toggleSave(job._id, !!isSaved);
+                    }
+                  }}
+                  disabled={bookmarkLoading[job._id]}
+                  className={cn(
+                    "text-muted-foreground hover:text-primary transition-colors",
+                    bookmarkLoading[job._id] && "opacity-50 "
+                  )}
                   aria-label="Save job"
                 >
-                  {isSaved ? (
+                  {bookmarkLoading[job._id] ? (
+                    <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                  ) : isSaved ? (
                     <BookmarkCheck className="h-5 w-5 fill-primary text-primary" />
                   ) : (
                     <Bookmark className="h-5 w-5" />
@@ -531,22 +553,37 @@ export default function CandidateJobs() {
                   </div> */}
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" asChild>
+                  <Button variant="outline" size="sm" asChild onClick={(e) => e.stopPropagation()}>
                     <Link to={`/candidate/jobs/${job._id}`}>View</Link>
                   </Button>
                   <Button
                     size="sm"
-                    onClick={() => toast.success(`Applied to ${job.title}`)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      setApplyingJob(job);
+                    }}
+                    disabled={isApplied}
                     className="gap-1.5"
                   >
-                    <Send className="h-3.5 w-3.5" />
-                    Apply
+                    {isApplied ? (
+                      <>
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        Applied
+                      </>
+                    ) : (
+                      <>
+                        <Send className="h-3.5 w-3.5" />
+                        Apply
+                      </>
+                    )}
                   </Button>
                 </div>
               </div>
             </div>
           </div>
         </CardContent>
+        </Link>
       </Card>
     );
   };
@@ -752,6 +789,21 @@ export default function CandidateJobs() {
           </div>
         </div>
       </div>
+
+
+
+      <CandidateApplyModal
+        open={applyingJob !== null}
+        onClose={() => setApplyingJob(null)}
+        job={applyingJob}
+        onSuccess={(jobId) => {
+          setAppliedJobIds((prev) => {
+            const next = new Set(prev);
+            next.add(jobId);
+            return next;
+          });
+        }}
+      />
     </CandidateLayout>
   );
 }

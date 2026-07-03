@@ -122,9 +122,9 @@ export default function Candidates() {
                 <tr key={c.name} className="hover:bg-muted/30 transition-colors">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <Avatar className="h-9 w-9 border"><AvatarFallback className="bg-primary-soft text-primary text-xs font-semibold">{c.name.split(" ").map(w=>w[0]).join("")}</AvatarFallback></Avatar>
+                      <Avatar className="h-9 w-9 border"><AvatarFallback className="bg-primary-soft text-primary text-xs font-semibold">{c.name.split(" ").map(w => w[0]).join("")}</AvatarFallback></Avatar>
                       <div>
-                        <Link to={`/employer/candidates/${c.name.toLowerCase().replace(/\s+/g,"-")}`} className="font-semibold text-foreground hover:text-primary">{c.name}</Link>
+                        <Link to={`/employer/candidates/${c.name.toLowerCase().replace(/\s+/g, "-")}`} className="font-semibold text-foreground hover:text-primary">{c.name}</Link>
                         <p className="text-xs text-muted-foreground">{c.loc}</p>
                       </div>
                     </div>
@@ -139,7 +139,7 @@ export default function Candidates() {
                   </td>
                   <td className="px-4 py-3"><Badge variant="outline" className={styles[c.stage]}>{c.stage}</Badge></td>
                   <td className="px-4 py-3 text-right">
-                    <Button asChild size="sm" variant="ghost"><Link to={`/employer/candidates/${c.name.toLowerCase().replace(/\s+/g,"-")}`}>View</Link></Button>
+                    <Button asChild size="sm" variant="ghost"><Link to={`/employer/candidates/${c.name.toLowerCase().replace(/\s+/g, "-")}`}>View</Link></Button>
                   </td>
                 </tr>
               ))}
