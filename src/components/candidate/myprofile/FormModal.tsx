@@ -452,7 +452,7 @@ const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
                 type="text"
                 inputMode="numeric"
                 className="w-full border rounded-md px-3 py-2 text-sm"
-                value={Number(formData.salary || 0).toLocaleString("en-IN")}
+                value={Number(formData.salary || "").toLocaleString("en-IN")}
                 placeholder="Enter salary"
                 onChange={(e) => {
                   const raw = e.target.value.replace(/,/g, "");

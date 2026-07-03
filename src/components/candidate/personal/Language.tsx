@@ -112,6 +112,10 @@ const [languages, setLanguages] = useState([]);
     }
 
     setLanguages(updatedLanguages);
+    if(Array.isArray(formData?.languages) && formData?.languages?.length===0){
+       setFormData((prevData) => ({ ...prevData, languages:updatedLanguages }));
+    }
+   
   };
 
   const handleCheckboxChange = (index, field) => {
