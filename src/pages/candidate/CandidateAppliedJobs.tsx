@@ -53,6 +53,7 @@ import {
   useAcceptRejectOfferLetter,
   useRequestReschedule,
 } from "./hooks/useCandidateOptions";
+import { useNavigate } from "react-router-dom";
 import { useBookmarkJob } from "./hooks/useBookmarkJob";
 import {
   Dialog,
@@ -91,6 +92,8 @@ export default function CandidateAppliedJobs() {
     jobTitle: "",
     companyName: "",
   });
+
+  const navigate = useNavigate()
 
   const { toast } = useToast();
   const { acceptRejectOffer } = useAcceptRejectOfferLetter();
@@ -279,6 +282,13 @@ export default function CandidateAppliedJobs() {
     },
   ];
 
+
+  const handleNavigate = () => {
+
+    navigate("/candidate/jobs")
+
+  }
+
   if (loading) {
     return (
       <CandidateLayout>
@@ -315,10 +325,10 @@ export default function CandidateAppliedJobs() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" className="gap-2">
+            {/* <Button variant="outline" className="gap-2">
               <FileText className="h-4 w-4" /> Export
-            </Button>
-            <Button className="gap-2">
+            </Button> */}
+            <Button onClick={() => handleNavigate()} className="gap-2">
               <Briefcase className="h-4 w-4" /> Browse Jobs
             </Button>
           </div>
