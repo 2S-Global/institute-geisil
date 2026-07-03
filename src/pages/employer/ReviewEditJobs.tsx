@@ -820,7 +820,7 @@ export default function ReviewEditJobs() {
           </div>
 
           <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 mt-10">
-            <button
+           {/*  <button
               className="font-['Poppins'] text-[15px] font-medium px-6 py-[10px] rounded-full border border-[#ccc] bg-white text-[#176be6] transition-all duration-200 hover:bg-[#f2f7ff]"
               onClick={() =>
                 router(
@@ -830,7 +830,7 @@ export default function ReviewEditJobs() {
               disabled={confirmLoading}
             >
               ← Back
-            </button>
+            </button> */}
 
             <div className="flex flex-col sm:flex-row gap-3">
               {/* <button className="btn preview-btn">Preview</button> */}
