@@ -1,4 +1,3 @@
-//New CandidateJobDetail.tsx
 import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
@@ -56,19 +55,30 @@ interface Salary {
 }
 
 interface JobPreviewDetails {
+  jobId?: string;
   title?: string;
   companyName?: string;
   logoImage?: string;
+  coverImage?: string;
   location?: string;
   industry?: string;
   createdAgo?: string;
+  expiredAt?: string;
   salary?: Salary;
   jobType?: string[];
-  experience?: string;
+  jobLocationType?: string;
+  experienceLevel?: string;
+  careerLevel?: string;
+  qualification?: string[];
   jobDescription?: string;
   jobSkills?: string[];
+  benefits?: string[];
   companyWebsite?: string;
   aboutCompany?: string;
+  totalApplicants?: number;
+  totalShortlisted?: number;
+  totalInterviewScheduled?: number;
+  totalRejected?: number;
 }
 
 // ==================== STATIC FALLBACKS ====================
@@ -257,28 +267,30 @@ export default function CandidateJobDetail() {
     );
   }
 
-  // Map API data to your UI
   const job = {
     title: jobData.title || "Job Title",
     company: jobData.companyName || "Company",
     logo: jobData.logoImage || "/images/resource/no_user.png",
+    cover: jobData.coverImage,
     location: jobData.location || "Location not specified",
     type: jobData.jobType?.[0] || "Full-time",
-    workMode: "Hybrid", // Keep static for now
-    experience: jobData.experience || "Experience not specified",
+    workMode: jobData.jobLocationType || "Hybrid",
+    experience: jobData.experienceLevel || "Experience not specified",
+    careerLevel: jobData.careerLevel || "Not specified",
+    qualification: jobData.qualification || [],
     salary: formatSalary(jobData.salary),
     posted: jobData.createdAgo || "Recently posted",
-    applyBy: "Apply by 25 Jul 2026", // Keep static
+    applyBy: jobData.expiredAt || "Apply by 25 Jul 2026",
     openings: 2,
-    applicants: 142,
+    applicants: jobData.totalApplicants || 0,
     match: 92,
     featured: true,
     about: stripHtmlTags(jobData.jobDescription) || "No description available.",
     tags: jobData.jobSkills || [],
-    responsibilities: [], // Keep static until API provides
+    responsibilities: [],
     requirements: [],
     niceToHave: [],
-    benefits: [],
+    benefits: jobData.benefits || [],
     skills: [],
   };
 
@@ -318,7 +330,7 @@ export default function CandidateJobDetail() {
           <ArrowLeft className="h-4 w-4" /> Back to jobs
         </Link>
 
-        {/* Hero card - Your exact UI */}
+        {/* Hero card */}
         <Card className="overflow-hidden">
           <div
             className="h-32 md:h-40 bg-gradient-to-r from-primary/20 via-primary/10 to-accent/20 relative"
@@ -328,7 +340,7 @@ export default function CandidateJobDetail() {
                 hsl(var(--primary) / 0.85),
                 hsl(var(--primary) / 0.45)
               ),
-              url("https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=80")`,
+              url("${job.cover || "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=80"}")`,
               backgroundSize: "cover",
               backgroundPosition: "center",
             }}
@@ -342,14 +354,19 @@ export default function CandidateJobDetail() {
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <div className="flex flex-wrap items-center gap-2 mb-2">
+                <div className="flex flex-wrap items-center gap-2 mb-3">
                   {job.featured && (
-                    <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/20">
-                      <Sparkles className="h-3 w-3 mr-1" /> Featured
+                    <Badge className="bg-gradient-to-r from-amber-400 to-orange-400 text-slate-900 font-semibold shadow-sm hover:from-amber-500 hover:to-orange-500 transition-all">
+                      <Sparkles className="h-3 w-3 mr-1.5" /> Featured
                     </Badge>
                   )}
-                  <Badge variant="outline">{job.type}</Badge>
-                  <Badge variant="outline">{job.workMode}</Badge>
+                  <Badge className="bg-blue-500/20 text-white border border-blue-400/40 backdrop-blur-sm">
+                    {job.type}
+                  </Badge>
+
+                  <Badge className="bg-purple-500/20 text-white border border-purple-400/40 backdrop-blur-sm">
+                    {job.workMode}
+                  </Badge>
                 </div>
                 <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">
                   {job.title}
@@ -393,11 +410,7 @@ export default function CandidateJobDetail() {
                 label="Openings"
                 value={String(job.openings)}
               />
-              <Stat
-                icon={Calendar}
-                label="Deadline"
-                value={job.applyBy.replace("Apply by ", "")}
-              />
+              <Stat icon={Calendar} label="Deadline" value={job.applyBy} />
             </div>
 
             <div className="flex flex-wrap gap-2 mt-5">
@@ -657,10 +670,20 @@ export default function CandidateJobDetail() {
                 <InfoRow icon={IndianRupee} label="Salary" value={job.salary} />
                 <InfoRow icon={MapPin} label="Location" value={job.location} />
                 <InfoRow
-                  icon={Calendar}
-                  label="Deadline"
-                  value={job.applyBy.replace("Apply by ", "")}
+                  icon={Briefcase}
+                  label="Career Level"
+                  value={job.careerLevel}
                 />
+                <InfoRow
+                  icon={GraduationCap}
+                  label="Qualification"
+                  value={
+                    job.qualification.length > 0
+                      ? job.qualification.join(", ")
+                      : "Not specified"
+                  }
+                />
+                <InfoRow icon={Calendar} label="Deadline" value={job.applyBy} />
               </CardContent>
             </Card>
 
@@ -720,7 +743,6 @@ export default function CandidateJobDetail() {
   );
 }
 
-// ==================== HELPER COMPONENTS (Unchanged) ====================
 function Stat({
   icon: Icon,
   label,
