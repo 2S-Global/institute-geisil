@@ -1,5 +1,4 @@
 
-
 import React, { useEffect, useRef, useState } from "react";
 import API from "@/lib/axios";
 
@@ -115,10 +114,7 @@ const KeySkillsModal = ({
           title: "Success",
           description: "Key Skills updated successfully.",
         });
-        // 2. SHOW TOAST AFTER CLOSE (IMPORTANT FIX)
-        // setTimeout(() => {
-
-        // }, 150);
+       
       }
     } catch (err: any) {
       toast({
