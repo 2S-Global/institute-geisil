@@ -43,6 +43,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import api from "@/lib/axios";
+import DOMPurify from "dompurify";
 
 // ==================== TYPES ====================
 interface Salary {
@@ -68,6 +69,7 @@ interface JobPreviewDetails {
   jobType?: string[];
   jobLocationType?: string;
   experienceLevel?: string;
+  opening?: number;
   careerLevel?: string;
   qualification?: string[];
   jobDescription?: string;
@@ -210,23 +212,6 @@ export default function CandidateJobDetail() {
     }
   };
 
-  const stripHtmlTags = (value?: string): string => {
-    if (!value) return "";
-
-    return value
-      .replace(/<br\s*\/?>/gi, "\n")
-      .replace(/<\/(p|div|li|ul|ol|h[1-6])>/gi, "\n")
-      .replace(/<[^>]+>/g, "")
-      .replace(/&nbsp;/gi, " ")
-      .replace(/&amp;/gi, "&")
-      .replace(/&quot;/gi, '"')
-      .replace(/&#39;/gi, "'")
-      .replace(/&lt;/gi, "<")
-      .replace(/&gt;/gi, ">")
-      .replace(/\n{3,}/g, "\n\n")
-      .trim();
-  };
-
   const handleApply = () => {
     setApplied(true);
     setDialogOpen(false);
@@ -281,11 +266,14 @@ export default function CandidateJobDetail() {
     salary: formatSalary(jobData.salary),
     posted: jobData.createdAgo || "Recently posted",
     applyBy: jobData.expiredAt || "Apply by 25 Jul 2026",
-    openings: 2,
+    openings: jobData.opening || "N/A",
     applicants: jobData.totalApplicants || 0,
     match: 92,
     featured: true,
-    about: stripHtmlTags(jobData.jobDescription) || "No description available.",
+    // about: stripHtmlTags(jobData.jobDescription) || "No description available.",
+    about: jobData.jobDescription
+      ? DOMPurify.sanitize(jobData.jobDescription)
+      : "<p>No description available.</p>",
     tags: jobData.jobSkills || [],
     responsibilities: [],
     requirements: [],
@@ -301,8 +289,10 @@ export default function CandidateJobDetail() {
     founded: 2017,
     hq: jobData.location || "Bengaluru, India",
     website: jobData.companyWebsite || "#",
-    about:
-      stripHtmlTags(jobData.aboutCompany) || "Company information coming soon.",
+    // about: stripHtmlTags(jobData.aboutCompany),
+    about: jobData.aboutCompany
+      ? DOMPurify.sanitize(jobData.aboutCompany)
+      : "<p>No company description available.</p>",
   };
 
   return (
@@ -355,11 +345,11 @@ export default function CandidateJobDetail() {
               </Avatar>
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2 mb-3">
-                  {job.featured && (
+                  {/* {job.featured && (
                     <Badge className="bg-gradient-to-r from-amber-400 to-orange-400 text-slate-900 font-semibold shadow-sm hover:from-amber-500 hover:to-orange-500 transition-all">
                       <Sparkles className="h-3 w-3 mr-1.5" /> Featured
                     </Badge>
-                  )}
+                  )} */}
                   <Badge className="bg-blue-500/20 text-white border border-blue-400/40 backdrop-blur-sm">
                     {job.type}
                   </Badge>
@@ -518,13 +508,35 @@ export default function CandidateJobDetail() {
               </TabsList>
 
               <TabsContent value="overview" className="space-y-6 mt-6">
-                <Section title="About the role">
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {job.about}
-                  </p>
+                <Section title="Job Description">
+                  <div
+                    className="
+                      prose
+                      prose-sm
+                      dark:prose-invert
+                      max-w-none
+                      text-muted-foreground
+                      leading-7
+
+                      [&_ul]:list-disc
+                      [&_ul]:pl-6
+                      [&_ol]:list-decimal
+                      [&_ol]:pl-6
+                      [&_li]:mb-2
+                      [&_h1]:text-2xl [&_h1]:font-bold
+                      [&_h2]:text-xl [&_h2]:font-bold
+                      [&_h3]:text-lg [&_h3]:font-semibold
+                      [&_h4]:text-base [&_h4]:font-semibold
+                      [&_h5]:text-sm [&_h5]:font-semibold
+                      [&_h6]:text-sm [&_h6]:font-medium
+                      [&_strong]:font-semibold
+                      [&_p]:mb-4
+                    "
+                    dangerouslySetInnerHTML={{ __html: job.about }}
+                  />
                 </Section>
 
-                <Section title="Key responsibilities">
+                {/* <Section title="Key responsibilities">
                   <BulletList items={job.responsibilities} />
                 </Section>
 
@@ -534,7 +546,7 @@ export default function CandidateJobDetail() {
 
                 <Section title="Nice to have">
                   <BulletList items={job.niceToHave} />
-                </Section>
+                </Section> */}
 
                 <Section title="Benefits & perks">
                   <div className="grid sm:grid-cols-2 gap-2">
@@ -550,11 +562,20 @@ export default function CandidateJobDetail() {
                   </div>
                 </Section>
 
-                <Section title="Skills">
+                {/* <Section title="Skills">
                   <div className="flex flex-wrap gap-2">
                     {job.tags.map((t) => (
                       <Badge key={t} variant="secondary" className="text-xs">
                         {t}
+                      </Badge>
+                    ))}
+                  </div>
+                </Section> */}
+                <Section title="Skills">
+                  <div className="flex flex-wrap gap-2">
+                    {job.tags.map((t) => (
+                      <Badge key={t} variant="secondary" className="text-xs">
+                        {t.toUpperCase()}
                       </Badge>
                     ))}
                   </div>
@@ -580,9 +601,21 @@ export default function CandidateJobDetail() {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {company.about}
-                    </p>
+                    <div
+                      className="
+                        prose
+                        prose-sm
+                        dark:prose-invert
+                        max-w-none
+                        text-muted-foreground
+
+                        [&_ul]:list-disc
+                        [&_ul]:pl-6
+                        [&_ol]:list-decimal
+                        [&_ol]:pl-6
+                      "
+                      dangerouslySetInnerHTML={{ __html: company.about }}
+                    />
                     <Separator />
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <InfoRow icon={Users} label="Size" value={company.size} />
