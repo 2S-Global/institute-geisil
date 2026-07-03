@@ -220,7 +220,10 @@ const CandidateAssessments = () => {
           {upcoming.map((a) => {
             const Icon = iconFor(a.type);
             return (
-              <Card key={a.id} className="border-border/60 shadow-sm hover:shadow-md transition-shadow">
+              <Card
+                key={a.id}
+                className="border-border/60 shadow-sm hover:shadow-md transition-shadow"
+              >
                 <CardContent className="p-5">
                   <div className="flex flex-col lg:flex-row lg:items-center gap-5">
                     <div className="flex items-start gap-4 flex-1 min-w-0">
@@ -229,28 +232,68 @@ const CandidateAssessments = () => {
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center flex-wrap gap-2 mb-1">
-                          <Badge variant="outline" className="bg-muted/50 text-muted-foreground text-[10px]">{a.id}</Badge>
-                          <Badge variant="outline" className={diffTone[a.difficulty]}>{a.difficulty}</Badge>
-                          {a.proctored && <Badge variant="outline" className="bg-primary-soft text-primary border-primary/20 text-[10px]">Proctored</Badge>}
+                          <Badge
+                            variant="outline"
+                            className="bg-muted/50 text-muted-foreground text-[10px]"
+                          >
+                            {a.id}
+                          </Badge>
+                          <Badge
+                            variant="outline"
+                            className={diffTone[a.difficulty]}
+                          >
+                            {a.difficulty}
+                          </Badge>
+                          {a.proctored && (
+                            <Badge
+                              variant="outline"
+                              className="bg-primary-soft text-primary border-primary/20 text-[10px]"
+                            >
+                              Proctored
+                            </Badge>
+                          )}
                         </div>
-                        <h3 className="font-display font-bold text-foreground truncate">{a.title}</h3>
-                        <p className="text-sm text-muted-foreground truncate">{a.company} • {a.type}</p>
+                        <h3 className="font-display font-bold text-foreground truncate">
+                          {a.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground truncate">
+                          {a.company} • {a.type}
+                        </p>
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground mt-2">
-                          <span className="inline-flex items-center gap-1"><Clock className="h-3 w-3" />{a.duration}</span>
-                          <span className="inline-flex items-center gap-1"><ClipboardList className="h-3 w-3" />{a.questions} questions</span>
-                          <span className="inline-flex items-center gap-1"><Calendar className="h-3 w-3" />Due {a.dueDate}</span>
+                          <span className="inline-flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {a.duration}
+                          </span>
+                          <span className="inline-flex items-center gap-1">
+                            <ClipboardList className="h-3 w-3" />
+                            {a.questions} questions
+                          </span>
+                          <span className="inline-flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            Due {a.dueDate}
+                          </span>
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 lg:flex-col lg:items-end">
                       <Badge className="bg-warning/10 text-warning border-warning/20">
-                        <AlertCircle className="h-3 w-3 mr-1" />Due {a.dueIn}
+                        <AlertCircle className="h-3 w-3 mr-1" />
+                        Due {a.dueIn}
                       </Badge>
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm">Details</Button>
+                        <Button asChild variant="outline" size="sm">
+                          <Link to={`/candidate/assessments/${a.id}`}>
+                            Details
+                          </Link>
+                        </Button>
                         <Button
                           size="sm"
-                          onClick={() => toast({ title: "Starting assessment", description: a.title })}
+                          onClick={() =>
+                            toast({
+                              title: "Starting assessment",
+                              description: a.title,
+                            })
+                          }
                           className="gap-1.5 bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground"
                         >
                           Start <ArrowRight className="h-3.5 w-3.5" />

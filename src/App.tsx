@@ -72,7 +72,8 @@ import CandidateSettings from "./pages/candidate/CandidateSettings.tsx";
 import CandidatesList from "./pages/employer/CandidatesList.tsx";
 import CandidateInterviews from "./pages/candidate/CandidateInterviews.tsx";
 import CandidateAssessments from "./pages/candidate/CandidateAssessments.tsx";
-
+import CandidateNotifications from "./pages/candidate/CandidateNotifications.tsx";
+import CandidateAssessmentDetail from "./pages/candidate/CandidateAssessmentDetail.tsx";
 const queryClient = new QueryClient();
 const App = () => {
   const [profile, setProfile] = useState();
@@ -350,8 +351,16 @@ const App = () => {
                         element={<CandidateInterviews />}
                       />
                       <Route
+                        path="/notifications"
+                        element={<CandidateNotifications />}
+                      />
+                      <Route
                         path="/assessments"
                         element={<CandidateAssessments />}
+                      />
+                      <Route
+                        path="/assessments/:id"
+                        element={<CandidateAssessmentDetail />}
                       />
                       <Route path="*" element={<NotFound />} />
                     </Routes>

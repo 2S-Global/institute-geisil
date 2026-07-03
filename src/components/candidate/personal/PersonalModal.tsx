@@ -246,7 +246,6 @@ const FormModal = ({ show, onClose, data = {}, setRefresh,reload,error,
       console.error("Authorization token is missing. Please log in.");
       return;
     }
-
     if (!validateForm()) {
       console.log("Please fill in all required fields.");
       return;
@@ -431,27 +430,23 @@ const FormModal = ({ show, onClose, data = {}, setRefresh,reload,error,
     Cancel
   </button>
 
-  <div className="relative group">
-    {(!isFormValid || wrongdate2) && (
-      <div className="absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-gray-800 px-3 py-2 text-sm text-white shadow-lg">
-        {!isFormValid
-          ? "Please fill all required fields"
-          : "Not valid Date Range"}
 
-        {/* Tooltip Arrow */}
-        <div className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
-      </div>
-    )}
+<div className="relative inline-block">
+  {(!isFormValid || wrongdate2) && (
+    <div className="absolute bottom-full right-0 mb-2 z-50 w-max max-w-[220px] rounded bg-gray-800 px-3 py-2 text-sm text-white shadow-lg">
+      {!isFormValid
+        ? "Please fill all required fields"
+        : "Not valid Date Range"}
 
-    <button
-      className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-      onClick={handleSave}
-      disabled={!isFormValid || saving || wrongdate2}
-      type="button"
-    >
-      {saving ? "Saving..." : "Save"}
-    </button>
-  </div>
+      <div className="absolute right-6 top-full border-4 border-transparent border-t-gray-800" />
+    </div>
+  )}
+
+  <Button disabled={!isFormValid || saving || wrongdate2}>
+    {saving ? "Saving..." : "Save"}
+  </Button>
+</div>
+ 
 </div>
 
 

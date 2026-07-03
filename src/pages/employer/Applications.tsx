@@ -47,9 +47,23 @@ const styles: Record<string, string> = {
   offer_sent: "bg-emerald-50 text-emerald-700 border-emerald-200",
 
   rejected: "bg-rose-50 text-rose-700 border-rose-200",
+
+  offer_letter_accepted: "bg-emerald-50 text-emerald-700 border-emerald-200",
+
+  offer_letter_rejected: "bg-rose-50 text-rose-700 border-rose-200",
 };
 
-const getStatusLabel = (status: string) => {
+const getStatusLabel = (status: string, interviewInvitationStatus?: string) => {
+  if (status === "invitation_sent") {
+    if (interviewInvitationStatus === "rejected") {
+      return "Interview Invitation Rejected";
+    }
+    if (interviewInvitationStatus === "accepted") {
+      return "Interview Invitation Accepted";
+    }
+    return "Invitation Sent";
+  }
+
   switch (status) {
     case "applied":
       return "Applied";
@@ -60,14 +74,31 @@ const getStatusLabel = (status: string) => {
     case "offer_sent":
       return "Send Offer";
 
-    case "invitation_sent":
-      return "Invitation Sent";
-
     case "rejected":
       return "Rejected";
+
+    case "offer_letter_accepted":
+      return "Offer Accepted";
+
+    case "offer_letter_rejected":
+      return "Offer Rejected";
+
     default:
       return status;
   }
+};
+
+const getStatusBadgeClass = (status: string, interviewInvitationStatus?: string) => {
+  if (status === "invitation_sent") {
+    if (interviewInvitationStatus === "rejected") {
+      return "bg-rose-50 text-rose-700 border-rose-200";
+    }
+    if (interviewInvitationStatus === "accepted") {
+      return "bg-emerald-50 text-emerald-700 border-emerald-200";
+    }
+    return "bg-sky-50 text-sky-700 border-sky-200";
+  }
+  return styles[status] || "";
 };
 
 function ApplicationTable({
@@ -156,9 +187,9 @@ function ApplicationTable({
                       <div className="flex justify-center">
                         <Badge
                           variant="outline"
-                          className={styles[a.status] || ""}
+                          className={getStatusBadgeClass(a.status, a.interviewInvitationStatus) || ""}
                         >
-                          {getStatusLabel(a.status)}
+                          {getStatusLabel(a.status, a.interviewInvitationStatus)}
                         </Badge>
                       </div>
                     </td>
@@ -324,8 +355,11 @@ function ApplicationTable({
                   </div>
                 </div>
 
-                <Badge variant="outline" className={styles[a.status] || ""}>
-                  {getStatusLabel(a.status)}
+                <Badge
+                  variant="outline"
+                  className={getStatusBadgeClass(a.status, a.interviewInvitationStatus) || ""}
+                >
+                  {getStatusLabel(a.status, a.interviewInvitationStatus)}
                 </Badge>
               </div>
 
@@ -454,6 +488,8 @@ export default function Applications() {
       currency: string;
       salary: number;
     };
+    interviewInvitationStatus?: string;
+    interviewInvitationAccepted?: boolean;
   }
   const [applications, setApplications] = useState<Applicant[]>([]);
   const [loading, setLoading] = useState(false);

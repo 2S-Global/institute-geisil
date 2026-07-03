@@ -212,7 +212,7 @@ const AadharCardInfo = ({
         </div>
       ) : (
         <span
-          className="cursor-pointer text-base font-bold text-blue-600 hover:underline"
+          className="cursor-pointer font-semibold font-bold text-blue-600 hover:underline"
           onClick={() => openModalRH("aadhar")}
         >
           Add Aadhar Card With OTP Info

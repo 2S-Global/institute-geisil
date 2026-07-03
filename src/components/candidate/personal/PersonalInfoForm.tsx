@@ -607,7 +607,7 @@ const FormModal = ({ show, onClose, data = {}, setRefresh, formData,setFormData,
                 })
               }
             />
-  {/* <label className="block text-sm font-semibold mb-2">
+  <label className="block text-sm font-semibold mb-2">
                Hometown
               </label>
             <input
@@ -645,7 +645,7 @@ const FormModal = ({ show, onClose, data = {}, setRefresh, formData,setFormData,
                     Pincode must be exactly 6 digits.
                   </p>
                 )}
-            </div> */}
+            </div> 
           </div>
         </>
       )}

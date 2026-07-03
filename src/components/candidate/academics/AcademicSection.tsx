@@ -1,14 +1,22 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import API from "../../../lib/axios";
-import { BadgeCheck, BadgeAlert,Pencil,GraduationCap ,Calendar,Info,Plus} from "lucide-react";
+import {
+  BadgeCheck,
+  BadgeAlert,
+  Pencil,
+  GraduationCap,
+  Calendar,
+  Info,
+  Plus,
+} from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker"
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import SchoolDisplay from "./SchoolDisplay";
 import ClgDisplay from "./ClgDisplay";
-import EducationModal from "./EducationModal"
+import EducationModal from "./EducationModal";
 import {
   Dialog,
   DialogContent,
@@ -29,11 +37,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 const AcademicSection = () => {
-  const apiurl =  import.meta.env.VITE_API_URL;
- // console.log("show",show)
-   const [isModalOpen, setIsModalOpen] = useState(false);
+  const apiurl = import.meta.env.VITE_API_URL;
+  // console.log("show",show)
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [expanded, setExpanded] = useState({}); // Track expanded descriptions
   const [listlevel, setListlevel] = useState([]);
   const [reload, setReload] = useState(false);
@@ -68,8 +82,8 @@ const AcademicSection = () => {
           },
         }
       ); */
-      const response = await API.get(`/api/userdata/get_user_education`)
-      
+      const response = await API.get(`/api/userdata/get_user_education`);
+
       if (response.status == 200) {
         setUserdata(response.data.data);
       }
@@ -90,8 +104,7 @@ const AcademicSection = () => {
           },
         }
       ); */
-      const response = await  API.get(`/api/sql/dropdown/education_level`)
-    
+      const response = await API.get(`/api/sql/dropdown/education_level`);
 
       setListlevel(response.data.data);
     } catch (error) {
@@ -151,10 +164,8 @@ const AcademicSection = () => {
   //if (!show) return null;
 
   return (
-<>
- 
-
-{/*   <Card>
+    <>
+      {/*   <Card>
     <CardHeader className="flex flex-row items-center justify-between">
       <div>
         <CardTitle className="text-lg">Academics</CardTitle>
@@ -167,81 +178,79 @@ const AcademicSection = () => {
     </CardHeader>
 
     <CardContent> */}
-    <div>
-      {sectionloading ? (
-        'loading............'
-      ) : (
-        <>
-        <div className="flex items-center justify-between mb-3">
-                  <h2 className="font-display text-lg font-semibold">Education</h2>
-                  <Button size="sm" className="gap-1.5"  onClick={() => openModalRH()}><Plus className="h-4 w-4" /> Add education</Button>
-                </div>
-        <div>
-          {/* Existing Education List */}
-          <div className="space-y-4">
-            {userdata.map((item, index) => (
-              <div
-                key={index}
-               
-              >
-                {item.level_id == 1 || item.level_id == 2 ? (
-                  <>
-                  <SchoolDisplay
-                    data={item}
-                    openModalRH={openModalRH}
-                  />
-                    </>
-                ) : (
-                  <>
-                   <ClgDisplay
-                    data={item}
-                    openModalRH={openModalRH}
-                  />
-                 
-                  </>
-                 
-                )}
-              
-              </div>
-            ))}
+      <div>
+        {sectionloading ? (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div
+              className="h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-transparent"
+              style={{ borderTopColor: "#223B6B" }}
+            ></div>
           </div>
-
-          {/* Missing Levels */}
-          {missingLevels.length > 0 && (
-            <div className="space-y-2">
-              {missingLevels.map((level) => (
-                <span
-                  key={level.id}
-                  className="block font-bold text-blue-600 cursor-pointer hover:underline mt-3"
-                  onClick={() => openModalRH(level.id)}
-                >
-                  Add {level.level}
-                </span>
-              ))}
+        ) : (
+          <>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-display text-lg font-semibold">Education</h2>
+              <Button
+                size="sm"
+                className="gap-1.5"
+                onClick={() => openModalRH()}
+              >
+                <Plus className="h-4 w-4" /> Add education
+              </Button>
             </div>
-          )}
-        </div>
-        </>
-      )}
-      
-    </div>
-    
- {/*  </Card> */}
+            <div>
+              {/* Existing Education List */}
+              <div className="space-y-4">
+                {userdata.map((item, index) => (
+                  <div key={index}>
+                    {item.level_id == 1 || item.level_id == 2 ? (
+                      <>
+                        <SchoolDisplay data={item} openModalRH={openModalRH} />
+                      </>
+                    ) : (
+                      <>
+                        <ClgDisplay data={item} openModalRH={openModalRH} />
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
 
-  {/* Modal */}
-  {isModalOpen && (
-    <EducationModal
-      show={isModalOpen}
-      onClose={closeModalRH}
-      reload={reload}
-      setReload={setReload}
-      selectedLevel={selectedLevel}
-      edit_id={edit_id}
-      setError={setError}
-      setSuccess={setSuccess}
-    />
-  )}
-</>
+              {/* Missing Levels */}
+              {missingLevels.length > 0 && (
+                <div className="space-y-2">
+                  {missingLevels.map((level) => (
+                    <span
+                      key={level.id}
+                      className="block font-bold text-blue-600 cursor-pointer hover:underline mt-3"
+                      onClick={() => openModalRH(level.id)}
+                    >
+                      Add {level.level}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/*  </Card> */}
+
+      {/* Modal */}
+      {isModalOpen && (
+        <EducationModal
+          show={isModalOpen}
+          onClose={closeModalRH}
+          reload={reload}
+          setReload={setReload}
+          selectedLevel={selectedLevel}
+          edit_id={edit_id}
+          setError={setError}
+          setSuccess={setSuccess}
+        />
+      )}
+    </>
   );
 };
 

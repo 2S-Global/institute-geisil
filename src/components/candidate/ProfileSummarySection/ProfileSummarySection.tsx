@@ -84,7 +84,7 @@ const apiurl =  import.meta.env.VITE_API_URL;
     {sectionloading ? (
       'loading.............'
     ) : (
-      <div className="text-sm font-medium text-gray-700">
+      <div >
         {profilesummary?.trim() ? (
           <p className="whitespace-pre-line text-justify">
             {profilesummary}

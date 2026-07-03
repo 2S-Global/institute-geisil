@@ -1,6 +1,5 @@
-//New CandidateJobDetail.tsx
 import { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   MapPin,
   Briefcase,
@@ -12,6 +11,7 @@ import {
   Share2,
   Send,
   CheckCircle2,
+  Loader2,
   GraduationCap,
   Users,
   Globe,
@@ -28,22 +28,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { useBookmarkJob } from "./hooks/useBookmarkJob";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import CandidateApplyModal from "@/components/candidate/CandidateApplyModal";
 import { toast } from "sonner";
 import api from "@/lib/axios";
+import DOMPurify from "dompurify";
 
 // ==================== TYPES ====================
 interface Salary {
@@ -56,19 +48,31 @@ interface Salary {
 }
 
 interface JobPreviewDetails {
+  jobId?: string;
   title?: string;
   companyName?: string;
   logoImage?: string;
+  coverImage?: string;
   location?: string;
   industry?: string;
   createdAgo?: string;
+  expiredAt?: string;
   salary?: Salary;
   jobType?: string[];
-  experience?: string;
+  jobLocationType?: string;
+  experienceLevel?: string;
+  opening?: number;
+  careerLevel?: string;
+  qualification?: string[];
   jobDescription?: string;
   jobSkills?: string[];
+  benefits?: string[];
   companyWebsite?: string;
   aboutCompany?: string;
+  totalApplicants?: number;
+  totalShortlisted?: number;
+  totalInterviewScheduled?: number;
+  totalRejected?: number;
 }
 
 // ==================== STATIC FALLBACKS ====================
@@ -104,14 +108,14 @@ const similarJobs = [
 
 export default function CandidateJobDetail() {
   const { id } = useParams<{ id: string }>();
-
+  const { handleBookmark, bookmarkLoading } = useBookmarkJob();
+  const navigate = useNavigate()
   const [jobData, setJobData] = useState<JobPreviewDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [applied, setApplied] = useState(false);
   const [alreadyApplied, setAlreadyApplied] = useState(false);
-  const [coverLetter, setCoverLetter] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
 
   // Fetch Job Details
@@ -136,6 +140,8 @@ export default function CandidateJobDetail() {
 
         if (response.data?.success && response.data?.data) {
           setJobData(response.data.data);
+          setAlreadyApplied(!!response.data.data.isApplied);
+          setSaved(!!response.data.data.isBookmarked);
         } else {
           setError("Failed to load job details");
         }
@@ -151,28 +157,28 @@ export default function CandidateJobDetail() {
   }, [id]);
 
   // Check Application Status
-  useEffect(() => {
-    const checkApplicationStatus = async () => {
-      if (!id) return;
-
-      try {
-        const response = await api.get(
-          "/api/jobposting/check-application-status",
-          {
-            params: { jobId: id },
-          },
-        );
-
-        if (response.data?.success) {
-          setAlreadyApplied(!!response.data.alreadyApplied);
-        }
-      } catch (err) {
-        console.error("Error checking application status:", err);
-      }
-    };
-
-    checkApplicationStatus();
-  }, [id]);
+  // useEffect(() => {
+  //   const checkApplicationStatus = async () => {
+  //     if (!id) return;
+  // 
+  //     try {
+  //       const response = await api.get(
+  //         "/api/jobposting/check-application-status",
+  //         {
+  //           params: { jobId: id },
+  //         },
+  //       );
+  // 
+  //       if (response.data?.success) {
+  //         setAlreadyApplied(!!response.data.alreadyApplied);
+  //       }
+  //     } catch (err) {
+  //       console.error("Error checking application status:", err);
+  //     }
+  //   };
+  // 
+  //   checkApplicationStatus();
+  // }, [id]);
 
   const formatSalary = (salary?: Salary): string => {
     if (!salary) return "Salary not disclosed";
@@ -200,30 +206,7 @@ export default function CandidateJobDetail() {
     }
   };
 
-  const stripHtmlTags = (value?: string): string => {
-    if (!value) return "";
 
-    return value
-      .replace(/<br\s*\/?>/gi, "\n")
-      .replace(/<\/(p|div|li|ul|ol|h[1-6])>/gi, "\n")
-      .replace(/<[^>]+>/g, "")
-      .replace(/&nbsp;/gi, " ")
-      .replace(/&amp;/gi, "&")
-      .replace(/&quot;/gi, '"')
-      .replace(/&#39;/gi, "'")
-      .replace(/&lt;/gi, "<")
-      .replace(/&gt;/gi, ">")
-      .replace(/\n{3,}/g, "\n\n")
-      .trim();
-  };
-
-  const handleApply = () => {
-    setApplied(true);
-    setDialogOpen(false);
-    toast.success("Application submitted!", {
-      description: `Your application for ${jobData?.title || "this role"} has been sent.`,
-    });
-  };
 
   const handleShare = () => {
     if (navigator.clipboard) {
@@ -235,10 +218,11 @@ export default function CandidateJobDetail() {
   if (loading) {
     return (
       <CandidateLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <p className="text-lg text-muted-foreground">
-            Loading job details...
-          </p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div
+            className="h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-transparent"
+            style={{ borderTopColor: "#223B6B" }}
+          />
         </div>
       </CandidateLayout>
     );
@@ -249,36 +233,44 @@ export default function CandidateJobDetail() {
       <CandidateLayout>
         <div className="text-center py-20">
           <p className="text-red-500 mb-4">{error || "Job not found"}</p>
-          <Link to="/candidate/jobs" className="text-primary hover:underline">
-            ← Back to Jobs
-          </Link>
+          <button
+            onClick={() => navigate(-1)}
+            className="text-primary hover:underline"
+          >
+            ← Back
+          </button>
         </div>
       </CandidateLayout>
     );
   }
 
-  // Map API data to your UI
   const job = {
     title: jobData.title || "Job Title",
     company: jobData.companyName || "Company",
     logo: jobData.logoImage || "/images/resource/no_user.png",
+    cover: jobData.coverImage,
     location: jobData.location || "Location not specified",
     type: jobData.jobType?.[0] || "Full-time",
-    workMode: "Hybrid", // Keep static for now
-    experience: jobData.experience || "Experience not specified",
+    workMode: jobData.jobLocationType || "Hybrid",
+    experience: jobData.experienceLevel || "Experience not specified",
+    careerLevel: jobData.careerLevel || "Not specified",
+    qualification: jobData.qualification || [],
     salary: formatSalary(jobData.salary),
     posted: jobData.createdAgo || "Recently posted",
-    applyBy: "Apply by 25 Jul 2026", // Keep static
-    openings: 2,
-    applicants: 142,
+    applyBy: jobData.expiredAt || "Apply by 25 Jul 2026",
+    openings: jobData.opening || "N/A",
+    applicants: jobData.totalApplicants || 0,
     match: 92,
     featured: true,
-    about: stripHtmlTags(jobData.jobDescription) || "No description available.",
+    // about: stripHtmlTags(jobData.jobDescription) || "No description available.",
+    about: jobData.jobDescription
+      ? DOMPurify.sanitize(jobData.jobDescription)
+      : "<p>No description available.</p>",
     tags: jobData.jobSkills || [],
-    responsibilities: [], // Keep static until API provides
+    responsibilities: [],
     requirements: [],
     niceToHave: [],
-    benefits: [],
+    benefits: jobData.benefits || [],
     skills: [],
   };
 
@@ -289,8 +281,10 @@ export default function CandidateJobDetail() {
     founded: 2017,
     hq: jobData.location || "Bengaluru, India",
     website: jobData.companyWebsite || "#",
-    about:
-      stripHtmlTags(jobData.aboutCompany) || "Company information coming soon.",
+    // about: stripHtmlTags(jobData.aboutCompany),
+    about: jobData.aboutCompany
+      ? DOMPurify.sanitize(jobData.aboutCompany)
+      : "<p>No company description available.</p>",
   };
 
   return (
@@ -318,7 +312,7 @@ export default function CandidateJobDetail() {
           <ArrowLeft className="h-4 w-4" /> Back to jobs
         </Link>
 
-        {/* Hero card - Your exact UI */}
+        {/* Hero card */}
         <Card className="overflow-hidden">
           <div
             className="h-32 md:h-40 bg-gradient-to-r from-primary/20 via-primary/10 to-accent/20 relative"
@@ -328,7 +322,7 @@ export default function CandidateJobDetail() {
                 hsl(var(--primary) / 0.85),
                 hsl(var(--primary) / 0.45)
               ),
-              url("https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=80")`,
+              url("${job.cover || "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=80"}")`,
               backgroundSize: "cover",
               backgroundPosition: "center",
             }}
@@ -342,14 +336,19 @@ export default function CandidateJobDetail() {
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <div className="flex flex-wrap items-center gap-2 mb-2">
-                  {job.featured && (
-                    <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/20">
-                      <Sparkles className="h-3 w-3 mr-1" /> Featured
+                <div className="flex flex-wrap items-center gap-2 mb-3">
+                  {/* {job.featured && (
+                    <Badge className="bg-gradient-to-r from-amber-400 to-orange-400 text-slate-900 font-semibold shadow-sm hover:from-amber-500 hover:to-orange-500 transition-all">
+                      <Sparkles className="h-3 w-3 mr-1.5" /> Featured
                     </Badge>
-                  )}
-                  <Badge variant="outline">{job.type}</Badge>
-                  <Badge variant="outline">{job.workMode}</Badge>
+                  )} */}
+                  <Badge className="bg-blue-500/20 text-white border border-blue-400/40 backdrop-blur-sm">
+                    {job.type}
+                  </Badge>
+
+                  <Badge className="bg-purple-500/20 text-white border border-purple-400/40 backdrop-blur-sm">
+                    {job.workMode}
+                  </Badge>
                 </div>
                 <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">
                   {job.title}
@@ -393,85 +392,62 @@ export default function CandidateJobDetail() {
                 label="Openings"
                 value={String(job.openings)}
               />
-              <Stat
-                icon={Calendar}
-                label="Deadline"
-                value={job.applyBy.replace("Apply by ", "")}
-              />
+              <Stat icon={Calendar} label="Deadline" value={job.applyBy} />
             </div>
 
             <div className="flex flex-wrap gap-2 mt-5">
-              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button
-                    size="lg"
-                    disabled={applied || alreadyApplied}
-                    className="gap-2"
-                  >
-                    {applied || alreadyApplied ? (
-                      <>
-                        <CheckCircle2 className="h-4 w-4" /> Applied
-                      </>
-                    ) : (
-                      <>
-                        <Send className="h-4 w-4" /> Apply now
-                      </>
-                    )}
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-lg">
-                  <DialogHeader>
-                    <DialogTitle>Apply for {job.title}</DialogTitle>
-                    <DialogDescription>
-                      Your profile and resume will be shared with {job.company}.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-3">
-                    <Label htmlFor="cover">Cover note (optional)</Label>
-                    <Textarea
-                      id="cover"
-                      placeholder="Tell the hiring team why you're a great fit…"
-                      rows={5}
-                      value={coverLetter}
-                      onChange={(e) => setCoverLetter(e.target.value)}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Using resume:{" "}
-                      <span className="font-medium text-foreground">
-                        Riya_Sharma_Resume.pdf
-                      </span>
-                    </p>
-                  </div>
-                  <DialogFooter>
-                    <Button
-                      variant="outline"
-                      onClick={() => setDialogOpen(false)}
-                    >
-                      Cancel
-                    </Button>
-                    <Button onClick={handleApply}>Submit application</Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+              <Button
+                size="lg"
+                disabled={applied || alreadyApplied}
+                className="gap-2"
+                onClick={() => setDialogOpen(true)}
+              >
+                {applied || alreadyApplied ? (
+                  <>
+                    <CheckCircle2 className="h-4 w-4" /> Applied
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4" /> Apply now
+                  </>
+                )}
+              </Button>
+
+
+
+
+
+              <CandidateApplyModal
+                open={dialogOpen}
+                onClose={() => setDialogOpen(false)}
+                job={{ _id: id, jobTitle: job.title, companyName: job.company }}
+                onSuccess={() => setApplied(true)}
+              />
 
               <Button
                 size="lg"
                 variant="outline"
-                onClick={() => {
-                  setSaved((s) => !s);
-                  toast.success(
-                    saved ? "Removed from saved" : "Saved to your list",
-                  );
+                onClick={async () => {
+                  if (id) {
+                    await handleBookmark(id, saved, () => {
+                      setSaved((s) => !s);
+                    });
+                  }
                 }}
+                disabled={bookmarkLoading[id || ""]}
                 className="gap-2"
               >
-                {saved ? (
+                {bookmarkLoading[id || ""] ? (
                   <>
-                    <BookmarkCheck className="h-4 w-4" /> Saved
+                    <Loader2 className="h-4 w-4 animate-spin" /> Checking...
+                  </>
+                ) : saved ? (
+                  <>
+                    <BookmarkCheck className="h-4 w-4 fill-primary text-primary" /> Saved
                   </>
                 ) : (
                   <>
-                    <Bookmark className="h-4 w-4" /> Save
+                    <Bookmark className="h-4 w-4" /> Save Job
                   </>
                 )}
               </Button>
@@ -505,13 +481,35 @@ export default function CandidateJobDetail() {
               </TabsList>
 
               <TabsContent value="overview" className="space-y-6 mt-6">
-                <Section title="About the role">
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {job.about}
-                  </p>
+                <Section title="Job Description">
+                  <div
+                    className="
+                      prose
+                      prose-sm
+                      dark:prose-invert
+                      max-w-none
+                      text-muted-foreground
+                      leading-7
+
+                      [&_ul]:list-disc
+                      [&_ul]:pl-6
+                      [&_ol]:list-decimal
+                      [&_ol]:pl-6
+                      [&_li]:mb-2
+                      [&_h1]:text-2xl [&_h1]:font-bold
+                      [&_h2]:text-xl [&_h2]:font-bold
+                      [&_h3]:text-lg [&_h3]:font-semibold
+                      [&_h4]:text-base [&_h4]:font-semibold
+                      [&_h5]:text-sm [&_h5]:font-semibold
+                      [&_h6]:text-sm [&_h6]:font-medium
+                      [&_strong]:font-semibold
+                      [&_p]:mb-4
+                    "
+                    dangerouslySetInnerHTML={{ __html: job.about }}
+                  />
                 </Section>
 
-                <Section title="Key responsibilities">
+                {/* <Section title="Key responsibilities">
                   <BulletList items={job.responsibilities} />
                 </Section>
 
@@ -521,7 +519,7 @@ export default function CandidateJobDetail() {
 
                 <Section title="Nice to have">
                   <BulletList items={job.niceToHave} />
-                </Section>
+                </Section> */}
 
                 <Section title="Benefits & perks">
                   <div className="grid sm:grid-cols-2 gap-2">
@@ -537,11 +535,20 @@ export default function CandidateJobDetail() {
                   </div>
                 </Section>
 
-                <Section title="Skills">
+                {/* <Section title="Skills">
                   <div className="flex flex-wrap gap-2">
                     {job.tags.map((t) => (
                       <Badge key={t} variant="secondary" className="text-xs">
                         {t}
+                      </Badge>
+                    ))}
+                  </div>
+                </Section> */}
+                <Section title="Skills">
+                  <div className="flex flex-wrap gap-2">
+                    {job.tags.map((t) => (
+                      <Badge key={t} variant="secondary" className="text-xs">
+                        {t.toUpperCase()}
                       </Badge>
                     ))}
                   </div>
@@ -567,9 +574,21 @@ export default function CandidateJobDetail() {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {company.about}
-                    </p>
+                    <div
+                      className="
+                        prose
+                        prose-sm
+                        dark:prose-invert
+                        max-w-none
+                        text-muted-foreground
+
+                        [&_ul]:list-disc
+                        [&_ul]:pl-6
+                        [&_ol]:list-decimal
+                        [&_ol]:pl-6
+                      "
+                      dangerouslySetInnerHTML={{ __html: company.about }}
+                    />
                     <Separator />
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <InfoRow icon={Users} label="Size" value={company.size} />
@@ -657,10 +676,20 @@ export default function CandidateJobDetail() {
                 <InfoRow icon={IndianRupee} label="Salary" value={job.salary} />
                 <InfoRow icon={MapPin} label="Location" value={job.location} />
                 <InfoRow
-                  icon={Calendar}
-                  label="Deadline"
-                  value={job.applyBy.replace("Apply by ", "")}
+                  icon={Briefcase}
+                  label="Career Level"
+                  value={job.careerLevel}
                 />
+                <InfoRow
+                  icon={GraduationCap}
+                  label="Qualification"
+                  value={
+                    job.qualification.length > 0
+                      ? job.qualification.join(", ")
+                      : "Not specified"
+                  }
+                />
+                <InfoRow icon={Calendar} label="Deadline" value={job.applyBy} />
               </CardContent>
             </Card>
 
@@ -720,7 +749,6 @@ export default function CandidateJobDetail() {
   );
 }
 
-// ==================== HELPER COMPONENTS (Unchanged) ====================
 function Stat({
   icon: Icon,
   label,
