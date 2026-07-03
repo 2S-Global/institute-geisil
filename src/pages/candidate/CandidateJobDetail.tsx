@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   MapPin,
   Briefcase,
@@ -109,7 +109,7 @@ const similarJobs = [
 export default function CandidateJobDetail() {
   const { id } = useParams<{ id: string }>();
   const { handleBookmark, bookmarkLoading } = useBookmarkJob();
-
+  const navigate = useNavigate()
   const [jobData, setJobData] = useState<JobPreviewDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -218,36 +218,11 @@ export default function CandidateJobDetail() {
   if (loading) {
     return (
       <CandidateLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            {/* Spinner */}
-            <div className="relative w-20 h-20 mx-auto mb-6">
-              <div className="absolute inset-0 rounded-full border-4 border-slate-200 dark:border-slate-700"></div>
-              <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-primary border-r-accent animate-spin"></div>
-
-              {/* Center Glow */}
-              <div className="absolute inset-4 rounded-full bg-gradient-to-r from-primary to-accent blur-md opacity-60"></div>
-            </div>
-
-            {/* Loading Text */}
-            <div>
-              <p className="text-foreground text-base font-medium">
-                Loading job details
-              </p>
-
-              <div className="flex justify-center gap-2 mt-4">
-                <span className="w-2 h-2 bg-primary rounded-full animate-bounce"></span>
-                <span
-                  className="w-2 h-2 bg-primary rounded-full animate-bounce"
-                  style={{ animationDelay: "0.15s" }}
-                ></span>
-                <span
-                  className="w-2 h-2 bg-primary rounded-full animate-bounce"
-                  style={{ animationDelay: "0.3s" }}
-                ></span>
-              </div>
-            </div>
-          </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div
+            className="h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-transparent"
+            style={{ borderTopColor: "#223B6B" }}
+          />
         </div>
       </CandidateLayout>
     );
@@ -258,9 +233,12 @@ export default function CandidateJobDetail() {
       <CandidateLayout>
         <div className="text-center py-20">
           <p className="text-red-500 mb-4">{error || "Job not found"}</p>
-          <Link to="/candidate/jobs" className="text-primary hover:underline">
-            ← Back to Jobs
-          </Link>
+          <button
+            onClick={() => navigate(-1)}
+            className="text-primary hover:underline"
+          >
+            ← Back
+          </button>
         </div>
       </CandidateLayout>
     );

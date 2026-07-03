@@ -53,6 +53,8 @@ import {
   useAcceptRejectOfferLetter,
   useRequestReschedule,
 } from "./hooks/useCandidateOptions";
+import { useNavigate } from "react-router-dom";
+import { useBookmarkJob } from "./hooks/useBookmarkJob";
 import {
   Dialog,
   DialogContent,
@@ -91,9 +93,12 @@ export default function CandidateAppliedJobs() {
     companyName: "",
   });
 
+  const navigate = useNavigate()
+
   const { toast } = useToast();
   const { acceptRejectOffer } = useAcceptRejectOfferLetter();
   const { acceptInterview } = useAcceptInterviewInvitation();
+  const { handleBookmark, bookmarkLoading } = useBookmarkJob();
 
   // Custom hook to get all applied jobs
   const { loading, error, data, refetch } = useGetAppliedJobs();
@@ -277,6 +282,13 @@ export default function CandidateAppliedJobs() {
     },
   ];
 
+
+  const handleNavigate = () => {
+
+    navigate("/candidate/jobs")
+
+  }
+
   if (loading) {
     return (
       <CandidateLayout>
@@ -313,10 +325,10 @@ export default function CandidateAppliedJobs() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" className="gap-2">
+            {/* <Button variant="outline" className="gap-2">
               <FileText className="h-4 w-4" /> Export
-            </Button>
-            <Button className="gap-2">
+            </Button> */}
+            <Button onClick={() => handleNavigate()} className="gap-2">
               <Briefcase className="h-4 w-4" /> Browse Jobs
             </Button>
           </div>
@@ -476,9 +488,11 @@ export default function CandidateAppliedJobs() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-48">
-                              <DropdownMenuItem className="cursor-pointer">
-                                <ExternalLink className="h-4 text-black w-4 mr-2" />
-                                Open Job
+                              <DropdownMenuItem className="cursor-pointer" asChild>
+                                <Link to={`/candidate/jobs/${j.jobId}`}>
+                                  <ExternalLink className="h-4 text-black w-4 mr-2" />
+                                  Open Job
+                                </Link>
                               </DropdownMenuItem>
 
                               {/* Conditional Offer Actions */}
@@ -525,17 +539,21 @@ export default function CandidateAppliedJobs() {
                                   </DropdownMenuItem>
                                 </>
                               )}
-
-                              <DropdownMenuItem className="cursor-pointer">
-                                <Bookmark className="h-4 w-4 mr-2" /> Save for later
-                              </DropdownMenuItem>
-                              <DropdownMenuItem className="cursor-pointer">
+                              {/* 
+                              <DropdownMenuItem
+                                className="cursor-pointer"
+                                onClick={() => handleBookmark(j.jobId, false)}
+                                disabled={bookmarkLoading[j.jobId]}
+                              >
+                                <Bookmark className="h-4 w-4 mr-2" /> {bookmarkLoading[j.jobId] ? "Saving..." : "Save for later"}
+                              </DropdownMenuItem> */}
+                              {/* <DropdownMenuItem className="cursor-pointer">
                                 <FileText className="h-4 w-4 mr-2" /> View resume sent
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem className="text-destructive focus:text-destructive cursor-pointer">
                                 <Trash2 className="h-4 w-4 mr-2" /> Withdraw
-                              </DropdownMenuItem>
+                              </DropdownMenuItem> */}
                             </DropdownMenuContent>
                           </DropdownMenu>
                           {actionLoadingId === j.id && (
