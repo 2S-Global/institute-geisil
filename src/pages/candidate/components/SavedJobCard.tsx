@@ -41,6 +41,19 @@ interface SavedJobCardProps {
   onRemove: () => void;
 }
 
+const capitalizeWords = (str: string): string => {
+  return str
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/[^a-zA-Z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .split(" ")
+    .map(
+      (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    )
+    .join(" ");
+};;
+
 export const SavedJobCardComponent = ({
   j,
   isApplied,
@@ -73,9 +86,9 @@ export const SavedJobCardComponent = ({
             <div className="flex-1 min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="font-semibold text-foreground truncate">{j.title}</h3>
-                <Badge variant="secondary" className="font-normal">
+                {/* <Badge variant="secondary" className="font-normal">
                   {j.match}% match
-                </Badge>
+                </Badge> */}
                 {j.deadline && (
                   <Badge variant="outline" className="text-amber-600 border-amber-500/20 bg-amber-500/10 gap-1">
                     <Clock className="h-3 w-3" />
@@ -103,7 +116,7 @@ export const SavedJobCardComponent = ({
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {j.tags.map((tag) => (
                   <Badge key={tag} variant="outline" className="font-normal text-xs">
-                    {tag}
+                    {capitalizeWords(tag)}
                   </Badge>
                 ))}
               </div>

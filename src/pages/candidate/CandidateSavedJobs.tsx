@@ -13,16 +13,15 @@ import {
   Clock,
   Search,
   Filter,
-  Bookmark,
   BookmarkCheck,
   Send,
   ExternalLink,
   Trash2,
   IndianRupee,
   BookmarkX,
-  CalendarDays,
   Loader2,
   CheckCircle2,
+  Globe,
 } from "lucide-react";
 import { toast } from "sonner";
 import { JobData, useGetAllSavedJobs } from "./hooks/getAllSavedJobs";
@@ -40,7 +39,7 @@ import { SavedJobsFilters } from "./components/SavedJobsFilters";
 
 const sortOptions = [
   { value: "recent", label: "Recently saved" },
-  { value: "match", label: "Best match" },
+  // { value: "match", label: "Best match" },
   { value: "salary-high", label: "Salary: High to Low" },
   { value: "salary-low", label: "Salary: Low to High" },
   { value: "deadline", label: "Closing soon" },
@@ -170,15 +169,17 @@ export default function CandidateSavedJobs() {
       tint: "text-primary bg-primary/10",
     },
     {
-      label: "High Match (>80%)",
-      value: jobs.filter((j) => j.match > 80).length,
-      icon: Bookmark,
+      label: "Remote Jobs",
+      value: jobs.filter((j) => j.rawJob?.jobLocationType?.toLowerCase() === "remote").length,
+      icon: Globe,
       tint: "text-emerald-600 bg-emerald-500/10",
     },
     {
-      label: "Closing Soon",
-      value: jobs.filter((j) => j.deadline && j.deadline !== "Closed").length,
-      icon: CalendarDays,
+      label: "Full-Time Jobs",
+      value: jobs.filter((j) =>
+        j.rawJob?.jobType?.some((t: string) => t.toLowerCase().includes("full-time"))
+      ).length,
+      icon: Briefcase,
       tint: "text-amber-600 bg-amber-500/10",
     },
     {
