@@ -83,7 +83,7 @@ export default function CandidatesList() {
   const [searchQuery, setSearchQuery] = useState("");
   const [locationQuery, setLocationQuery] = useState("");
   const [experienceRange, setExperienceRange] = useState<number[]>([0, 15]);
-  const [sortOption, setSortOption] = useState<string>("match");
+  const [sortOption, setSortOption] = useState<string>("name");
   const [savedCandidates, setSavedCandidates] = useState<Set<string>>(new Set());
 
   const [gender, setGender] = useState("all");
