@@ -864,6 +864,7 @@ export default function CandidateProfile() {
                           c.done ? "text-green-500" : "text-muted-foreground/40"
                         }`}
                       />
+                      
                       <span
                         className={
                           c.done
