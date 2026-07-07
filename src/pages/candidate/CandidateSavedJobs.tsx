@@ -1,25 +1,11 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { CandidateLayout } from "@/components/CandidateLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+
 import {
   Briefcase,
   MapPin,
@@ -35,11 +21,34 @@ import {
   IndianRupee,
   BookmarkX,
   CalendarDays,
+  Loader2,
+  CheckCircle2,
 } from "lucide-react";
 import { toast } from "sonner";
+import { JobData, useGetAllSavedJobs } from "./hooks/getAllSavedJobs";
+import { useBookmarkJob } from "./hooks/useBookmarkJob";
+import { useGetAppliedJobs } from "./hooks/getAppliedJobs";
+import { formatSalary } from "./helpers/formatSalary";
+import { getTimeAgo } from "./helpers/getTimeAgo";
+import { getJobDeadline } from "./helpers/getJobDeadline";
+import { formatText } from "./helpers/formatText";
+import { compareJobsByDeadline } from "./helpers/compareJobsByDeadline";
+import CandidateApplyModal from "@/components/candidate/CandidateApplyModal";
+import { SavedJobCardComponent } from "./components/SavedJobCard";
+import { RemoveSavedJobDialog } from "./components/RemoveSavedJobDialog";
+import { SavedJobsFilters } from "./components/SavedJobsFilters";
 
-type Job = {
-  id: number;
+const sortOptions = [
+  { value: "recent", label: "Recently saved" },
+  { value: "match", label: "Best match" },
+  { value: "salary-high", label: "Salary: High to Low" },
+  { value: "salary-low", label: "Salary: Low to High" },
+  { value: "deadline", label: "Closing soon" },
+];
+
+interface SavedJobCard {
+  id: string;
+  jobId: string;
   title: string;
   company: string;
   logo: string;
@@ -50,106 +59,77 @@ type Job = {
   savedOn: string;
   match: number;
   tags: string[];
-  deadline?: string;
-};
+  deadline: string;
+  rawJob: any;
+}
 
-const jobsData: Job[] = [
-  {
-    id: 1,
-    title: "Senior Frontend Engineer",
-    company: "Razorpay",
-    logo: "RP",
-    location: "Bengaluru, IN",
-    type: "Full-time",
-    salary: "₹28-38 LPA",
-    posted: "2 days ago",
-    savedOn: "Today",
-    match: 92,
-    tags: ["React", "TypeScript", "Next.js"],
-    deadline: "Closes in 5 days",
-  },
-  {
-    id: 2,
-    title: "React Developer",
-    company: "Zoho",
-    logo: "ZH",
-    location: "Chennai, IN",
-    type: "Hybrid",
-    salary: "₹18-24 LPA",
-    posted: "3 days ago",
-    savedOn: "Yesterday",
-    match: 86,
-    tags: ["React", "Redux", "Node.js"],
-    deadline: "Closes in 12 days",
-  },
-  {
-    id: 3,
-    title: "UI Engineer",
-    company: "Swiggy",
-    logo: "SW",
-    location: "Remote",
-    type: "Full-time",
-    salary: "₹22-30 LPA",
-    posted: "5 days ago",
-    savedOn: "3 days ago",
-    match: 78,
-    tags: ["Figma", "Design Systems", "CSS"],
-  },
-  {
-    id: 4,
-    title: "Frontend Lead",
-    company: "Cred",
-    logo: "CR",
-    location: "Bengaluru, IN",
-    type: "Full-time",
-    salary: "₹40-55 LPA",
-    posted: "1 week ago",
-    savedOn: "1 week ago",
-    match: 71,
-    tags: ["React", "System Design", "Leadership"],
-    deadline: "Closes in 2 days",
-  },
-  {
-    id: 5,
-    title: "Product Designer (UI)",
-    company: "Freshworks",
-    logo: "FW",
-    location: "Chennai, IN",
-    type: "Full-time",
-    salary: "₹16-22 LPA",
-    posted: "2 weeks ago",
-    savedOn: "2 weeks ago",
-    match: 88,
-    tags: ["UI/UX", "Figma", "Prototyping"],
-  },
-  {
-    id: 6,
-    title: "Full Stack Developer",
-    company: "Postman",
-    logo: "PM",
-    location: "Bengaluru, IN",
-    type: "Remote",
-    salary: "₹24-32 LPA",
-    posted: "3 weeks ago",
-    savedOn: "3 weeks ago",
-    match: 64,
-    tags: ["React", "Node.js", "MongoDB"],
-  },
-];
+// interface SavedJobCardProps {
+//   j: SavedJobCard;
+//   isApplied: boolean;
+//   isBookmarkLoading: boolean;
+//   onApply: () => void;
+//   onRemove: () => void;
+// }
 
-const sortOptions = [
-  { value: "recent", label: "Recently saved" },
-  { value: "match", label: "Best match" },
-  { value: "salary-high", label: "Salary: High to Low" },
-  { value: "salary-low", label: "Salary: Low to High" },
-  { value: "deadline", label: "Closing soon" },
-];
 
 export default function CandidateSavedJobs() {
-  const [jobs, setJobs] = useState<Job[]>(jobsData);
+  const [jobs, setJobs] = useState<SavedJobCard[]>([]);
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState("recent");
-  const [removeId, setRemoveId] = useState<number | null>(null);
+  const [removeId, setRemoveId] = useState<string | number | null>(null);
+  const [applyingJob, setApplyingJob] = useState<any | null>(null);
+  const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set());
+
+  const { data, isLoading, error, fetchAllSavedJobs, totalApplied } = useGetAllSavedJobs();
+  const { handleBookmark, bookmarkLoading } = useBookmarkJob();
+  const { data: appliedJobs } = useGetAppliedJobs();
+
+  useEffect(() => {
+    if (appliedJobs && Array.isArray(appliedJobs)) {
+      setAppliedJobIds(new Set(appliedJobs.map((app: any) => app.jobId?._id).filter(Boolean)));
+    }
+  }, [appliedJobs]);
+
+  //data building based on UI
+  useEffect(() => {
+    if (!Array.isArray(data)) {
+      setJobs([]);
+      return;
+    }
+
+    const mapped = data.map((item: any) => {
+      //actual job
+      const job = item.job ?? {};
+
+      //extracted tags
+      const tags = [
+        ...(job.jobSkills ?? []),
+        ...(job.specialization ?? []),
+      ];
+
+      //deadline
+      const deadline = getJobDeadline(job.jobExpiryDate);
+
+      return {
+        id: item.savedJobId,
+        jobId: job._id ?? "",
+        title: job.jobTitle ?? "-",
+        company: job.companyName ?? "-",
+        logo: job.logo ?? "",
+        location: formatText(job.jobLocationType),
+        type: job.jobType?.join(", ") || "-",
+        salary: formatSalary(job.salary),
+        posted: job.createdAt ? getTimeAgo(job.createdAt) : "-",
+        savedOn: item.savedAt ? getTimeAgo(item.savedAt) : "-",
+        match: job.match ?? 90,//mock
+        tags,
+        deadline,
+        rawJob: job,
+      };
+    });
+
+    setJobs(mapped);
+  }, [data]);
 
   const filtered = useMemo(() => {
     let list = [...jobs];
@@ -174,7 +154,7 @@ export default function CandidateSavedJobs() {
         list.sort((a, b) => parseInt(a.salary.replace(/\D/g, "")) - parseInt(b.salary.replace(/\D/g, "")));
         break;
       case "deadline":
-        list.sort((a, b) => (a.deadline ? -1 : 1));
+        list.sort(compareJobsByDeadline);
         break;
       default:
         break;
@@ -197,26 +177,23 @@ export default function CandidateSavedJobs() {
     },
     {
       label: "Closing Soon",
-      value: jobs.filter((j) => j.deadline).length,
+      value: jobs.filter((j) => j.deadline && j.deadline !== "Closed").length,
       icon: CalendarDays,
       tint: "text-amber-600 bg-amber-500/10",
     },
     {
       label: "Applied",
-      value: 2,
+      value: totalApplied,
       icon: Send,
       tint: "text-violet-600 bg-violet-500/10",
     },
   ];
 
-  const handleRemove = (id: number) => {
-    setJobs((prev) => prev.filter((j) => j.id !== id));
+  const handleRemove = async (id: string | number) => {
     setRemoveId(null);
-    toast.success("Job removed from saved list");
-  };
-
-  const handleApply = (job: Job) => {
-    toast.success(`Application started for ${job.title} at ${job.company}`);
+    await handleBookmark(id.toString(), true, () => {
+      fetchAllSavedJobs(true);
+    });
   };
 
   return (
@@ -233,7 +210,9 @@ export default function CandidateSavedJobs() {
             </p>
           </div>
           <Button className="gap-2">
-            <Briefcase className="h-4 w-4" /> Browse Jobs
+            <Link to={`/candidate/jobs`} >
+              <Briefcase className="h-4 w-4 inline " /> Browse Jobs
+            </Link>
           </Button>
         </div>
 
@@ -255,40 +234,24 @@ export default function CandidateSavedJobs() {
         </div>
 
         {/* Filters */}
-        <Card>
-          <CardContent className="p-4 flex flex-col lg:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by title, company, location, or skill…"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Select value={sort} onValueChange={setSort}>
-                <SelectTrigger className="w-[190px]">
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  {sortOptions.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button variant="outline" className="gap-2">
-                <Filter className="h-4 w-4" /> Filters
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <SavedJobsFilters
+          query={query}
+          setQuery={setQuery}
+          sort={sort}
+          setSort={setSort}
+          sortOptions={sortOptions}
+        />
 
         {/* List */}
         <div className="space-y-3">
-          {filtered.length === 0 ? (
+          {isLoading ? (
+            <Card>
+              <CardContent className="p-12 text-center">
+                <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary mb-3" />
+                <p className="text-sm text-muted-foreground">Loading saved jobs…</p>
+              </CardContent>
+            </Card>
+          ) : filtered.length === 0 ? (
             <Card>
               <CardContent className="p-10 text-center">
                 <div className="mx-auto h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-3">
@@ -302,76 +265,14 @@ export default function CandidateSavedJobs() {
             </Card>
           ) : (
             filtered.map((j) => (
-              <Card key={j.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-4 md:p-5">
-                  <div className="flex flex-col md:flex-row md:items-start gap-4">
-                    <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 text-primary flex items-center justify-center font-display font-bold shrink-0">
-                      {j.logo}
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="font-semibold text-foreground truncate">{j.title}</h3>
-                        <Badge variant="secondary" className="font-normal">
-                          {j.match}% match
-                        </Badge>
-                        {j.deadline && (
-                          <Badge variant="outline" className="text-amber-600 border-amber-500/20 bg-amber-500/10 gap-1">
-                            <Clock className="h-3 w-3" />
-                            {j.deadline}
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Building2 className="h-3.5 w-3.5" /> {j.company}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <MapPin className="h-3.5 w-3.5" /> {j.location}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Briefcase className="h-3.5 w-3.5" /> {j.type}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <IndianRupee className="h-3.5 w-3.5" /> {j.salary}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3.5 w-3.5" /> Posted {j.posted}
-                        </span>
-                      </div>
-                      <div className="mt-2 flex flex-wrap gap-1.5">
-                        {j.tags.map((tag) => (
-                          <Badge key={tag} variant="outline" className="font-normal text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        Saved {j.savedOn}
-                      </p>
-                    </div>
-
-                    <div className="flex md:flex-col items-center md:items-end gap-2">
-                      <Button size="sm" className="gap-2" onClick={() => handleApply(j)}>
-                        <Send className="h-4 w-4" /> Apply
-                      </Button>
-                      <div className="flex items-center gap-2">
-                        <Button size="sm" variant="outline" className="gap-2">
-                          <ExternalLink className="h-4 w-4" /> View
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="text-muted-foreground hover:text-destructive"
-                          onClick={() => setRemoveId(j.id)}
-                        >
-                          <BookmarkX className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <SavedJobCardComponent
+                key={j.id}
+                j={j}
+                isApplied={appliedJobIds.has(j.jobId)}
+                isBookmarkLoading={!!bookmarkLoading[j.jobId]}
+                onApply={() => setApplyingJob(j.rawJob)}
+                onRemove={() => setRemoveId(j.jobId)}
+              />
             ))
           )}
         </div>
@@ -386,28 +287,26 @@ export default function CandidateSavedJobs() {
         )}
 
         {/* Remove confirmation */}
-        <Dialog open={removeId !== null} onOpenChange={() => setRemoveId(null)}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Remove from saved?</DialogTitle>
-              <DialogDescription>
-                This job will be removed from your saved list. You can always find it again by browsing jobs.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter className="flex flex-row gap-2 justify-end">
-              <Button variant="outline" onClick={() => setRemoveId(null)}>
-                Cancel
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={() => removeId !== null && handleRemove(removeId)}
-              >
-                <Trash2 className="h-4 w-4 mr-2" /> Remove
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <RemoveSavedJobDialog
+          open={removeId !== null}
+          onClose={() => setRemoveId(null)}
+          onConfirm={() => removeId !== null && handleRemove(removeId)}
+        />
       </div>
+
+      <CandidateApplyModal
+        open={applyingJob !== null}
+        onClose={() => setApplyingJob(null)}
+        job={applyingJob}
+        onSuccess={(jobId) => {
+          setAppliedJobIds((prev) => {
+            const next = new Set(prev);
+            next.add(jobId);
+            return next;
+          });
+          fetchAllSavedJobs(true);
+        }}
+      />
     </CandidateLayout>
   );
 }

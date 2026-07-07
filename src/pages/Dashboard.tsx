@@ -169,7 +169,7 @@ const Dashboard = () => {
   return (
     <DashboardLayout>
       {/* Page header */}
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
+      <div className="flex  flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
         <div>
           <p className="text-sm text-muted-foreground">Welcome back 👋</p>
           <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight text-foreground mt-1">

@@ -853,9 +853,8 @@ export default function CandidateProfile() {
                       className="flex items-center gap-2 text-sm"
                     >
                       <CheckCircle2
-                        className={`h-4 w-4 shrink-0 ${
-                          c.done ? "text-green-500" : "text-muted-foreground/40"
-                        }`}
+                        className={`h-4 w-4 shrink-0 ${c.done ? "text-green-500" : "text-muted-foreground/40"
+                          }`}
                       />
                       <span
                         className={
