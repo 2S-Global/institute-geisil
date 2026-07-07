@@ -74,6 +74,10 @@ import CandidateInterviews from "./pages/candidate/CandidateInterviews.tsx";
 import CandidateAssessments from "./pages/candidate/CandidateAssessments.tsx";
 import CandidateNotifications from "./pages/candidate/CandidateNotifications.tsx";
 import CandidateAssessmentDetail from "./pages/candidate/CandidateAssessmentDetail.tsx";
+import About from "./pages/About.tsx";
+import BlogList from "./pages/BlogList.tsx";
+import Register from "./pages/Register.tsx";
+import Contact from "./pages/Contact.tsx";
 const queryClient = new QueryClient();
 const App = () => {
   const [profile, setProfile] = useState();
@@ -367,6 +371,10 @@ const App = () => {
                   </ProtectedRoute>
                 }
               />
+              <Route path="/register" element={<Register />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/blog-list" element={<BlogList />} />
+              <Route path="/contact" element={<Contact />} />
               <Route path="/unauthorized" element={<Unauthorized />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
