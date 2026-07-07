@@ -23,15 +23,22 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 
-const FormModal = ({ show, onClose, data = {}, setRefresh,reload,error,
+const FormModal = ({
+  show,
+  onClose,
+  data = {},
+  setRefresh,
+  reload,
+  error,
   setReload,
   setError,
   focusSection,
-  setSuccess }) => {
-  const apiurl =  import.meta.env.VITE_API_URL;
-  console.log("show",show)
+  setSuccess,
+}) => {
+  const apiurl = import.meta.env.VITE_API_URL;
+  console.log("show", show);
   const { toast } = useToast();
- const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({
     gender: "",
     dob: null,
     more_info: [],
@@ -82,10 +89,10 @@ const FormModal = ({ show, onClose, data = {}, setRefresh,reload,error,
       career_break_end_month: String(data.career_break_end_month || ""),
       usa_visa_type: String(data.usa_visa_type || ""),
       work_permit_other_countries: Array.isArray(
-        data.work_permit_other_countries
+        data.work_permit_other_countries,
       )
         ? data.work_permit_other_countries.map(
-            Number
+            Number,
           ) /* change to String if objectid */
         : [],
       permanent_address: data.permanent_address || "",
@@ -105,7 +112,7 @@ const FormModal = ({ show, onClose, data = {}, setRefresh,reload,error,
   };
 
   const [loading, setLoading] = useState(false);
- // const apiurl = process.env.NEXT_PUBLIC_API_URL;
+  // const apiurl = process.env.NEXT_PUBLIC_API_URL;
   const token = localStorage.getItem("token");
   if (!token) {
     console.log("No token");
@@ -254,35 +261,35 @@ const FormModal = ({ show, onClose, data = {}, setRefresh,reload,error,
     try {
       const response = await API.post(
         `/api/candidate/personal/submit_personal_details`,
-        formData
+        formData,
       );
       console.log("Response:", response.data);
       setSaving(false);
       setReload(!reload);
       //setSuccess("Personal details updated successfully");
-       toast({
-          title: "Success",
-          description: "Personal details updated successfully",
-        });
+      toast({
+        title: "Success",
+        description: "Personal details updated successfully",
+      });
 
       onClose();
     } catch (error) {
       console.error("Error saving personal details:", error);
       setSaving(false);
       setError("Error saving personal details. Please try again.");
-       toast({
-          title: "Error",
-          variant: "destructive",
-          description:"Error saving personal details. Please try again.",
-        })
+      toast({
+        title: "Error",
+        variant: "destructive",
+        description: "Error saving personal details. Please try again.",
+      });
     }
   };
   if (!show) return null;
 
   return (
-  <>
-    <style>
-      {`
+    <>
+      <style>
+        {`
         .custom-textarea::placeholder {
           color: #c7c5c5 !important;
           font-size: 15px !important;
@@ -345,49 +352,46 @@ const FormModal = ({ show, onClose, data = {}, setRefresh,reload,error,
           visibility: visible;
         }
       `}
-    </style>
+      </style>
 
-    <Dialog open={show} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[750px] max-h-[90vh] overflow-y-auto">
+      <Dialog open={show} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-[750px] max-h-[90vh] overflow-y-auto">
+          {/* Header */}
+          <DialogHeader>
+            <DialogTitle className="font-display text-xl">
+              Personal Details
+            </DialogTitle>
 
-        {/* Header */}
-        <DialogHeader>
-          <DialogTitle className="font-display text-xl">
-            Personal Details
-          </DialogTitle>
+            <DialogDescription>
+              This information helps employers know you better.
+            </DialogDescription>
+          </DialogHeader>
 
-          <DialogDescription>
-            This information helps employers know you better.
-          </DialogDescription>
-        </DialogHeader>
+          {/* Body */}
+          <div className="space-y-4 pt-2">
+            {loading ? (
+              "loading......"
+            ) : (
+              <>
+                {error && (
+                  <div className="text-sm text-red-500 bg-red-50 p-2 rounded">
+                    {error}
+                  </div>
+                )}
 
-        {/* Body */}
-        <div className="space-y-4 pt-2">
+                <PersonalInfoForm
+                  formData={formData}
+                  setFormData={setFormData}
+                  focusSection={focusSection}
+                  show={show}
+                  setWrongDate={setWrongDate}
+                />
+              </>
+            )}
+          </div>
 
-          {loading ? (
-           
-            "loading......"
-          ) : (
-            <>
-              {error && (
-                <div className="text-sm text-red-500 bg-red-50 p-2 rounded">
-                  {error}
-                </div>
-              )}
-
-              <PersonalInfoForm
-                formData={formData}
-                setFormData={setFormData}
-                focusSection={focusSection}
-                show={show}
-                setWrongDate={setWrongDate}
-              />
-            </>
-          )}
-        </div>
-
-        {/* Footer */}
-       {/*  <div className="flex justify-end gap-3 pt-4">
+          {/* Footer */}
+          {/*  <div className="flex justify-end gap-3 pt-4">
 
           <button
             className="btn btn-secondary"
@@ -421,36 +425,63 @@ const FormModal = ({ show, onClose, data = {}, setRefresh,reload,error,
           </div>
         </div> */}
 
-        <div className="flex justify-end gap-3 pt-4">
-  <button
-    className="px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-100"
-    onClick={onClose}
-    type="button"
-  >
-    Cancel
-  </button>
+        {/*   <div className="flex justify-end gap-3 pt-4">
+            <button
+              className="px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-100"
+              onClick={onClose}
+              type="button"
+            >
+              Cancel
+            </button>
 
+            <div className="relative inline-block">
+              {(!isFormValid || wrongdate2) && (
+                <div className="absolute bottom-full right-0 mb-2 z-50 w-max max-w-[220px] rounded bg-gray-800 px-3 py-2 text-sm text-white shadow-lg">
+                  {!isFormValid
+                    ? "Please fill all required fields"
+                    : "Not valid Date Range"}
 
-<div className="relative inline-block">
-  {(!isFormValid || wrongdate2) && (
-    <div className="absolute bottom-full right-0 mb-2 z-50 w-max max-w-[220px] rounded bg-gray-800 px-3 py-2 text-sm text-white shadow-lg">
-      {!isFormValid
-        ? "Please fill all required fields"
-        : "Not valid Date Range"}
+                  <div className="absolute right-6 top-full border-4 border-transparent border-t-gray-800" />
+                </div>
+              )}
 
-      <div className="absolute right-6 top-full border-4 border-transparent border-t-gray-800" />
-    </div>
-  )}
+              <Button disabled={!isFormValid || saving || wrongdate2}>
+                {saving ? "Saving..." : "Save"}
+              </Button>
+            </div>
+          </div> */}
 
-  <Button disabled={!isFormValid || saving || wrongdate2}>
-    {saving ? "Saving..." : "Save"}
-  </Button>
-</div>
- 
-</div>
+ {/* Footer */}
+           <div className="flex justify-end gap-3 pt-6">
 
+        <button
+          type="button"
+          onClick={onClose}
+          className="rounded-md border border-gray-300 bg-white px-4 py-2 text-gray-700 transition-colors hover:bg-gray-100"
+        >
+          Cancel
+        </button>
 
-        {/* <div className="flex justify-end gap-3 pt-4">
+        <div className="relative inline-flex group">
+        <button
+        type="submit"
+            onClick={handleSave}
+            disabled={!isFormValid || saving || wrongdate2}
+             className="rounded-md bg-[#27406F] px-4 py-2 text-white hover:bg-[#1F3358] disabled:cursor-not-allowed disabled:bg-[#27406F]/50"
+        >
+            {saving ? "Saving..." : "Save"}
+        </button>
+
+        {!isFormValid && (
+            <div className="pointer-events-none absolute bottom-full right-0 mb-2 hidden w-52 rounded-md border border-red-300 bg-white p-2 text-center text-sm text-red-600 shadow-lg group-hover:block">
+            Please fill all required fields.
+            </div>
+        )}
+        </div>
+
+      </div>
+
+          {/* <div className="flex justify-end gap-3 pt-4">
 
            {!isFormValid && (
               <div className="custom-tooltip">
@@ -482,10 +513,9 @@ const FormModal = ({ show, onClose, data = {}, setRefresh,reload,error,
      {saving ? "Saving..." : "Save"}
   </button>
 </div> */}
-
-      </DialogContent>
-    </Dialog>
-  </>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

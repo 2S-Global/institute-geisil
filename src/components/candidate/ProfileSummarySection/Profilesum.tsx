@@ -197,7 +197,7 @@ const FormModal = ({ show, onClose, data = {}, mainprofilesummary,
             {isGenerated ? "Clear" : "Help me write"}
           </button>
 
-          <small className="text-muted">
+          <small className="text-right text-xs text-gray-500">
             {1000 - profilesummary.length} character(s) left
           </small>
 
@@ -221,7 +221,7 @@ const FormModal = ({ show, onClose, data = {}, mainprofilesummary,
     type="button"
     onClick={handelSubmit}
     disabled={profilesummary.trim().length < 1}
-    className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed"
+    className="px-4 py-2 rounded-md bg-[#27406F] text-white hover:bg-[#1F3358] transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed"
   >
     Save
   </button>
