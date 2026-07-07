@@ -133,7 +133,7 @@ const CandidateDashboard = () => {
     fetchDashboardData();
     fetchUserData();
     fetchAppliedJobs();
-      fetchRecommendedJobs();
+    fetchRecommendedJobs();
   }, []);
 
   const fetchDashboardData = async () => {
@@ -188,7 +188,7 @@ const CandidateDashboard = () => {
     }
   };
 
-  
+
   return (
     <CandidateLayout>
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
@@ -202,9 +202,9 @@ const CandidateDashboard = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" className="gap-2">
+          {/* <Button variant="outline" className="gap-2">
             <Upload className="h-4 w-4" /> Update Resume
-          </Button>
+          </Button> */}
           <Button
             asChild
             className="gap-2 bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand"
@@ -632,7 +632,7 @@ const CandidateDashboard = () => {
         </CardContent>
       </Card>
 
-     
+
     </CandidateLayout>
   );
 };

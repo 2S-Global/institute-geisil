@@ -25,6 +25,7 @@ import {
   CircleX,
   Banknote,
   Camera,
+  Loader2,
 } from "lucide-react";
 import { CandidateLayout } from "@/components/CandidateLayout";
 import {
@@ -49,6 +50,7 @@ import Profilepic from "@/components/candidate/profileImg/FormModal";
 import PersonalSection from "@/components/candidate/personal/PersonalSection";
 import PersonalModal from "@/components/candidate/personal/PersonalModal";
 import API from "../../lib/axios";
+import Swal from "sweetalert2";
 import noImage from "../../assets/img/no-man.jpg";
 import KycSection from "@/components/candidate/kyc/KycSection";
 import ResumeHeadlineSection from "@/components/candidate/resumeHeadline/ResumeHeadlineSection";
@@ -165,6 +167,12 @@ export default function CandidateProfile() {
   const [focusSection, setFocusSection] = useState(null);
   const [isModalOpenotp, setIsModalOpenotp] = useState(false);
 
+  const [resumeFile, setResumeFile] = useState<any>(null);
+  const [resumeUrl, setResumeUrl] = useState("");
+  const [uploadDate, setUploadDate] = useState("");
+  const [resumeLoading, setResumeLoading] = useState(false);
+  const [downloadLoading, setDownloadLoading] = useState(false);
+
   const openModalRH = () => {
     setIsModalOpen(true);
     document.body.style.overflow = "hidden"; // Disable background scrolling
@@ -213,13 +221,133 @@ export default function CandidateProfile() {
     }
   };
 
+  const fetchResume = async () => {
+    try {
+      setResumeLoading(true);
+
+      const response = await API.get(
+        "/api/candidate/resumefile/get_resume_details",
+      );
+
+      if (response.data.success) {
+        const { fileName, fileUrl, updatedAt } = response.data.data;
+
+        if (fileName) {
+          setResumeFile({ name: fileName });
+          setResumeUrl(fileUrl);
+
+          const formattedDate = new Date(updatedAt).toLocaleString("en-IN", {
+            month: "short",
+            day: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+
+          setUploadDate(formattedDate);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setResumeLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchProfilePic();
     FetchKyc();
+    fetchResume();
   }, []);
   useEffect(() => {
     fetchProfilePic();
   }, [refresh]);
+
+  const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    const formData = new FormData();
+
+    formData.append("file", file);
+
+    try {
+      setResumeLoading(true);
+
+      await API.post("/api/candidate/resumefile/upload-pdf", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      fetchResume();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setResumeLoading(false);
+    }
+  };
+
+  const handleDeleteResume = async () => {
+    const result = await Swal.fire({
+      title: "Delete Resume?",
+      text: "You won't be able to recover it.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Delete",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      await API.delete("/api/candidate/resumefile/delete_resume_details");
+
+      setResumeFile(null);
+      setResumeUrl("");
+      setUploadDate("");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const downloadResume = async () => {
+    try {
+      setDownloadLoading(true);
+
+      const response = await API.get("/api/candidate/resume/get_resume", {
+        responseType: "blob",
+      });
+
+      const contentDisposition =
+        response.headers["content-disposition"] ||
+        response.headers["Content-Disposition"] ||
+        "";
+      const filenameMatch = contentDisposition.match(/filename\*?=([^;]+)/i);
+      const filename = filenameMatch
+        ? filenameMatch[1].trim().replace(/^(?:UTF-8'')?/, "")
+        : response.headers["filename"] || "Resume.pdf";
+
+      const blob = new Blob([response.data], {
+        type: response.headers["content-type"] || "application/pdf",
+      });
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename.replace(/"/g, "") || "Resume.pdf";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Resume download failed:", error);
+      toast.error("Failed to download resume. Please try again.");
+    } finally {
+      setDownloadLoading(false);
+    }
+  };
+
   return (
     <CandidateLayout>
       <div className="space-y-6 max-w-7xl mx-auto">
@@ -481,8 +609,9 @@ export default function CandidateProfile() {
                 </div> */}
                 <Employment />
                 <WorkProfileList />
-                  <CareerProfile/>
+                <CareerProfile />
                 <WhitePaper />
+                <WorkProfileList />
               </TabsContent>
 
               <TabsContent value="education" className="space-y-4 mt-6">
@@ -603,6 +732,11 @@ export default function CandidateProfile() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
+                    {resumeLoading && (
+                      <div className="flex justify-center items-center py-6">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                      </div>
+                    )}
                     <div className="border-2 border-dashed rounded-lg p-8 text-center bg-muted/20">
                       <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-3" />
                       <p className="font-medium text-sm">
@@ -611,52 +745,86 @@ export default function CandidateProfile() {
                       <p className="text-xs text-muted-foreground mt-1">
                         PDF or DOCX, up to 5 MB
                       </p>
-                      <Button size="sm" className="mt-4">
+                      {/* <Button size="sm" className="mt-4">
                         Choose file
+                      </Button> */}
+                      <Button size="sm" className="mt-4" asChild>
+                        <label className="cursor-pointer">
+                          Choose file
+                          <input
+                            type="file"
+                            accept=".pdf,.doc,.docx"
+                            hidden
+                            onChange={handleResumeUpload}
+                          />
+                        </label>
                       </Button>
                     </div>
 
                     <div className="space-y-2">
-                      {[
-                        "Riya_Sharma_Resume_2025.pdf",
-                        "Riya_Sharma_Portfolio.pdf",
-                      ].map((f) => (
-                        <div
-                          key={f}
-                          className="flex items-center gap-3 rounded-md border bg-card px-3 py-2.5"
-                        >
+                      {resumeFile ? (
+                        <div className="flex items-center gap-3 rounded-md border bg-card px-3 py-2.5">
                           <div className="h-9 w-9 rounded bg-primary/10 text-primary flex items-center justify-center">
                             <FileText className="h-4 w-4" />
                           </div>
+
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">{f}</p>
+                            <p className="text-sm font-medium truncate">
+                              {resumeFile.name}
+                            </p>
+
                             <p className="text-xs text-muted-foreground">
-                              Updated 2 days ago · 248 KB
+                              Uploaded on {uploadDate}
                             </p>
                           </div>
+
+                          {/* Preview */}
+                          {resumeUrl && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              title="Preview"
+                              className="h-8 w-8"
+                              asChild
+                            >
+                              <a
+                                href={resumeUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </a>
+                            </Button>
+                          )}
+
+                          {/* Download */}
                           <Button
                             variant="ghost"
                             size="icon"
+                            title="Download Report"
                             className="h-8 w-8"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
+                            onClick={downloadResume}
+                            disabled={downloadLoading}
                           >
                             <Download className="h-4 w-4" />
                           </Button>
+
+                          {/* Delete */}
                           <Button
                             variant="ghost"
                             size="icon"
+                            title="Delete Resume"
                             className="h-8 w-8 text-destructive"
+                            onClick={handleDeleteResume}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
-                      ))}
+                      ) : (
+                        <div className="rounded-md border border-dashed p-4 text-center text-sm text-muted-foreground">
+                          No resume uploaded yet.
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>

@@ -413,10 +413,6 @@ export default function CandidateJobDetail() {
                 )}
               </Button>
 
-
-
-
-
               <CandidateApplyModal
                 open={dialogOpen}
                 onClose={() => setDialogOpen(false)}
@@ -459,18 +455,18 @@ export default function CandidateJobDetail() {
               >
                 <Share2 className="h-4 w-4" /> Share
               </Button>
-              <Button
+              {/* <Button
                 size="lg"
                 variant="ghost"
                 className="gap-2 text-muted-foreground"
               >
                 <Flag className="h-4 w-4" /> Report
-              </Button>
+              </Button> */}
             </div>
           </CardContent>
         </Card>
 
-        {/* Body - Your exact structure */}
+        {/* Body */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <Tabs defaultValue="overview" className="w-full">

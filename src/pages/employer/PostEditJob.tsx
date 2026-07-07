@@ -145,7 +145,6 @@ export default function PostEditJob() {
     city: cityRef,
     branch: branchRef,
     address: addressRef,
-    state: stateRef,
   };
 
   //main

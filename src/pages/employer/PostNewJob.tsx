@@ -143,7 +143,6 @@ export default function PostNewJob() {
     city: cityRef,
     branch: branchRef,
     address: addressRef,
-    state: stateRef,
   };
 
   //main
