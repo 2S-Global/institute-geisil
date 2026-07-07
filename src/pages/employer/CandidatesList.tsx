@@ -14,6 +14,13 @@ import {
   Loader2,
 } from "lucide-react";
 
+
+
+import {
+  RadioGroup,
+  RadioGroupItem,
+} from "@/components/ui/radio-group";
+
 import { EmployerLayout } from "@/components/EmployerLayout";
 import { useGetAllCandidates } from "./hooks/useGetAllCandidates";
 import { useBookmarkCandidate } from "./hooks/useBookmarkCandidate";
@@ -31,6 +38,10 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { CandidateCard } from "../candidate/components/CandidateCard";
 
+import { useGetGender } from "./hooks/useGetGender";
+import { useGetUserLevel } from "./hooks/useGetUserLevel";
+import { normalizeCandidate, filterCandidate } from "./utils/candidateUtils";
+
 // 1. Better Type Definitions
 export type Candidate = {
   id: string;
@@ -43,6 +54,8 @@ export type Candidate = {
   experienceDisplay: string;
   experienceYears: number;
   education: string;
+  qualifications: string[];
+  gender: string;
   skills: string[];
   match: number;
   noticePeriod: string;
@@ -53,38 +66,28 @@ export type Candidate = {
   featured: boolean;
 };
 
-// 2. Extracted Helper Functions
-const formatNoticePeriod = (days?: string | number | null): string => {
-  if (days == null || days === "") return "Not Disclosed";
-  const numDays = Number(days);
-  if (numDays < 30) return `${numDays} Day${numDays === 1 ? "" : "s"}`;
-  const months = Math.floor(numDays / 30);
-  return `${months} Month${months === 1 ? "" : "s"}`;
-};
-
-const getExperienceDisplay = (candidateData: any): string => {
-  if (candidateData.candidateDetails?.totalExperience) {
-    const { year, month } = candidateData.candidateDetails.totalExperience;
-    return `${year}Y ${month}M`;
-  }
-  if (typeof candidateData.experience === "number") return `${candidateData.experience} yrs`;
-  return candidateData.exp || "-";
-};
+// 2. Extracted Helper Functions (Moved to utils/candidateUtils.ts)
 
 // 3. Extracted UI Component for the Card
 
 // 4. Main Component
 export default function CandidatesList() {
-  // Ideally, update your hook to use the correct type instead of <any>
   const { data: rawCandidates, loading, error } = useGetAllCandidates<any>();
   const { handleBookmark, bookmarkLoading } = useBookmarkCandidate();
-  
+
+  // Custom hooks for filter data
+  const { data: genderData, loading: genderLoading, error: genderError } = useGetGender();
+  const { data: levelData, loading: levelLoading, error: levelError } = useGetUserLevel();
+
   // State: Descriptively named
   const [searchQuery, setSearchQuery] = useState("");
   const [locationQuery, setLocationQuery] = useState("");
   const [experienceRange, setExperienceRange] = useState<number[]>([0, 15]);
   const [sortOption, setSortOption] = useState<string>("match");
   const [savedCandidates, setSavedCandidates] = useState<Set<string>>(new Set());
+
+  const [gender, setGender] = useState("all");
+  const [qualification, setQualification] = useState("all");
 
   // Initialize saved candidates
   useEffect(() => {
@@ -93,7 +96,7 @@ export default function CandidatesList() {
         .filter((c: any) => c.isBookmarked)
         .map((c: any) => c.id || c._id)
         .filter(Boolean);
-        
+
       setSavedCandidates(new Set(bookmarkedIds));
     }
   }, [rawCandidates]);
@@ -103,52 +106,30 @@ export default function CandidatesList() {
     setLocationQuery("");
     setExperienceRange([0, 15]);
     setSortOption("match");
+    setGender("all");
+    setQualification("all");
   };
 
   // Memo 1: Normalize Data ONLY when raw data changes (Separation of concerns)
   const normalizedCandidates: Candidate[] = useMemo(() => {
     if (!rawCandidates || rawCandidates.length === 0) return []; // Fallback to seed data if needed here
 
-
-   
-    return rawCandidates.map((c: any, index: number) => ({
-      id:  c._id ,// Avoid Math.random() for stable keys
-      name: c.name || "-",
-      profilePicture: c.profilePicture,
-      email: c.email,
-      phone_number: c.phone_number,
-      title: c.JobRole || "-",
-      location: c.candidateDetails?.currentLocation || c.candidateDetails?.hometown || "-",
-      experienceDisplay: getExperienceDisplay(c),
-      experienceYears: typeof c.experience === "number" ? c.experience : (c.candidateDetails?.totalExperience?.year || parseInt(c.exp) || 0),
-      education: c.education || c.academicDetails?.[0]?.educationLevel || "N/A",
-      skills: Array.isArray(c.skills) ? c.skills : (c.personalData?.skills || []),
-      match: typeof c.match === "number" ? c.match : (c.score || 0),
-      noticePeriod: formatNoticePeriod(c?.employments?.[0]?.NoticePeriod),
-      salary: c.salary || "N/A",
-      availability: c.availability || "-",
-      workMode: c.workMode || "-",
-      category: c.category,
-      featured: !!c.featured,
-    }));
+    return rawCandidates.map(normalizeCandidate);
   }, [rawCandidates]);
 
   // Memo 2: Filter and Sort Data
   const filteredAndSortedCandidates = useMemo(() => {
-    let result = normalizedCandidates.filter((candidate) => {
-      const searchLower = searchQuery.toLowerCase().trim();
-      const locationLower = locationQuery.toLowerCase().trim();
-
-      const matchesSearch = !searchLower || 
-        candidate.name.toLowerCase().includes(searchLower) ||
-        candidate.title.toLowerCase().includes(searchLower) ||
-        candidate.skills.some((s) => s.toLowerCase().includes(searchLower));
-
-      const matchesLocation = !locationLower || candidate.location.toLowerCase().includes(locationLower);
-      const matchesExperience = candidate.experienceYears >= experienceRange[0] && candidate.experienceYears <= experienceRange[1];
-
-      return matchesSearch && matchesLocation && matchesExperience;
-    });
+    let result = normalizedCandidates.filter((candidate) =>
+       filterCandidate(candidate, {
+        searchQuery,
+        locationQuery,
+        experienceRange,
+        gender,
+        qualification,
+        genderData,
+        levelData,
+      })
+    );
 
     switch (sortOption) {
       case "match": return result.sort((a, b) => b.match - a.match);
@@ -156,7 +137,9 @@ export default function CandidatesList() {
       case "name": return result.sort((a, b) => a.name.localeCompare(b.name));
       default: return result;
     }
-  }, [normalizedCandidates, searchQuery, locationQuery, experienceRange, sortOption]);
+  }, [normalizedCandidates, searchQuery, locationQuery, experienceRange, sortOption, gender, qualification, genderData, levelData]);
+
+  
 
   const toggleSave = async (id: string, name: string) => {
     const isCurrentlyBookmarked = savedCandidates.has(id);
@@ -170,18 +153,108 @@ export default function CandidatesList() {
   };
 
   const FiltersPanel = (
-    <div className="space-y-6">
-      <div>
-        <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Experience (years)</Label>
-        <div className="mt-4 px-1">
-          <Slider value={experienceRange} onValueChange={setExperienceRange} min={0} max={15} step={1} />
-          <div className="flex justify-between text-xs text-muted-foreground mt-2">
-            <span>{experienceRange[0]} yrs</span><span>{experienceRange[1]}+ yrs</span>
+    <div className="space-y-4">
+      {/* Experience Card */}
+      <Card>
+        <CardContent className="p-4">
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Experience (years)
+          </Label>
+
+          <div className="mt-4 px-1">
+            <Slider
+              value={experienceRange}
+              onValueChange={setExperienceRange}
+              min={0}
+              max={15}
+              step={1}
+            />
+
+            <div className="flex justify-between text-xs text-muted-foreground mt-2">
+              <span>{experienceRange[0]} yrs</span>
+              <span>{experienceRange[1]}+ yrs</span>
+            </div>
           </div>
-        </div>
-      </div>
-      <Button variant="outline" className="w-full gap-2" onClick={clearAllFilters}>
-        <X className="h-4 w-4" /> Clear filters
+        </CardContent>
+      </Card>
+
+      {/* Gender Card */}
+      <Card>
+        <CardContent className="p-4">
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Candidate Gender
+          </Label>
+
+          {genderLoading ? (
+            <div className="flex items-center gap-2 mt-3 text-xs text-muted-foreground">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading genders...
+            </div>
+          ) : genderError ? (
+            <div className="text-xs text-destructive mt-3">Error loading genders.</div>
+          ) : (
+            <Select value={gender} onValueChange={setGender}>
+              <SelectTrigger className="mt-3">
+                <SelectValue placeholder="Select Gender" />
+              </SelectTrigger>
+
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                {genderData?.map((item) => (
+                  <SelectItem key={item.id} value={String(item.id)}>
+                    {item.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Qualification Card */}
+      <Card>
+        <CardContent className="p-4">
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Qualification
+          </Label>
+
+          {levelLoading ? (
+            <div className="flex items-center gap-2 mt-3 text-xs text-muted-foreground">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Loading qualifications...
+            </div>
+          ) : levelError ? (
+            <div className="text-xs text-destructive mt-3">Error loading qualifications.</div>
+          ) : (
+            <RadioGroup
+              value={qualification}
+              onValueChange={setQualification}
+              className="mt-3 space-y-3"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="all" id="q-all" />
+                <Label htmlFor="q-all" className="cursor-pointer">All</Label>
+              </div>
+
+              {levelData?.map((item) => (
+                <div key={item.id} className="flex items-center space-x-2">
+                  <RadioGroupItem
+                    value={String(item.id)}
+                    id={`q-${item.id}`}
+                  />
+                  <Label htmlFor={`q-${item.id}`} className="cursor-pointer">{item.level}</Label>
+                </div>
+              ))}
+            </RadioGroup>
+          )}
+        </CardContent>
+      </Card>
+
+      <Button
+        variant="outline"
+        className="w-full gap-2"
+        onClick={clearAllFilters}
+      >
+        <X className="h-4 w-4" />
+        Clear Filters
       </Button>
     </div>
   );
@@ -244,11 +317,11 @@ export default function CandidatesList() {
                   <div className="mt-6">{FiltersPanel}</div>
                 </SheetContent>
               </Sheet>
-              
+
               <Select value={sortOption} onValueChange={setSortOption}>
                 <SelectTrigger className="w-[140px] sm:w-[170px] h-9"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="match">Sort: Best match</SelectItem>
+                  {/* <SelectItem value="match">Sort: Best match</SelectItem> */}
                   <SelectItem value="exp">Sort: Experience</SelectItem>
                   <SelectItem value="name">Sort: Name (A–Z)</SelectItem>
                 </SelectContent>
@@ -277,8 +350,8 @@ export default function CandidatesList() {
             <div className="space-y-3">
               {filteredAndSortedCandidates.map((candidate) => (
                 <CandidateCard
-                  key={candidate.id} 
-                  candidate={candidate} 
+                  key={candidate.id}
+                  candidate={candidate}
                   isSaved={savedCandidates.has(candidate.id)}
                   onToggleSave={toggleSave}
                   isSaving={bookmarkLoading[candidate.id]}

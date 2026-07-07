@@ -50,7 +50,9 @@ export function EmployerLayout({ children }: { children: ReactNode }) {
               </Avatar>
             </div>
           </header>
-          <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
+          <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col">
+            <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
+          </div>
         </div>
       </div>
     </SidebarProvider>
