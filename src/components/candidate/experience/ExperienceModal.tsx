@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 export interface WorkProfileType {
   _id?: string;
@@ -49,7 +51,26 @@ const WorkProfileModal: React.FC<WorkProfileModalProps> = ({
     return htmlString.replace(/<\/?[^>]+(>|$)/g, "").trim();
   };
 
-  
+  const quillModules = {
+    toolbar: [
+      ["bold", "italic", "underline", "strike"],
+      [{ script: "super" }, { script: "sub" }],
+      [{ list: "ordered" }, { list: "bullet" }],
+      ["link"],
+      ["clean"],
+    ],
+  };
+
+  const quillFormats = [
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "script",
+    "list",
+    "bullet",
+    "link",
+  ];
 
   const [formData, setFormData] = useState({
     _id: "",
@@ -371,36 +392,25 @@ const WorkProfileModal: React.FC<WorkProfileModalProps> = ({
             </label>
           </div>
 
-          <div className="space-y-1.5 pt-2">
+          <div className="space-y-2 pt-2">
             <label className="text-xs font-bold text-gray-900 tracking-wide">
               Description
             </label>
-            <div className="border border-gray-200 rounded-md overflow-hidden bg-white">
-              <div className="flex items-center gap-1 bg-white border-b border-gray-100 p-1">
-                {["B", "I", "U", "S"].map((btn) => (
-                  <Button
-                    key={btn}
-                    type="button"
-                    variant="ghost"
-                    className="h-7 w-7 p-0 font-serif font-bold text-xs text-gray-700"
-                  >
-                    {btn === "S" ? (
-                      <span className="line-through">S</span>
-                    ) : (
-                      btn
-                    )}
-                  </Button>
-                ))}
-              </div>
-              <textarea
-                name="description"
-                placeholder="Type here ..."
-                rows={4}
-                value={formData.description}
-                onChange={handleInputChange}
-                className="w-full p-3 text-sm text-gray-700 placeholder-gray-400 focus:outline-none resize-none"
-              />
-            </div>
+
+            <ReactQuill
+              theme="snow"
+              value={formData.description}
+              onChange={(value) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  description: value,
+                }))
+              }
+              modules={quillModules}
+              formats={quillFormats}
+              placeholder="Type here..."
+              style={{ height: "180px", marginBottom: "50px" }}
+            />
           </div>
 
           <Button
@@ -419,7 +429,7 @@ const WorkProfileModal: React.FC<WorkProfileModalProps> = ({
             type="button"
             variant="ghost"
             onClick={onClose}
-            className="bg-[#6C757D] hover:bg-[#5A6268] text-white hover:text-white rounded-md px-4 h-9"
+            
           >
             Cancel
           </Button>
@@ -427,7 +437,7 @@ const WorkProfileModal: React.FC<WorkProfileModalProps> = ({
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="bg-[#3B82F6] hover:bg-[#2563EB] text-white rounded-md px-5 h-9"
+           
           >
             {saving ? "Saving..." : "Save"}
           </Button>

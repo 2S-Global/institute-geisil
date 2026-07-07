@@ -56,7 +56,10 @@ import ProfileSummarySection from "@/components/candidate/ProfileSummarySection/
 import AcademicSection from "@/components/candidate/academics/AcademicSection";
 import KeySkills from "@/components/candidate/keySkill/KeySkills";
 import Project from "@/components/candidate/project/Project";
-import WorkProfileList from "../../components/candidate/experience/Workexperience"
+import WorkProfileList from "../../components/candidate/experience/Workexperience";
+import WhitePaper from "@/components/candidate/WhitePaper/WhitePaper";
+import Employment from "../../components/candidate/Employment/Employment";
+import CareerProfile from "@/components/candidate/Career Profile/CareerProfile";
 const experiences = [
   {
     role: "Frontend Engineer",
@@ -257,7 +260,7 @@ export default function CandidateProfile() {
                   >
                     <Camera size={18} />
                   </div>
-                </div>    
+                </div>
 
                 <div className="pt-14 sm:pt-14">
                   <div className="flex flex-wrap items-center gap-2">
@@ -476,13 +479,14 @@ export default function CandidateProfile() {
                     </Card>
                   ))}
                 </div> */}
-                <WorkProfileList/>
+                <Employment />
+                <WorkProfileList />
+                  <CareerProfile/>
+                <WhitePaper />
               </TabsContent>
 
               <TabsContent value="education" className="space-y-4 mt-6">
-               
-                
-                 <AcademicSection/>
+                <AcademicSection />
                 <div className="space-y-4">
                   {education.map((e, i) => (
                     <Card key={i}>
@@ -584,7 +588,7 @@ export default function CandidateProfile() {
                     </Card>
                   ))}
                 </div> */}
-                <Project/>
+                <Project />
               </TabsContent>
 
               <TabsContent value="resume" className="space-y-4 mt-6">
