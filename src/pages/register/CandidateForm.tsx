@@ -55,14 +55,18 @@ export default function CandidateForm({ loading, onSubmit }: CandidateFormProps)
     // Reverse DOB from YYYY-MM-DD to DD-MM-YYYY (or vice versa depending on frontend requirements, but user did split("/").reverse().join("-"))
     // Wait, the input type date returns YYYY-MM-DD, and the split("/").reverse() was used when it was dd/mm/yyyy.
     // Let's keep the user's reversal logic if it splits by "/" or "-", or just pass the date format
-    const reversedDOB = data.dob ? data.dob.split("-").reverse().join("-") : "";
+
+
+
+
+    // const reversedDOB = data.dob ? data.dob.split("-").reverse().join("-") : "";
     
     onSubmit({
       name: data.name,
       email: data.email,
       password: data.password,
       phone_number: `91${data.phone}`,
-      dob: reversedDOB,
+      dob: data.dob,
       father_name: data.father_name,
     });
   };
