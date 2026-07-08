@@ -58,7 +58,7 @@ import ProfileSummarySection from "@/components/candidate/ProfileSummarySection/
 import AcademicSection from "@/components/candidate/academics/AcademicSection";
 import KeySkills from "@/components/candidate/keySkill/KeySkills";
 import Project from "@/components/candidate/project/Project";
-import WorkProfileList from "../../components/candidate/experience/Workexperience"
+import WorkProfileList from "../../components/candidate/experience/Workexperience";
 import OnlineProfileSection from "@/components/candidate/onlineProfile/OnlineProfileSection";
 import AccomOnlinePresentationSection from "@/components/candidate/AccomPresentation/AccomOnlinePresentationSection";
 import PatentSection from "@/components/candidate/patent/PatentSection";
@@ -67,6 +67,7 @@ import WhitePaper from "@/components/candidate/WhitePaper/WhitePaper";
 import Employment from "../../components/candidate/Employment/Employment";
 import CareerProfile from "@/components/candidate/Career Profile/CareerProfile";
 import ITSkills from "@/components/candidate/ITSkills/ITSkills";
+import OtherSkills from "@/components/candidate/Other Skills/OtherSkills";
 const experiences = [
   {
     role: "Frontend Engineer",
@@ -177,6 +178,28 @@ export default function CandidateProfile() {
   const [uploadDate, setUploadDate] = useState("");
   const [resumeLoading, setResumeLoading] = useState(false);
   const [downloadLoading, setDownloadLoading] = useState(false);
+  const [geisilScore, setGeisilScore] = useState();
+  const [scoreLoading, setScoreLoading] = useState(false);
+
+  const fetchScore = async () => {
+    try {
+      setScoreLoading(true);
+
+      const response = await API.get("api/userdata/getscore");
+
+      if (response.data.success) {
+        setGeisilScore(response.data.GeisilScore || 0);
+      }
+    } catch (error) {
+      console.error("Error fetching score:", error);
+    } finally {
+      setScoreLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchScore();
+  }, []);
 
   const openModalRH = () => {
     setIsModalOpen(true);
@@ -315,7 +338,26 @@ export default function CandidateProfile() {
       console.log(error);
     }
   };
+  const handleResumeDownload = () => {
+    if (!resumeUrl) return;
 
+    // Open PDF in a new tab
+    const pdfWindow = window.open("", "_blank");
+
+    if (pdfWindow) {
+      pdfWindow.location.href = resumeUrl;
+    }
+
+    // Download file separately
+    const link = document.createElement("a");
+    link.href = resumeUrl;
+    link.target = "_blank";
+    link.download = "resume.pdf";
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
   const downloadResume = async () => {
     try {
       setDownloadLoading(true);
@@ -352,6 +394,48 @@ export default function CandidateProfile() {
       setDownloadLoading(false);
     }
   };
+
+  const getProfileStatus = (score) => {
+  if (score >= 90) {
+    return {
+      label: "Excellent",
+      badgeClass: "bg-emerald-100 text-emerald-700",
+      progressClass: "[&>div]:bg-emerald-500",
+    };
+  }
+
+  if (score >= 70) {
+    return {
+      label: "Strong",
+      badgeClass: "bg-green-100 text-green-700",
+      progressClass: "[&>div]:bg-green-500",
+    };
+  }
+
+  if (score >= 60) {
+    return {
+      label: "Good",
+      badgeClass: "bg-blue-100 text-blue-700",
+      progressClass: "[&>div]:bg-blue-500",
+    };
+  }
+
+  if (score >= 40) {
+    return {
+      label: "Average",
+      badgeClass: "bg-yellow-100 text-yellow-700",
+      progressClass: "[&>div]:bg-yellow-500",
+    };
+  }
+
+  return {
+    label: "Poor",
+    badgeClass: "bg-red-100 text-red-700",
+    progressClass: "[&>div]:bg-red-500",
+  };
+};
+
+const profileStatus = getProfileStatus(geisilScore);
 
   return (
     <CandidateLayout>
@@ -411,7 +495,7 @@ export default function CandidateProfile() {
                       </Badge>
                     )}
 
-                   {/*  <Badge variant="outline">
+                    {/*  <Badge variant="outline">
                       <Sparkles className="h-3 w-3 mr-1" />
                       Open to work
                     </Badge> */}
@@ -444,14 +528,47 @@ export default function CandidateProfile() {
 
               {/* Right Side Buttons */}
               <div className="flex flex-wrap gap-2 mt-4 lg:mt-6 lg:self-start">
-                <Button variant="outline" size="sm">
+                {/* <Button variant="outline" size="sm">
                   <Share2 className="h-4 w-4 mr-1" />
                   Share
-                </Button>
+                </Button> */}
 
-                <Button variant="outline" size="sm">
-                  <Download className="h-4 w-4 mr-1" />
-                  Resume
+                {/* <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={downloadResume}
+                  disabled={downloadLoading}
+                >
+                  {downloadLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                      Downloading...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="h-4 w-4 mr-1" />
+                      Resume
+                    </>
+                  )}
+                </Button> */}
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleResumeDownload}
+                  disabled={downloadLoading}
+                >
+                  {downloadLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                      Downloading...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="h-4 w-4 mr-1" />
+                      Resume
+                    </>
+                  )}
                 </Button>
 
                 {/*  <Button
@@ -483,7 +600,8 @@ export default function CandidateProfile() {
                 <ResumeHeadlineSection />
                 <ProfileSummarySection />
                 <KeySkills />
-                <ITSkills/>
+                <ITSkills />
+                <OtherSkills />
                 <PersonalSection />
                 <OnlineProfileSection />
                 <AccomOnlinePresentationSection />
@@ -624,9 +742,7 @@ export default function CandidateProfile() {
               </TabsContent>
 
               <TabsContent value="education" className="space-y-4 mt-6">
-               
-                
-                 <AcademicSection/>
+                <AcademicSection />
                 {/* <div className="space-y-4">
                 <AcademicSection />
                 <div className="space-y-4">
@@ -660,7 +776,7 @@ export default function CandidateProfile() {
 
                 <Separator className="my-6" />
 
-              <CertificationSection/>
+                <CertificationSection />
               </TabsContent>
 
               <TabsContent value="projects" className="space-y-4 mt-6">
@@ -790,7 +906,8 @@ export default function CandidateProfile() {
                             size="icon"
                             title="Download Report"
                             className="h-8 w-8"
-                            onClick={downloadResume}
+                            // onClick={downloadResume}
+                            onClick={handleResumeDownload}
                             disabled={downloadLoading}
                           >
                             <Download className="h-4 w-4" />
@@ -813,6 +930,42 @@ export default function CandidateProfile() {
                         </div>
                       )}
                     </div>
+                    <div className="flex items-center justify-between rounded-lg border bg-white px-4 py-3 shadow-sm hover:shadow-md transition">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                          <FileText className="h-5 w-5" />
+                        </div>
+
+                        <div>
+                          <p className="text-sm font-semibold text-slate-800">
+                            Download Report
+                          </p>
+                          <p className="text-xs text-slate-500">
+                            Get your resume report PDF
+                          </p>
+                        </div>
+                      </div>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-2 hover:bg-primary hover:text-white transition"
+                        onClick={downloadResume}
+                        disabled={downloadLoading}
+                      >
+                        {downloadLoading ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Downloading
+                          </>
+                        ) : (
+                          <>
+                            <Download className="h-4 w-4" />
+                            Download
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -820,7 +973,7 @@ export default function CandidateProfile() {
           </div>
 
           {/* Right column */}
-          <div className="space-y-6">
+          {/* <div className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">Profile strength</CardTitle>
@@ -839,8 +992,38 @@ export default function CandidateProfile() {
                     </Badge>
                   </div>
                   <Progress value={completion} className="h-2" />
+                </div> */}
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Profile strength</CardTitle>
+                <CardDescription>
+                  Complete your profile to get noticed by recruiters.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-semibold">
+                      {scoreLoading ? "Loading..." : `${geisilScore}% Complete`}
+                    </span>
+
+                    {!scoreLoading && (
+                      <Badge
+                        variant="secondary"
+                        className={`text-xs border-0 ${profileStatus.badgeClass}`}
+                      >
+                        {profileStatus.label}
+                      </Badge>
+                    )}
+                  </div>
+
+                  <Progress
+                    value={geisilScore}
+                    className={`h-2 ${profileStatus.progressClass}`}
+                  />
                 </div>
-               {/*  <ul className="space-y-2">
+                {/*  <ul className="space-y-2">
                   {checklist.map((c) => (
                     <li
                       key={c.label}

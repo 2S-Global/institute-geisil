@@ -592,7 +592,7 @@ const CareerProfileModal = ({
           <Button
             type="button"
             onClick={onClose}
-            className="bg-slate-500 text-white text-xs"
+           variant="ghost"
           >
             Cancel
           </Button>
@@ -600,7 +600,7 @@ const CareerProfileModal = ({
             type="submit"
             disabled={isSubmitting || loading}
             onClick={handleSubmit}
-            className="bg-blue-600 text-white text-xs"
+            
           >
             {isSubmitting ? "Saving..." : "Save"}
           </Button>

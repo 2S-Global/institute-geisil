@@ -3,21 +3,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Pencil, Plus } from "lucide-react";
 import API from "@/lib/axios";
-import ITSkillModal from "./ITSkillsModal";
+import OtherSkillsModal from "./OtherSkillsModal";
 
-const ITSkills = () => {
+const OtherSkills = () => {
   const [sectionLoading, setSectionLoading] = useState(false);
   const [itSkills, setitSkills] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSkill, setSelectedSkill] = useState<any | null>(null);
-  const [reload, setReload] = useState(false); // Controls table refreshing
 
   const fetchitSkills = async () => {
     try {
       setSectionLoading(true);
-      const response = await API.get("/api/candidate/itskill/itskill");
+      const response = await API.get("/api/candidate/itskill/getotherskill");
+
       if (response.status === 200) {
         setitSkills(response.data?.data || response.data || []);
       }
@@ -29,11 +29,9 @@ const ITSkills = () => {
     }
   };
 
-  // Triggers on initial mount and whenever the modal reports a successful update
   useEffect(() => {
     fetchitSkills();
-    if (reload) setReload(false);
-  }, [reload]);
+  }, []);
 
   const handleOpenCreate = () => {
     setSelectedSkill(null);
@@ -50,8 +48,9 @@ const ITSkills = () => {
       <Card className="w-full max-w-4xl border border-slate-100 shadow-sm rounded-xl">
         <CardHeader className="flex flex-row items-center justify-between pb-4">
           <CardTitle className="text-xl font-semibold text-slate-800">
-            IT Skills
+            Other Skills
           </CardTitle>
+
           <Button onClick={handleOpenCreate}>
             <Plus className="h-4 w-4 mr-1" />
             Add Skill
@@ -69,12 +68,13 @@ const ITSkills = () => {
                 <thead>
                   <tr className="text-slate-900 font-bold text-sm">
                     <th className="pb-3 pt-2 font-bold w-[30%]">Skill</th>
-                    <th className="pb-3 pt-2 font-bold w-[15%]">Version</th>
-                    <th className="pb-3 pt-2 font-bold w-[15%]">Last Used</th>
-                    <th className="pb-3 pt-2 font-bold w-[35%]">Experience</th>
+                    <th className="pb-3 pt-2 font-bold w-[35%]">
+                      Experience
+                    </th>
                     <th className="pb-3 pt-2 w-[5%]"></th>
                   </tr>
                 </thead>
+
                 <tbody className="divide-y divide-slate-200 border-t border-b border-slate-200">
                   {itSkills.map((skill, index) => (
                     <tr
@@ -84,15 +84,13 @@ const ITSkills = () => {
                       <td className="py-3.5 pr-4 text-slate-800">
                         {skill.skillSearch}
                       </td>
+
                       <td className="py-3.5 pr-4 text-slate-600">
-                        {skill.version || "—"}
+                        {`${skill.experienceyear || 0} Years and ${
+                          skill.experiencemonth || 0
+                        } Months`}
                       </td>
-                      <td className="py-3.5 pr-4 text-slate-600">
-                        {skill.lastUsed || "—"}
-                      </td>
-                      <td className="py-3.5 pr-4 text-slate-600">
-                        {`${skill.experienceyear || 0} Years and ${skill.experiencemonth || 0} Months`}
-                      </td>
+
                       <td className="py-2 text-right">
                         <Button
                           onClick={() => handleOpenUpdate(skill)}
@@ -113,15 +111,15 @@ const ITSkills = () => {
         </CardContent>
       </Card>
 
-      <ITSkillModal
+      {/* FIXED PROPS HERE */}
+      <OtherSkillsModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        initialData={selectedSkill}
-        apiurl=""
-        setReload={setReload}
+        editData={selectedSkill}   // Changed from initialData to editData
+        onSuccess={fetchitSkills}  // Added to refresh list automatically
       />
     </>
   );
 };
 
-export default ITSkills;
+export default OtherSkills;
