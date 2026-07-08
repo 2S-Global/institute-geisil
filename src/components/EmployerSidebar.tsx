@@ -76,9 +76,9 @@ export function EmployerSidebar() {
     end ? pathname === path : pathname === path || pathname.startsWith(path + "/");
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border">
-      <SidebarHeader className="border-b border-sidebar-border/60 px-4 py-5">
-        <div className="flex items-center gap-3">
+    <Sidebar collapsible="icon" className="border-r  border-sidebar-border">
+      <SidebarHeader className="border-b  border-sidebar-border/60 px-4 py-5">
+        <div className="flex  items-center gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground font-display font-extrabold text-lg shadow-sm">
             G
           </div>
@@ -93,7 +93,7 @@ export function EmployerSidebar() {
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="px-2 py-4">
+      <SidebarContent className="px-2 py-4 overflow-y-auto scrollbar-hide">
         <SidebarGroup>
           {!collapsed && (
             <SidebarGroupLabel className="text-sidebar-foreground/60 text-[11px] font-semibold uppercase tracking-wider px-2">

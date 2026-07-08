@@ -43,7 +43,7 @@ export const normalizeCandidate = (c: any): Candidate => {
   return {
     id: c._id || c.id,
     name: c.name || "-",
-    profilePicture: c.profilePicture,
+    profilePicture: c.profilePicture || "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png",
     email: c.email,
     phone_number: c.phone_number,
     title: c.JobRole || "-",
