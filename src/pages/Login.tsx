@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
 import axios from "axios";
-
+import { Link } from "react-router-dom";
 export default function Login() {
   const navigate = useNavigate();
   const [showPwd, setShowPwd] = useState(false);
@@ -282,15 +282,15 @@ export default function Login() {
               {loading ? "Signing in…" : "Sign in"}
             </Button>
 
-            {/* <p className="text-center text-sm text-muted-foreground">
+            <p className="text-center text-sm text-muted-foreground">
               Don't have an account?{" "}
-              <a
-                href="#"
+              <Link
+                to="/register"
                 className="font-semibold text-primary hover:underline"
               >
-                Request access
-              </a>
-            </p> */}
+                Sign up
+              </Link>
+            </p>
           </form>
 
           <p className="mt-10 text-center text-xs text-muted-foreground">
