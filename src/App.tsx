@@ -78,6 +78,8 @@ import About from "./pages/About.tsx";
 import BlogList from "./pages/BlogList.tsx";
 import Register from "./pages/Register.tsx";
 import Contact from "./pages/Contact.tsx";
+import AdminDashboard from "./pages/admin/AdminDashboard.tsx";
+import Home from "./pages/Home.tsx";
 const queryClient = new QueryClient();
 const App = () => {
   const [profile, setProfile] = useState();
@@ -178,10 +180,19 @@ const App = () => {
             <Routes>
               {/* <Route path="/" element={<NotFound />} /> */}
               {/* <Route path="/login" element={<Login />} /> */}
-
+              <Route path="/home" element={<Home />} />
               <Route path="/" element={<Login />} />
               <Route path="/loading" element={<Loading />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
+
+              <Route
+                path="/admin/*"
+                element={
+                  <Routes>
+                    <Route path="/dashboard" element={<AdminDashboard />} />
+                  </Routes>
+                }
+              />
 
               <Route
                 path="/institute/*"
