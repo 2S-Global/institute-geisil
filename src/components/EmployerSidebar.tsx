@@ -1,4 +1,4 @@
-import { NavLink, useLocation ,useNavigate} from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   Briefcase,
@@ -8,8 +8,6 @@ import {
   ClipboardList,
   BarChart3,
   Building2,
-  Settings,
-  LogOut,
   UserCheck,
   BookmarkCheck,
   Download,
@@ -28,6 +26,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+
 
 const main = [
   { title: "Dashboard", url: "/employer", icon: LayoutDashboard, end: true },
@@ -67,38 +66,14 @@ const main = [
 
 const secondary = [
   { title: "Company", url: "/employer/company", icon: Building2 },
-  { title: "Settings", url: "/employer/settings", icon: Settings },
 ];
-import api from "@/lib/axios";
+
 export function EmployerSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const { pathname } = useLocation();
   const isActive = (path: string, end?: boolean) =>
     end ? pathname === path : pathname === path || pathname.startsWith(path + "/");
-  const navigate = useNavigate();
-    const handleLogout = async () => {
-    try {
-      // Backend logout API
-      await api.post("/api/auth/logout", {}, { withCredentials: true });
-
-      // Clear storage
-      localStorage.clear();
-      sessionStorage.clear();
-
-      // Clear normal cookies
-      document.cookie.split(";").forEach((cookie) => {
-        document.cookie = cookie
-          .replace(/^ +/, "")
-          .replace(/=.*/, "=;expires=" + new Date(0).toUTCString() + ";path=/");
-      });
-
-      // Redirect
-      navigate("/");
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
@@ -171,16 +146,6 @@ export function EmployerSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-
-      <SidebarFooter className="border-t border-sidebar-border/60 p-3">
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-3 rounded-md px-3 py-2 text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground transition-colors text-sm"
-        >
-          <LogOut className="h-[18px] w-[18px] shrink-0" />
-          {!collapsed && <span>Sign out</span>}
-        </button>
-      </SidebarFooter>
     </Sidebar>
   );
 }

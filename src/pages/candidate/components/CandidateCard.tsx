@@ -83,8 +83,8 @@ export const CandidateCard = ({
                                         <span className="text-muted-foreground">Available:</span>
                                         <span className="font-semibold text-foreground">{candidate.noticePeriod}</span>
                                     </span>
-                                    <span className="text-muted-foreground">•</span>
-                                    <span className="font-semibold text-foreground">{candidate.match}% match</span>
+                                    {/* <span className="text-muted-foreground">•</span>
+                                    <span className="font-semibold text-foreground">{candidate.match}% match</span> */}
                                 </div>
 
                                 <div className="flex items-center gap-1.5 sm:justify-end">

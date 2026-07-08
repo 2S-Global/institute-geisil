@@ -1,26 +1,41 @@
-import { ReactNode ,useEffect,useState} from "react";
-import { Bell, Search } from "lucide-react";
+import { ReactNode, useEffect, useState } from "react";
+import { Bell, Search, Settings, LogOut } from "lucide-react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { useNavigate } from "react-router-dom";
+import { LogoutModal } from "@/components/LogoutModal";
 
 interface DashboardLayoutProps {
   children: ReactNode;
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
-  const[name,setName]=useState()
-   useEffect(() => {
+  const [name, setName] = useState<string | null>(null);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    setName(localStorage.getItem("name"));
     const timer = setTimeout(() => {
-      setName(localStorage.getItem("name"))
+      setName(localStorage.getItem("name"));
     }, 1000);
 
     return () => clearTimeout(timer);
-
   }, []);
+
+  const displayName = name === 'null' ? "" : name || "";
+  const initials = displayName ? displayName
+        .split(" ")
+        .map((w) => w[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase()
+    : "IA";
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
@@ -45,22 +60,54 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <Bell className="h-5 w-5" />
                 <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-destructive ring-2 ring-card" />
               </Button> */}
-              <div className="hidden sm:block text-right leading-tight">
-                <p className="text-sm font-semibold text-foreground">{localStorage.getItem("name")==='null'?"":localStorage.getItem("name")||""}</p>
-              {/*   <p className="text-xs text-muted-foreground">Institute Admin</p> */}
-              </div>
-              <Avatar className="h-9 w-9 border">
-                <AvatarFallback className="bg-primary text-primary-foreground font-semibold">{localStorage.getItem("name")==='null'?"":localStorage.getItem("name")?.split(" ")
-                    .map((w) => w[0])
-                    .slice(0, 2)
-                    .join("")||""}</AvatarFallback>
-              </Avatar>
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="flex items-center gap-2 md:gap-3 hover:bg-muted/60 p-1.5 pr-2.5 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none text-left animate-fade-in">
+                    <div className="hidden sm:block text-right leading-tight">
+                      <p className="text-sm font-semibold text-foreground">{displayName || "Institute Admin"}</p>
+                      <p className="text-xs text-muted-foreground">Institute Admin</p>
+                    </div>
+                    <Avatar className="h-9 w-9 border shadow-sm">
+                      <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                        {initials}
+                      </AvatarFallback>
+                    </Avatar>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-56 p-1.5 bg-popover border border-border rounded-xl shadow-lg">
+                  <div className="px-2 py-1.5">
+                    <p className="text-xs text-muted-foreground font-medium">Signed in as</p>
+                    <p className="text-sm font-semibold text-foreground truncate mt-0.5">
+                      {displayName || "Institute Admin"}
+                    </p>
+                  </div>
+                  <div className="h-px bg-border my-1" />
+                  <div className="space-y-0.5">
+                    <button
+                      onClick={() => navigate("/institute/settings")}
+                      className="w-full flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm text-foreground hover:bg-accent hover:text-accent-foreground transition-colors text-left"
+                    >
+                      <Settings className="h-4 w-4 text-muted-foreground" />
+                      Settings
+                    </button>
+                    <button
+                      onClick={() => setShowLogoutModal(true)}
+                      className="w-full flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm text-destructive hover:bg-destructive/10 hover:text-destructive transition-colors text-left"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Sign out
+                    </button>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           </header>
 
-          <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
+          <main className="flex-1 max-w-7xl mx-auto p-4 md:p-6 lg:p-8">{children}</main>
         </div>
       </div>
+      <LogoutModal open={showLogoutModal} onOpenChange={setShowLogoutModal} />
     </SidebarProvider>
   );
 }

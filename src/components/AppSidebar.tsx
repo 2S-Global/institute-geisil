@@ -1,20 +1,17 @@
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
-  Users,
   GraduationCap,
   Briefcase,
   ClipboardCheck,
   BarChart3,
   Building2,
   Settings,
-  LogOut,
   BookOpen,
 } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -24,8 +21,6 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-
-import api from "@/lib/axios";
 
 const main = [
   { title: "Dashboard", url: "/institute", icon: LayoutDashboard, end: true },
@@ -56,44 +51,17 @@ const main = [
 const secondary = [
   /*  { title: "Faculty", url: "/institute/faculty", icon: Users }, */
   { title: "Campus", url: "/institute/manage-campus", icon: Settings },
-  { title: "Settings", url: "/institute/settings", icon: Settings },
 ];
 
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const { pathname } = useLocation();
-  /* const isActive = (path: string) => (path === "/" ? pathname === "/" : pathname.startsWith(path)); */
 
   const isActive = (path: string, end?: boolean) =>
     end
       ? pathname === path
       : pathname === path || pathname.startsWith(path + "/");
-
-  const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    try {
-      // Backend logout API
-      await api.post("/api/auth/logout", {}, { withCredentials: true });
-
-      // Clear storage
-      localStorage.clear();
-      sessionStorage.clear();
-
-      // Clear normal cookies
-      document.cookie.split(";").forEach((cookie) => {
-        document.cookie = cookie
-          .replace(/^ +/, "")
-          .replace(/=.*/, "=;expires=" + new Date(0).toUTCString() + ";path=/");
-      });
-
-      // Redirect
-      navigate("/");
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
@@ -172,16 +140,6 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-
-      <SidebarFooter className="border-t border-sidebar-border/60 p-3">
-        <button
-          onClick={handleLogout}
-          className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground transition-colors text-sm"
-        >
-          <LogOut className="h-[18px] w-[18px] shrink-0" />
-          {!collapsed && <span>Sign out</span>}
-        </button>
-      </SidebarFooter>
     </Sidebar>
   );
 }
