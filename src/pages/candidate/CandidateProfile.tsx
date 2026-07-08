@@ -62,6 +62,7 @@ import WorkProfileList from "../../components/candidate/experience/Workexperienc
 import WhitePaper from "@/components/candidate/WhitePaper/WhitePaper";
 import Employment from "../../components/candidate/Employment/Employment";
 import CareerProfile from "@/components/candidate/Career Profile/CareerProfile";
+import ITSkills from "@/components/candidate/ITSkills/ITSkills";
 const experiences = [
   {
     role: "Frontend Engineer",
@@ -478,6 +479,7 @@ export default function CandidateProfile() {
                 <ResumeHeadlineSection />
                 <ProfileSummarySection />
                 <KeySkills />
+                <ITSkills/>
                 <PersonalSection />
                 {/*  <Card>
                   <CardHeader className="flex flex-row items-center justify-between">
