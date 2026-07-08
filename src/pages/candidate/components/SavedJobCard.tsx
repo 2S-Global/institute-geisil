@@ -41,7 +41,7 @@ interface SavedJobCardProps {
   onRemove: () => void;
 }
 
-const capitalizeWords = (str: string): string => {
+export const capitalizeWords = (str: string): string => {
   return str
     .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
     .replace(/[^a-zA-Z0-9\s]/g, " ")
@@ -52,7 +52,7 @@ const capitalizeWords = (str: string): string => {
       (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
     )
     .join(" ");
-};;
+};
 
 export const SavedJobCardComponent = ({
   j,
