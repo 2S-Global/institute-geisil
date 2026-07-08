@@ -613,7 +613,7 @@ export default function CandidateProfile() {
                 <WorkProfileList />
                 <CareerProfile />
                 <WhitePaper />
-                <WorkProfileList />
+                {/* <WorkProfileList /> */}
               </TabsContent>
 
               <TabsContent value="education" className="space-y-4 mt-6">

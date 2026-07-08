@@ -216,8 +216,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import api from "@/lib/axios";
 
-const ITSkillModal = ({ isOpen, onClose, onSave, initialData, isLoading }) => {
+const ITSkillModal = ({ isOpen, onClose, onSave, initialData, isLoading, token, apiurl }) => {
   const [formData, setFormData] = useState({
     skillSearch: "",
     version: "",
@@ -226,11 +227,38 @@ const ITSkillModal = ({ isOpen, onClose, onSave, initialData, isLoading }) => {
     experiencemonth: "",
   });
 
-  const [suggestions, setSuggestions] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
+  const [allSkills, setAllSkills] = useState([]); // Holds data array fetched from API
+  const [suggestions, setSuggestions] = useState([]); // Filtered + sorted recommendations
+  const [isFetchingSkills, setIsFetchingSkills] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
 
+  // 1️⃣ Fetch entire list once when the modal opens
+useEffect(() => {
+  const fetchAllSkills = async () => {
+    if (!isOpen) return;
+
+    setIsFetchingSkills(true);
+
+    try {
+      const response = await api.get("/api/sql/dropdown/get_tech_skills");
+
+      const skillsList = response.data?.data || response.data;
+
+      if (Array.isArray(skillsList)) {
+        setAllSkills(skillsList);
+      }
+    } catch (error) {
+      console.error("Error fetching tech skills:", error);
+    } finally {
+      setIsFetchingSkills(false);
+    }
+  };
+
+  fetchAllSkills();
+}, [isOpen]);
+
+  // 2️⃣ Sync layout when modal status or initialData changes
   useEffect(() => {
     if (isOpen) {
       if (initialData) {
@@ -255,48 +283,52 @@ const ITSkillModal = ({ isOpen, onClose, onSave, initialData, isLoading }) => {
     }
   }, [initialData, isOpen]);
 
-  // Dynamic API Fetching and Robust Filtering
+  // Helper helper function to capture skill string safely whether it's an object or primitive string
+  const getSkillText = (item) => {
+    if (!item) return "";
+    if (typeof item === 'object') {
+      return (item.name || item.skill_name || item.text || Object.values(item)[0] || "").toString().toLowerCase();
+    }
+    return item.toString().toLowerCase();
+  };
+
+  // 3️⃣ Real-time multi-tier array parsing logic (Client-side tracking)
   useEffect(() => {
-    if (!formData.skillSearch.trim()) {
+    const query = formData.skillSearch.toLowerCase().trim();
+
+    if (!query) {
       setSuggestions([]);
       return;
     }
 
-    const delayDebounceFn = setTimeout(async () => {
-      setIsSearching(true);
-      try {
-        const response = await fetch(
-          `/api/sql/dropdown/get_tech_skills?query=${encodeURIComponent(formData.skillSearch)}`
-        );
-        
-        if (response.ok) {
-          const data = await response.json();
-          
-          if (Array.isArray(data)) {
-            const filteredData = data.filter((skill) => {
-              // Robust check: matches strings, skill.name, skill.skill_name, or skill.text
-              const skillName = typeof skill === 'object' 
-                ? (skill.name || skill.skill_name || skill.text || Object.values(skill)[0] || "") 
-                : skill;
-                
-              return String(skillName)
-                .toLowerCase()
-                .includes(formData.skillSearch.toLowerCase());
-            });
+    const filtered = allSkills
+      .filter((item) => getSkillText(item).includes(query))
+      .sort((a, b) => {
+        const aText = getSkillText(a);
+        const bText = getSkillText(b);
 
-            setSuggestions(filteredData);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching tech skills:", error);
-      } finally {
-        setIsSearching(false);
-      }
-    }, 150); // Snappy 150ms delay
+        // Tier 1: Exact matches top the table
+        if (aText === query && bText !== query) return -1;
+        if (bText === query && aText !== query) return 1;
 
-    return () => clearTimeout(delayDebounceFn);
-  }, [formData.skillSearch]);
+        // Tier 2: Prefix matches prioritize over nested hits
+        const aPrefix = aText.startsWith(query);
+        const bPrefix = bText.startsWith(query);
+        if (aPrefix && !bPrefix) return -1;
+        if (!aPrefix && bPrefix) return 1;
 
+        // Tier 3: Index position matching
+        const posDiff = aText.indexOf(query) - bText.indexOf(query);
+        if (posDiff !== 0) return posDiff;
+
+        // Tier 4: Alphabetical tiebreaker
+        return aText.localeCompare(bText);
+      });
+
+    setSuggestions(filtered);
+  }, [formData.skillSearch, allSkills]);
+
+  // Handle external modal body clicks to cleanly blur dropboxes
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -334,17 +366,13 @@ const ITSkillModal = ({ isOpen, onClose, onSave, initialData, isLoading }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      {/* <DialogContent className="sm:max-w-[540px] p-0 border-none rounded-xl gap-0 overflow-visible bg-white shadow-2xl"> */}
+      <DialogContent className="sm:max-w-[540px] p-0 border-none rounded-xl gap-0 overflow-visible bg-white shadow-2xl [&>button]:hidden">
         
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
           <DialogTitle className="text-xl font-bold text-[#2d3748]">
             IT skills
           </DialogTitle>
-          <Button
-            type="button" 
-            onClick={onClose} 
-           
-          >
+          <Button type="button" onClick={onClose} variant="ghost" className="p-1 h-auto rounded-full">
             <X className="h-6 w-6 stroke-[1.5]" />
           </Button>
         </div>
@@ -372,12 +400,11 @@ const ITSkillModal = ({ isOpen, onClose, onSave, initialData, isLoading }) => {
                   autoComplete="off"
                   className="w-full h-[46px] px-4 rounded-lg bg-[#f4f9fd] border-none text-[#2d3748] placeholder-[#a0aec0] text-[14px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 transition-all"
                 />
-                {isSearching && (
+                {isFetchingSkills && (
                   <Loader2 className="absolute right-3 h-4 w-4 animate-spin text-slate-400" />
                 )}
               </div>
 
-              
               {showDropdown && formData.skillSearch.trim() !== "" && (
                 <div className="absolute top-[calc(100%+4px)] left-0 w-full bg-white border border-slate-200 rounded-lg shadow-xl max-h-[220px] overflow-y-auto z-[9999] py-1">
                   {suggestions.length > 0 ? (
@@ -397,7 +424,7 @@ const ITSkillModal = ({ isOpen, onClose, onSave, initialData, isLoading }) => {
                       );
                     })
                   ) : (
-                    !isSearching && (
+                    !isFetchingSkills && (
                       <div className="px-4 py-3 text-[14px] text-slate-400 italic bg-white">
                         No skills match your search
                       </div>
@@ -492,20 +519,12 @@ const ITSkillModal = ({ isOpen, onClose, onSave, initialData, isLoading }) => {
           </div>
 
           <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100 bg-white relative z-10">
-            <button
-              type="button"
-              onClick={onClose}
-              className="h-[38px] px-5 rounded-md text-[14px] font-medium bg-[#6c757d] hover:bg-[#5a6268] text-white transition-colors"
-            >
+            <Button type="button" onClick={onClose} variant="secondary">
               Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="h-[38px] px-5 rounded-md text-[14px] font-medium bg-[#4ea2ff] hover:bg-[#3b8ee6] text-white transition-colors disabled:opacity-70"
-            >
+            </Button>
+            <Button type="submit" disabled={isLoading}>
               {isLoading ? "Saving..." : "Save"}
-            </button>
+            </Button>
           </div>
         </form>
       </DialogContent>
