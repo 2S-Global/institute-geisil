@@ -440,7 +440,7 @@ const projects = candidate?.candidateProjects || [];
                       { label: "DOB", key: "dob" },
                     ],
                   },
-                  {
+                  /* {
                     title: "Passport",
                     item: kyc?.passport,
                     fields: [
@@ -448,7 +448,7 @@ const projects = candidate?.candidateProjects || [];
                       { label: "Passport Number", key: "number" },
                       { label: "DOB", key: "dob" },
                     ],
-                  },
+                  }, */
                   {
                     title: "Aadhaar Card",
                     item: kyc?.aadhar,

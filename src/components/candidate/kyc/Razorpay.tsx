@@ -89,7 +89,7 @@ const RazorpayPayment = ({ onSuccess, documentType }) => {
 
   return (
     <button
-      className="btn btn-primary ms-2"
+      className="ml-2 rounded-md bg-blue-600 px-2 py-1 text-[10px] leading-none text-white hover:bg-blue-700"
       style={{
         fontSize: "10px",
         padding: "2px 6px",

@@ -58,7 +58,11 @@ import ProfileSummarySection from "@/components/candidate/ProfileSummarySection/
 import AcademicSection from "@/components/candidate/academics/AcademicSection";
 import KeySkills from "@/components/candidate/keySkill/KeySkills";
 import Project from "@/components/candidate/project/Project";
-import WorkProfileList from "../../components/candidate/experience/Workexperience";
+import WorkProfileList from "../../components/candidate/experience/Workexperience"
+import OnlineProfileSection from "@/components/candidate/onlineProfile/OnlineProfileSection";
+import AccomOnlinePresentationSection from "@/components/candidate/AccomPresentation/AccomOnlinePresentationSection";
+import PatentSection from "@/components/candidate/patent/PatentSection";
+import CertificationSection from "@/components/candidate/certification/CertificationSection";
 import WhitePaper from "@/components/candidate/WhitePaper/WhitePaper";
 import Employment from "../../components/candidate/Employment/Employment";
 import CareerProfile from "@/components/candidate/Career Profile/CareerProfile";
@@ -407,10 +411,10 @@ export default function CandidateProfile() {
                       </Badge>
                     )}
 
-                    <Badge variant="outline">
+                   {/*  <Badge variant="outline">
                       <Sparkles className="h-3 w-3 mr-1" />
                       Open to work
-                    </Badge>
+                    </Badge> */}
                   </div>
 
                   <p className="mt-1 text-muted-foreground"></p>
@@ -481,6 +485,9 @@ export default function CandidateProfile() {
                 <KeySkills />
                 <ITSkills/>
                 <PersonalSection />
+                <OnlineProfileSection />
+                <AccomOnlinePresentationSection />
+                <PatentSection />
                 {/*  <Card>
                   <CardHeader className="flex flex-row items-center justify-between">
                     <div>
@@ -617,6 +624,10 @@ export default function CandidateProfile() {
               </TabsContent>
 
               <TabsContent value="education" className="space-y-4 mt-6">
+               
+                
+                 <AcademicSection/>
+                {/* <div className="space-y-4">
                 <AcademicSection />
                 <div className="space-y-4">
                   {education.map((e, i) => (
@@ -645,37 +656,11 @@ export default function CandidateProfile() {
                       </CardContent>
                     </Card>
                   ))}
-                </div>
+                </div> */}
 
                 <Separator className="my-6" />
 
-                <div className="flex items-center justify-between">
-                  <h2 className="font-display text-lg font-semibold">
-                    Certifications
-                  </h2>
-                  <Button size="sm" variant="outline" className="gap-1.5">
-                    <Plus className="h-4 w-4" /> Add
-                  </Button>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {certifications.map((c, i) => (
-                    <Card key={i}>
-                      <CardContent className="p-4 flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-md bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
-                          <Award className="h-5 w-5" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm truncate">
-                            {c.name}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {c.issuer} · {c.year}
-                          </p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+              <CertificationSection/>
               </TabsContent>
 
               <TabsContent value="projects" className="space-y-4 mt-6">
@@ -855,7 +840,7 @@ export default function CandidateProfile() {
                   </div>
                   <Progress value={completion} className="h-2" />
                 </div>
-                <ul className="space-y-2">
+               {/*  <ul className="space-y-2">
                   {checklist.map((c) => (
                     <li
                       key={c.label}
@@ -878,7 +863,7 @@ export default function CandidateProfile() {
                       </span>
                     </li>
                   ))}
-                </ul>
+                </ul> */}
               </CardContent>
             </Card>
 
