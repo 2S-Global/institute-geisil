@@ -333,7 +333,7 @@ export default function CandidateAppliedJobs() {
                   className="pl-9"
                 />
               </div>
-              <div className="flex items-center gap-2">
+              {/* <div className="flex items-center gap-2">
                 <Select value={sort} onValueChange={setSort}>
                   <SelectTrigger className="w-[170px]">
                     <SelectValue placeholder="Sort by" />
@@ -346,7 +346,7 @@ export default function CandidateAppliedJobs() {
                 <Button variant="outline" className="gap-2">
                   <Filter className="h-4 w-4" /> Filters
                 </Button>
-              </div>
+              </div> */}
             </div>
 
             <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
@@ -415,9 +415,9 @@ export default function CandidateAppliedJobs() {
                             <StatusIcon className="h-3 w-3" />
                             {j.status}
                           </Badge>
-                          <Badge variant="secondary" className="font-normal">
+                          {/* <Badge variant="secondary" className="font-normal">
                             {j.match}% match
-                          </Badge>
+                          </Badge> */}
                         </div>
                         <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
                           <span className="flex items-center gap-1">

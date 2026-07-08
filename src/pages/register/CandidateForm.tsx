@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { generatePassword } from "../employer/utils/generatePassword";
 import {
   candidateRegisterSchema,
@@ -60,7 +61,7 @@ export default function CandidateForm({ loading, onSubmit }: CandidateFormProps)
 
 
     // const reversedDOB = data.dob ? data.dob.split("-").reverse().join("-") : "";
-    
+
     onSubmit({
       name: data.name,
       email: data.email,
@@ -153,8 +154,28 @@ export default function CandidateForm({ loading, onSubmit }: CandidateFormProps)
       {/* Password */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="password" className="text-foreground font-medium">
+          <Label htmlFor="password" className="text-foreground font-medium flex items-center gap-1.5">
             Password<span className="text-destructive font-bold ml-0.5">*</span>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button type="button" className="inline-flex  text-muted-foreground hover:text-foreground outline-none focus-visible:ring-1 focus-visible:ring-ring rounded-full">
+                  <Info className="h-3.5 w-3.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="p-3 bg-popover text-popover-foreground border border-border shadow-lg rounded-lg max-w-xs" side="right" align="start">
+                <div className="space-y-1 text-xs leading-normal">
+                  <p className="font-medium text-foreground mb-1">Password requirements:</p>
+                  <div className="text-muted-foreground space-y-0.5 font-normal">
+                    <p>1) Password must be at least 8 characters long.</p>
+                    <p>2) Must contain at least one uppercase letter.</p>
+                    <p>3) Must contain at least one lowercase letter.</p>
+                    <p>4) Must contain at least one number.</p>
+                    <p>5) Must contain at least one special character.</p>
+                    <p>6) Spaces are not allowed.</p>
+                  </div>
+                </div>
+              </TooltipContent>
+            </Tooltip>
           </Label>
           <button
             type="button"

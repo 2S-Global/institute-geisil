@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Candidate } from "@/pages/employer/CandidatesList";
@@ -41,13 +41,7 @@ export const CandidateCard = ({
                 <CardContent className="p-4 sm:p-5 md:flex md:items-center md:gap-5">
                     <div className="flex items-start gap-3 sm:gap-4 flex-1 min-w-0">
                         <Avatar className="h-12 w-12 sm:h-14 sm:w-14 border shrink-0">
-                            {candidate.profilePicture ? (
-                                <img src={candidate.profilePicture} alt={candidate.name} className="h-full w-full object-cover rounded-full" />
-                            ) : (
-                                <AvatarFallback className="bg-primary-soft text-primary font-semibold">
-                                    {candidate.name.split(" ").map((w) => w[0]).join("")}
-                                </AvatarFallback>
-                            )}
+                            <img src={candidate.profilePicture || "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"} alt={candidate.name} className="h-full w-full object-cover rounded-full" />
                         </Avatar>
 
                         <div className="min-w-0 flex-1">
