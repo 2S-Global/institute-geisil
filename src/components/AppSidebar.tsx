@@ -1,4 +1,4 @@
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   Users,
@@ -25,7 +25,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-import api from "@/lib/axios";
+import { useLogout } from "@/hooks/use-logout";
 
 const main = [
   { title: "Dashboard", url: "/institute", icon: LayoutDashboard, end: true },
@@ -70,30 +70,7 @@ export function AppSidebar() {
       ? pathname === path
       : pathname === path || pathname.startsWith(path + "/");
 
-  const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    try {
-      // Backend logout API
-      await api.post("/api/auth/logout", {}, { withCredentials: true });
-
-      // Clear storage
-      localStorage.clear();
-      sessionStorage.clear();
-
-      // Clear normal cookies
-      document.cookie.split(";").forEach((cookie) => {
-        document.cookie = cookie
-          .replace(/^ +/, "")
-          .replace(/=.*/, "=;expires=" + new Date(0).toUTCString() + ";path=/");
-      });
-
-      // Redirect
-      navigate("/");
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const { logout } = useLogout();
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
@@ -175,7 +152,7 @@ export function AppSidebar() {
 
       <SidebarFooter className="border-t border-sidebar-border/60 p-3">
         <button
-          onClick={handleLogout}
+          onClick={logout}
           className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground transition-colors text-sm"
         >
           <LogOut className="h-[18px] w-[18px] shrink-0" />
