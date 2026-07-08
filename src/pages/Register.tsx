@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, User, Briefcase, GraduationCap, Sparkles, ShieldCheck, Users2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { User, Briefcase, GraduationCap, Sparkles, ShieldCheck, Users2, AlertCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import CandidateForm from "./register/CandidateForm";
+import EmployerForm from "./register/EmployerForm";
+import InstituteForm from "./register/InstituteForm";
 import { cn } from "@/lib/utils";
+import { Candidatetype, useRegisterCandidate } from "./employer/hooks/useRegisterCandidate";
+import { EmployerType, useRegisterEmployer } from "./employer/hooks/useRegisterEmployer";
+import { Institutetype, useRegisterInstitute } from "./employer/hooks/useRegisterInstitute";
 
 type Role = "candidate" | "employer" | "institute";
 
@@ -18,35 +21,50 @@ const roles: { id: Role; label: string; icon: typeof User }[] = [
 export default function Register() {
   const navigate = useNavigate();
   const [role, setRole] = useState<Role>("candidate");
-  const [showPwd, setShowPwd] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const generatePassword = () => {
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%";
-    let pwd = "";
-    for (let i = 0; i < 12; i++) pwd += chars[Math.floor(Math.random() * chars.length)];
-    setPassword(pwd);
-    setConfirm(pwd);
-    setShowPwd(true);
-    toast({ title: "Password generated", description: "A strong password has been filled in." });
-  };
 
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password !== confirm) {
-      toast({ title: "Passwords don't match", description: "Please re-enter your password." });
-      return;
+  //custom hooks for 3 apis
+  const { registerCandidate, loading: candidateLoading, error: candidateError } = useRegisterCandidate();
+  const { registerEmployer, loading: employerLoading, error: employerError } = useRegisterEmployer();
+  const { registerInstitute, loading: instituteLoading, error: instituteError } = useRegisterInstitute();
+
+  const loading = candidateLoading || employerLoading || instituteLoading;
+
+  const activeError = role === "candidate" ? candidateError : role === "employer" ? employerError : instituteError;
+
+
+
+
+
+
+  const handleRegisterSubmit = async (payload: Candidatetype | EmployerType | Institutetype) => {
+
+    try {
+      if (role === "candidate") {
+        await registerCandidate(payload as Candidatetype);
+      } else if (role === "employer") {
+        await registerEmployer(payload as EmployerType);
+      } else if (role === "institute") {
+        await registerInstitute(payload as Institutetype);
+      }
+
+      toast({
+        title: "Account created",
+        description: `Welcome to GEISIL as a ${role}.`
+      });
+      navigate("/");
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err.message || "Registration failed";
+      toast({
+        variant: "destructive",
+        title: "Registration Failed",
+        description: msg,
+      });
     }
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      toast({ title: "Account created", description: `Welcome to GEISIL as a ${role}.` });
-      navigate("/login");
-    }, 700);
   };
+
+
+
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-background">
@@ -154,154 +172,28 @@ export default function Register() {
             ))}
           </div>
 
-          <form onSubmit={onSubmit} className="mt-6 space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name" className="text-foreground font-medium">
-                Full Name
-              </Label>
-              <Input id="name" required placeholder="Name" className="h-11" />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2" style={{ position: "relative" }}>
-                <Label htmlFor="dob" className="text-foreground font-medium">
-                  DOB
-                </Label>
-                <Input id="dob" type="date" required className="h-11" />
+          <div className="mt-6">
+            {activeError && (
+              <div className="mb-4 p-3 rounded-md bg-destructive/15 border border-destructive/30 text-destructive text-sm flex items-start gap-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                <div className="flex-1">
+                  <span className="font-semibold block mb-0.5 text-xs uppercase tracking-wide">Registration Failed</span>
+                  <p className="text-sm font-medium">{activeError}</p>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="father" className="text-foreground font-medium">
-                  {role === "employer"
-                    ? "Company"
-                    : role === "institute"
-                      ? "Institute"
-                      : "Father Name"}
-                </Label>
-                <Input
-                  id="father"
-                  required
-                  placeholder={
-                    role === "employer"
-                      ? "Company name"
-                      : role === "institute"
-                        ? "Institute name"
-                        : "Father name"
-                  }
-                  className="h-11"
-                />
-              </div>
-            </div>
+            )}
 
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-foreground font-medium">
-                Email Address
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                required
-                placeholder="Enter your email address"
-                className="h-11"
-              />
-            </div>
+            {role === "candidate" && (
+              <CandidateForm loading={loading} onSubmit={handleRegisterSubmit} />
+            )}
+            {role === "employer" && (
+              <EmployerForm loading={loading} onSubmit={handleRegisterSubmit} />
+            )}
+            {role === "institute" && (
+              <InstituteForm loading={loading} onSubmit={handleRegisterSubmit} />
+            )}
 
-            <div className="space-y-2">
-              <Label htmlFor="phone" className="text-foreground font-medium">
-                Phone Number
-              </Label>
-              <div className="flex">
-                <span className="inline-flex items-center gap-1 rounded-l-md border border-r-0 border-input bg-secondary px-3 text-sm text-secondary-foreground">
-                  <span className="text-base leading-none">🇮🇳</span> +91
-                </span>
-                <Input
-                  id="phone"
-                  type="tel"
-                  required
-                  placeholder="Phone"
-                  className="h-11 rounded-l-none"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label
-                  htmlFor="password"
-                  className="text-foreground font-medium"
-                >
-                  Password
-                </Label>
-                <button
-                  type="button"
-                  onClick={generatePassword}
-                  className="text-xs font-medium text-primary hover:underline"
-                >
-                  Generate password
-                </button>
-              </div>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPwd ? "text" : "password"}
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Password"
-                  className="h-11 pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPwd((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  aria-label="Toggle password"
-                >
-                  {showPwd ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="confirm" className="text-foreground font-medium">
-                Confirm Password
-              </Label>
-              <div className="relative">
-                <Input
-                  id="confirm"
-                  type={showConfirm ? "text" : "password"}
-                  required
-                  value={confirm}
-                  onChange={(e) => setConfirm(e.target.value)}
-                  placeholder="Re-enter password"
-                  className="h-11 pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirm((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  aria-label="Toggle confirm password"
-                >
-                  {showConfirm ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full h-11 bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground font-semibold shadow-brand transition-all"
-            >
-              {loading ? "Creating account…" : "Register"}
-            </Button>
-
-            <p className="text-center text-sm text-muted-foreground">
+            <p className="mt-6 text-center text-sm text-muted-foreground">
               Already have an account?{" "}
               <Link
                 to="/"
@@ -310,7 +202,7 @@ export default function Register() {
                 LogIn
               </Link>
             </p>
-          </form>
+          </div>
 
           <p className="mt-8 text-center text-xs text-muted-foreground">
             Developed and maintained by{" "}
