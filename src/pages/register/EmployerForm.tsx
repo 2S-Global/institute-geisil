@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,29 +12,41 @@ import {
   type EmployerRegisterInput,
 } from "../employer/validation/CandidateRegisterValidation";
 import { useCompanyTypes } from "../employer/hooks/useCompanyTypes";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { cn } from "@/lib/utils";
+
+
+
+//made it configureable
+const USE_DROPDOWN_FOR_COMPANY_TYPE = false;
+
+
+
 
 interface EmployerFormProps {
   loading: boolean;
   onSubmit: (payload: any) => void;
 }
 
-const mockCompanyTypes = [
-  { _id: "private", company_type: "Private Limited" },
-  { _id: "public", company_type: "Public Limited" },
-  { _id: "partnership", company_type: "Partnership" },
-  { _id: "proprietorship", company_type: "Sole Proprietorship" },
-  { _id: "ngo", company_type: "NGO / Trust" },
-];
-
 export default function EmployerForm({ loading, onSubmit }: EmployerFormProps) {
   const [showPwd, setShowPwd] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [openCompanyType, setOpenCompanyType] = useState(false);
   const { data: companyTypes, loading: fetchingTypes, error: fetchError } = useCompanyTypes();
 
   const {
     register,
     handleSubmit,
     setValue,
+    control,
     formState: { errors, touchedFields, dirtyFields, isSubmitted },
   } = useForm<EmployerRegisterInput>({
     resolver: zodResolver(employerRegisterSchema),
@@ -70,11 +82,7 @@ export default function EmployerForm({ loading, onSubmit }: EmployerFormProps) {
     });
   };
 
-  const companyTypeList = companyTypes.length > 0 ? companyTypes : mockCompanyTypes.map(item => ({
-    _id: item._id,
-    Legal_Structure: item.company_type,
-    Has_CIN: false
-  }));
+  const companyTypeList = companyTypes.length > 0 ? companyTypes : []
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
@@ -83,31 +91,84 @@ export default function EmployerForm({ loading, onSubmit }: EmployerFormProps) {
         <Label className="text-foreground font-medium">
           Company Type<span className="text-destructive font-bold ml-0.5">*</span>
         </Label>
-        
+
         {fetchingTypes ? (
           <p className="text-xs text-muted-foreground animate-pulse">Loading company types...</p>
         ) : (
-          <div className="flex flex-wrap gap-4 mt-2">
-            {companyTypeList.map((item) => (
-              <div className="flex items-center gap-2" key={item._id}>
-                <input
-                  className="form-check-input h-4 w-4 text-primary border-gray-300 focus:ring-primary cursor-pointer"
-                  type="radio"
-                  id={`company-${item._id}`}
-                  value={item._id}
-                  {...register("company_type")}
-                />
-                <label
-                  className="text-sm font-medium text-foreground cursor-pointer"
-                  htmlFor={`company-${item._id}`}
-                >
-                  {item.Legal_Structure}
-                </label>
-              </div>
-            ))}
-          </div>
+          USE_DROPDOWN_FOR_COMPANY_TYPE ? (
+            <Controller
+              control={control}
+              name="company_type"
+              render={({ field }) => (
+                <Popover open={openCompanyType} onOpenChange={setOpenCompanyType}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={openCompanyType}
+                      className="h-11 w-full justify-between bg-background border border-input text-sm font-normal text-left px-3 hover:bg-background hover:text-foreground focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                    >
+                      {field.value
+                        ? companyTypeList.find((item: any) => item._id === field.value)?.Legal_Structure || "Select company type"
+                        : "Select company type"}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search company type..." />
+                      <CommandList>
+                        <CommandEmpty>No company type found.</CommandEmpty>
+                        <CommandGroup>
+                          {companyTypeList.map((item: any) => (
+                            <CommandItem
+                              key={item._id}
+                              value={item.Legal_Structure}
+                              onSelect={() => {
+                                field.onChange(item._id);
+                                setOpenCompanyType(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  field.value === item._id ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {item.Legal_Structure}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              )}
+            />
+          ) : (
+            <div className="flex flex-wrap gap-4 mt-2">
+              {companyTypeList.map((item) => (
+                <div className="flex items-center gap-2" key={item._id}>
+                  <input
+                    className="form-check-input h-4 w-4 text-primary border-gray-300 focus:ring-primary cursor-pointer"
+                    type="radio"
+                    id={`company-${item._id}`}
+                    value={item._id}
+                    {...register("company_type")}
+                  />
+                  <label
+                    className="text-sm font-medium text-foreground cursor-pointer"
+                    htmlFor={`company-${item._id}`}
+                  >
+                    {item.Legal_Structure}
+                  </label>
+                </div>
+              ))}
+            </div>
+          )
         )}
-        
+
         {fetchError && (
           <p className="text-xs text-amber-600 mt-1">Note: Using offline fallback company types.</p>
         )}
