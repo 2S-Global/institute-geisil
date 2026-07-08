@@ -45,6 +45,8 @@ import {
   Video,
   AlertCircle,
 } from "lucide-react";
+import { getAppliedJobsDetails } from "./hooks/getAppliedJobsDetails";
+import { formatSalary } from "./helpers/formatSalary";
 
 const application = {
   id: "app-001",
@@ -185,8 +187,54 @@ export default function CandidateApplicationDetail() {
   const [draft, setDraft] = useState("");
   const [withdrawOpen, setWithdrawOpen] = useState(false);
 
-  const currentStepIndex = statusOrder.indexOf(application.status);
+  // custom hook for data fetching
+  const { data, isLoading, error } = getAppliedJobsDetails(id);
+  console.log("data===>", data);
+
+  //@ts-ignore
+  //main Jobdetails Data
+  const jobDetails = data?.data;
+  console.log("thats the job details", jobDetails)
+  // Helper to format salary
+
+
+
+  //basic job data 
+  const jobTitle = jobDetails?.title
+  const companyName = jobDetails?.companyName
+  const logoContent = jobDetails?.logoImage ? (
+    <img src={jobDetails.logoImage} alt={companyName} className="h-full w-full object-contain p-2" />
+  ) : (
+    companyName?.[0] || application.logo
+  );
+
+  // Status mapping
+  const jobStatus = jobDetails?.isApplied ? (jobDetails.totalInterviewScheduled > 0 ? "Interview" : "Applied") : "-"
+
+  //mock 
+  const currentStepIndex = statusOrder.indexOf(jobStatus);
   const progressPct = ((currentStepIndex + 1) / statusOrder.length) * 100;
+
+
+
+  //on-site - remote - hybrid
+  const workMode = jobDetails?.jobLocationType
+
+
+  //location
+  const jobLocation = jobDetails?.location
+
+  //parttime-fulltime
+  const jobType = jobDetails?.jobType?.join(", ");
+
+  //salary
+  const salaryText = jobDetails?.salary ? formatSalary(jobDetails.salary) : "No disclosed";
+
+
+  //applied time ago
+  const appliedTimeAgo = jobDetails?.createdAgo
+    ? `Posted ${jobDetails.createdAgo}`
+    : "";
 
   const sendMessage = () => {
     if (!draft.trim()) return;
@@ -203,6 +251,19 @@ export default function CandidateApplicationDetail() {
     setDraft("");
     toast({ title: "Message sent", description: "The recruiter will be notified." });
   };
+
+  // if (isLoading) {
+  //   return (
+  //     <CandidateLayout>
+  //       <div className="flex items-center justify-center min-h-[400px]">
+  //         <div className="flex flex-col items-center gap-2">
+  //           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+  //           <p className="text-sm text-muted-foreground">Loading application details...</p>
+  //         </div>
+  //       </div>
+  //     </CandidateLayout>
+  //   );
+  // }
 
   return (
     <CandidateLayout>
@@ -225,35 +286,37 @@ export default function CandidateApplicationDetail() {
           <div className="h-24 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent" />
           <CardContent className="p-5 md:p-6 -mt-12">
             <div className="flex flex-col lg:flex-row lg:items-end gap-5">
-              <div className="h-20 w-20 rounded-2xl bg-card border shadow-sm text-primary flex items-center justify-center font-display font-bold text-2xl">
-                {application.logo}
+              <div className="h-20 w-20 rounded-2xl bg-card border shadow-sm text-primary flex items-center justify-center font-display font-bold text-2xl overflow-hidden">
+                {logoContent}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2 mb-1">
                   <Badge className="bg-primary/10 text-primary border-primary/20" variant="outline">
-                    <CalendarCheck className="h-3 w-3 mr-1" /> {application.status}
+                    <CalendarCheck className="h-3 w-3 mr-1" /> {jobStatus}
                   </Badge>
-                  <Badge variant="secondary">{application.match}% match</Badge>
-                  <Badge variant="outline">{application.workMode}</Badge>
+                  {jobDetails?.match !== undefined && (
+                    <Badge variant="secondary">{jobDetails.match}% match</Badge>
+                  )}
+                  <Badge variant="outline">{workMode}</Badge>
                 </div>
                 <h1 className="text-2xl md:text-3xl font-display font-bold text-foreground">
-                  {application.title}
+                  {jobTitle}
                 </h1>
                 <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1.5">
-                    <Building2 className="h-4 w-4" /> {application.company}
+                    <Building2 className="h-4 w-4" /> {companyName}
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <MapPin className="h-4 w-4" /> {application.location}
+                    <MapPin className="h-4 w-4" /> {jobLocation}
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <Briefcase className="h-4 w-4" /> {application.type}
+                    <Briefcase className="h-4 w-4" /> {jobType}
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <IndianRupee className="h-4 w-4" /> {application.salary}
+                    <IndianRupee className="h-4 w-4" /> {salaryText}
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <Clock className="h-4 w-4" /> Applied {application.appliedOn}
+                    <Clock className="h-4 w-4" /> {appliedTimeAgo}
                   </span>
                 </div>
               </div>
@@ -261,11 +324,11 @@ export default function CandidateApplicationDetail() {
                 <Button variant="outline" size="sm" className="gap-2">
                   <Share2 className="h-4 w-4" /> Share
                 </Button>
-                <Button variant="outline" size="sm" className="gap-2">
+                {/* <Button variant="outline" size="sm" className="gap-2">
                   <Bookmark className="h-4 w-4" /> Save
-                </Button>
+                </Button> */}
                 <Button size="sm" asChild className="gap-2">
-                  <Link to={`/candidate/jobs/${application.jobId}`}>
+                  <Link to={`/candidate/jobs/${jobDetails?.jobId || application.jobId}`}>
                     <ExternalLink className="h-4 w-4" /> View job
                   </Link>
                 </Button>
@@ -285,9 +348,8 @@ export default function CandidateApplicationDetail() {
                 {statusOrder.map((s, i) => (
                   <div
                     key={s}
-                    className={`text-center ${
-                      i <= currentStepIndex ? "text-foreground font-medium" : "text-muted-foreground"
-                    }`}
+                    className={`text-center ${i <= currentStepIndex ? "text-foreground font-medium" : "text-muted-foreground"
+                      }`}
                   >
                     {s}
                   </div>
@@ -325,13 +387,12 @@ export default function CandidateApplicationDetail() {
                         return (
                           <li key={i} className="ml-6">
                             <span
-                              className={`absolute -left-[13px] flex h-6 w-6 items-center justify-center rounded-full ring-4 ring-background ${
-                                isDone
-                                  ? "bg-emerald-500/15 text-emerald-600"
-                                  : isCurrent
+                              className={`absolute -left-[13px] flex h-6 w-6 items-center justify-center rounded-full ring-4 ring-background ${isDone
+                                ? "bg-emerald-500/15 text-emerald-600"
+                                : isCurrent
                                   ? "bg-primary text-primary-foreground"
                                   : "bg-muted text-muted-foreground"
-                              }`}
+                                }`}
                             >
                               <Icon className="h-3.5 w-3.5" />
                             </span>
@@ -359,29 +420,73 @@ export default function CandidateApplicationDetail() {
                   <CardHeader>
                     <CardTitle>About the role</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <p className="text-sm text-muted-foreground leading-relaxed">{application.about}</p>
-                    <div>
-                      <p className="font-medium text-foreground mb-2">Responsibilities</p>
-                      <ul className="space-y-1.5">
-                        {application.responsibilities.map((r) => (
-                          <li key={r} className="flex gap-2 text-sm text-muted-foreground">
-                            <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" /> {r}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    <Separator />
-                    <div>
-                      <p className="font-medium text-foreground mb-2">Requirements</p>
-                      <ul className="space-y-1.5">
-                        {application.requirements.map((r) => (
-                          <li key={r} className="flex gap-2 text-sm text-muted-foreground">
-                            <CheckCircle2 className="h-4 w-4 text-emerald-600 mt-0.5 shrink-0" /> {r}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                  <CardContent className="space-y-6">
+                    {jobDetails?.jobDescription ? (
+                      <div
+                        className="text-sm text-muted-foreground leading-relaxed space-y-2 ql-editor"
+                        dangerouslySetInnerHTML={{ __html: jobDetails.jobDescription }}
+                      />
+                    ) : (
+                      <p className="text-sm text-muted-foreground leading-relaxed">{application.about}</p>
+                    )}
+
+                    {jobDetails?.jobSkills && jobDetails.jobSkills.length > 0 && (
+                      <>
+                        <Separator />
+                        <div>
+                          <p className="font-medium text-foreground mb-2">Required Skills</p>
+                          <div className="flex flex-wrap gap-2">
+                            {jobDetails.jobSkills.map((skill: string, index: number) => (
+                              <Badge key={index} variant="secondary">
+                                {skill}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {(jobDetails?.qualification || jobDetails?.experienceLevel || jobDetails?.careerLevel) && (
+                      <>
+                        <Separator />
+                        <div>
+                          <p className="font-medium text-foreground mb-2">Requirements & Level</p>
+                          <ul className="space-y-2 text-sm text-muted-foreground">
+                            {jobDetails.experienceLevel && (
+                              <li className="flex items-center gap-2">
+                                <span className="font-medium text-foreground">Experience:</span> {jobDetails.experienceLevel}
+                              </li>
+                            )}
+                            {jobDetails.careerLevel && (
+                              <li className="flex items-center gap-2">
+                                <span className="font-medium text-foreground">Career Level:</span> {jobDetails.careerLevel}
+                              </li>
+                            )}
+                            {jobDetails.qualification && jobDetails.qualification.length > 0 && (
+                              <li className="flex items-center gap-2">
+                                <span className="font-medium text-foreground">Minimum Qualification:</span> {jobDetails.qualification.filter(Boolean).join(", ")}
+                              </li>
+                            )}
+                          </ul>
+                        </div>
+                      </>
+                    )}
+
+                    {jobDetails?.benefits && jobDetails.benefits.length > 0 && (
+                      <>
+                        <Separator />
+                        <div>
+                          <p className="font-medium text-foreground mb-2">Benefits</p>
+                          <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            {jobDetails.benefits.map((benefit: string, index: number) => (
+                              <li key={index} className="flex gap-2 text-sm text-muted-foreground">
+                                <CheckCircle2 className="h-4 w-4 text-emerald-600 mt-0.5 shrink-0" /> {benefit}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </>
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -412,8 +517,8 @@ export default function CandidateApplicationDetail() {
                               iv.status === "Completed"
                                 ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
                                 : iv.status === "Upcoming"
-                                ? "bg-primary/10 text-primary border-primary/20"
-                                : "bg-muted text-muted-foreground"
+                                  ? "bg-primary/10 text-primary border-primary/20"
+                                  : "bg-muted text-muted-foreground"
                             }
                           >
                             {iv.status}
@@ -488,11 +593,10 @@ export default function CandidateApplicationDetail() {
                                 <span>· {m.time}</span>
                               </div>
                               <div
-                                className={`inline-block text-sm rounded-2xl px-3.5 py-2 ${
-                                  isMe
-                                    ? "bg-primary text-primary-foreground rounded-tr-sm"
-                                    : "bg-muted text-foreground rounded-tl-sm"
-                                }`}
+                                className={`inline-block text-sm rounded-2xl px-3.5 py-2 ${isMe
+                                  ? "bg-primary text-primary-foreground rounded-tr-sm"
+                                  : "bg-muted text-foreground rounded-tl-sm"
+                                  }`}
                               >
                                 {m.text}
                               </div>
@@ -616,47 +720,59 @@ export default function CandidateApplicationDetail() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Match insight</CardTitle>
-                <CardDescription>How well your profile fits this role.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Overall match</span>
-                  <span className="text-sm font-semibold text-foreground">{application.match}%</span>
-                </div>
-                <Progress value={application.match} className="h-2" />
-                {[
-                  { label: "Skills", value: 95 },
-                  { label: "Experience", value: 88 },
-                  { label: "Location", value: 100 },
-                  { label: "Salary fit", value: 82 },
-                ].map((s) => (
-                  <div key={s.label}>
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground">{s.label}</span>
-                      <span className="font-medium text-foreground">{s.value}%</span>
-                    </div>
-                    <Progress value={s.value} className="h-1.5 mt-1" />
+            {jobDetails?.match !== undefined && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Match insight</CardTitle>
+                  <CardDescription>How well your profile fits this role.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Overall match</span>
+                    <span className="text-sm font-semibold text-foreground">{jobDetails.match}%</span>
                   </div>
-                ))}
-              </CardContent>
-            </Card>
+                  <Progress value={jobDetails.match} className="h-2" />
+                  {[
+                    { label: "Skills", value: 95 },
+                    { label: "Experience", value: 88 },
+                    { label: "Location", value: 100 },
+                    { label: "Salary fit", value: 82 },
+                  ].map((s) => (
+                    <div key={s.label}>
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">{s.label}</span>
+                        <span className="font-medium text-foreground">{s.value}%</span>
+                      </div>
+                      <Progress value={s.value} className="h-1.5 mt-1" />
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">About {application.company}</CardTitle>
+                <CardTitle className="text-base">About {companyName}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-sm text-muted-foreground">
+                {jobDetails?.companyWebsite && (
+                  <div className="flex items-center gap-2">
+                    <Globe className="h-4 w-4" />
+                    <a
+                      href={jobDetails.companyWebsite}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:underline flex items-center gap-1"
+                    >
+                      {jobDetails.companyWebsite.replace(/(^\w+:|^)\/\//, "")} <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </div>
+                )}
                 <div className="flex items-center gap-2">
-                  <Globe className="h-4 w-4" /> razorpay.com
+                  <Briefcase className="h-4 w-4" /> {jobDetails?.industry || "Fintech · Payments"}
                 </div>
                 <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4" /> 3,000+ employees
-                </div>
-                <div className="flex items-center gap-2">
-                  <Briefcase className="h-4 w-4" /> Fintech · Payments
+                  <Users className="h-4 w-4" /> {jobDetails?.totalApplicants !== undefined ? `${jobDetails.totalApplicants} Applicants` : "3,000+ employees"}
                 </div>
               </CardContent>
             </Card>
@@ -694,7 +810,7 @@ export default function CandidateApplicationDetail() {
                           setWithdrawOpen(false);
                           toast({
                             title: "Application withdrawn",
-                            description: `${application.title} at ${application.company} has been withdrawn.`,
+                            description: `${jobTitle} at ${companyName} has been withdrawn.`,
                           });
                         }}
                       >

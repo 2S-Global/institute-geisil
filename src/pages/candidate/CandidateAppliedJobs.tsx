@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { CandidateLayout } from "@/components/CandidateLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -18,7 +18,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -33,13 +32,8 @@ import {
   Eye,
   CalendarCheck,
   MoreVertical,
-  FileText,
   ExternalLink,
-  Trash2,
-  Send,
   Hourglass,
-  IndianRupee,
-  Bookmark,
   CalendarSync,
   CalendarX2,
   Loader2,
@@ -51,18 +45,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   useAcceptInterviewInvitation,
   useAcceptRejectOfferLetter,
-  useRequestReschedule,
 } from "./hooks/useCandidateOptions";
-import { useNavigate } from "react-router-dom";
-import { useBookmarkJob } from "./hooks/useBookmarkJob";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import type { Status } from "./helpers/statusMeta";
 import { statusMeta } from "./helpers/statusMeta";
 import CandidateRescheduleModal from "@/components/candidate/CandidateRescheduleModal";
@@ -93,17 +76,13 @@ export default function CandidateAppliedJobs() {
     companyName: "",
   });
 
-  const navigate = useNavigate()
-
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { acceptRejectOffer } = useAcceptRejectOfferLetter();
   const { acceptInterview } = useAcceptInterviewInvitation();
-  const { handleBookmark, bookmarkLoading } = useBookmarkJob();
 
   // Custom hook to get all applied jobs
   const { loading, error, data, refetch } = useGetAppliedJobs();
-  console.log("working", data?.[0]?.interviewDate);
-  console.log("working", data?.[0]?.interviewTime);
 
   // Offer accept / reject Function
   const handleAcceptRejectOffer = async (applicationId: string, accept: boolean) => {
@@ -180,17 +159,7 @@ export default function CandidateAppliedJobs() {
               break;
 
             case "starting amount":
-              if (sal.amount != null) {
-                salaryStr = `${sal.currency || ""}${sal.amount.toLocaleString()} ${sal.rate || ""}`;
-              }
-              break;
-
             case "maximum amount":
-              if (sal.amount != null) {
-                salaryStr = `${sal.currency || ""}${sal.amount.toLocaleString()} ${sal.rate || ""}`;
-              }
-              break;
-
             case "exact amount":
               if (sal.amount != null) {
                 salaryStr = `${sal.currency || ""}${sal.amount.toLocaleString()} ${sal.rate || ""}`;
@@ -209,15 +178,22 @@ export default function CandidateAppliedJobs() {
         }
       }
 
+      // Safe location parsing
+      const rawLocation = app.jobId?.jobLocationType;
+      let locationStr = "-";
+      if (Array.isArray(rawLocation) && rawLocation.length > 0) {
+        locationStr = rawLocation.map((loc: string) => loc.charAt(0).toUpperCase() + loc.slice(1)).join(", ");
+      } else if (typeof rawLocation === "string" && rawLocation.length > 0) {
+        locationStr = rawLocation.charAt(0).toUpperCase() + rawLocation.slice(1);
+      }
+
       return {
         id: app._id,
         jobId: app.jobId?._id || "",
         title: app.jobId?.jobTitle || "-",
         company: company,
-        logo: company.substring(0, 2).toUpperCase(),
-        location: app.jobId?.jobLocationType
-          ? app.jobId.jobLocationType[0].toUpperCase() + app.jobId.jobLocationType.slice(1)
-          : "-",
+        logo: app.jobId?.userId?.companyLogo || company.substring(0, 2).toUpperCase(),
+        location: locationStr,
         type: app.jobId?.jobExperienceLevel || "Full-time",
         salary: salaryStr,
         appliedOn: app.appliedAt ? getTimeAgo(app.appliedAt) : "N/A",
@@ -252,10 +228,10 @@ export default function CandidateAppliedJobs() {
         (j) =>
           j.title.toLowerCase().includes(q) ||
           j.company.toLowerCase().includes(q) ||
-          j.location.toLowerCase().includes(q),
+          j.location.toLowerCase().includes(q)
       );
     }
-    if (sort === "match") list = [...list].sort((a, b) => b.match - a.match);
+    if (sort === "match") list = [...list].sort((a, b) => (b.match || 0) - (a.match || 0));
     return list;
   }, [tab, query, sort, jobs]);
 
@@ -263,8 +239,7 @@ export default function CandidateAppliedJobs() {
     { label: "Total Applied", value: jobs.length, icon: Briefcase, tint: "text-primary bg-primary/10" },
     {
       label: "In Process",
-      value:
-        (counts["Shortlisted"] || 0) + (counts["Interview"] || 0), //shortlist and interview candidate IN PROGRESS
+      value: (counts["Shortlisted"] || 0) + (counts["Interview"] || 0),
       icon: Hourglass,
       tint: "text-amber-600 bg-amber-500/10",
     },
@@ -282,12 +257,9 @@ export default function CandidateAppliedJobs() {
     },
   ];
 
-
   const handleNavigate = () => {
-
-    navigate("/candidate/jobs")
-
-  }
+    navigate("/candidate/jobs");
+  };
 
   if (loading) {
     return (
@@ -325,10 +297,7 @@ export default function CandidateAppliedJobs() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            {/* <Button variant="outline" className="gap-2">
-              <FileText className="h-4 w-4" /> Export
-            </Button> */}
-            <Button onClick={() => handleNavigate()} className="gap-2">
+            <Button onClick={handleNavigate} className="gap-2">
               <Briefcase className="h-4 w-4" /> Browse Jobs
             </Button>
           </div>
@@ -414,8 +383,7 @@ export default function CandidateAppliedJobs() {
             </Card>
           ) : (
             filtered.map((j) => {
-              const meta = statusMeta[j.status] || { icon: Briefcase, color: "bg-gray-100 text-gray-800" };
-              console.log("status for everyone ===> ", j.status);
+              const meta = statusMeta[j.status as Status] || { icon: Briefcase, color: "bg-gray-100 text-gray-800" };
               const StatusIcon = meta.icon;
 
               const showInterviewActions = j.status === "Interview" && j.interviewInvitationStatus === "pending";
@@ -425,8 +393,16 @@ export default function CandidateAppliedJobs() {
                 <Card key={j.id} className="hover:shadow-md transition-shadow">
                   <CardContent className="p-4 md:p-5">
                     <div className="flex flex-col md:flex-row md:items-center gap-4">
-                      <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 text-primary flex items-center justify-center font-display font-bold shrink-0">
-                        {j.logo}
+                      <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 text-primary flex items-center justify-center font-display font-bold shrink-0 overflow-hidden">
+                        {j.logo && j.logo.length > 2 ? (
+                          <img
+                            src={j.logo}
+                            alt={j.company}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          j.company.substring(0, 2).toUpperCase()
+                        )}
                       </div>
 
                       <div className="flex-1 min-w-0">
@@ -476,7 +452,7 @@ export default function CandidateAppliedJobs() {
 
                       <div className="flex items-center gap-2 md:flex-col md:items-end">
                         <Button size="sm" variant="outline" className="gap-2" asChild>
-                          <Link to={`/candidate/applied-jobs/${j.id}`}>
+                          <Link to={`/candidate/applied-jobs/${j.jobId}`}>
                             <Eye className="h-4 w-4" /> View
                           </Link>
                         </Button>
@@ -490,7 +466,7 @@ export default function CandidateAppliedJobs() {
                             <DropdownMenuContent align="end" className="w-48">
                               <DropdownMenuItem className="cursor-pointer" asChild>
                                 <Link to={`/candidate/jobs/${j.jobId}`}>
-                                  <ExternalLink className="h-4 text-black w-4 mr-2" />
+                                  <ExternalLink className="h-4 w-4 mr-2" />
                                   Open Job
                                 </Link>
                               </DropdownMenuItem>
@@ -539,21 +515,6 @@ export default function CandidateAppliedJobs() {
                                   </DropdownMenuItem>
                                 </>
                               )}
-                              {/* 
-                              <DropdownMenuItem
-                                className="cursor-pointer"
-                                onClick={() => handleBookmark(j.jobId, false)}
-                                disabled={bookmarkLoading[j.jobId]}
-                              >
-                                <Bookmark className="h-4 w-4 mr-2" /> {bookmarkLoading[j.jobId] ? "Saving..." : "Save for later"}
-                              </DropdownMenuItem> */}
-                              {/* <DropdownMenuItem className="cursor-pointer">
-                                <FileText className="h-4 w-4 mr-2" /> View resume sent
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem className="text-destructive focus:text-destructive cursor-pointer">
-                                <Trash2 className="h-4 w-4 mr-2" /> Withdraw
-                              </DropdownMenuItem> */}
                             </DropdownMenuContent>
                           </DropdownMenu>
                           {actionLoadingId === j.id && (
