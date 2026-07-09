@@ -19,6 +19,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
+import NoData from "@/components/common/NoData";
 
 type NotificationType = "job" | "interview" | "assessment" | "message" | "system";
 
@@ -228,15 +229,11 @@ function NotificationsList({
 }) {
   if (items.length === 0) {
     return (
-      <Card className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="h-14 w-14 rounded-full bg-muted flex items-center justify-center mb-4">
-          <Bell className="h-7 w-7 text-muted-foreground" />
-        </div>
-        <h3 className="text-lg font-semibold text-foreground">No notifications</h3>
-        <p className="text-sm text-muted-foreground max-w-sm mt-1">
-          You're all caught up! We'll notify you when something important happens.
-        </p>
-      </Card>
+      <NoData
+        title="No notifications"
+        description="You're all caught up! We'll notify you when something important happens."
+        className="border border-border bg-card rounded-xl py-12"
+      />
     );
   }
 

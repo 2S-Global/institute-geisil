@@ -127,9 +127,15 @@ const CandidateDashboard = () => {
     completed: "bg-indigo-500/10 text-indigo-600 border-indigo-500/20",
   };
 
+const [userName, setUserName] = useState("");
 
   const completion = progress;
   useEffect(() => {
+
+      const name = localStorage.getItem("user_name");
+      if (name) {
+        setUserName(name);
+      }
     fetchDashboardData();
     fetchUserData();
     fetchAppliedJobs();
@@ -155,7 +161,7 @@ const CandidateDashboard = () => {
       const res = await API.get("/api/userdata/userdata");
 
       if (res.data?.progress !== undefined) {
-        setProgress(res.data.progress);
+        setProgress(res.data.progress || 0);
       }
     } catch (error) {
       console.error("User Data API Error:", error);
@@ -193,7 +199,10 @@ const CandidateDashboard = () => {
     <CandidateLayout>
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
         <div>
-          <p className="text-sm text-muted-foreground">Welcome back, Riya 👋</p>
+          <p className="text-sm text-muted-foreground">
+            {" "}
+            Welcome back, {userName || "Candidate"} 👋
+          </p>
           <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight text-foreground mt-1">
             Candidate Dashboard
           </h1>
@@ -399,7 +408,7 @@ const CandidateDashboard = () => {
                 Recommended for You
               </CardTitle>
               <CardDescription>
-                Roles matched to your Industry Type 
+                Roles matched to your Industry Type
               </CardDescription>
             </div>
             <Button
@@ -609,7 +618,9 @@ const CandidateDashboard = () => {
                       <td className="py-3">
                         <Badge
                           variant="outline"
-                          className={statusStyles[app.status?.toLowerCase()] || ""}
+                          className={
+                            statusStyles[app.status?.toLowerCase()] || ""
+                          }
                         >
                           {formatStatus(app.status)}
                         </Badge>
@@ -631,8 +642,6 @@ const CandidateDashboard = () => {
           </div>
         </CardContent>
       </Card>
-
-
     </CandidateLayout>
   );
 };
