@@ -1,14 +1,9 @@
 // import React, { useEffect, useState } from "react";
-// import { Pencil } from "lucide-react";
+// import { Pencil, Plus } from "lucide-react";
 // import API from "../../../lib/axios";
 // import EmploymentModal from "./EmploymentModal";
 // import { Button } from "@/components/ui/button";
-// import {
-//   Card,
-//   CardContent,
-//   CardHeader,
-//   CardTitle,
-// } from "@/components/ui/card";
+// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 // // Check icon
 // const CheckIcon = ({ className = "w-4 h-4" }) => (
@@ -29,6 +24,16 @@
 //   </div>
 // );
 
+// // Convert COMPANY NAME to Camel Case
+// const toCamelCase = (text = "") => {
+//   return text
+//     .toLowerCase()
+//     .split(" ")
+//     .filter(Boolean)
+//     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+//     .join(" ");
+// };
+
 // export const EmploymentCard = () => {
 //   const [employments, setEmployments] = useState([]);
 //   const [loading, setLoading] = useState(true);
@@ -39,14 +44,18 @@
 
 //   const fetchEmployments = () => {
 //     setLoading(true);
+
 //     API.get("api/candidate/employment/get_employment")
 //       .then((response) => {
 //         const resData = response.data;
+
 //         if (resData.success && resData.data) {
 //           setEmployments(resData.data);
+//           setError(null);
 //         } else {
 //           setError(resData.message || "Failed to fetch data");
 //         }
+
 //         setLoading(false);
 //       })
 //       .catch((err) => {
@@ -55,7 +64,6 @@
 //       });
 //   };
 
-//   // FETCH DATA
 //   useEffect(() => {
 //     fetchEmployments();
 //   }, []);
@@ -78,13 +86,9 @@
 //     );
 //   }
 
-//   if (error) {
-//     return (
-//       <div className="text-center p-8 text-red-500">
-//         Error: {error}
-//       </div>
-//     );
-//   }
+//   // if (error) {
+//   //   return <div className="text-center p-8 text-red-500"></div>;
+//   // }
 
 //   return (
 //     <>
@@ -92,8 +96,10 @@
 //         <CardHeader className="flex flex-row justify-between items-center">
 //           <CardTitle>Employment</CardTitle>
 
-//           {/* ADD BUTTON */}
-//           <Button onClick={handleAdd}>Add</Button>
+//           <Button onClick={handleAdd}>
+//             <Plus className="h-4 w-4" />
+//             Add Employment
+//           </Button>
 //         </CardHeader>
 
 //         <CardContent className="space-y-6">
@@ -103,38 +109,42 @@
 //               : `${job.joining_month_name} ${job.joining_year} to ${job.leaving_month_name} ${job.leaving_year}`;
 
 //             return (
-//               <div key={job._id} className="border-b pb-4">
-//                 {/* HEADER ROW */}
+//               <div key={job._id} className="border-b pb-4 last:border-b-0">
 //                 <div className="flex justify-between items-start">
-
 //                   <div className="space-y-1">
+//                     {/* Job Title */}
 //                     <div className="flex items-center">
-//                       <span className="font-bold uppercase">
-//                         {job.job_title}
+//                       <span className="font-bold">
+//                         {toCamelCase(job.job_title)}
 //                       </span>
+
 //                       {job.designationVerified && <GreenCircleCheck />}
 //                     </div>
 
-//                     <div className="flex items-center gap-2">
+//                     {/* Company Name + Status */}
+//                     <div className="flex items-center gap-2 flex-wrap">
 //                       <span className="font-bold">
-//                         {job.company_name}
+//                         {toCamelCase(job.company_name)}
 //                       </span>
 
-//                       {job.isVerified && (
-//                         <span className="bg-green-500 text-white text-xs px-2 py-0.5 rounded">
-//                           Verified
-//                         </span>
-//                       )}
+//                       <span
+//                         className={`text-xs px-2 py-0.5 rounded text-white ${
+//                           job.isVerified ? "bg-green-500" : "bg-yellow-500"
+//                         }`}
+//                       >
+//                         {job.isVerified ? "Verified" : "Pending Verification"}
+//                       </span>
 //                     </div>
 
-//                     <div className="text-sm text-gray-600">
+//                     {/* Employment Type */}
+//                     <div className="text-sm text-gray-600 capitalize">
 //                       {job.employmenttype}
 //                     </div>
 
-//                     <div className="text-sm text-gray-600">
-//                       {durationStr}
-//                     </div>
+//                     {/* Duration */}
+//                     <div className="text-sm text-gray-600">{durationStr}</div>
 
+//                     {/* Notice Period */}
 //                     {job.notice_period_name && (
 //                       <div className="text-sm text-gray-600">
 //                         Notice Period: {job.notice_period_name}
@@ -142,7 +152,7 @@
 //                     )}
 //                   </div>
 
-//                   {/* EDIT BUTTON */}
+//                   {/* Edit Button */}
 //                   <Button
 //                     variant="ghost"
 //                     size="icon"
@@ -157,7 +167,6 @@
 //         </CardContent>
 //       </Card>
 
-//       {/* MODAL */}
 //       <EmploymentModal
 //         isOpen={isModalOpen}
 //         onClose={() => {
@@ -220,6 +229,7 @@ export const EmploymentCard = () => {
 
   const fetchEmployments = () => {
     setLoading(true);
+    setError(null);
 
     API.get("api/candidate/employment/get_employment")
       .then((response) => {
@@ -227,15 +237,20 @@ export const EmploymentCard = () => {
 
         if (resData.success && resData.data) {
           setEmployments(resData.data);
-          setError(null);
         } else {
           setError(resData.message || "Failed to fetch data");
         }
-
         setLoading(false);
       })
       .catch((err) => {
-        setError(err.message || "Something went wrong");
+        // If the backend throws a 404 because no data exists,
+        // treat it as an empty state instead of a breaking system error.
+        if (err.response && err.response.status === 404) {
+          setEmployments([]);
+          setError(null);
+        } else {
+          setError(err.message || "Something went wrong");
+        }
         setLoading(false);
       });
   };
@@ -262,84 +277,98 @@ export const EmploymentCard = () => {
     );
   }
 
-  if (error) {
-    return <div className="text-center p-8 text-red-500">Error: {error}</div>;
-  }
-
   return (
     <>
       <Card className="max-w-4xl mx-auto my-8 shadow-sm">
-        <CardHeader className="flex flex-row justify-between items-center">
-          <CardTitle>Employment</CardTitle>
+        <CardHeader className="flex flex-row justify-between items-center space-y-0 pb-4">
+          {/* Modified CardTitle to make the headline smaller and more elegant */}
+          <CardTitle className="text-lg font-semibold tracking-tight">
+            Employment
+          </CardTitle>
 
           <Button onClick={handleAdd}>
-            <Plus className="h-4 w-4" />
+            <Plus className="h-4 w-4 mr-2" />
             Add Employment
           </Button>
         </CardHeader>
 
         <CardContent className="space-y-6">
-          {employments.map((job) => {
-            const durationStr = job.currentlyWorking
-              ? `${job.joining_month_name} ${job.joining_year} to Present`
-              : `${job.joining_month_name} ${job.joining_year} to ${job.leaving_month_name} ${job.leaving_year}`;
-
-            return (
-              <div key={job._id} className="border-b pb-4 last:border-b-0">
-                <div className="flex justify-between items-start">
-                  <div className="space-y-1">
-                    {/* Job Title */}
-                    <div className="flex items-center">
-                      <span className="font-bold">
-                        {toCamelCase(job.job_title)}
-                      </span>
-
-                      {job.designationVerified && <GreenCircleCheck />}
-                    </div>
-
-                    {/* Company Name + Status */}
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-bold">
-                        {toCamelCase(job.company_name)}
-                      </span>
-
-                      <span
-                        className={`text-xs px-2 py-0.5 rounded text-white ${
-                          job.isVerified ? "bg-green-500" : "bg-yellow-500"
-                        }`}
-                      >
-                        {job.isVerified ? "Verified" : "Pending Verification"}
-                      </span>
-                    </div>
-
-                    {/* Employment Type */}
-                    <div className="text-sm text-gray-600 capitalize">
-                      {job.employmenttype}
-                    </div>
-
-                    {/* Duration */}
-                    <div className="text-sm text-gray-600">{durationStr}</div>
-
-                    {/* Notice Period */}
-                    {job.notice_period_name && (
-                      <div className="text-sm text-gray-600">
-                        Notice Period: {job.notice_period_name}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Edit Button */}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleEdit(job)}
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </Button>
-                </div>
+          {/* Priority 1: True Critical Errors (500, Network drops, etc.) */}
+          {error ? (
+            <div className="text-center p-8 text-red-500 bg-red-50 rounded-xl border border-red-100">
+              {error}
+            </div>
+          ) : /* Priority 2: Empty state (Either via 404 handler or empty array) */
+          employments.length === 0 ? (
+            <div className="flex flex-1 items-center justify-center w-full shadow-sm">
+              <div className="w-full border-dashed border border-gray-200 rounded-xl p-8 text-center text-muted-foreground flex flex-col items-center justify-center">
+                <p className="text-sm">No work experiences added yet.</p>
               </div>
-            );
-          })}
+            </div>
+          ) : (
+            /* Priority 3: Render list if data exists */
+            employments.map((job) => {
+              const durationStr = job.currentlyWorking
+                ? `${job.joining_month_name} ${job.joining_year} to Present`
+                : `${job.joining_month_name} ${job.joining_year} to ${job.leaving_month_name} ${job.leaving_year}`;
+
+              return (
+                <div key={job._id} className="border-b pb-4 last:border-b-0">
+                  <div className="flex justify-between items-start">
+                    <div className="space-y-1">
+                      {/* Job Title */}
+                      <div className="flex items-center">
+                        <span className="font-bold">
+                          {toCamelCase(job.job_title)}
+                        </span>
+
+                        {job.designationVerified && <GreenCircleCheck />}
+                      </div>
+
+                      {/* Company Name + Status */}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-bold">
+                          {toCamelCase(job.company_name)}
+                        </span>
+
+                        <span
+                          className={`text-xs px-2 py-0.5 rounded text-white ${
+                            job.isVerified ? "bg-green-500" : "bg-yellow-500"
+                          }`}
+                        >
+                          {job.isVerified ? "Verified" : "Pending Verification"}
+                        </span>
+                      </div>
+
+                      {/* Employment Type */}
+                      <div className="text-sm text-gray-600 capitalize">
+                        {job.employmenttype}
+                      </div>
+
+                      {/* Duration */}
+                      <div className="text-sm text-gray-600">{durationStr}</div>
+
+                      {/* Notice Period */}
+                      {job.notice_period_name && (
+                        <div className="text-sm text-gray-600">
+                          Notice Period: {job.notice_period_name}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Edit Button */}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleEdit(job)}
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </CardContent>
       </Card>
 

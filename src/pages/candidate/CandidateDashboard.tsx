@@ -41,6 +41,7 @@ import { Progress } from "@/components/ui/progress";
 import { useEffect, useState } from "react";
 import API from "@/lib/axios";
 import { formatStatus } from "./helpers/formatStatus";
+import ProfileStrength from "./components/ProfileStrength";
 
 const activity = [
   { d: "Mon", views: 4, apps: 1 },
@@ -51,10 +52,6 @@ const activity = [
   { d: "Sat", views: 18, apps: 2 },
   { d: "Sun", views: 22, apps: 4 },
 ];
-
-
-
-
 
 const interviews = [
   {
@@ -120,13 +117,14 @@ const CandidateDashboard = () => {
     offered: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
     offer: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
     offer_sent: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
-    offer_letter_sent: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+    offer_letter_sent:
+      "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
     rejected: "bg-rose-500/10 text-rose-600 border-rose-500/20",
-    offer_letter_accepted: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+    offer_letter_accepted:
+      "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
     offer_letter_rejected: "bg-rose-500/10 text-rose-600 border-rose-500/20",
     completed: "bg-indigo-500/10 text-indigo-600 border-indigo-500/20",
   };
-
 
   const completion = progress;
   useEffect(() => {
@@ -187,7 +185,6 @@ const CandidateDashboard = () => {
       console.error("Recommended Jobs API Error:", error);
     }
   };
-
 
   return (
     <CandidateLayout>
@@ -347,7 +344,7 @@ const CandidateDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm border-border/60">
+        {/* <Card className="shadow-sm border-border/60">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg font-display">
               Profile Completion
@@ -387,9 +384,12 @@ const CandidateDashboard = () => {
               <Link to="/candidate/profile">Complete profile</Link>
             </Button>
           </CardContent>
-        </Card>
+        </Card> */}
+        
+          <ProfileStrength />
+        
       </div>
-
+          
       <div className="grid gap-4 lg:grid-cols-3 mt-6">
         <Card className="lg:col-span-2 shadow-sm border-border/60">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -399,7 +399,7 @@ const CandidateDashboard = () => {
                 Recommended for You
               </CardTitle>
               <CardDescription>
-                Roles matched to your Industry Type 
+                Roles matched to your Industry Type
               </CardDescription>
             </div>
             <Button
@@ -609,7 +609,9 @@ const CandidateDashboard = () => {
                       <td className="py-3">
                         <Badge
                           variant="outline"
-                          className={statusStyles[app.status?.toLowerCase()] || ""}
+                          className={
+                            statusStyles[app.status?.toLowerCase()] || ""
+                          }
                         >
                           {formatStatus(app.status)}
                         </Badge>
@@ -631,8 +633,6 @@ const CandidateDashboard = () => {
           </div>
         </CardContent>
       </Card>
-
-
     </CandidateLayout>
   );
 };

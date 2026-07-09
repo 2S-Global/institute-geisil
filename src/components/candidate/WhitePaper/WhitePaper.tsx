@@ -1,4 +1,5 @@
 
+
 import React, { useEffect, useState } from "react";
 import {
   Card,
@@ -33,7 +34,7 @@ const formatPublishedDate = (item: any) => {
   if (!month && !year) return "Not Specified";
 
   const monthName =
-    typeof month === "string"
+    typeof month === "string" && isNaN(Number(month))
       ? month
       : monthNames?.[Number(month) - 1] || "";
 
@@ -147,9 +148,13 @@ const WhitePaper = () => {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-gray-500">
-              No White Paper / Research Publication found.
-            </p>
+           
+
+            <div className="flex flex-1 items-center justify-center w-full shadow-sm">
+              <div className="w-full border-dashed border border-gray-200 rounded-xl p-8 text-center text-muted-foreground flex flex-col items-center justify-center">
+                <p className="text-sm"> No White Paper / Research Publication  added yet.</p>
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>
@@ -163,7 +168,7 @@ const WhitePaper = () => {
             if (!isOpen) setSelectedItem(null);
           }}
           item={selectedItem}
-          fetchWhitePaperData={selectedItem}
+          fetchWhitePaperData={fetchWhitePaperData}
         />
       )}
     </>

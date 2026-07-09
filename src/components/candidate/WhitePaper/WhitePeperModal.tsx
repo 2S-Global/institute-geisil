@@ -15,9 +15,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Sparkles, Trash2 } from "lucide-react";
 
-// Explicit months mapping
 const monthList = [
   { value: "1", name: "January" },
   { value: "2", name: "February" },
@@ -45,46 +44,64 @@ const WhitePaperModal = ({ open, onOpenChange, item, fetchWhitePaperData }) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
-console.log("vhgvghjbhkhj",fetchWhitePaperData)
-  const formatInitialValue = (val) => {
-    if (val === undefined || val === null || val === "") return "";
-    return String(val); // Safely forces 8 -> "8" to map to select options
-  };
 
-  // Helper to extract nested or flat date objects safely
-  const getInitialDates = (targetItem) => {
-    const y = targetItem?.publishYear || targetItem?.publishedOn?.year;
-    const m = targetItem?.publishMonth || targetItem?.publishedOn?.month;
+ 
+  const getInitialFormState = (targetItem) => {
+    if (!targetItem) {
+      return {
+        _id: "",
+        title: "",
+        url: "",
+        publishYear: "",
+        publishMonth: "",
+        description: "",
+      };
+    }
+
+
+    const rawYear = targetItem.publishYear || targetItem.publishedOn?.year || targetItem.year;
+    const rawMonth = targetItem.publishMonth || targetItem.publishedOn?.month || targetItem.month_id || targetItem.month;
+
+    let parsedMonthValue = "";
+    if (rawMonth !== undefined && rawMonth !== null && rawMonth !== "") {
+      const monthStr = String(rawMonth).trim();
+    
+      const monthMatch = monthList.find(m => m.value === monthStr);
+      
+      if (monthMatch) {
+        parsedMonthValue = monthMatch.value;
+      } else {
+        
+        const nameMatch = monthList.find(m => m.name.toLowerCase() === monthStr.toLowerCase());
+        if (nameMatch) {
+          parsedMonthValue = nameMatch.value;
+        } else {
+         
+          const numberIndex = Number(rawMonth);
+          if (!isNaN(numberIndex) && numberIndex >= 1 && numberIndex <= 12) {
+            parsedMonthValue = String(numberIndex);
+          }
+        }
+      }
+    }
+
     return {
-      year: formatInitialValue(y),
-      month: formatInitialValue(m),
+      _id: targetItem._id || "",
+      title: targetItem.workTitle || targetItem.title || "",
+      url: targetItem.url || "",
+      publishYear: rawYear !== undefined && rawYear !== null ? String(rawYear) : "",
+      publishMonth: parsedMonthValue, 
+      description: targetItem.description || "",
     };
   };
 
-  const initialDates = getInitialDates(item);
+  
+  const [formData, setFormData] = useState(() => getInitialFormState(item));
 
-  const [formData, setFormData] = useState({
-    _id: item?._id || "",
-    title: item?.title || "",
-    url: item?.url || "",
-    publishYear: initialDates.year,
-    publishMonth: fetchWhitePaperData?.publishedOn?.month_id,
-    description: item?.description || "",
-  });
-
-  console.log("formData value:",formData)
-
+  
   useEffect(() => {
     if (item) {
-      const dates = getInitialDates(item);
-      setFormData({
-        _id: item._id || "",
-        title: item.title || "",
-        url: item.url || "",
-        publishYear: dates.year,
-        publishMonth: dates.month,
-        description: item.description || "",
-      });
+      setFormData(getInitialFormState(item));
     }
   }, [item]);
 
@@ -142,7 +159,11 @@ console.log("vhgvghjbhkhj",fetchWhitePaperData)
         await API.post("/api/candidate/accomplishments/add_research_publication", payload);
         toast({ title: "Saved", description: "Publication added successfully." });
       }
-      fetchWhitePaperData();
+      
+      if (typeof fetchWhitePaperData === "function") {
+        await fetchWhitePaperData();
+      }
+      
       onOpenChange(false);
     } catch (err) {
       console.error(err);
@@ -156,13 +177,17 @@ console.log("vhgvghjbhkhj",fetchWhitePaperData)
     try {
       await API.delete("/api/candidate/accomplishments/delete_research_publication", { data: { _id: formData._id } });
       toast({ title: "Deleted", description: "Publication removed successfully." });
-      fetchWhitePaperData();
+      
+      if (typeof fetchWhitePaperData === "function") {
+        await fetchWhitePaperData();
+      }
+      
       onOpenChange(false);
     } catch (err) {
       console.error(err);
     }
   };
- {console.log("formData.publishMonth",fetchWhitePaperData?.publishedOn?.month_id)}
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
@@ -194,14 +219,13 @@ console.log("vhgvghjbhkhj",fetchWhitePaperData)
             <Label>Published on</Label>
             <div className="grid grid-cols-2 gap-3">
               
-              {/* YEAR SELECT INCLUDING FUTURE ENTRIES */}
+              {/* YEAR SELECT */}
               <select
                 value={formData.publishYear}
                 onChange={(e) => setFormData({ ...formData, publishYear: e.target.value })}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-black"
               >
                 <option value="">Year</option>
-                {/* Changed index offset logic to allow years up to 5 years into the future */}
                 {Array.from({ length: 35 }, (_, i) => {
                   const year = (currentYear + 5) - i;
                   return <option key={year} value={String(year)}>{year}</option>;
@@ -210,13 +234,13 @@ console.log("vhgvghjbhkhj",fetchWhitePaperData)
                  
               {/* MONTH SELECT */}
               <select
-                
+                value={formData.publishMonth}
                 onChange={(e) => setFormData({ ...formData, publishMonth: e.target.value })}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-black"
               >
                 <option value="">Month</option>
                 {monthList.map((m) => (
-                  <option key={m.value} value={m.value} selected={fetchWhitePaperData?.publishedOn?.month_id==m.value}>{m.name}</option>
+                  <option key={m.value} value={m.value}>{m.name}</option>
                 ))}
               </select>
 
@@ -237,8 +261,15 @@ console.log("vhgvghjbhkhj",fetchWhitePaperData)
             </div>
           </div>
 
-          <Button type="button" onClick={handleHelpMeWrite} disabled={aiLoading}>
-            {aiLoading ? "Writing..." : "Help me write"}
+         
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleHelpMeWrite}
+            className="rounded-full bg-[#EBF3FF] hover:bg-[#DCE9FF] border-none text-[#2563EB] text-xs h-8 px-4 gap-1.5 font-medium shadow-none"
+          >
+            <Sparkles className="h-3.5 w-3.5 fill-[#2563EB]" />
+            Help me write
           </Button>
         </div>
 
@@ -254,4 +285,3 @@ console.log("vhgvghjbhkhj",fetchWhitePaperData)
 };
 
 export default WhitePaperModal;
-

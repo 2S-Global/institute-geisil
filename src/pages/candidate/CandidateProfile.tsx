@@ -68,6 +68,8 @@ import Employment from "../../components/candidate/Employment/Employment";
 import CareerProfile from "@/components/candidate/Career Profile/CareerProfile";
 import ITSkills from "@/components/candidate/ITSkills/ITSkills";
 import OtherSkills from "@/components/candidate/Other Skills/OtherSkills";
+import ProfileStrength from "./components/ProfileStrength";
+// import ProfileStrength from "../candidate/components/pro"
 const experiences = [
   {
     role: "Frontend Engineer",
@@ -396,46 +398,46 @@ export default function CandidateProfile() {
   };
 
   const getProfileStatus = (score) => {
-  if (score >= 90) {
-    return {
-      label: "Excellent",
-      badgeClass: "bg-emerald-100 text-emerald-700",
-      progressClass: "[&>div]:bg-emerald-500",
-    };
-  }
+    if (score >= 90) {
+      return {
+        label: "Excellent",
+        badgeClass: "bg-emerald-100 text-emerald-700",
+        progressClass: "[&>div]:bg-emerald-500",
+      };
+    }
 
-  if (score >= 70) {
-    return {
-      label: "Strong",
-      badgeClass: "bg-green-100 text-green-700",
-      progressClass: "[&>div]:bg-green-500",
-    };
-  }
+    if (score >= 70) {
+      return {
+        label: "Strong",
+        badgeClass: "bg-green-100 text-green-700",
+        progressClass: "[&>div]:bg-green-500",
+      };
+    }
 
-  if (score >= 60) {
-    return {
-      label: "Good",
-      badgeClass: "bg-blue-100 text-blue-700",
-      progressClass: "[&>div]:bg-blue-500",
-    };
-  }
+    if (score >= 60) {
+      return {
+        label: "Good",
+        badgeClass: "bg-blue-100 text-blue-700",
+        progressClass: "[&>div]:bg-blue-500",
+      };
+    }
 
-  if (score >= 40) {
-    return {
-      label: "Average",
-      badgeClass: "bg-yellow-100 text-yellow-700",
-      progressClass: "[&>div]:bg-yellow-500",
-    };
-  }
+    if (score >= 40) {
+      return {
+        label: "Average",
+        badgeClass: "bg-yellow-100 text-yellow-700",
+        progressClass: "[&>div]:bg-yellow-500",
+      };
+    }
 
-  return {
-    label: "Poor",
-    badgeClass: "bg-red-100 text-red-700",
-    progressClass: "[&>div]:bg-red-500",
+    return {
+      label: "Poor",
+      badgeClass: "bg-red-100 text-red-700",
+      progressClass: "[&>div]:bg-red-500",
+    };
   };
-};
 
-const profileStatus = getProfileStatus(geisilScore);
+  const profileStatus = getProfileStatus(geisilScore);
 
   return (
     <CandidateLayout>
@@ -993,63 +995,9 @@ const profileStatus = getProfileStatus(geisilScore);
                   </div>
                   <Progress value={completion} className="h-2" />
                 </div> */}
+
           <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Profile strength</CardTitle>
-                <CardDescription>
-                  Complete your profile to get noticed by recruiters.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold">
-                      {scoreLoading ? "Loading..." : `${geisilScore}% Complete`}
-                    </span>
-
-                    {!scoreLoading && (
-                      <Badge
-                        variant="secondary"
-                        className={`text-xs border-0 ${profileStatus.badgeClass}`}
-                      >
-                        {profileStatus.label}
-                      </Badge>
-                    )}
-                  </div>
-
-                  <Progress
-                    value={geisilScore}
-                    className={`h-2 ${profileStatus.progressClass}`}
-                  />
-                </div>
-                {/*  <ul className="space-y-2">
-                  {checklist.map((c) => (
-                    <li
-                      key={c.label}
-                      className="flex items-center gap-2 text-sm"
-                    >
-                      <CheckCircle2
-                        className={`h-4 w-4 shrink-0 ${
-                          c.done ? "text-green-500" : "text-muted-foreground/40"
-                        }`}
-                      />
-                      
-                      <span
-                        className={
-                          c.done
-                            ? "text-muted-foreground line-through"
-                            : "text-foreground"
-                        }
-                      >
-                        {c.label}
-                      </span>
-                    </li>
-                  ))}
-                </ul> */}
-              </CardContent>
-            </Card>
-
+            <ProfileStrength />
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">Job preferences</CardTitle>

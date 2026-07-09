@@ -108,7 +108,11 @@ const ITSkills = () => {
               </table>
             </div>
           ) : (
-            <p className="text-slate-500 text-sm">No IT skills found.</p>
+           <div className="flex flex-1 items-center justify-center w-full shadow-sm">
+              <div className="w-full border-dashed border border-gray-200 rounded-xl p-8 text-center text-muted-foreground flex flex-col items-center justify-center">
+                <p className="text-sm">No It Skills added yet.</p>
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>
