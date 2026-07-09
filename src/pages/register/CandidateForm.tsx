@@ -167,7 +167,12 @@ export default function CandidateForm({
             type="tel"
             placeholder="Phone"
             className="h-11 rounded-l-none"
-            {...register("phone")}
+            maxLength={10}
+            {...register("phone", {
+              onChange: (e) => {
+                e.target.value = e.target.value.replace(/\D/g, "").slice(0, 10);
+              }
+            })}
           />
         </div>
         {errors.phone && (touchedFields.phone || isSubmitted) && (

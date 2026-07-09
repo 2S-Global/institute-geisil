@@ -1820,7 +1820,7 @@ export default function PostNewJob() {
                               ...formData,
                               salary: {
                                 ...formData.salary,
-                                min: e.target.value,
+                                min: e.target.value.replace(/\D/g, ""),
                               },
                             })
                           }
@@ -1846,7 +1846,7 @@ export default function PostNewJob() {
                             : formData.salary.amount || ""
                         }
                         onChange={(e) => {
-                          const value = e.target.value;
+                          const value = e.target.value.replace(/\D/g, "");
 
                           if (formData.salary.structure === "range") {
                             setFormData({

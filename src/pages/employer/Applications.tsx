@@ -4,6 +4,7 @@ import { EmployerLayout } from "@/components/EmployerLayout";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import NoData from "@/components/common/NoData";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
@@ -148,11 +149,11 @@ function ApplicationTable({
             <tbody className="divide-y divide-border/60">
               {data.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={6}
-                    className="py-10 text-center text-muted-foreground"
-                  >
-                    No records found
+                  <td colSpan={6} className="py-8">
+                    <NoData
+                      title="No applications found"
+                      description="There are currently no candidate applications for this category."
+                    />
                   </td>
                 </tr>
               ) : (
@@ -328,9 +329,11 @@ function ApplicationTable({
 
       <div className="md:hidden space-y-3">
         {data.length === 0 ? (
-          <Card className="p-6 text-center text-muted-foreground">
-            No records found
-          </Card>
+          <NoData
+            title="No applications found"
+            description="There are currently no candidate applications for this category."
+            className="bg-card border border-border/60 rounded-xl"
+          />
         ) : (
           data.map((a) => (
             <Card key={a._id} className="p-4 border-border/60 shadow-sm">

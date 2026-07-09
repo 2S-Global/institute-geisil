@@ -4,6 +4,7 @@ import { Plus, Search, Filter, MapPin, Users, Clock } from "lucide-react";
 import { EmployerLayout } from "@/components/EmployerLayout";
 import { JobCardSkeleton } from "./JobCardSkeleton";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import NoData from "@/components/common/NoData";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -235,6 +236,11 @@ export default function Jobs() {
       </Card>
       {loading ? (
         <JobCardSkeleton />
+      ) : filtered.length === 0 ? (
+        <NoData
+          title="No jobs available"
+          description={search ? "Try adjusting your search terms." : "You haven't posted any jobs yet."}
+        />
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filtered.map((j) => (
