@@ -12,6 +12,8 @@ import {
   SlidersHorizontal,
   X,
   Loader2,
+  List,
+  Grid3x3,
 } from "lucide-react";
 
 
@@ -25,6 +27,7 @@ import { EmployerLayout } from "@/components/EmployerLayout";
 import { useGetAllCandidates } from "./hooks/useGetAllCandidates";
 import { useBookmarkCandidate } from "./hooks/useBookmarkCandidate";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import NoData from "@/components/common/NoData";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -83,8 +86,9 @@ export default function CandidatesList() {
   const [searchQuery, setSearchQuery] = useState("");
   const [locationQuery, setLocationQuery] = useState("");
   const [experienceRange, setExperienceRange] = useState<number[]>([0, 15]);
-  const [sortOption, setSortOption] = useState<string>("name");
+  const [sortOption, setSortOption] = useState<string>("exp");
   const [savedCandidates, setSavedCandidates] = useState<Set<string>>(new Set());
+  const [view, setView] = useState<"list" | "grid">("list");
 
   const [gender, setGender] = useState("all");
   const [qualification, setQualification] = useState("all");
@@ -105,7 +109,7 @@ export default function CandidatesList() {
     setSearchQuery("");
     setLocationQuery("");
     setExperienceRange([0, 15]);
-    setSortOption("match");
+    setSortOption("exp");
     setGender("all");
     setQualification("all");
   };
@@ -326,6 +330,25 @@ export default function CandidatesList() {
                   <SelectItem value="name">Sort: Name (A–Z)</SelectItem>
                 </SelectContent>
               </Select>
+
+              <div className="hidden sm:flex border rounded-md p-0.5">
+                <Button
+                  variant={view === "list" ? "secondary" : "ghost"}
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setView("list")}
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={view === "grid" ? "secondary" : "ghost"}
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setView("grid")}
+                >
+                  <Grid3x3 className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -341,13 +364,21 @@ export default function CandidatesList() {
               <p className="text-sm text-muted-foreground mt-2">Loading candidates...</p>
             </div>
           ) : filteredAndSortedCandidates.length === 0 ? (
-            <Card className="border-dashed border-border p-12 text-center">
-              <p className="font-display font-semibold text-lg">No candidates match your filters</p>
-              <p className="text-sm text-muted-foreground mt-1">Try broadening the search or clearing some filters.</p>
-              <Button variant="outline" className="mt-4" onClick={clearAllFilters}>Reset filters</Button>
-            </Card>
+            <NoData
+              title="No candidates match your filters"
+              description="Try broadening the search or clearing some filters."
+              actionLabel="Reset filters"
+              onAction={clearAllFilters}
+              className="border border-dashed border-border rounded-xl bg-card p-12"
+            />
           ) : (
-            <div className="space-y-3">
+            <div
+              className={cn(
+                view === "grid"
+                  ? "grid grid-cols-1 md:grid-cols-2 gap-4"
+                  : "space-y-3"
+              )}
+            >
               {filteredAndSortedCandidates.map((candidate) => (
                 <CandidateCard
                   key={candidate.id}

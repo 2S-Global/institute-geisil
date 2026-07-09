@@ -283,7 +283,7 @@ const PersonalSection = () => {
 
               {/* Address */}
               <div>
-                <strong>Permanent address</strong>
+                <strong>Hometown & Permanent address </strong>
 
                 <div className="mt-2">
                   {personalDetails.address || (

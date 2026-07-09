@@ -41,6 +41,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
+import NoData from "@/components/common/NoData";
 
 type Status = "upcoming" | "completed" | "cancelled";
 type Mode = "Video" | "Onsite" | "Phone";
@@ -352,15 +353,11 @@ export default function CandidateInterviews() {
 
         <TabsContent value={tab} className="space-y-4 mt-0">
           {filtered.length === 0 ? (
-            <Card className="p-10 text-center">
-              <div className="mx-auto h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-3">
-                <CalendarCheck className="h-6 w-6 text-muted-foreground" />
-              </div>
-              <p className="font-semibold text-foreground">No interviews here</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Try changing filters or check another tab.
-              </p>
-            </Card>
+            <NoData
+              title="No interviews here"
+              description="Try changing filters or check another tab."
+              className="border border-border bg-card rounded-xl p-12"
+            />
           ) : (
             filtered.map((iv) => {
               const ModeIcon = modeIcon[iv.mode];

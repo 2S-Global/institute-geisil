@@ -4,6 +4,7 @@ import { EmployerLayout } from "@/components/EmployerLayout";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import NoData from "@/components/common/NoData";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
@@ -126,6 +127,8 @@ function ApplicationTable({
   setShowRemarksModal: React.Dispatch<React.SetStateAction<boolean>>;
   setIsOfferLetterModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
+
+  console.log("wokring==>", data)
   return (
     <>
       {/* Desktop Table */}
@@ -146,11 +149,11 @@ function ApplicationTable({
             <tbody className="divide-y divide-border/60">
               {data.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={6}
-                    className="py-10 text-center text-muted-foreground"
-                  >
-                    No records found
+                  <td colSpan={6} className="py-8">
+                    <NoData
+                      title="No applications found"
+                      description="There are currently no candidate applications for this category."
+                    />
                   </td>
                 </tr>
               ) : (
@@ -159,7 +162,7 @@ function ApplicationTable({
                     <td className="px-4 py-3">
                       <div className="flex justify-center">
                         <img
-                          src={a.profilePicture}
+                          src={a.profilePicture || 'https://static.vecteezy.com/system/resources/thumbnails/003/337/584/small/default-avatar-photo-placeholder-profile-icon-vector.jpg'}
                           alt={a.candidateName}
                           className="h-10 w-10 rounded-full object-cover border"
                           onError={(e) => {
@@ -261,11 +264,10 @@ function ApplicationTable({
                             <Button
                               size="icon"
                               disabled={a.isInterviewFeedbackSubmitted}
-                              className={`h-8 w-8 text-white ${
-                                a.isInterviewFeedbackSubmitted
-                                  ? "bg-gray-400 cursor-not-allowed"
-                                  : "bg-purple-600 hover:bg-purple-700"
-                              }`}
+                              className={`h-8 w-8 text-white ${a.isInterviewFeedbackSubmitted
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-purple-600 hover:bg-purple-700"
+                                }`}
                               onClick={() => {
                                 if (a.isInterviewFeedbackSubmitted) return;
 
@@ -327,9 +329,11 @@ function ApplicationTable({
 
       <div className="md:hidden space-y-3">
         {data.length === 0 ? (
-          <Card className="p-6 text-center text-muted-foreground">
-            No records found
-          </Card>
+          <NoData
+            title="No applications found"
+            description="There are currently no candidate applications for this category."
+            className="bg-card border border-border/60 rounded-xl"
+          />
         ) : (
           data.map((a) => (
             <Card key={a._id} className="p-4 border-border/60 shadow-sm">
@@ -540,6 +544,7 @@ export default function Applications() {
       const response = await API.get("/api/dashboard/getAllJobApplicantsList");
 
       if (response.data.success) {
+        console.log("now check", response.data.data || [])
         setApplications(response.data.data || []);
       }
     } catch (error) {
@@ -681,7 +686,7 @@ export default function Applications() {
             setIsOfferLetterModalOpen={setIsOfferLetterModalOpen}
           />
         </TabsContent>
-      </Tabs> 
+      </Tabs>
 
       <ShortlistInvitationModal
         open={isInterviewModalOpen}

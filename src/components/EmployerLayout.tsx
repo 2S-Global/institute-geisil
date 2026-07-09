@@ -4,21 +4,24 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { EmployerSidebar } from "@/components/EmployerSidebar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback,AvatarImage  } from "@/components/ui/avatar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { useNavigate } from "react-router-dom";
 import { LogoutModal } from "@/components/LogoutModal";
 
 export function EmployerLayout({ children }: { children: ReactNode }) {
   const [name, setName] = useState<string | null>(null);
+   const [pic, setPic] = useState<string | null>(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     setName(localStorage.getItem("name"));
+     setPic(localStorage.getItem("profilePicture"));
     const timer = setTimeout(() => {
       setName(localStorage.getItem("name"));
-    }, 1000);
+       setPic(localStorage.getItem("profilePicture"));
+    }, 500);
 
     return () => clearTimeout(timer);
   }, []);
@@ -26,11 +29,11 @@ export function EmployerLayout({ children }: { children: ReactNode }) {
   const displayName = name === 'null' ? "" : name || "";
   const initials = displayName
     ? displayName
-        .split(" ")
-        .map((w) => w[0])
-        .slice(0, 2)
-        .join("")
-        .toUpperCase()
+      .split(" ")
+      .map((w) => w[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase()
     : "";
 
   return (
@@ -54,7 +57,7 @@ export function EmployerLayout({ children }: { children: ReactNode }) {
                 <Bell className="h-5 w-5" />
                 <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-destructive ring-2 ring-card" />
               </Button> */}
-              
+
               <Popover>
                 <PopoverTrigger asChild>
                   <button className="flex items-center gap-2 md:gap-3 hover:bg-muted/60 p-1.5 pr-2.5 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none text-left animate-fade-in">
@@ -63,9 +66,18 @@ export function EmployerLayout({ children }: { children: ReactNode }) {
                       <p className="text-xs text-muted-foreground">Talent Acquisition</p>
                     </div>
                     <Avatar className="h-9 w-9 border shadow-sm">
-                      <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                     {/*  <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
                         {initials}
-                      </AvatarFallback>
+                      </AvatarFallback> */}
+                         {pic!=='null' ? (
+                          <AvatarImage
+                            src={pic}
+                            alt="profile"
+                            className="object-cover"
+                          />
+                        ) : (
+                          <AvatarFallback className="bg-primary text-primary-foreground font-semibold">{initials}</AvatarFallback>
+                        )}
                     </Avatar>
                   </button>
                 </PopoverTrigger>
@@ -97,8 +109,10 @@ export function EmployerLayout({ children }: { children: ReactNode }) {
               </Popover>
             </div>
           </header>
-          <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col">
-            <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
+          <div className="flex-1 w-full max-w-7xl mx-auto flex flex-col">
+            <main className="flex-1 px-4 sm:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
+              {children}
+            </main>
           </div>
         </div>
       </div>

@@ -36,6 +36,7 @@ import CandidateApplyModal from "@/components/candidate/CandidateApplyModal";
 import { SavedJobCardComponent } from "./components/SavedJobCard";
 import { RemoveSavedJobDialog } from "./components/RemoveSavedJobDialog";
 import { SavedJobsFilters } from "./components/SavedJobsFilters";
+import NoData from "@/components/common/NoData";
 
 const sortOptions = [
   { value: "recent", label: "Recently saved" },
@@ -199,7 +200,7 @@ export default function CandidateSavedJobs() {
 
   return (
     <CandidateLayout>
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
@@ -253,17 +254,11 @@ export default function CandidateSavedJobs() {
               </CardContent>
             </Card>
           ) : filtered.length === 0 ? (
-            <Card>
-              <CardContent className="p-10 text-center">
-                <div className="mx-auto h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-3">
-                  <BookmarkX className="h-6 w-6 text-muted-foreground" />
-                </div>
-                <p className="font-medium text-foreground">No saved jobs found</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Try adjusting your search or browse new opportunities.
-                </p>
-              </CardContent>
-            </Card>
+            <NoData
+              title="No saved jobs found"
+              description="Try adjusting your search or browse new opportunities."
+              className="border border-border bg-card rounded-xl p-12"
+            />
           ) : (
             filtered.map((j) => (
               <SavedJobCardComponent

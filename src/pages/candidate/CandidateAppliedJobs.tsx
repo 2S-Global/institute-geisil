@@ -49,6 +49,7 @@ import {
 import type { Status } from "./helpers/statusMeta";
 import { statusMeta } from "./helpers/statusMeta";
 import CandidateRescheduleModal from "@/components/candidate/CandidateRescheduleModal";
+import NoData from "@/components/common/NoData";
 
 const statusFilters: ("All" | Status)[] = [
   "All",
@@ -285,7 +286,7 @@ export default function CandidateAppliedJobs() {
 
   return (
     <CandidateLayout>
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
@@ -370,17 +371,11 @@ export default function CandidateAppliedJobs() {
         {/* List */}
         <div className="space-y-3">
           {filtered.length === 0 ? (
-            <Card>
-              <CardContent className="p-10 text-center">
-                <div className="mx-auto h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-3">
-                  <Briefcase className="h-6 w-6 text-muted-foreground" />
-                </div>
-                <p className="font-medium text-foreground">No applications found</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Try adjusting your filters or browse new jobs.
-                </p>
-              </CardContent>
-            </Card>
+            <NoData
+              title="No applications found"
+              description="Try adjusting your filters or browse new jobs."
+              className="border border-border bg-card rounded-xl p-12"
+            />
           ) : (
             filtered.map((j) => {
               const meta = statusMeta[j.status as Status] || { icon: Briefcase, color: "bg-gray-100 text-gray-800" };

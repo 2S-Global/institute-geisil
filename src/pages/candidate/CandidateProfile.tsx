@@ -70,6 +70,7 @@ import ITSkills from "@/components/candidate/ITSkills/ITSkills";
 import OtherSkills from "@/components/candidate/Other Skills/OtherSkills";
 import ProfileStrength from "./components/ProfileStrength";
 // import ProfileStrength from "../candidate/components/pro"
+import OTPModel from "@/components/candidate/myprofile/OTPModal";
 const experiences = [
   {
     role: "Frontend Engineer",
@@ -220,6 +221,15 @@ export default function CandidateProfile() {
 
   const closeModalImg = () => {
     setIsModalImg(false);
+    document.body.style.overflow = "auto"; // Re-enable background scrolling
+  };
+
+    const openModalRHotp = () => {
+    setIsModalOpenotp(true);
+    document.body.style.overflow = "hidden"; // Disable background scrolling
+  };
+    const closeModalRHotp = () => {
+    setIsModalOpenotp(false);
     document.body.style.overflow = "auto"; // Re-enable background scrolling
   };
 
@@ -441,7 +451,7 @@ export default function CandidateProfile() {
 
   return (
     <CandidateLayout>
-      <div className="space-y-6 max-w-7xl mx-auto">
+      <div className="space-y-6">
         {/* Header / Hero */}
         <Card className="overflow-hidden border-border/60">
           {/* Cover */}
@@ -519,10 +529,26 @@ export default function CandidateProfile() {
                     <span className="flex items-center gap-1">
                       <Phone className="h-4 w-4" />
                       {user?.phone_number}
+                     {!user?.numberVerified && (
+  <>
+    <CircleX className="ml-2 h-4 w-4 text-red-500" />
+
+    {user?.isIndianNumber ? (
+      <button
+        className="ml-2 rounded bg-blue-600 px-2 py-1 text-[10px] leading-none text-white hover:bg-blue-700"
+        onClick={openModalRHotp}
+      >
+        Verify Now
+      </button>
+    ) : (
+      <CircleX className=" h-4 w-4 text-red-500" />
+    )}
+  </>
+)}
                     </span>
                     <span className="flex items-center gap-1">
                       <Mail className="h-4 w-4" />
-                      {user?.email}
+                      {user?.email} {user?.email && <CheckCircle2 className="h-4 w-4 mr-1 text-green-500" /> }
                     </span>
                   </div>
                 </div>
@@ -1076,6 +1102,17 @@ export default function CandidateProfile() {
          
         />
       )} */}
+
+       {isModalOpenotp && (
+        <OTPModel
+          phone={user?.phone_number}
+          show={isModalOpenotp}
+          onClose={closeModalRHotp}
+          setReload=""
+          setError_main=""
+          setSuccess_main=""
+        />
+      )}
     </CandidateLayout>
   );
 }

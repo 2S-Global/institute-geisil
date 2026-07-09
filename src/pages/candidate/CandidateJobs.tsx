@@ -48,6 +48,7 @@ import { cn } from "@/lib/utils";
 import API from "@/lib/axios";
 import { useBookmarkJob } from "./hooks/useBookmarkJob";
 import { JobCardSkeleton } from "./components/JobCardSkeleton";
+import NoData from "@/components/common/NoData";
 type Job = {
   id: string;
   title: string;
@@ -591,7 +592,7 @@ export default function CandidateJobs() {
   
   return (
     <CandidateLayout>
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="space-y-6">
         {/* Hero search */}
         <Card className="border-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
           <CardContent className="p-6 md:p-8">
@@ -718,7 +719,7 @@ export default function CandidateJobs() {
                       <SelectItem value="salary">Highest Salary</SelectItem>
                     </SelectContent>
                   </Select>
-                  <div className="hidden sm:flex border rounded-md p-0.5">
+                {/*   <div className="hidden sm:flex border rounded-md p-0.5">
                     <Button
                       variant={view === "list" ? "secondary" : "ghost"}
                       size="icon"
@@ -735,7 +736,7 @@ export default function CandidateJobs() {
                     >
                       <Grid3x3 className="h-4 w-4" />
                     </Button>
-                  </div>
+                  </div> */}
                 </div>
               </CardContent>
             </Card>
@@ -752,27 +753,13 @@ export default function CandidateJobs() {
                 <JobCardSkeleton count={6} />
               </div>
             ) : jobs.length === 0 ? (
-              <Card>
-                <CardContent className="p-12 text-center">
-                  <div className="mx-auto h-14 w-14 rounded-full bg-muted flex items-center justify-center mb-4">
-                    <Search className="h-6 w-6 text-muted-foreground" />
-                  </div>
-                  <h3 className="font-display font-semibold">
-                    No jobs match your filters
-                  </h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Try adjusting search terms or resetting filters.
-                  </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="mt-4"
-                    onClick={reset}
-                  >
-                    Reset filters
-                  </Button>
-                </CardContent>
-              </Card>
+              <NoData
+                title="No jobs match your filters"
+                description="Try adjusting search terms or resetting filters."
+                actionLabel="Reset filters"
+                onAction={reset}
+                className="border border-border bg-card rounded-xl p-12"
+              />
             ) : (
               <div
                 className={cn(
