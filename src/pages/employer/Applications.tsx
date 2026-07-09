@@ -126,6 +126,8 @@ function ApplicationTable({
   setShowRemarksModal: React.Dispatch<React.SetStateAction<boolean>>;
   setIsOfferLetterModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
+
+  console.log("wokring==>", data)
   return (
     <>
       {/* Desktop Table */}
@@ -159,7 +161,7 @@ function ApplicationTable({
                     <td className="px-4 py-3">
                       <div className="flex justify-center">
                         <img
-                          src={a.profilePicture}
+                          src={a.profilePicture || 'https://static.vecteezy.com/system/resources/thumbnails/003/337/584/small/default-avatar-photo-placeholder-profile-icon-vector.jpg'}
                           alt={a.candidateName}
                           className="h-10 w-10 rounded-full object-cover border"
                           onError={(e) => {
@@ -261,11 +263,10 @@ function ApplicationTable({
                             <Button
                               size="icon"
                               disabled={a.isInterviewFeedbackSubmitted}
-                              className={`h-8 w-8 text-white ${
-                                a.isInterviewFeedbackSubmitted
-                                  ? "bg-gray-400 cursor-not-allowed"
-                                  : "bg-purple-600 hover:bg-purple-700"
-                              }`}
+                              className={`h-8 w-8 text-white ${a.isInterviewFeedbackSubmitted
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-purple-600 hover:bg-purple-700"
+                                }`}
                               onClick={() => {
                                 if (a.isInterviewFeedbackSubmitted) return;
 
@@ -540,6 +541,7 @@ export default function Applications() {
       const response = await API.get("/api/dashboard/getAllJobApplicantsList");
 
       if (response.data.success) {
+        console.log("now check", response.data.data || [])
         setApplications(response.data.data || []);
       }
     } catch (error) {
@@ -681,7 +683,7 @@ export default function Applications() {
             setIsOfferLetterModalOpen={setIsOfferLetterModalOpen}
           />
         </TabsContent>
-      </Tabs> 
+      </Tabs>
 
       <ShortlistInvitationModal
         open={isInterviewModalOpen}
