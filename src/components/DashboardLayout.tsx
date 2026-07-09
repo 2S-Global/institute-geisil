@@ -4,7 +4,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback,AvatarImage  } from "@/components/ui/avatar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { useNavigate } from "react-router-dom";
 import { LogoutModal } from "@/components/LogoutModal";
@@ -15,13 +15,16 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [name, setName] = useState<string | null>(null);
+  const [pic, setPic] = useState<string | null>(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     setName(localStorage.getItem("name"));
+     setPic(localStorage.getItem("profilePicture"));
     const timer = setTimeout(() => {
       setName(localStorage.getItem("name"));
+        setPic(localStorage.getItem("profilePicture"));
     }, 1000);
 
     return () => clearTimeout(timer);
@@ -35,7 +38,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         .join("")
         .toUpperCase()
     : "IA";
-
+console.log('sssssssssssssssssssssss',pic,name)
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
@@ -69,9 +72,18 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                       <p className="text-xs text-muted-foreground">Institute Admin</p>
                     </div>
                     <Avatar className="h-9 w-9 border shadow-sm">
-                      <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                     {/*  <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
                         {initials}
-                      </AvatarFallback>
+                      </AvatarFallback> */}
+                       {pic!=='null' ? (
+                          <AvatarImage
+                            src={pic}
+                            alt="profile"
+                            className="object-cover"
+                          />
+                        ) : (
+                          <AvatarFallback className="bg-primary text-primary-foreground font-semibold">{initials}</AvatarFallback>
+                        )}
                     </Avatar>
                   </button>
                 </PopoverTrigger>

@@ -121,6 +121,10 @@ const App = () => {
         "role",
         profile?.role || localStorage.getItem("role"),
       );
+       localStorage.setItem(
+        "profilePicture",
+        profile?.profilePicture || localStorage.getItem("profilePicture"),
+      );
       setLoading(false);
     }
   }, [profile]);

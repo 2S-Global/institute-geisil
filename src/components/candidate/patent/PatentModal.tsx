@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Sparkles } from "lucide-react";
 import API from "../../../lib/axios";
 import { Trash2 } from "lucide-react";
-import Loading from "@/pages/Loading";
+import Loading from "@/components/common/Loading";
 import {
   Dialog,
   DialogContent,
@@ -319,7 +319,7 @@ const PatentModal = ({
           </DialogHeader>
 
           {loading ? (
-            <Loading />
+            'loading'
           ) : (
             <div className="space-y-5 pt-2">
               {/* Title */}

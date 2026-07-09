@@ -4,21 +4,24 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { CandidateSidebar } from "@/components/CandidateSidebar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback,AvatarImage } from "@/components/ui/avatar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { useNavigate } from "react-router-dom";
 import { LogoutModal } from "@/components/LogoutModal";
 
 export function CandidateLayout({ children }: { children: ReactNode }) {
   const [name, setName] = useState<string | null>(null);
+  const [pic, setPic] = useState<string | null>(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     setName(localStorage.getItem("name"));
+    setPic(localStorage.getItem("profilePicture"));
     const timer = setTimeout(() => {
       setName(localStorage.getItem("name"));
-    }, 1000);
+      setPic(localStorage.getItem("profilePicture"));
+    }, 500);
 
     return () => clearTimeout(timer);
   }, []);
@@ -63,10 +66,26 @@ export function CandidateLayout({ children }: { children: ReactNode }) {
                       <p className="text-xs text-muted-foreground">Candidate</p>
                     </div>
                     <Avatar className="h-9 w-9 border shadow-sm">
-                      <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                     {/*  <AvatarImage
+                        src={pic || ""}
+                        alt={initials || "Profile"}
+                        className="object-cover"
+                      /> */}
+                     {/*  <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
                         {initials}
-                      </AvatarFallback>
+                      </AvatarFallback> */}
+                        {pic!=='null' ? (
+                          <AvatarImage
+                            src={pic}
+                            alt="profile"
+                            className="object-cover"
+                          />
+                        ) : (
+                          <AvatarFallback className="bg-primary text-primary-foreground font-semibold">{initials}</AvatarFallback>
+                        )}
                     </Avatar>
+                    
+                      
                   </button>
                 </PopoverTrigger>
                 <PopoverContent align="end" className="w-56 p-1.5 bg-popover border border-border rounded-xl shadow-lg">
@@ -75,6 +94,7 @@ export function CandidateLayout({ children }: { children: ReactNode }) {
                     <p className="text-sm font-semibold text-foreground truncate mt-0.5">
                       {displayName || "Candidate"}
                     </p>
+                   
                   </div>
                   <div className="h-px bg-border my-1" />
                   <div className="space-y-0.5">
