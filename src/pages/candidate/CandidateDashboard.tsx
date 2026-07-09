@@ -219,28 +219,28 @@ const CandidateDashboard = () => {
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Applications"
-          value={stats.appliedJobs}
+          value={String(stats.appliedJobs)}
           delta={12}
           icon={FileText}
           tint="primary"
         />
         <StatCard
           label="Shortlisted"
-          value={stats.shortlistedJobs}
+          value={String(stats.shortlistedJobs)}
           delta={20}
           icon={CalendarCheck}
           tint="accent"
         />
         <StatCard
           label="Interviews"
-          value={stats.interviewScheduled}
+          value={String(stats.interviewScheduled)}
           delta={32}
           icon={Eye}
           tint="success"
         />
         <StatCard
           label="Offers Received"
-          value={stats.offersReceived}
+          value={String(stats.offersReceived)}
           delta={-5}
           icon={Bookmark}
           tint="warning"
@@ -399,7 +399,7 @@ const CandidateDashboard = () => {
                 Recommended for You
               </CardTitle>
               <CardDescription>
-                Roles matched to your Industry Type
+                Roles matched to your Industry Type 
               </CardDescription>
             </div>
             <Button

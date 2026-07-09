@@ -47,6 +47,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import API from "@/lib/axios";
 import { useBookmarkJob } from "./hooks/useBookmarkJob";
+import { JobCardSkeleton } from "./components/JobCardSkeleton";
 type Job = {
   id: string;
   title: string;
@@ -739,7 +740,18 @@ export default function CandidateJobs() {
               </CardContent>
             </Card>
 
-            {jobs.length === 0 ? (
+            {loading ? (
+              <div
+                className={cn(
+                  "grid gap-4",
+                  view === "grid"
+                    ? "grid-cols-1 md:grid-cols-2"
+                    : "grid-cols-1",
+                )}
+              >
+                <JobCardSkeleton count={6} />
+              </div>
+            ) : jobs.length === 0 ? (
               <Card>
                 <CardContent className="p-12 text-center">
                   <div className="mx-auto h-14 w-14 rounded-full bg-muted flex items-center justify-center mb-4">
@@ -776,7 +788,7 @@ export default function CandidateJobs() {
               </div>
             )}
 
-            {visibleJobs < jobs.length && (
+            {!loading && visibleJobs < jobs.length && (
               <div className="flex justify-center pt-2">
                 <Button
                   variant="outline"
