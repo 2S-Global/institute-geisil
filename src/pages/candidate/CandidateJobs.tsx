@@ -591,7 +591,7 @@ export default function CandidateJobs() {
   
   return (
     <CandidateLayout>
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="space-y-6">
         {/* Hero search */}
         <Card className="border-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
           <CardContent className="p-6 md:p-8">

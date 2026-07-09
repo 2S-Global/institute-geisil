@@ -2,6 +2,7 @@ import api from "@/lib/axios";
 import { Link } from "react-router-dom";
 import { Plus, Search, Filter, MapPin, Users, Clock } from "lucide-react";
 import { EmployerLayout } from "@/components/EmployerLayout";
+import { JobCardSkeleton } from "./JobCardSkeleton";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -232,54 +233,60 @@ export default function Jobs() {
           />
         </div>
       </Card>
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {filtered.map((j) => (
-          <Card
-            key={j.id}
-            className="p-5 border-border/60 shadow-sm hover:shadow-md transition-shadow"
-          >
-            <div className="flex items-start justify-between gap-3 mb-3">
+      {loading ? (
+        <JobCardSkeleton />
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {filtered.map((j) => (
+            <Card
+              key={j.id}
+              className="p-5 border-border/60 shadow-sm hover:shadow-md transition-shadow min-h-[220px] flex flex-col justify-between"
+            >
               <div>
-                <Link
-                  to={`/employer/jobs/${j.id}`}
-                  className="font-display text-lg font-bold text-foreground hover:text-primary"
-                >
-                  {j.title}
-                </Link>
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div>
+                    <Link
+                      to={`/employer/jobs/${j.id}`}
+                      className="font-display text-lg font-bold text-foreground hover:text-primary"
+                    >
+                      {j.title}
+                    </Link>
+                  </div>
+                  <Badge variant="outline" className={styles[j.status]}>
+                    {j.status.charAt(0).toUpperCase() + j.status.slice(1)}
+                  </Badge>
+                </div>
+                <div className="flex flex-wrap gap-3 text-xs text-muted-foreground mb-4">
+                  <span className="flex items-center gap-1">
+                    <MapPin className="h-3.5 w-3.5" /> {j.loc}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-3.5 w-3.5" /> {j.type}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Users className="h-3.5 w-3.5" /> {j.apps} applicants
+                  </span>
+                </div>
               </div>
-              <Badge variant="outline" className={styles[j.status]}>
-                {j.status.charAt(0).toUpperCase() + j.status.slice(1)}
-              </Badge>
-            </div>
-            <div className="flex flex-wrap gap-3 text-xs text-muted-foreground mb-4">
-              <span className="flex items-center gap-1">
-                <MapPin className="h-3.5 w-3.5" /> {j.loc}
-              </span>
-              <span className="flex items-center gap-1">
-                <Clock className="h-3.5 w-3.5" /> {j.type}
-              </span>
-              <span className="flex items-center gap-1">
-                <Users className="h-3.5 w-3.5" /> {j.apps} applicants
-              </span>
-            </div>
-            <div className="flex items-center justify-between pt-3 border-t border-border/60">
-              <div className="flex flex-col">
-                <span className="text-xs text-muted-foreground">
-                  Posted: {j.posted}
-                </span>
+              <div className="flex items-center justify-between pt-3 border-t border-border/60">
+                <div className="flex flex-col">
+                  <span className="text-xs text-muted-foreground">
+                    Posted: {j.posted}
+                  </span>
 
-                <span className="text-xs text-red-500">
-                  Expiry: {j.expiryDate}
-                </span>
+                  <span className="text-xs text-red-500">
+                    Expiry: {j.expiryDate}
+                  </span>
+                </div>
+
+                <Button asChild size="sm" variant="outline">
+                  <Link to={`/employer/jobs/${j.id}`}>Manage</Link>
+                </Button>
               </div>
-
-              <Button asChild size="sm" variant="outline">
-                <Link to={`/employer/jobs/${j.id}`}>Manage</Link>
-              </Button>
-            </div>
-          </Card>
-        ))}
-      </div>
+            </Card>
+          ))}
+        </div>
+      )}
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>

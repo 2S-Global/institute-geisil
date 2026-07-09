@@ -289,7 +289,7 @@ export default function CandidateJobDetail() {
 
   return (
     <CandidateLayout>
-      <div className="space-y-6 max-w-6xl mx-auto">
+      <div className="space-y-6">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Link to="/candidate/dashboard" className="hover:text-foreground">

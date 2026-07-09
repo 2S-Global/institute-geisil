@@ -439,7 +439,7 @@ const profileStatus = getProfileStatus(geisilScore);
 
   return (
     <CandidateLayout>
-      <div className="space-y-6 max-w-7xl mx-auto">
+      <div className="space-y-6">
         {/* Header / Hero */}
         <Card className="overflow-hidden border-border/60">
           {/* Cover */}
