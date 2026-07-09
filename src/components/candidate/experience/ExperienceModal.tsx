@@ -1,4 +1,6 @@
-import React, { useState, ChangeEvent, useEffect } from "react";
+
+
+import React, { useState, useEffect } from "react";
 import { Sparkles } from "lucide-react";
 import API from "@/lib/axios";
 
@@ -15,41 +17,15 @@ import { useToast } from "@/hooks/use-toast";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
-export interface WorkProfileType {
-  _id?: string;
-  workTitle: string;
-  url: string;
-  description: string;
-  durationFromYear: number | string;
-  durationFromMonth: number | string;
-  durationToYear: number | string;
-  durationToMonth: number | string;
-  currentlyWorking: boolean;
-  companyName?: string;
-  employmentType?: string;
-  location?: string;
-}
-
-interface WorkProfileModalProps {
-  show: boolean;
-  onClose: () => void;
-  item: WorkProfileType | null;
-  setReload: () => void;
-}
-
-const WorkProfileModal: React.FC<WorkProfileModalProps> = ({
-  show,
-  onClose,
-  item,
-  setReload,
-}) => {
+const WorkProfileModal = ({ show, onClose, item, setReload }) => {
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
 
-  const stripHtml = (htmlString: string) => {
-    if (!htmlString) return "";
-    return htmlString.replace(/<\/?[^>]+(>|$)/g, "").trim();
-  };
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+  const currentYear = new Date().getFullYear();
 
   const quillModules = {
     toolbar: [
@@ -62,14 +38,7 @@ const WorkProfileModal: React.FC<WorkProfileModalProps> = ({
   };
 
   const quillFormats = [
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "script",
-    "list",
-    "bullet",
-    "link",
+    "bold", "italic", "underline", "strike", "script", "list", "bullet", "link",
   ];
 
   const [formData, setFormData] = useState({
@@ -84,59 +53,68 @@ const WorkProfileModal: React.FC<WorkProfileModalProps> = ({
     currentlyWorking: false,
   });
 
+  // Populates data when the modal opens
+  // Populates data when the modal opens
   useEffect(() => {
-    if (item) {
-      setFormData({
-        _id: item._id || "",
-        workTitle: item.workTitle || "",
-        url: item.url || "",
-        description: stripHtml(item.description || ""),
-        durationFromYear: String(item.durationFromYear ?? ""),
-        durationFromMonth: String(item.durationFromMonth ?? ""),
-        durationToYear: String(item.durationToYear ?? ""),
-        durationToMonth: String(item.durationToMonth ?? ""),
+    if (show) {
+      if (item) {
+        // 1. Extract years securely checking both flat and nested variations
+        const fromYear = item.durationFromYear || item.durationFrom?.year || item.year || "";
+        const toYear = item.durationToYear || item.durationTo?.year || item.toYear || "";
 
-        currentlyWorking: item.currentlyWorking || false,
-      });
-    } else {
-      setFormData({
-        _id: "",
-        workTitle: "",
-        url: "",
-        description: "",
-        durationFromYear: "",
-        durationFromMonth: "",
-        durationToYear: "",
-        durationToMonth: "",
-        currentlyWorking: false,
-      });
+        // 2. Extract raw month indicators (could be index strings "6", numbers 6, or text strings)
+        const rawFromMonth = item.durationFromMonth || item.durationFrom?.month || item.month || "";
+        const rawToMonth = item.durationToMonth || item.durationTo?.month || item.toMonth || "";
+
+        // Helper to cleanly map monthly values to the UI dropdown string match
+        const parseMonthValue = (monthValue) => {
+          if (!monthValue) return "";
+          
+          // If it's already an explicit month name (e.g. "June") that exists in our array
+          if (monthNames.includes(monthValue)) return monthValue;
+          
+          // If it's a numeric index value passed as a string or number (e.g. "6" or 6)
+          const index = Number(monthValue);
+          if (!isNaN(index) && index >= 1 && index <= 12) {
+            return monthNames[index - 1];
+          }
+          return "";
+        };
+
+        setFormData({
+          _id: item._id || "",
+          workTitle: item.workTitle || "",
+          url: item.url || "",
+          description: item.description || "", 
+          durationFromYear: String(fromYear),
+          durationFromMonth: parseMonthValue(rawFromMonth),
+          durationToYear: String(toYear),
+          durationToMonth: parseMonthValue(rawToMonth),
+          currentlyWorking: item.currentlyWorking === "true" || item.currentlyWorking === true || false,
+        });
+      } else {
+        // Clear state for creating a new profile entry
+        setFormData({
+          _id: "",
+          workTitle: "",
+          url: "",
+          description: "",
+          durationFromYear: "",
+          durationFromMonth: "",
+          durationToYear: "",
+          durationToMonth: "",
+          currentlyWorking: false,
+        });
+      }
     }
-  }, [item, show]);
+  }, [show, item]);
 
-  const monthNames = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  const currentYear = new Date().getFullYear();
-
-  const handleInputChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
-  ) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleCheckboxChange = (checked: boolean) => {
+  const handleCheckboxChange = (checked) => {
     setFormData((prev) => ({
       ...prev,
       currentlyWorking: checked,
@@ -150,76 +128,18 @@ const WorkProfileModal: React.FC<WorkProfileModalProps> = ({
       toast({
         variant: "destructive",
         title: "Profile Title Required",
-        description:
-          "Please enter a work title first so AI can write a description.",
+        description: "Please enter a work title first so AI can write a description.",
       });
       return;
     }
-
     setFormData((prev) => ({
       ...prev,
-      description: `Responsible for managing core assignments, designing execution layouts for ${prev.workTitle}, scaling analytics tracking workflows, and pushing higher delivery standards.`,
+      description: prev.description + `<p>Responsible for managing core assignments, designing execution layouts for ${prev.workTitle}, scaling analytics tracking workflows, and pushing higher delivery standards.</p>`,
     }));
   };
 
-  const handleInsert = async (payload: any) => {
-    try {
-      setSaving(true);
-      const response = await API.post(
-        "/api/candidate/accomplishments/add_work_samples",
-        payload,
-      );
-
-      if (response.status === 200 || response.data?.success) {
-        toast({
-          title: "Success",
-          description: "Work profile saved successfully.",
-        });
-        setReload();
-        onClose();
-      }
-    } catch (error) {
-      console.error("Error inserting work profile:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to save work profile.",
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleUpdate = async (payload: any) => {
-    try {
-      setSaving(true);
-      const response = await API.put(
-        "/api/candidate/accomplishments/edit_work_samples",
-        payload,
-      );
-
-      if (response.status === 200 || response.data?.success) {
-        toast({
-          title: "Success",
-          description: "Work profile saved successfully.",
-        });
-        setReload();
-        onClose();
-      }
-    } catch (error) {
-      console.error("Error updating work profile:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to save work profile.",
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
-
   const handleSave = async () => {
-    if (formData.workTitle.trim() === "" || formData.url.trim() === "") {
+    if (!formData.workTitle.trim() || !formData.url.trim()) {
       toast({
         variant: "destructive",
         title: "Required Fields Missing",
@@ -228,37 +148,55 @@ const WorkProfileModal: React.FC<WorkProfileModalProps> = ({
       return;
     }
 
-    let wrappedDescription = "";
-    if (formData.description.trim() !== "") {
-      wrappedDescription = "<p>" + formData.description.trim() + "</p>";
-    }
+    // Map UI month names back to plain API index values as strings
+    const fromMonthValue = formData.durationFromMonth 
+      ? String(monthNames.indexOf(formData.durationFromMonth) + 1) 
+      : "";
 
+    const toMonthValue = formData.durationToMonth 
+      ? String(monthNames.indexOf(formData.durationToMonth) + 1) 
+      : "";
+
+    // Payload formatted to match your backend expectations completely flat
     const payload = {
       _id: formData._id || undefined,
-      workTitle: formData.workTitle,
-      url: formData.url,
-      description: wrappedDescription,
+      workTitle: formData.workTitle.trim(),
+      url: formData.url.trim(),
+      description: formData.description, 
       currentlyWorking: formData.currentlyWorking,
-      durationFromYear: formData.durationFromYear
-        ? Number(formData.durationFromYear)
-        : null,
-      durationFromMonth: formData.durationFromMonth
-        ? Number(formData.durationFromMonth)
-        : null,
-      durationToYear:
-        formData.currentlyWorking || !formData.durationToYear
-          ? null
-          : Number(formData.durationToYear),
-      durationToMonth:
-        formData.currentlyWorking || !formData.durationToMonth
-          ? null
-          : Number(formData.durationToMonth),
+      durationFromYear: formData.durationFromYear || "",
+      durationFromMonth: fromMonthValue,
+      durationToYear: formData.currentlyWorking ? "" : (formData.durationToYear || ""),
+      durationToMonth: formData.currentlyWorking ? "" : toMonthValue,
     };
 
-    if (formData._id) {
-      handleUpdate(payload);
-    } else {
-      handleInsert(payload);
+    try {
+      setSaving(true);
+      let response;
+
+      if (formData._id) {
+        response = await API.put("/api/candidate/accomplishments/edit_work_samples", payload);
+      } else {
+        response = await API.post("/api/candidate/accomplishments/add_work_samples", payload);
+      }
+
+      if (response.status === 200 || response.data?.success) {
+        toast({
+          title: "Success",
+          description: formData._id ? "Work profile updated successfully." : "Work profile saved successfully.",
+        });
+        setReload(); 
+        onClose();   
+      }
+    } catch (error) {
+      console.error("Error saving work profile:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to save data. Please check connection routing.",
+      });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -267,7 +205,7 @@ const WorkProfileModal: React.FC<WorkProfileModalProps> = ({
       <DialogContent className="sm:max-w-[520px] p-0 overflow-hidden rounded-xl border-none shadow-xl">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <DialogTitle className="text-lg font-semibold text-gray-800">
-            Work Profiles
+            {formData._id ? "Edit Work Profile" : "Add Work Profile"}
           </DialogTitle>
         </div>
 
@@ -314,13 +252,9 @@ const WorkProfileModal: React.FC<WorkProfileModalProps> = ({
                 className="flex h-11 w-full rounded-md bg-[#F4F8FA] border-none px-3 text-sm text-gray-600 outline-none focus:ring-1 focus:ring-primary"
               >
                 <option value="">Select Year</option>
-                {Array.from({ length: 25 }, (_, i) => currentYear - i).map(
-                  (yr) => (
-                    <option key={yr} value={yr}>
-                      {yr}
-                    </option>
-                  ),
-                )}
+                {Array.from({ length: 25 }, (_, i) => currentYear - i).map((yr) => (
+                  <option key={yr} value={yr}>{yr}</option>
+                ))}
               </select>
 
               <select
@@ -330,10 +264,8 @@ const WorkProfileModal: React.FC<WorkProfileModalProps> = ({
                 className="flex h-11 w-full rounded-md bg-[#F4F8FA] border-none px-3 text-sm text-gray-600 outline-none focus:ring-1 focus:ring-primary"
               >
                 <option value="">Select Month</option>
-                {monthNames.map((m, idx) => (
-                  <option key={idx + 1} value={idx + 1}>
-                    {m}
-                  </option>
+                {monthNames.map((m) => (
+                  <option key={m} value={m}>{m}</option>
                 ))}
               </select>
             </div>
@@ -352,13 +284,9 @@ const WorkProfileModal: React.FC<WorkProfileModalProps> = ({
                   className="flex h-11 w-full rounded-md bg-[#F4F8FA] border-none px-3 text-sm text-gray-600 outline-none focus:ring-1 focus:ring-primary"
                 >
                   <option value="">Select Year</option>
-                  {Array.from({ length: 25 }, (_, i) => currentYear - i).map(
-                    (yr) => (
-                      <option key={yr} value={yr}>
-                        {yr}
-                      </option>
-                    ),
-                  )}
+                  {Array.from({ length: 25 }, (_, i) => currentYear - i).map((yr) => (
+                    <option key={yr} value={yr}>{yr}</option>
+                  ))}
                 </select>
 
                 <select
@@ -368,10 +296,8 @@ const WorkProfileModal: React.FC<WorkProfileModalProps> = ({
                   className="flex h-11 w-full rounded-md bg-[#F4F8FA] border-none px-3 text-sm text-gray-600 outline-none focus:ring-1 focus:ring-primary"
                 >
                   <option value="">Select Month</option>
-                  {monthNames.map((m, idx) => (
-                    <option key={idx + 1} value={idx + 1}>
-                      {m}
-                    </option>
+                  {monthNames.map((m) => (
+                    <option key={m} value={m}>{m}</option>
                   ))}
                 </select>
               </div>
@@ -396,16 +322,10 @@ const WorkProfileModal: React.FC<WorkProfileModalProps> = ({
             <label className="text-xs font-bold text-gray-900 tracking-wide">
               Description
             </label>
-
             <ReactQuill
               theme="snow"
               value={formData.description}
-              onChange={(value) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  description: value,
-                }))
-              }
+              onChange={(value) => setFormData((prev) => ({ ...prev, description: value }))}
               modules={quillModules}
               formats={quillFormats}
               placeholder="Type here..."
@@ -425,21 +345,11 @@ const WorkProfileModal: React.FC<WorkProfileModalProps> = ({
         </div>
 
         <DialogFooter className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex items-center justify-end gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={onClose}
-            
-          >
+          <Button type="button" variant="ghost" onClick={onClose}>
             Cancel
           </Button>
-          <Button
-            type="button"
-            onClick={handleSave}
-            disabled={saving}
-           
-          >
-            {saving ? "Saving..." : "Save"}
+          <Button type="button" onClick={handleSave} disabled={saving}>
+            {saving ? "Saving..." : "Save Changes"}
           </Button>
         </DialogFooter>
       </DialogContent>

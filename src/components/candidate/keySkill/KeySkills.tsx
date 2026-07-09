@@ -81,12 +81,11 @@ const KeySkills = () => {
               ))}
             </div>
           ) : (
-            <span
-              className="cursor-pointer font-semibold text-blue-600"
-              onClick={openModal}
-            >
-              Add Key Skills
-            </span>
+           <div className="flex flex-1 items-center justify-center w-full shadow-sm">
+              <div className="w-full border-dashed border border-gray-200 rounded-xl p-8 text-center text-muted-foreground flex flex-col items-center justify-center">
+                <p className="text-sm">No Key Skills added yet.</p>
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>

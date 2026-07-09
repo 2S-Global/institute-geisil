@@ -1,3 +1,5 @@
+
+
 import React, { useEffect, useState, useRef } from "react";
 import { X, Loader2, Trash2, ChevronDown } from "lucide-react";
 import {
@@ -16,6 +18,7 @@ const OtherSkillsModal = ({ isOpen, onClose, editData = null, onSuccess }) => {
   const [skillSearch, setSkillSearch] = useState("");
   const [experienceYear, setExperienceYear] = useState("");
   const [experienceMonth, setExperienceMonth] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false); // Added tracking state for loading button submission
   
   // Frontend Storage States for Dropdown Filtering
   const [allSkills, setAllSkills] = useState([]);          
@@ -52,6 +55,7 @@ const OtherSkillsModal = ({ isOpen, onClose, editData = null, onSuccess }) => {
         setExperienceMonth("");
       }
       setShowDropdown(false);
+      setIsSubmitting(false); // Clear loading state when modal reopens
     }
   }, [isOpen, editData, isEditMode]);
 
@@ -130,6 +134,7 @@ const OtherSkillsModal = ({ isOpen, onClose, editData = null, onSuccess }) => {
     };
 
     try {
+      setIsSubmitting(true); // Turn loader spinner on
       if (isEditMode) {
         await api.put("/api/candidate/itskill/editotherskill", {
           _id: editData._id,
@@ -149,6 +154,8 @@ const OtherSkillsModal = ({ isOpen, onClose, editData = null, onSuccess }) => {
         title: "Error",
         description: error.response?.data?.message || "Something went wrong. Please try again.",
       });
+    } finally {
+      setIsSubmitting(false); // Turn loader spinner off
     }
   };
 
@@ -179,9 +186,12 @@ const OtherSkillsModal = ({ isOpen, onClose, editData = null, onSuccess }) => {
         
         {/* Modal Top Header Layout */}
         <div className="flex items-center justify-between px-6 pt-5 pb-3">
-          <DialogTitle className="text-xl font-bold text-gray-800">Other skills</DialogTitle>
+          {/* Dynamic title matches action mode context */}
+          <DialogTitle className="text-xl font-bold text-gray-800">
+            {isEditMode ? "Edit skill" : "Add skill"}
+          </DialogTitle>
           
-          {/* Action Action Buttons: Top Right Corner Group */}
+          {/* Action Buttons: Top Right Corner Group */}
           <div className="flex items-center space-x-2">
             {isEditMode && (
               <button 
@@ -315,16 +325,25 @@ const OtherSkillsModal = ({ isOpen, onClose, editData = null, onSuccess }) => {
           <div className="flex justify-end space-x-3">
             <Button
               type="button"
+              disabled={isSubmitting}
               onClick={onClose}
-              className="px-5 py-2.5 bg-[#6c757d] hover:bg-gray-600 text-white font-medium rounded-lg border-none shadow-none h-auto transition-colors"
+              className="px-5 py-2.5 bg-[#6c757d] hover:bg-gray-600 text-white font-medium rounded-lg border-none shadow-none h-auto transition-colors disabled:opacity-50"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              className="px-5 py-2.5 bg-[#007bff] hover:bg-blue-600 text-white font-medium rounded-lg border-none shadow-none h-auto transition-colors"
+              disabled={isSubmitting}
+              className="px-5 py-2.5 bg-[#007bff] hover:bg-blue-600 text-white font-medium rounded-lg border-none shadow-none h-auto transition-colors flex items-center gap-1.5 disabled:opacity-70"
             >
-              Update
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  {isEditMode ? "Updating..." : "Saving..."}
+                </>
+              ) : (
+                isEditMode ? "Update" : "Save"
+              )}
             </Button>
           </div>
 
