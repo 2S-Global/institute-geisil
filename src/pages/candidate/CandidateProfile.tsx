@@ -543,6 +543,7 @@ const profileStatus = getProfileStatus(geisilScore);
     )}
   </>
 )}
+ {user?.numberVerified && <CheckCircle2 className="h-4 w-4 mr-1 text-green-500" />}
                     </span>
                     <span className="flex items-center gap-1">
                       <Mail className="h-4 w-4" />

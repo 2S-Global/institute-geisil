@@ -291,7 +291,8 @@ const Profile = () => {
       setNeedcin(false);
     }
   }, [formdata.company_type]);
-
+useEffect(()=>{
+},[needcin])
   const Cincheck = (type_id) => {
     const item = company_type_list.find((item) => item._id === type_id);
     return item ? item.Has_CIN : false;
