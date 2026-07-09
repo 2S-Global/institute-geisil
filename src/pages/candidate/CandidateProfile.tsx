@@ -539,14 +539,14 @@ const profileStatus = getProfileStatus(geisilScore);
         Verify Now
       </button>
     ) : (
-      <CircleX className="ml-2 h-4 w-4 text-red-500" />
+      <CircleX className=" h-4 w-4 text-red-500" />
     )}
   </>
 )}
                     </span>
                     <span className="flex items-center gap-1">
                       <Mail className="h-4 w-4" />
-                      {user?.email} {user?.email && <CheckCircle2 className="h-3 w-3 mr-1 text-green-600" /> }
+                      {user?.email} {user?.email && <CheckCircle2 className="h-4 w-4 mr-1 text-green-500" /> }
                     </span>
                   </div>
                 </div>
