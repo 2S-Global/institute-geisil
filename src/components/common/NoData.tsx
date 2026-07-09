@@ -1,5 +1,6 @@
 import nullSvg from "@/images/null.svg";
 import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
 
 interface NoDataProps {
   title?: string;
@@ -7,6 +8,7 @@ interface NoDataProps {
   actionLabel?: string;
   onAction?: () => void;
   className?: string;
+  delay?: number;
 }
 
 export default function NoData({
@@ -15,7 +17,18 @@ export default function NoData({
   actionLabel,
   onAction,
   className = "",
+  delay = 300,
 }: NoDataProps) {
+
+  const [visible, setVisible] = useState(delay === 0);
+  useEffect(() => {
+    if (delay === 0) return;
+    const timer = setTimeout(() => {
+      setVisible(true);
+    }, delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
+  if (!visible) return null;
   return (
     <div className={`flex flex-col items-center justify-center p-8 text-center animate-fade-in ${className}`}>
       <div className="relative mb-6 max-w-[280px] md:max-w-[320px]">
