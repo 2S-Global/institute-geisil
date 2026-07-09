@@ -8,6 +8,7 @@
 
 @layer base {
   :root {
+    scrollbar-gutter: stable;
     --background: 210 25% 98%;
     --foreground: 222 45% 14%;
 

@@ -29,11 +29,11 @@ export function CandidateLayout({ children }: { children: ReactNode }) {
   const displayName = name === 'null' ? "" : name || "Riya Sharma";
   const initials = displayName
     ? displayName
-        .split(" ")
-        .map((w) => w[0])
-        .slice(0, 2)
-        .join("")
-        .toUpperCase()
+      .split(" ")
+      .map((w) => w[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase()
     : "RS";
 
   return (
@@ -57,7 +57,7 @@ export function CandidateLayout({ children }: { children: ReactNode }) {
                 <Bell className="h-5 w-5" />
                 <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-destructive ring-2 ring-card" />
               </Button>
-              
+
               <Popover>
                 <PopoverTrigger asChild>
                   <button className="flex items-center gap-2 md:gap-3 hover:bg-muted/60 p-1.5 pr-2.5 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none text-left animate-fade-in">
@@ -117,8 +117,10 @@ export function CandidateLayout({ children }: { children: ReactNode }) {
               </Popover>
             </div>
           </header>
-          <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col">
-            <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
+          <div className="flex-1 w-full max-w-7xl mx-auto flex flex-col">
+            <main className="flex-1 px-4 sm:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
+              {children}
+            </main>
           </div>
         </div>
       </div>

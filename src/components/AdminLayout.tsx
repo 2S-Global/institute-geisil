@@ -41,7 +41,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               </Avatar>
             </div>
           </header>
-          <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
+         <div className="flex-1 w-full max-w-7xl mx-auto flex flex-col">
+  <main className="flex-1 px-4 sm:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
+  </main>
+</div>
         </div>
       </div>
     </SidebarProvider>

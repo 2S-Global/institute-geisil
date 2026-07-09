@@ -1,7 +1,7 @@
 import { Candidate } from "../CandidatesList";
 
 export const formatNoticePeriod = (days?: string | number | null): string => {
-  if (days == null || days === "") return "Not Disclosed";
+  if (days == null || days === "") return "Undisclosed";
   const numDays = Number(days);
   if (numDays < 30) return `${numDays} Day${numDays === 1 ? "" : "s"}`;
   const months = Math.floor(numDays / 30);

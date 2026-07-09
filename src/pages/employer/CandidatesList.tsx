@@ -12,6 +12,8 @@ import {
   SlidersHorizontal,
   X,
   Loader2,
+  List,
+  Grid3x3,
 } from "lucide-react";
 
 
@@ -83,8 +85,9 @@ export default function CandidatesList() {
   const [searchQuery, setSearchQuery] = useState("");
   const [locationQuery, setLocationQuery] = useState("");
   const [experienceRange, setExperienceRange] = useState<number[]>([0, 15]);
-  const [sortOption, setSortOption] = useState<string>("name");
+  const [sortOption, setSortOption] = useState<string>("exp");
   const [savedCandidates, setSavedCandidates] = useState<Set<string>>(new Set());
+  const [view, setView] = useState<"list" | "grid">("list");
 
   const [gender, setGender] = useState("all");
   const [qualification, setQualification] = useState("all");
@@ -105,7 +108,7 @@ export default function CandidatesList() {
     setSearchQuery("");
     setLocationQuery("");
     setExperienceRange([0, 15]);
-    setSortOption("match");
+    setSortOption("exp");
     setGender("all");
     setQualification("all");
   };
@@ -326,6 +329,25 @@ export default function CandidatesList() {
                   <SelectItem value="name">Sort: Name (A–Z)</SelectItem>
                 </SelectContent>
               </Select>
+
+              <div className="hidden sm:flex border rounded-md p-0.5">
+                <Button
+                  variant={view === "list" ? "secondary" : "ghost"}
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setView("list")}
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={view === "grid" ? "secondary" : "ghost"}
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setView("grid")}
+                >
+                  <Grid3x3 className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -347,7 +369,13 @@ export default function CandidatesList() {
               <Button variant="outline" className="mt-4" onClick={clearAllFilters}>Reset filters</Button>
             </Card>
           ) : (
-            <div className="space-y-3">
+            <div
+              className={cn(
+                view === "grid"
+                  ? "grid grid-cols-1 md:grid-cols-2 gap-4"
+                  : "space-y-3"
+              )}
+            >
               {filteredAndSortedCandidates.map((candidate) => (
                 <CandidateCard
                   key={candidate.id}

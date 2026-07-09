@@ -267,7 +267,7 @@ export default function CandidateApplicationDetail() {
 
   return (
     <CandidateLayout>
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="space-y-6">
         {/* Back link */}
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <Button variant="ghost" size="sm" asChild className="gap-2 -ml-2">

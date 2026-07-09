@@ -69,7 +69,7 @@ export default function Register() {
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-background">
       {/* Brand panel */}
-      <aside className="relative hidden lg:flex flex-col justify-between p-12 overflow-hidden bg-gradient-brand text-primary-foreground">
+      <aside className="sticky top-0 h-screen hidden lg:flex flex-col justify-between p-12 overflow-hidden bg-gradient-brand text-primary-foreground">
         <div className="absolute inset-0 opacity-[0.08] [background-image:radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:24px_24px]" />
         <div className="absolute -top-32 -right-32 h-96 w-96 rounded-full bg-white/10 blur-3xl" />
         <div className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-accent/30 blur-3xl" />
@@ -129,7 +129,7 @@ export default function Register() {
       </aside>
 
       {/* Form panel */}
-      <section className="flex items-center justify-center p-6 sm:p-10">
+      <section className="flex items-start justify-center p-6 sm:p-10 lg:pt-20 overflow-y-auto">
         <div className="w-full max-w-md py-8">
           <div className="lg:hidden mb-8 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground font-display font-extrabold">
