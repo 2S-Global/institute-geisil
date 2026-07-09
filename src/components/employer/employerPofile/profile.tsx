@@ -158,7 +158,7 @@ const Profile = () => {
           cin: data.cin || "",
           name: data.name || "",
           email: data.email || "",
-          phone: data.phone || "",
+          phone: data.phone?.replace(/^91/, "") || "",
           address: data.address || "",
           website: data.website || "",
           established: data.established || "",
@@ -486,11 +486,32 @@ const Profile = () => {
 
             <Input
               type="text"
-              placeholder="0 123 456 7890"
+              placeholder="Enter 10 digit mobile number"
               value={formdata.phone}
-              onChange={(e) =>
-                setFormdata({ ...formdata, phone: e.target.value })
-              }
+              maxLength={10}
+              inputMode="numeric"
+              pattern="[0-9]{10}"
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+                setFormdata({
+                  ...formdata,
+                  phone: value,
+                });
+              }}
+              onKeyDown={(e) => {
+                if (
+                  !/[0-9]/.test(e.key) &&
+                  ![
+                    "Backspace",
+                    "Delete",
+                    "ArrowLeft",
+                    "ArrowRight",
+                    "Tab",
+                  ].includes(e.key)
+                ) {
+                  e.preventDefault();
+                }
+              }}
               required
             />
           </div>
