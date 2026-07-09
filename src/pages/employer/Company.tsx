@@ -135,11 +135,11 @@ export default function Company() {
             <CardTitle className="font-display">About</CardTitle>
           </CardHeader>
           <CardContent className="text-muted-foreground text-sm space-y-3">
-            <p>{company?.about || "No company description available."}</p>
-            <p>
+            <p style={{ textAlign:"justify" }}>{company?.about || "No company description available."}</p>
+            {/* <p>
               We hire across engineering, product, design, and go-to-market —
               and partner with top institutes for early-career programs.
-            </p>
+            </p> */}
           </CardContent>
         </Card>
 
