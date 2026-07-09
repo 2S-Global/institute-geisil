@@ -718,7 +718,7 @@ export default function CandidateJobs() {
                       <SelectItem value="salary">Highest Salary</SelectItem>
                     </SelectContent>
                   </Select>
-                  <div className="hidden sm:flex border rounded-md p-0.5">
+                {/*   <div className="hidden sm:flex border rounded-md p-0.5">
                     <Button
                       variant={view === "list" ? "secondary" : "ghost"}
                       size="icon"
@@ -735,7 +735,7 @@ export default function CandidateJobs() {
                     >
                       <Grid3x3 className="h-4 w-4" />
                     </Button>
-                  </div>
+                  </div> */}
                 </div>
               </CardContent>
             </Card>
