@@ -541,7 +541,7 @@ const FormModal = ({
   const [courseSelected, setCourseSelected] = useState([]);
   const { toast } = useToast();
   const today = new Date().toISOString().split("T")[0];
-  
+
   useEffect(() => {
     if (show && data?._id) {
       setForm({
@@ -563,7 +563,7 @@ const FormModal = ({
     }));
   };
 
-  // ✅ Submit
+ 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
