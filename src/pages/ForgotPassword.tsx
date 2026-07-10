@@ -204,7 +204,7 @@ export default function ForgotPassword() {
                 asChild
                 className="w-full h-11 mt-6 bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground font-semibold shadow-brand"
               >
-                <Link to="/">Return to sign in</Link>
+                <Link to="/login">Return to sign in</Link>
               </Button>
             </>
           )}
