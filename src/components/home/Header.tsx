@@ -38,7 +38,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-card/95 backdrop-blur">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <Link to="/home" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2">
           <div className="h-9 w-9 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-bold">
             G
           </div>
