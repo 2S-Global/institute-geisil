@@ -32,12 +32,84 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-export default function ContactSection() {
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast.success("Message sent — we'll be in touch soon.");
-  };
 
+export default function ContactSection() {
+
+
+  const [contact, setContact] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
+  });
+
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+  useEffect(() => {
+    const fetchContact = async () => {
+      try {
+        const res = await api.get("/api/contact/all");
+
+        if (res.data.success && res.data.data.length > 0) {
+          setContact(res.data.data[0]);
+        }
+      } catch (error) {
+        console.error("Error fetching contact:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchContact();
+  }, []);
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+
+    if (
+      !formData.name.trim() ||
+      !formData.email.trim() ||
+      !formData.subject.trim() ||
+      !formData.message.trim()
+    ) {
+      toast.error("Please fill all required fields.");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+
+      const res = await api.post("/api/home/add-contact", formData);
+
+      if (res.data.success) {
+        toast.success(res.data.message || "Message sent successfully.");
+
+        setFormData({
+          name: "",
+          email: "",
+          subject: "",
+          message: "",
+        });
+      } else {
+        toast.error(res.data.message || "Something went wrong.");
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to send message.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
   return (
     <section
       id="contact"
@@ -60,9 +132,21 @@ export default function ContactSection() {
           </p>
           <div className="space-y-4">
             {[
-              { icon: MapPin, label: "Address", value: "New Delhi, India" },
-              { icon: Phone, label: "Call Us", value: "+91 98765 43210" },
-              { icon: Mail, label: "Email", value: "hello@geisil.com" },
+              {
+                icon: MapPin,
+                label: "Address",
+                value: contact?.address || "",
+              },
+              {
+                icon: Phone,
+                label: "Call Us",
+                value: contact?.phone || "",
+              },
+              {
+                icon: Mail,
+                label: "Email",
+                value: contact?.email || "",
+              },
             ].map((c) => (
               <div
                 key={c.label}
@@ -93,17 +177,39 @@ export default function ContactSection() {
                   <Label htmlFor="name">
                     Your Name <span className="text-destructive">*</span>
                   </Label>
-                  <Input id="name" required placeholder="Jane Doe" />
+                  <Input
+                    id="name"
+                    name="name"
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => {
+                      const value = e.target.value;
+
+                      // Allow only letters and spaces
+                      if (/^[A-Za-z\s]*$/.test(value)) {
+                        handleChange(e);
+                      }
+                    }}
+                    placeholder="Jane Doe"
+                    maxLength={50}
+                    required
+                  />
                 </div>
+
                 <div>
                   <Label htmlFor="email">
                     Your Email <span className="text-destructive">*</span>
                   </Label>
                   <Input
                     id="email"
+                    name="email"
                     type="email"
-                    required
+                    value={formData.email}
+                    onChange={handleChange}
                     placeholder="jane@company.com"
+                    pattern="^[^\s@]+@[^\s@]+\.[^\s@]{2,}$"
+                    title="Please enter a valid email address"
+                    required
                   />
                 </div>
               </div>
@@ -111,7 +217,14 @@ export default function ContactSection() {
                 <Label htmlFor="subject">
                   Subject <span className="text-destructive">*</span>
                 </Label>
-                <Input id="subject" required placeholder="Request a demo" />
+                <Input
+                  id="subject"
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleChange}
+                  placeholder="Request a demo"
+                  required
+                />
               </div>
               <div>
                 <Label htmlFor="message">
@@ -119,13 +232,21 @@ export default function ContactSection() {
                 </Label>
                 <Textarea
                   id="message"
-                  required
+                  name="message"
                   rows={5}
-                  placeholder="Tell us about your use case…"
+                  value={formData.message}
+                  onChange={handleChange}
+                  placeholder="Tell us about your use case..."
+                  required
                 />
               </div>
-              <Button type="submit" size="lg" className="w-full">
-                Send Message
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full"
+                disabled={submitting}
+              >
+                {submitting ? "Sending..." : "Send Message"}
               </Button>
             </form>
           </CardContent>
