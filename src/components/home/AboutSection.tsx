@@ -79,29 +79,8 @@ export default function AboutSection() {
             {about?.title}
           </h2>
           <div className="space-y-4 text-muted-foreground">
-            {/*   <p className="flex gap-2">
-                <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />{" "}
-                A pioneering information and HR solutions firm dedicated to
-                building secure, high-performing workforces worldwide.
-              </p>
-              <p className="flex gap-2">
-                <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />{" "}
-                We empower businesses to make informed, secure, and strategic
-                decisions — ensuring every hire is not just qualified, but fully
-                validated and compliant.
-              </p>
-              <p className="flex gap-2">
-                <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />{" "}
-                A pay-per-verification model integrated with Razorpay keeps
-                costs transparent and scalable.
-              </p> */}
             <div dangerouslySetInnerHTML={{ __html: about?.description }} />
           </div>
-          <Button asChild className="mt-6" variant="outline">
-            <Link to="/about">
-              Learn more <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
         </div>
       </div>
     </section>
