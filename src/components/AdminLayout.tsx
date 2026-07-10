@@ -33,18 +33,23 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-destructive ring-2 ring-card" />
               </Button>
               <div className="hidden sm:block text-right leading-tight">
-                <p className="text-sm font-semibold text-foreground">Avik Sen</p>
+                <p className="text-sm font-semibold text-foreground">
+                  Avik Sen
+                </p>
                 <p className="text-xs text-muted-foreground">Super Admin</p>
               </div>
               <Avatar className="h-9 w-9 border">
-                <AvatarFallback className="bg-primary text-primary-foreground font-semibold">AS</AvatarFallback>
+                <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                  AS
+                </AvatarFallback>
               </Avatar>
             </div>
           </header>
-         <div className="flex-1 w-full max-w-7xl mx-auto flex flex-col">
-  <main className="flex-1 px-4 sm:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
-  </main>
-</div>
+          <div className="flex-1 w-full max-w-7xl mx-auto flex flex-col">
+            <main className="flex-1 px-4 sm:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
+              {children}
+            </main>
+          </div>
         </div>
       </div>
     </SidebarProvider>
