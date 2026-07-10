@@ -1,14 +1,31 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { User, Briefcase, GraduationCap, Sparkles, ShieldCheck, Users2, AlertCircle } from "lucide-react";
+import {
+  User,
+  Briefcase,
+  GraduationCap,
+  Sparkles,
+  ShieldCheck,
+  Users2,
+  AlertCircle,
+} from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import CandidateForm from "./register/CandidateForm";
 import EmployerForm from "./register/EmployerForm";
 import InstituteForm from "./register/InstituteForm";
 import { cn } from "@/lib/utils";
-import { Candidatetype, useRegisterCandidate } from "./employer/hooks/useRegisterCandidate";
-import { EmployerType, useRegisterEmployer } from "./employer/hooks/useRegisterEmployer";
-import { Institutetype, useRegisterInstitute } from "./employer/hooks/useRegisterInstitute";
+import {
+  Candidatetype,
+  useRegisterCandidate,
+} from "./employer/hooks/useRegisterCandidate";
+import {
+  EmployerType,
+  useRegisterEmployer,
+} from "./employer/hooks/useRegisterEmployer";
+import {
+  Institutetype,
+  useRegisterInstitute,
+} from "./employer/hooks/useRegisterInstitute";
 
 type Role = "candidate" | "employer" | "institute";
 
@@ -22,23 +39,35 @@ export default function Register() {
   const navigate = useNavigate();
   const [role, setRole] = useState<Role>("candidate");
 
-
   //custom hooks for 3 apis
-  const { registerCandidate, loading: candidateLoading, error: candidateError } = useRegisterCandidate();
-  const { registerEmployer, loading: employerLoading, error: employerError } = useRegisterEmployer();
-  const { registerInstitute, loading: instituteLoading, error: instituteError } = useRegisterInstitute();
+  const {
+    registerCandidate,
+    loading: candidateLoading,
+    error: candidateError,
+  } = useRegisterCandidate();
+  const {
+    registerEmployer,
+    loading: employerLoading,
+    error: employerError,
+  } = useRegisterEmployer();
+  const {
+    registerInstitute,
+    loading: instituteLoading,
+    error: instituteError,
+  } = useRegisterInstitute();
 
   const loading = candidateLoading || employerLoading || instituteLoading;
 
-  const activeError = role === "candidate" ? candidateError : role === "employer" ? employerError : instituteError;
+  const activeError =
+    role === "candidate"
+      ? candidateError
+      : role === "employer"
+        ? employerError
+        : instituteError;
 
-
-
-
-
-
-  const handleRegisterSubmit = async (payload: Candidatetype | EmployerType | Institutetype) => {
-
+  const handleRegisterSubmit = async (
+    payload: Candidatetype | EmployerType | Institutetype,
+  ) => {
     try {
       if (role === "candidate") {
         await registerCandidate(payload as Candidatetype);
@@ -50,11 +79,12 @@ export default function Register() {
 
       toast({
         title: "Account created",
-        description: `Welcome to GEISIL as a ${role}.`
+        description: `Welcome to GEISIL as a ${role}.`,
       });
       navigate("/");
     } catch (err: any) {
-      const msg = err?.response?.data?.message || err.message || "Registration failed";
+      const msg =
+        err?.response?.data?.message || err.message || "Registration failed";
       toast({
         variant: "destructive",
         title: "Registration Failed",
@@ -63,9 +93,6 @@ export default function Register() {
     }
   };
 
-
-
-
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-background">
       {/* Brand panel */}
@@ -73,21 +100,21 @@ export default function Register() {
         <div className="absolute inset-0 opacity-[0.08] [background-image:radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:24px_24px]" />
         <div className="absolute -top-32 -right-32 h-96 w-96 rounded-full bg-white/10 blur-3xl" />
         <div className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-accent/30 blur-3xl" />
-
-        <div className="relative flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary-foreground text-primary font-display font-extrabold text-xl">
-            G
+        <Link to="/">
+          <div className="relative flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary-foreground text-primary font-display font-extrabold text-xl">
+              G
+            </div>
+            <div>
+              <p className="font-display font-bold text-xl leading-none">
+                GEISIL
+              </p>
+              <p className="text-xs text-primary-foreground/70 mt-1">
+                Employability Reimagined
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="font-display font-bold text-xl leading-none">
-              GEISIL
-            </p>
-            <p className="text-xs text-primary-foreground/70 mt-1">
-              Employability Reimagined
-            </p>
-          </div>
-        </div>
-
+        </Link>
         <div className="relative max-w-md">
           <h1 className="font-display text-4xl xl:text-5xl font-extrabold leading-[1.1] tracking-tight">
             Join the network. Grow your career.
@@ -177,26 +204,34 @@ export default function Register() {
               <div className="mb-4 p-3 rounded-md bg-destructive/15 border border-destructive/30 text-destructive text-sm flex items-start gap-2 animate-in fade-in slide-in-from-top-1 duration-200">
                 <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
                 <div className="flex-1">
-                  <span className="font-semibold block mb-0.5 text-xs uppercase tracking-wide">Registration Failed</span>
+                  <span className="font-semibold block mb-0.5 text-xs uppercase tracking-wide">
+                    Registration Failed
+                  </span>
                   <p className="text-sm font-medium">{activeError}</p>
                 </div>
               </div>
             )}
 
             {role === "candidate" && (
-              <CandidateForm loading={loading} onSubmit={handleRegisterSubmit} />
+              <CandidateForm
+                loading={loading}
+                onSubmit={handleRegisterSubmit}
+              />
             )}
             {role === "employer" && (
               <EmployerForm loading={loading} onSubmit={handleRegisterSubmit} />
             )}
             {role === "institute" && (
-              <InstituteForm loading={loading} onSubmit={handleRegisterSubmit} />
+              <InstituteForm
+                loading={loading}
+                onSubmit={handleRegisterSubmit}
+              />
             )}
 
             <p className="mt-6 text-center text-sm text-muted-foreground">
               Already have an account?{" "}
               <Link
-                to="/"
+                to="/login"
                 className="font-semibold text-primary hover:underline"
               >
                 LogIn

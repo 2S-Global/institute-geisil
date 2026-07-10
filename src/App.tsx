@@ -121,7 +121,7 @@ const App = () => {
         "role",
         profile?.role || localStorage.getItem("role"),
       );
-       localStorage.setItem(
+      localStorage.setItem(
         "profilePicture",
         profile?.profilePicture || localStorage.getItem("profilePicture"),
       );
@@ -184,8 +184,8 @@ const App = () => {
             <Routes>
               {/* <Route path="/" element={<NotFound />} /> */}
               {/* <Route path="/login" element={<Login />} /> */}
-              <Route path="/home" element={<Home />} />
-              <Route path="/" element={<Login />} />
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
               <Route path="/loading" element={<Loading />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
 

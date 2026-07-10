@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import api from "@/lib/axios";
 import {
   ShieldCheck,
   Zap,
@@ -51,12 +52,36 @@ const slides = [
 ];
 
 const services = [
-  { icon: Fingerprint, title: "Aadhaar Verification", desc: "UIDAI-compliant Aadhaar authentication with OTP and offline eKYC." },
-  { icon: CreditCard, title: "PAN Verification", desc: "Real-time PAN validation against the NSDL database." },
-  { icon: Landmark, title: "Bank Account Verification", desc: "Penny-drop and IFSC-based account name & number matching." },
-  { icon: FileCheck, title: "GST Verification", desc: "Validate GSTIN, business name, and registration status instantly." },
-  { icon: UserCheck, title: "Voter ID & DL Checks", desc: "Verify voter ID and driving licence details in a single flow." },
-  { icon: Building2, title: "Business KYB", desc: "Onboard businesses with company, director, and beneficial owner checks." },
+  {
+    icon: Fingerprint,
+    title: "Aadhaar Verification",
+    desc: "UIDAI-compliant Aadhaar authentication with OTP and offline eKYC.",
+  },
+  {
+    icon: CreditCard,
+    title: "PAN Verification",
+    desc: "Real-time PAN validation against the NSDL database.",
+  },
+  {
+    icon: Landmark,
+    title: "Bank Account Verification",
+    desc: "Penny-drop and IFSC-based account name & number matching.",
+  },
+  {
+    icon: FileCheck,
+    title: "GST Verification",
+    desc: "Validate GSTIN, business name, and registration status instantly.",
+  },
+  {
+    icon: UserCheck,
+    title: "Voter ID & DL Checks",
+    desc: "Verify voter ID and driving licence details in a single flow.",
+  },
+  {
+    icon: Building2,
+    title: "Business KYB",
+    desc: "Onboard businesses with company, director, and beneficial owner checks.",
+  },
 ];
 
 const partners = ["Razorpay", "NSDL", "UIDAI", "NPCI", "SEBI", "MCA"];
@@ -65,17 +90,20 @@ const testimonials = [
   {
     name: "Priya Sharma",
     role: "Head of Ops, FinEdge",
-    quote: "GEISIL cut our onboarding time from 3 days to under 5 minutes. The API is rock solid and the dashboard is a dream.",
+    quote:
+      "GEISIL cut our onboarding time from 3 days to under 5 minutes. The API is rock solid and the dashboard is a dream.",
   },
   {
     name: "Rahul Verma",
     role: "CTO, LendKart",
-    quote: "The pay-per-verification model is exactly what a growing lender needs. Compliance reports save hours every week.",
+    quote:
+      "The pay-per-verification model is exactly what a growing lender needs. Compliance reports save hours every week.",
   },
   {
     name: "Aisha Khan",
     role: "Compliance Lead, PayNova",
-    quote: "Best-in-class accuracy. We rely on GEISIL for every customer onboarding — zero downtime in the last year.",
+    quote:
+      "Best-in-class accuracy. We rely on GEISIL for every customer onboarding — zero downtime in the last year.",
   },
 ];
 
@@ -88,6 +116,7 @@ const stats = [
 
 export default function Home() {
   const [slide, setSlide] = useState(0);
+  const [about, setAbout] = useState();
 
   useEffect(() => {
     const t = setInterval(() => setSlide((s) => (s + 1) % slides.length), 5000);
@@ -101,6 +130,21 @@ export default function Home() {
     e.preventDefault();
     toast.success("Message sent — we'll be in touch soon.");
   };
+
+  const fetchList = async () => {
+    try {
+      const res = await api.get("/api/about/details");
+      console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", res.data.data[0]);
+
+      setAbout(res?.data?.data[0] || {});
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchList();
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -155,7 +199,7 @@ export default function Home() {
           </nav>
           <div className="flex items-center gap-2">
             <Button asChild size="sm">
-              <Link to="/">Log in</Link>
+              <Link to="/login">Log in</Link>
             </Button>
           </div>
         </div>

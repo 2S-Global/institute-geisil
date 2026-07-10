@@ -116,7 +116,7 @@ export default function ForgotPassword() {
           </div>
 
           <Link
-            to="/"
+            to="/login"
             className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors mb-6"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -166,7 +166,7 @@ export default function ForgotPassword() {
                 <p className="text-center text-sm text-muted-foreground">
                   Remembered it?{" "}
                   <Link
-                    to="/"
+                    to="/login"
                     className="font-semibold text-primary hover:underline"
                   >
                     Sign in instead
