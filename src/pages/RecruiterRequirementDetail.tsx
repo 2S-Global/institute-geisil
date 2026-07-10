@@ -62,7 +62,7 @@ const recruiterSchema = z.object({
   numberOfHired: z.string().trim().optional(),
   scheduledDate: z.string().trim().optional(),
   scheduledTime: z.string().trim().optional(),
-  numberOfOpenings: z.string().trim().min(2, "Opening is required"),
+  numberOfOpenings: z.string().trim().min(1, "Opening is required"),
   courses: z.string().trim().min(2, "Course is required"),
   role: z.string().trim().min(2, "Role is required"),
   tenTh: z
@@ -171,7 +171,7 @@ const apiurl = import.meta.env.VITE_API_URL;
      const [selectedSudent, setSelectedSudent] = useState(); 
      const [refresh, setRefresh] = useState(0); 
   const { toast } = useToast();
-
+ const today = new Date().toISOString().split("T")[0];
   const r = recruitersDB[id ?? "default"] ?? recruitersDB.default;
   const initials = r.name.split(" ").map((w: string) => w[0]).slice(0, 2).join("");
 
@@ -663,13 +663,14 @@ const StudentInterview= async () => {
             </div>
               <div className="space-y-1.5">
                 <Label htmlFor="scheduledDate">
-                  Exam Date 
+                   Exam Date
                 </Label>
                 <Input
                   style={{ position: "relative" }}
                   id="date"
                   type="date"
-                  max={new Date().toISOString().split("T")[0]}
+                  // max={new Date().toISOString().split("T")[0]}
+                  min={today}
                   value={YMD(form.date)}
                   onChange={(e) => update("date", e.target.value)}
                 />
