@@ -79,6 +79,7 @@ import BlogList from "./pages/BlogList.tsx";
 import Register from "./pages/Register.tsx";
 import Contact from "./pages/Contact.tsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.tsx";
+import AdminListCompany from "./pages/admin/AdminListCompany.tsx";
 import Home from "./pages/Home.tsx";
 const queryClient = new QueryClient();
 const App = () => {
@@ -194,6 +195,7 @@ const App = () => {
                 element={
                   <Routes>
                     <Route path="/dashboard" element={<AdminDashboard />} />
+                    <Route path="/employers" element={<AdminListCompany />} />
                   </Routes>
                 }
               />
