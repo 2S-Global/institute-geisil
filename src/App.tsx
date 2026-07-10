@@ -79,6 +79,7 @@ import BlogList from "./pages/BlogList.tsx";
 import Register from "./pages/Register.tsx";
 import Contact from "./pages/Contact.tsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.tsx";
+import AdminListCompany from "./pages/admin/AdminListCompany.tsx";
 import Home from "./pages/Home.tsx";
 const queryClient = new QueryClient();
 const App = () => {
@@ -121,7 +122,7 @@ const App = () => {
         "role",
         profile?.role || localStorage.getItem("role"),
       );
-       localStorage.setItem(
+      localStorage.setItem(
         "profilePicture",
         profile?.profilePicture || localStorage.getItem("profilePicture"),
       );
@@ -184,8 +185,8 @@ const App = () => {
             <Routes>
               {/* <Route path="/" element={<NotFound />} /> */}
               {/* <Route path="/login" element={<Login />} /> */}
-              <Route path="/home" element={<Home />} />
-              <Route path="/" element={<Login />} />
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
               <Route path="/loading" element={<Loading />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
 
@@ -194,6 +195,7 @@ const App = () => {
                 element={
                   <Routes>
                     <Route path="/dashboard" element={<AdminDashboard />} />
+                    <Route path="/employers" element={<AdminListCompany />} />
                   </Routes>
                 }
               />

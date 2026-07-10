@@ -79,7 +79,7 @@ export default function Login() {
         localStorage.setItem("token", token);
         // localStorage.setItem("candidate_name", candidateName);
         localStorage.setItem("role", role);
-         window.location.href = "/candidate";
+        window.location.href = "/candidate";
       } else if (role == "2") {
         localStorage.setItem("token", token);
         localStorage.setItem("employer_name", employerName);
@@ -125,21 +125,21 @@ export default function Login() {
         <div className="absolute inset-0 opacity-[0.08] [background-image:radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:24px_24px]" />
         <div className="absolute -top-32 -right-32 h-96 w-96 rounded-full bg-white/10 blur-3xl" />
         <div className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-accent/30 blur-3xl" />
-
-        <div className="relative flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary-foreground text-primary font-display font-extrabold text-xl">
-            G
+        <Link to="/">
+          <div className="relative flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary-foreground text-primary font-display font-extrabold text-xl">
+              G
+            </div>
+            <div>
+              <p className="font-display font-bold text-xl leading-none">
+                GEISIL
+              </p>
+              <p className="text-xs text-primary-foreground/70 mt-1">
+                Institute Portal
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="font-display font-bold text-xl leading-none">
-              GEISIL
-            </p>
-            <p className="text-xs text-primary-foreground/70 mt-1">
-              Institute Portal
-            </p>
-          </div>
-        </div>
-
+        </Link>
         <div className="relative max-w-md">
           <h1 className="font-display text-4xl xl:text-5xl font-extrabold leading-[1.1] tracking-tight">
             Access. Evaluate. Recruit.
