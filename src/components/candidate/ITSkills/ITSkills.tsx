@@ -52,9 +52,12 @@ const ITSkills = () => {
           <CardTitle className="text-xl font-semibold text-slate-800">
             IT Skills
           </CardTitle>
-          <Button onClick={handleOpenCreate}>
+          {/* <Button onClick={handleOpenCreate}>
             <Plus className="h-4 w-4 mr-1" />
             Add Skill
+          </Button> */}
+          <Button variant="ghost" size="icon" onClick={handleOpenCreate}>
+            <Pencil className="h-4 w-4" />
           </Button>
         </CardHeader>
 
@@ -108,7 +111,7 @@ const ITSkills = () => {
               </table>
             </div>
           ) : (
-           <div className="flex flex-1 items-center justify-center w-full shadow-sm">
+            <div className="flex flex-1 items-center justify-center w-full shadow-sm">
               <div className="w-full border-dashed border border-gray-200 rounded-xl p-8 text-center text-muted-foreground flex flex-col items-center justify-center">
                 <p className="text-sm">No It Skills added yet.</p>
               </div>

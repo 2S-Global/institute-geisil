@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import API from "../../../lib/axios";
@@ -31,6 +33,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import ResumeHeadline from "./ResumeHeadline";
+
 const ResumeHeadlineSection = ({
   show,
   onClose,
@@ -58,6 +61,7 @@ const ResumeHeadlineSection = ({
     setIsModalOpen(false);
     document.body.style.overflow = "auto"; // Re-enable background scrolling
   };
+  
   useEffect(() => {
     const fetchResumeHeadline = async () => {
       try {
@@ -66,7 +70,6 @@ const ResumeHeadlineSection = ({
         const response = await API.get(`/api/userdata/resume_headline`);
 
         //set only if response code is 200
-
         setResumeHeadline(response.data.resumeHeadline);
       } catch (error) {
         console.error("Error fetching profile pic:", error);
@@ -82,7 +85,6 @@ const ResumeHeadlineSection = ({
   return (
     <>
       {/* Resume Headline Section */}
-
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
@@ -97,10 +99,16 @@ const ResumeHeadlineSection = ({
         </CardHeader>
         <CardContent>
           {sectionloading ? (
-            "loading............."
-          ) : (
+            "loading............"
+          ) : resumeHeadline?.trim() ? (
             <div className="mt-4">
-              <p>{resumeHeadline?.trim() || "Add Your Resume Headline"}</p>
+              <p>{resumeHeadline.trim()}</p>
+            </div>
+          ) : (
+            <div className="flex flex-1 items-center justify-center w-full shadow-sm">
+              <div className="w-full border-dashed border border-gray-200 rounded-xl p-8 text-center text-muted-foreground flex flex-col items-center justify-center">
+                <p className="text-sm">No Resume Headline added yet.</p>
+              </div>
             </div>
           )}
         </CardContent>
