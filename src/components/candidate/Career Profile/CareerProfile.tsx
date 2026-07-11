@@ -87,7 +87,7 @@ const CareerProfile = () => {
         <CardContent className="p-8">
           {/* Header Row */}
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-slate-900 tracking-tight">
+            <h2 className="text-lg font-semibold text-slate-900 tracking-tight">
               Career Profile
             </h2>
             

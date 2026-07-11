@@ -104,7 +104,7 @@ const WorkProfileList = () => {
   return (
     <Card className="w-full bg-white border border-gray-200 shadow-sm mt-6">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6 ">
-        <CardTitle className="text-xl font-semibold text-[#1F2937]">
+        <CardTitle className="text-lg font-semibold text-[#1F2937]">
           Work experience
         </CardTitle>
         <Button size="sm" onClick={handleAdd}>
