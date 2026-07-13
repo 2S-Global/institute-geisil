@@ -35,6 +35,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 export default function Header() {
+  const [active, setActive] = useState("home");
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-card/95 backdrop-blur">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -50,33 +51,80 @@ export default function Header() {
           </div>
         </Link>
         <nav className="hidden md:flex items-center gap-7 text-sm">
-          <a href="#home" className="text-primary font-medium">
+          <a
+            href="#home"
+            onClick={() => setActive("home")}
+            className={
+              active === "home"
+                ? "text-primary font-medium"
+                : "text-muted-foreground hover:text-primary"
+            }
+          >
             Home
           </a>
-          <a href="#about" className="text-muted-foreground hover:text-primary">
+          <a
+            href="#about"
+            onClick={() => setActive("about")}
+            className={
+              active === "about"
+                ? "text-primary font-medium"
+                : "text-muted-foreground hover:text-primary"
+            }
+          >
             About
           </a>
           <a
             href="#services"
-            className="text-muted-foreground hover:text-primary"
+            onClick={() => setActive("services")}
+            className={
+              active === "services"
+                ? "text-primary font-medium"
+                : "text-muted-foreground hover:text-primary"
+            }
           >
             Services
           </a>
           <a
+            href="#verification"
+            onClick={() => setActive("verification")}
+            className={
+              active === "verification"
+                ? "text-primary font-medium"
+                : "text-muted-foreground hover:text-primary"
+            }
+          >
+            Verification
+          </a>
+          <a
             href="#clients"
-            className="text-muted-foreground hover:text-primary"
+            onClick={() => setActive("clients")}
+            className={
+              active === "clients"
+                ? "text-primary font-medium"
+                : "text-muted-foreground hover:text-primary"
+            }
           >
             Clients
           </a>
           <a
             href="#testimonials"
-            className="text-muted-foreground hover:text-primary"
+            onClick={() => setActive("testimonials")}
+            className={
+              active === "testimonials"
+                ? "text-primary font-medium"
+                : "text-muted-foreground hover:text-primary"
+            }
           >
             Testimonials
           </a>
           <a
             href="#contact"
-            className="text-muted-foreground hover:text-primary"
+            onClick={() => setActive("contact")}
+            className={
+              active === "contact"
+                ? "text-primary font-medium"
+                : "text-muted-foreground hover:text-primary"
+            }
           >
             Contact
           </a>

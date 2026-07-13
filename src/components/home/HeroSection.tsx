@@ -2,166 +2,363 @@
 
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import api from "@/lib/axios";
-import {
-  ShieldCheck,
-  Zap,
-  Lock,
-  Users,
-  Award,
-  TrendingUp,
-  CheckCircle2,
-  ArrowRight,
-  ChevronLeft,
-  ChevronRight,
-  Building2,
-  CreditCard,
-  FileCheck,
-  Landmark,
-  UserCheck,
-  Fingerprint,
-  Quote,
-  Star,
-  Lightbulb,
-  Mail,
-  Phone,
-  MapPin,
-} from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+
+import { AnimatePresence, motion } from "framer-motion";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
-import { slides } from "./data";
+import api from "@/lib/axios";
 
 export default function HeroSection() {
   const [slide, setSlide] = useState(0);
-
+  const [loading, setLoading] = useState(false);
+  const [homeBanner, sethomeBanner] = useState([]);
   useEffect(() => {
+    (async () => {
+      try {
+        setLoading(true);
+        const response = await api.get(`/api/home/all-banner`);
+
+        if (response.data) {
+          sethomeBanner(response.data.data); // ✅ multiple banners
+        }
+      } catch (error) {
+        console.error(error);
+      }
+      setLoading(false);
+    })();
+  }, []);
+
+  const prevSlide = () => {
+    setSlide((prev) => (prev === 0 ? homeBanner.length - 1 : prev - 1));
+  };
+
+  const nextSlide = () => {
+    if (homeBanner.length > 0) {
+      setSlide((prev) => (prev + 1) % homeBanner.length);
+    }
+  };
+  // Reset slide when banners load/change
+  useEffect(() => {
+    if (slide >= homeBanner.length) {
+      setSlide(0);
+    }
+  }, [homeBanner, slide]);
+
+  // Auto slider
+  useEffect(() => {
+    if (homeBanner.length <= 1) return;
+
     const timer = setInterval(() => {
-      setSlide((s) => (s + 1) % slides.length);
+      setSlide((prev) => (prev + 1) % homeBanner.length);
     }, 5000);
 
     return () => clearInterval(timer);
-  }, []);
-
-  const prev = () => setSlide((s) => (s - 1 + slides.length) % slides.length);
-
-  const next = () => setSlide((s) => (s + 1) % slides.length);
+  }, [homeBanner]);
 
   return (
     <section
       id="home"
-      className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-primary/5 to-background border-b border-border/60"
+      className="
+        relative
+        overflow-hidden
+        bg-gradient-to-br
+        from-primary/10
+        via-primary/5
+        to-background
+        border-b
+        border-border/60
+      "
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 grid md:grid-cols-2 gap-10 items-center min-h-[520px]">
-        <div>
-          <Badge
-            variant="outline"
-            className="bg-primary/10 text-primary border-primary/20 mb-4"
-          >
-            {slides[slide].subtitle}
-          </Badge>
-          <h1 className="text-4xl md:text-6xl font-bold text-foreground leading-tight mb-4">
-            {slides[slide].title}
-          </h1>
-          <p className="text-muted-foreground text-lg max-w-xl mb-8">
-            {slides[slide].desc}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button asChild size="lg">
-              <Link to="/register">
-                Get started free <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <a href="#services">Explore services</a>
-            </Button>
-          </div>
-          <div className="flex items-center gap-2 mt-8">
-            {slides.map((_, i) => (
-              <button
-                key={i}
-                aria-label={`Slide ${i + 1}`}
-                onClick={() => setSlide(i)}
-                className={`h-2 rounded-full transition-all ${i === slide ? "w-8 bg-primary" : "w-2 bg-primary/30"}`}
-              />
-            ))}
-          </div>
-        </div>
+      {/* LEFT ARROW */}
 
-        <div className="relative">
-          <Card className="border-border/60 shadow-brand bg-gradient-to-br from-card to-primary-soft overflow-hidden">
-            <CardContent className="p-8 md:p-10">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
-                <ShieldCheck className="h-4 w-4 text-success" />
-                Live verification preview
+      <button
+        onClick={prevSlide}
+        className="
+          absolute
+          left-3
+          md:left-6
+          top-1/2
+          -translate-y-1/2
+          z-20
+          h-10
+          w-10
+          md:h-12
+          md:w-12
+          rounded-full
+          bg-background/80
+          backdrop-blur
+          border
+          shadow-md
+          hover:bg-primary
+          hover:text-white
+          transition
+        "
+      >
+        <ArrowLeft className="h-5 w-5 mx-auto" />
+      </button>
+
+      {/* RIGHT ARROW */}
+
+      <button
+        onClick={nextSlide}
+        className="
+          absolute
+          right-3
+          md:right-6
+          top-1/2
+          -translate-y-1/2
+          z-20
+          h-10
+          w-10
+          md:h-12
+          md:w-12
+          rounded-full
+          bg-background/80
+          backdrop-blur
+          border
+          shadow-md
+          hover:bg-primary
+          hover:text-white
+          transition
+        "
+      >
+        <ArrowRight className="h-5 w-5 mx-auto" />
+      </button>
+
+      <div
+        className="
+          max-w-7xl
+          mx-auto
+          px-4
+          sm:px-6
+          lg:px-8
+          py-12
+          sm:py-16
+          md:py-24
+        "
+      >
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={slide}
+            initial={{
+              opacity: 0,
+              x: 80,
+            }}
+            animate={{
+              opacity: 1,
+              x: 0,
+            }}
+            exit={{
+              opacity: 0,
+              x: -80,
+            }}
+            transition={{
+              duration: 0.45,
+            }}
+            className="
+              grid
+              grid-cols-1
+              lg:grid-cols-2
+              gap-10
+              lg:gap-16
+              items-center
+            "
+          >
+            {/* LEFT CONTENT */}
+
+            <div
+              className="
+                order-2
+                lg:order-1
+                text-center
+                lg:text-left
+              "
+            >
+              {/*  <Badge
+                variant="outline"
+                className="
+                  bg-primary/10
+                  text-primary
+                  border-primary/20
+                  mb-4
+                "
+              >
+                {homeBanner?.[slide]?.subtitle}
+              </Badge>
+ */}
+              <h1
+                className="
+                  text-3xl
+                  sm:text-4xl
+                  md:text-5xl
+                  lg:text-6xl
+                  font-bold
+                  leading-tight
+                  mb-5
+                "
+              >
+                {homeBanner?.[slide]?.banner_title}
+              </h1>
+
+              {/*  <p
+                className="
+                  text-muted-foreground
+                  text-base
+                  sm:text-lg
+                  max-w-xl
+                  mx-auto
+                  lg:mx-0
+                  mb-8
+                "
+              >
+                {homeBanner?.[slide]?.desc}
+              </p>
+ */}
+              <div
+                className="
+                  flex
+                  flex-col
+                  sm:flex-row
+                  justify-center
+                  lg:justify-start
+                  gap-3
+                "
+              >
+                <Button asChild size="lg">
+                  <Link to="/register">
+                    Get Started Free
+                    <ArrowRight
+                      className="
+                        ml-2
+                        h-4
+                        w-4
+                      "
+                    />
+                  </Link>
+                </Button>
+
+                <Button asChild size="lg" variant="outline">
+                  <a href="#services">Explore Services</a>
+                </Button>
               </div>
-              <div className="space-y-3">
-                {[
-                  {
-                    label: "Aadhaar",
-                    value: "XXXX XXXX 4712",
-                    status: "Verified",
-                  },
-                  { label: "PAN", value: "ABCDE1234F", status: "Verified" },
-                  {
-                    label: "Bank A/C",
-                    value: "HDFC · ***4421",
-                    status: "Verified",
-                  },
-                  {
-                    label: "GSTIN",
-                    value: "27AACCG1234F1Z5",
-                    status: "Verified",
-                  },
-                ].map((r) => (
-                  <div
-                    key={r.label}
-                    className="flex items-center justify-between p-3 rounded-lg bg-background border border-border/60"
-                  >
-                    <div>
-                      <div className="text-xs text-muted-foreground">
-                        {r.label}
-                      </div>
-                      <div className="text-sm font-medium text-foreground">
-                        {r.value}
-                      </div>
-                    </div>
-                    <Badge
-                      className="bg-success/10 text-success border-success/20 hover:bg-success/10"
-                      variant="outline"
-                    >
-                      <CheckCircle2 className="h-3 w-3 mr-1" /> {r.status}
-                    </Badge>
-                  </div>
+
+              {/* DOTS */}
+
+              <div
+                className="
+                  flex
+                  justify-center
+                  lg:justify-start
+                  gap-2
+                  mt-8
+                "
+              >
+                {homeBanner.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSlide(index)}
+                    className={`
+                      h-2
+                      rounded-full
+                      transition-all
+
+                      ${
+                        slide === index ? "w-8 bg-primary" : "w-2 bg-primary/30"
+                      }
+                    `}
+                  />
                 ))}
               </div>
-              <div className="mt-6 flex items-center justify-between text-xs text-muted-foreground">
-                <span>Avg. response 1.2s</span>
-                <span>API v3.4</span>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+            </div>
 
-      <button
-        onClick={prev}
-        aria-label="Previous slide"
-        className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-card border border-border/60 shadow-md items-center justify-center text-primary hover:bg-primary hover:text-primary-foreground transition"
-      >
-        <ChevronLeft className="h-5 w-5" />
-      </button>
-      <button
-        onClick={next}
-        aria-label="Next slide"
-        className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-card border border-border/60 shadow-md items-center justify-center text-primary hover:bg-primary hover:text-primary-foreground transition"
-      >
-        <ChevronRight className="h-5 w-5" />
-      </button>
+            {/* RIGHT RESPONSIVE IMAGE */}
+
+            <div
+              className="
+                order-1
+                lg:order-2
+                w-full
+              "
+            >
+              <Card
+                className="
+                  overflow-hidden
+                  border-border/60
+                  shadow-brand
+                  bg-card
+                "
+              >
+                <CardContent className="p-0">
+                  <div
+                    className="
+                      relative
+                      w-full
+                      aspect-[4/3]
+                      sm:aspect-[16/10]
+                      lg:aspect-[4/3]
+                      overflow-hidden
+                    "
+                  >
+                    <img
+                      src={homeBanner?.[slide]?.banner_image}
+                      alt={homeBanner?.[slide]?.banner_title}
+                      className="
+                        w-full
+                        h-full
+                        object-cover
+                        transition-transform
+                        duration-500
+                        hover:scale-105
+                      "
+                    />
+
+                    <div
+                      className="
+                        absolute
+                        inset-0
+                        bg-gradient-to-t
+                        from-black/70
+                        via-black/20
+                        to-transparent
+                        flex
+                        items-end
+                        p-6
+                        sm:p-8
+                      "
+                    >
+                      {/*  <div className="text-white">
+                        <h2
+                          className="
+                            text-xl
+                            sm:text-2xl
+                            font-bold
+                            mb-2
+                          "
+                        >
+                          {homeBanner?.[slide]?.banner_title}
+                        </h2>
+
+                        <p
+                          className="
+                            text-sm
+                            sm:text-base
+                            text-white/80
+                          "
+                        >
+                          {homeBanner?.[slide]?.cardText}
+                        </p>
+                      </div> */}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </section>
   );
 }

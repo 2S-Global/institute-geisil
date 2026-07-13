@@ -94,18 +94,6 @@ export const testimonials = [
     quote:
       "Best-in-class accuracy. We rely on GEISIL for every customer onboarding — zero downtime in the last year.",
   },
-  {
-    name: "Aisha Khan aaaaaaa",
-    role: "Compliance Lead, PayNova",
-    quote:
-      "Best-in-class accuracy. We rely on GEISIL for every customer onboarding — zero downtime in the last year.",
-  },
-  {
-    name: "Aisha Khan bbbbbbbbbbb",
-    role: "Compliance Lead, PayNova",
-    quote:
-      "Best-in-class accuracy. We rely on GEISIL for every customer onboarding — zero downtime in the last year.",
-  },
 ];
 
 export const stats = [

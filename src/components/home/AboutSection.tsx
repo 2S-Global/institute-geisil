@@ -51,8 +51,9 @@ export default function AboutSection() {
   }, []);
   return (
     <section id="about" className="py-16 md:py-20">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-10 items-center">
-        <div className="relative rounded-xl overflow-hidden border border-border/60 shadow-lg bg-gradient-to-br from-primary/10 to-primary-soft aspect-[4/3] flex items-center justify-center">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-10 items-stretch">
+        {/* Left */}
+        <div className="h-full relative rounded-xl overflow-hidden border border-border/60 shadow-lg bg-gradient-to-br from-primary/10 to-primary-soft aspect-[4/3] md:aspect-auto flex items-center justify-center">
           <div className="text-center p-8">
             <div className="mx-auto h-20 w-20 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center mb-4 shadow-brand">
               <ShieldCheck className="h-10 w-10" />
@@ -65,7 +66,9 @@ export default function AboutSection() {
             </p>
           </div>
         </div>
-        <div>
+
+        {/* Right */}
+        <div className="h-full flex flex-col justify-center">
           <div className="flex items-center gap-2 mb-3">
             <Lightbulb className="h-5 w-5 text-warning" />
             <Badge
@@ -75,10 +78,12 @@ export default function AboutSection() {
               About GEISIL
             </Badge>
           </div>
+
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             {about?.title}
           </h2>
-          <div className="space-y-4 text-muted-foreground">
+
+          <div className="space-y-4 text-muted-foreground text-justify">
             <div dangerouslySetInnerHTML={{ __html: about?.description }} />
           </div>
         </div>

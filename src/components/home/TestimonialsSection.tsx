@@ -112,7 +112,7 @@ export default function TestimonialsSection() {
             },
           }}
         >
-          {testimonials.map((item) => (
+          {testimonials?.map((item) => (
             <SwiperSlide key={item?._id} className="h-auto">
               <div className="bg-white rounded-xl border shadow-sm p-6 h-full flex flex-col">
                 <Quote className="w-8 h-8 text-gray-300 mb-4" />
