@@ -112,9 +112,9 @@ const WorkProfileList = () => {
             Detail your professional journey and key responsibilities.
           </CardDescription>
         </div>
-        <CardTitle className="text-lg font-semibold text-[#1F2937]">
+        {/* <CardTitle className="text-lg font-semibold text-[#1F2937]">
           Work experience
-        </CardTitle>
+        </CardTitle> */}
         <Button size="sm" onClick={handleAdd}>
           <Plus className="h-4 w-4 mr-1" /> Add experience
         </Button>

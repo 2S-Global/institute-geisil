@@ -375,11 +375,13 @@ const PersonalSection = () => {
                         <td className="px-4 py-2 text-center">
                           {lang.read ? (
                             <CircleCheck
+                              className="mx-auto"
                               color="#00A85A"
                               size={18}
                             />
                           ) : (
                             <CircleX
+                              className="mx-auto"
                               color="#FF0000"
                               size={18}
                             />
@@ -389,11 +391,13 @@ const PersonalSection = () => {
                         <td className="px-4 py-2 text-center">
                           {lang.write ? (
                             <CircleCheck
+                              className="mx-auto"
                               color="#00A85A"
                               size={18}
                             />
                           ) : (
                             <CircleX
+                              className="mx-auto"
                               color="#FF0000"
                               size={18}
                             />
@@ -403,11 +407,13 @@ const PersonalSection = () => {
                         <td className="px-4 py-2 text-center">
                           {lang.speak ? (
                             <CircleCheck
+                              className="mx-auto"
                               color="#00A85A"
                               size={18}
                             />
                           ) : (
                             <CircleX
+                              className="mx-auto"
                               color="#FF0000"
                               size={18}
                             />

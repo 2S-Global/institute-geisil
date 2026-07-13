@@ -154,7 +154,7 @@ const KycSection = ({ show, onClose, data = {}, setRefresh
                 {/* PAN CARD */}
                 <div>
                   <div className="flex items-center">
-                    <strong>Pan Number</strong>
+                    <strong>PAN Number</strong>
 
                     {userdata?.pan_number && (
                       <>

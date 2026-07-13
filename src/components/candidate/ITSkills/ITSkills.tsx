@@ -57,9 +57,9 @@ const ITSkills = () => {
               Mention the software, tools, and technical languages you are proficient in.
             </CardDescription>
           </div>
-          <CardTitle className="text-lg font-semibold text-slate-800">
+          {/* <CardTitle className="text-lg font-semibold text-slate-800">
             IT Skills
-          </CardTitle>
+          </CardTitle> */}
           {/* <Button onClick={handleOpenCreate}>
             <Plus className="h-4 w-4 mr-1" />
             Add Skill
