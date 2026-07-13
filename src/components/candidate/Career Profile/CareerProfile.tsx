@@ -95,6 +95,9 @@ const CareerProfile = () => {
                 Your preferred work locations, industry, and role expectations.
               </p>
             </div>
+            <h2 className="text-lg font-semibold text-slate-900 tracking-tight">
+              Career Profile
+            </h2>
             
             <Button
               variant="ghost"
