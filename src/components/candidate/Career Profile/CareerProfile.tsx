@@ -1,6 +1,3 @@
-
-
-
 import React, { useEffect, useState } from "react";
 import { Pencil } from "lucide-react";
 import API from "../../../lib/axios";
@@ -174,7 +171,7 @@ const CareerProfile = () => {
             setIsModalOpen(false);
             setActiveHighlightField(null);
           }}
-          // ✅ Matches exact backend structure and uses underlying IDs/Values
+          
           currentData={{
             _id: data._id || "",
             industry: data.industry || "",
