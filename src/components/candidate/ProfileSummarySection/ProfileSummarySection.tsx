@@ -1,9 +1,18 @@
+
+
+
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, CircleX,Pencil,CircleCheck } from "lucide-react";
-import API from "../../../lib/axios"
-import Profilesum from "./Profilesum"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { CheckCircle, CircleX, Pencil, CircleCheck } from "lucide-react";
+import API from "../../../lib/axios";
+import Profilesum from "./Profilesum";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -25,9 +34,10 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import PersonalModal from "../personal/PersonalModal";
+
 const ProfileSummarySection = () => {
-const apiurl =  import.meta.env.VITE_API_URL;
- const [isModalOpen, setIsModalOpen] = useState(false);
+  const apiurl = import.meta.env.VITE_API_URL;
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [profilesummary, setProfilesummary] = useState();
   const [sectionloading, setSectionloading] = useState(true);
   const [error, setError] = useState(null);
@@ -42,7 +52,6 @@ const apiurl =  import.meta.env.VITE_API_URL;
     setIsModalOpen(false);
     document.body.style.overflow = "auto"; // Re-enable background scrolling
   };
- 
 
   useEffect(() => {
     const fetchprofilesummary = async () => {
@@ -57,8 +66,8 @@ const apiurl =  import.meta.env.VITE_API_URL;
             },
           }
         ); */
-        const response = await API.get(`/api/userdata/profile_summary`)
-        
+        const response = await API.get(`/api/userdata/profile_summary`);
+
         //set only if response code is 200
         setProfilesummary(response.data.profileSummary);
       } catch (error) {
@@ -69,52 +78,53 @@ const apiurl =  import.meta.env.VITE_API_URL;
     };
     fetchprofilesummary();
   }, [apiurl]);
-  return (
-<>
- <Card>
-                  <CardHeader className="flex flex-row items-center justify-between">
-                    <div>
-                      <CardTitle className="text-lg">Profile Summary</CardTitle>
-                      <CardDescription></CardDescription>
-                    </div>
-                    <Button variant="ghost" size="icon" onClick={openModalRH}><Pencil className="h-4 w-4"/></Button>
-                  </CardHeader>
-                  <CardContent>
-                  
-    {sectionloading ? (
-      'loading.............'
-    ) : (
-      <div >
-        {profilesummary?.trim() ? (
-          <p className="whitespace-pre-line text-justify">
-            {profilesummary}
-          </p>
-        ) : (
-          <span
-            className="cursor-pointer font-semibold text-blue-600"
-            onClick={openModalRH}
-          >
-            Add Profile Summary
-          </span>
-        )}
-      </div>
-    )}
-                  </CardContent>
-                </Card>
-  
 
-  {/* Modal */}
-  {isModalOpen && (
-    <Profilesum
-      show={isModalOpen}
-      onClose={closeModalRH}
-      mainprofilesummary={profilesummary}
-      mainsetProfilesummary={setProfilesummary}
-      setError={setError}
-      setSuccess={setSuccess}
-    />
-  )}
-</>
+  return (
+    <>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle className="text-lg">Profile Summary</CardTitle>
+            <CardDescription></CardDescription>
+          </div>
+          <Button variant="ghost" size="icon" onClick={openModalRH}>
+            <Pencil className="h-4 w-4" />
+          </Button>
+        </CardHeader>
+        <CardContent>
+          {sectionloading ? (
+            "loading............"
+          ) : profilesummary?.trim() ? (
+            <div>
+              <p className="whitespace-pre-line text-justify">
+                {profilesummary}
+              </p>
+            </div>
+          ) : (
+            <div 
+              className="flex flex-1 items-center justify-center w-full shadow-sm cursor-pointer" 
+              onClick={openModalRH}
+            >
+              <div className="w-full border-dashed border border-gray-200 rounded-xl p-8 text-center text-muted-foreground flex flex-col items-center justify-center hover:border-gray-300 transition-colors">
+                <p className="text-sm">No Profile Summary added yet.</p>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Modal */}
+      {isModalOpen && (
+        <Profilesum
+          show={isModalOpen}
+          onClose={closeModalRH}
+          mainprofilesummary={profilesummary}
+          mainsetProfilesummary={setProfilesummary}
+          setError={setError}
+          setSuccess={setSuccess}
+        />
+      )}
+    </>
   );
 };
 

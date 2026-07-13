@@ -1,5 +1,3 @@
-
-
 import { useState, useEffect } from "react";
 import API from "../../../lib/axios";
 import { Button } from "@/components/ui/button";
@@ -81,7 +79,7 @@ const SocialNetworkBox = () => {
 
     try {
       const response = await API.get(
-        `${apiurl}/api/instituteprofile/get_social`
+        `${apiurl}/api/instituteprofile/get_social`,
       );
 
       if (response.data.success) {
@@ -114,7 +112,7 @@ const SocialNetworkBox = () => {
   };
 
   const hasAtLeastOneValue = Object.values(formData).some(
-    (value) => value.trim() !== ""
+    (value) => value.trim() !== "",
   );
 
   const handleSubmit = async (e) => {
@@ -139,7 +137,7 @@ const SocialNetworkBox = () => {
     try {
       const response = await API.post(
         `${apiurl}/api/instituteprofile/add_or_update_social`,
-        formData
+        formData,
       );
 
       if (response.data.success) {
@@ -194,9 +192,7 @@ const SocialNetworkBox = () => {
         <div className="grid gap-4 md:grid-cols-2">
           {socialPlatforms.map((platform) => (
             <div key={platform.name} className="space-y-2">
-              <Label htmlFor={platform.name}>
-                {platform.label}
-              </Label>
+              <Label htmlFor={platform.name}>{platform.label}</Label>
 
               <Input
                 type="url"
