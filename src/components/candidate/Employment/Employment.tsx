@@ -188,7 +188,7 @@ import { Pencil, Plus } from "lucide-react";
 import API from "../../../lib/axios";
 import EmploymentModal from "./EmploymentModal";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Check icon
 const CheckIcon = ({ className = "w-4 h-4" }) => (
@@ -282,9 +282,14 @@ export const EmploymentCard = () => {
       <Card className="max-w-4xl mx-auto my-8 shadow-sm">
         <CardHeader className="flex flex-row justify-between items-center space-y-0 pb-4">
           {/* Modified CardTitle to make the headline smaller and more elegant */}
-          <CardTitle className="text-lg font-semibold tracking-tight">
-            Employment
-          </CardTitle>
+          <div>
+            <CardTitle className="text-lg font-semibold tracking-tight">
+              Employment
+            </CardTitle>
+            <CardDescription>
+              Details about your current and past work history.
+            </CardDescription>
+          </div>
 
           <Button onClick={handleAdd}>
             <Plus className="h-4 w-4 mr-2" />

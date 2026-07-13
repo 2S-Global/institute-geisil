@@ -57,7 +57,7 @@ const KeySkills = () => {
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle className="text-lg">Key Skills</CardTitle>
-            <CardDescription />
+            <CardDescription>Highlight your core areas of expertise to match job roles.</CardDescription>
           </div>
 
           <Button variant="ghost" size="icon" onClick={openModal}>

@@ -1,40 +1,43 @@
 // Header.tsx
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
+import Cookies from "js-cookie";
 import api from "@/lib/axios";
 
-import {
-  ShieldCheck,
-  Zap,
-  Lock,
-  Users,
-  Award,
-  TrendingUp,
-  CheckCircle2,
-  ArrowRight,
-  ChevronLeft,
-  ChevronRight,
-  Building2,
-  CreditCard,
-  FileCheck,
-  Landmark,
-  UserCheck,
-  Fingerprint,
-  Quote,
-  Star,
-  Lightbulb,
-  Mail,
-  Phone,
-  MapPin,
-} from "lucide-react";
+// import {
+//   ShieldCheck,
+//   Zap,
+//   Lock,
+//   Users,
+//   Award,
+//   TrendingUp,
+//   CheckCircle2,
+//   ArrowRight,
+//   ChevronLeft,
+//   ChevronRight,
+//   Building2,
+//   CreditCard,
+//   FileCheck,
+//   Landmark,
+//   UserCheck,
+//   Fingerprint,
+//   Quote,
+//   Star,
+//   Lightbulb,
+//   Mail,
+//   Phone,
+//   MapPin,
+// } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
+import { UserMenu } from "@/components/UserMenu";
+
 export default function Header() {
+  const [token, setToken] = useState<string | null>(null);
+
+  useLayoutEffect(() => {
+    setToken(localStorage.getItem("token") || Cookies.get("token"));
+  }, []);
+
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-card/95 backdrop-blur">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -82,9 +85,13 @@ export default function Header() {
           </a>
         </nav>
         <div className="flex items-center gap-2">
-          <Button asChild size="sm">
-            <Link to="/login">Log in</Link>
-          </Button>
+          {token ? (
+            <UserMenu />
+          ) : (
+            <Button asChild size="sm">
+              <Link to="/login">Log in</Link>
+            </Button>
+          )}
         </div>
       </div>
     </header>

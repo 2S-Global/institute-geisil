@@ -120,7 +120,7 @@ const PersonalSection = () => {
                   <CardHeader className="flex flex-row items-center justify-between">
                     <div>
                       <CardTitle className="text-lg">Personal Details</CardTitle>
-                      <CardDescription></CardDescription>
+                      <CardDescription>Information about your language proficiency, gender, and contact preferences.</CardDescription>
                     </div>
                     <Button variant="ghost" size="icon"  onClick={() => openModalRH("editPersonal")}><Pencil className="h-4 w-4"/></Button>
                   </CardHeader>

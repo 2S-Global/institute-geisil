@@ -79,7 +79,7 @@ const WhitePaper = () => {
             <CardTitle className="text-lg">
               White Paper / Research Publication / Journal Entry
             </CardTitle>
-            <CardDescription />
+            <CardDescription>Showcase your published research papers, white papers, and articles.</CardDescription>
           </div>
 
           <Button

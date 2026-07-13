@@ -5,7 +5,7 @@ import { Plus, Pencil, Trash2, Calendar, Briefcase } from "lucide-react";
 import API from "@/lib/axios";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import WorkProfileModal from "./ExperienceModal";
 
@@ -104,9 +104,14 @@ const WorkProfileList = () => {
   return (
     <Card className="w-full bg-white border border-gray-200 shadow-sm mt-6">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6 ">
-        <CardTitle className="text-xl font-semibold text-[#1F2937]">
-          Work experience
-        </CardTitle>
+        <div>
+          <CardTitle className="text-xl font-semibold text-[#1F2937]">
+            Work experience
+          </CardTitle>
+          <CardDescription>
+            Detail your professional journey and key responsibilities.
+          </CardDescription>
+        </div>
         <Button size="sm" onClick={handleAdd}>
           <Plus className="h-4 w-4 mr-1" /> Add experience
         </Button>

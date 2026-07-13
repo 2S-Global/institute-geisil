@@ -182,7 +182,7 @@ const AadharCardInfo = ({
    <>
   <div className="mb-6">
     <div className="flex items-center gap-2">
-      <strong>Aadhar Card With OTP</strong>
+      <strong>Aadhaar Number</strong>
 
       {userdata?.aadhar_number &&
         (userdata?.aadhar_verified ? (
@@ -201,13 +201,14 @@ const AadharCardInfo = ({
     <div className="mt-2">
       {userdata?.aadhar_number ? (
         <div className="leading-6 text-gray-600">
+          
           <div>
-            <span className="font-semibold">Aadhar Number:</span>{" "}
-            {userdata?.aadhar_number}
+            <span className="font-semibold">Aadhaar Name:</span>{" "}
+            {userdata?.aadhar_name}
           </div>
           <div>
-            <span className="font-semibold">Aadhar Name:</span>{" "}
-            {userdata?.aadhar_name}
+            <span className="font-semibold">Aadhaar Number:</span>{" "}
+            {userdata?.aadhar_number}
           </div>
         </div>
       ) : (

@@ -87,9 +87,14 @@ const CareerProfile = () => {
         <CardContent className="p-8">
           {/* Header Row */}
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-slate-900 tracking-tight">
-              Career Profile
-            </h2>
+            <div>
+              <h2 className="text-xl font-semibold text-slate-900 tracking-tight">
+                Career Profile
+              </h2>
+              <p className="text-sm text-slate-500 mt-1">
+                Your preferred work locations, industry, and role expectations.
+              </p>
+            </div>
             
             <Button
               variant="ghost"
