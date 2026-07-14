@@ -20,6 +20,10 @@ export default function NoData({
   delay = 300,
 }: NoDataProps) {
 
+
+
+  //bad practice 
+  //LATER : each page which is using this component must have correct loading state by its data, and remove this component from that page 
   const [visible, setVisible] = useState(delay === 0);
   useEffect(() => {
     if (delay === 0) return;

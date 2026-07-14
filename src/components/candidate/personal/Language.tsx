@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import { Plus, Trash2 } from "lucide-react";
 import API from "../../../lib/axios";
 import {
   Dialog,
@@ -24,25 +25,25 @@ import { useToast } from "@/hooks/use-toast";
 import Disability from "./Disability";
 import CareerBreak from "./CareerBreak";
 const Language = ({ formData, setFormData }) => {
-  const apiurl =  import.meta.env.VITE_API_URL;
-   //list
-  
-const [languages, setLanguages] = useState([]);
+  const apiurl = import.meta.env.VITE_API_URL;
+  //list
+
+  const [languages, setLanguages] = useState([]);
 
   const [languageOptions, setLanguageOptions] = useState([]);
   const [languageproficiencyOptions, setLanguageproficiencyOptions] = useState(
     []
   );
   const [loading, setLoading] = useState(true);
-    useEffect(() => {
+  useEffect(() => {
     if (Array.isArray(formData?.languages)) {
       setLanguages(formData.languages);
     }
   }, [formData?.languages]);
   useEffect(() => {
-     if (Array.isArray(formData?.languages) && formData?.languages?.length>0) {
-          setFormData((prevData) => ({ ...prevData, languages }));
-     }
+    if (Array.isArray(formData?.languages) && formData?.languages?.length > 0) {
+      setFormData((prevData) => ({ ...prevData, languages }));
+    }
   }, [languages]);
 
   useEffect(() => {
@@ -112,10 +113,10 @@ const [languages, setLanguages] = useState([]);
     }
 
     setLanguages(updatedLanguages);
-    if(Array.isArray(formData?.languages) && formData?.languages?.length===0){
-       setFormData((prevData) => ({ ...prevData, languages:updatedLanguages }));
+    if (Array.isArray(formData?.languages) && formData?.languages?.length === 0) {
+      setFormData((prevData) => ({ ...prevData, languages: updatedLanguages }));
     }
-   
+
   };
 
   const handleCheckboxChange = (index, field) => {
@@ -125,122 +126,124 @@ const [languages, setLanguages] = useState([]);
   };
 
   return (
-<div>
-  <label className="block text-xl font-semibold text-gray-900">
-    Language Proficiency
-  </label>
-
-  <p
-    className="mt-1 text-sm text-gray-500"
-    onClick={() => {
-      console.log("Language :", languages);
-    }}
-  >
-    Strengthen your resume by letting recruiters know you can communicate in
-    multiple languages
-  </p>
-
-  {languages.map((lang, index) => (
-    <div
-      key={index}
-      className="mb-5 border-b border-gray-200 pb-4"
-    >
-      {/* Language & Proficiency */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mb-4">
-        <div>
-          <label className="block text-sm font-semibold mb-2">
-            Language <span className="text-red-500">*</span>
-          </label>
-
-          <select
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-            value={lang.language}
-            onChange={(e) =>
-              handleChange(index, "language", e.target.value)
-            }
-          >
-            <option value="">Select language</option>
-            {languageOptions.map((option) => (
-              <option key={option.id} value={option.id}>
-                {option.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-semibold mb-2">
-            Proficiency <span className="text-red-500">*</span>
-          </label>
-
-          <select
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-            value={lang.proficiency}
-            onChange={(e) =>
-              handleChange(index, "proficiency", e.target.value)
-            }
-          >
-            <option value="">Select proficiency</option>
-            {languageproficiencyOptions.map((option) => (
-              <option key={option.id} value={option.id}>
-                {option.name}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* Read / Write / Speak */}
-      <div className="flex flex-wrap items-center gap-4">
-        <label className="flex items-center gap-2 text-sm text-gray-700">
-          <input
-            type="checkbox"
-            checked={lang.read}
-            onChange={() => handleCheckboxChange(index, "read")}
-            className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-          />
-          Read
+    <div>
+      <div className="flex justify-between items-center my-2">
+        <label className="block text-xl font-semibold text-gray-900">
+          Language Proficiency
         </label>
-
-        <label className="flex items-center gap-2 text-sm text-gray-700">
-          <input
-            type="checkbox"
-            checked={lang.write}
-            onChange={() => handleCheckboxChange(index, "write")}
-            className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-          />
-          Write
-        </label>
-
-        <label className="flex items-center gap-2 text-sm text-gray-700">
-          <input
-            type="checkbox"
-            checked={lang.speak}
-            onChange={() => handleCheckboxChange(index, "speak")}
-            className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-          />
-          Speak
-        </label>
-
-        <button
+        <Button
           type="button"
-          onClick={() => deleteLanguage(index)}
-          className="ml-auto text-sm font-medium text-blue-600 hover:text-blue-800"
+          onClick={addLanguage}
+          size="sm"
+          className="bg-blue-600 hover:bg-blue-700 text-white gap-1.5"
         >
-          Delete
-        </button>
+          <Plus className="h-4 w-4" /> Add language
+        </Button>
       </div>
-    </div>
-  ))}
 
-  <button
-    type="button"
-    onClick={addLanguage}
-    className="text-sm font-medium text-blue-600 hover:text-blue-800"
-  >
-    + Add language
-  </button>
-</div>
+      <p
+        className="mt-1 text-sm text-gray-500"
+        onClick={() => {
+          console.log("Language :", languages);
+        }}
+      >
+        Strengthen your resume by letting recruiters know you can communicate in
+        multiple languages
+      </p>
+
+      {languages.map((lang, index) => (
+        <div
+          key={index}
+          className="relative mb-5 border-b border-gray-200 pt-6 pb-4"
+        >
+          <Trash2
+            size={18}
+            className="absolute top-0 right-0 cursor-pointer text-red-500 hover:text-red-600"
+            onClick={() => deleteLanguage(index)}
+          />
+
+          {/* Language & Proficiency */}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mb-4">
+            <div>
+              <label className="block text-sm font-semibold mb-2">
+                Language <span className="text-red-500">*</span>
+              </label>
+
+              <select
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                value={lang.language}
+                onChange={(e) =>
+                  handleChange(index, "language", e.target.value)
+                }
+              >
+                <option value="">Select language</option>
+                {languageOptions.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold mb-2">
+                Proficiency <span className="text-red-500">*</span>
+              </label>
+
+              <select
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                value={lang.proficiency}
+                onChange={(e) =>
+                  handleChange(index, "proficiency", e.target.value)
+                }
+              >
+                <option value="">Select proficiency</option>
+                {languageproficiencyOptions.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Read / Write / Speak */}
+          <div className="flex flex-wrap items-center gap-4">
+            <label className="flex items-center gap-2 text-sm text-gray-700">
+              <input
+                type="checkbox"
+                checked={lang.read}
+                onChange={() => handleCheckboxChange(index, "read")}
+                className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+              />
+              Read
+            </label>
+
+            <label className="flex items-center gap-2 text-sm text-gray-700">
+              <input
+                type="checkbox"
+                checked={lang.write}
+                onChange={() => handleCheckboxChange(index, "write")}
+                className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+              />
+              Write
+            </label>
+
+            <label className="flex items-center gap-2 text-sm text-gray-700">
+              <input
+                type="checkbox"
+                checked={lang.speak}
+                onChange={() => handleCheckboxChange(index, "speak")}
+                className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+              />
+              Speak
+            </label>
+          </div>
+        </div>
+      ))}
+
+
+    </div>
   );
 };
 

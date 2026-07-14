@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Pencil, Plus } from "lucide-react";
 import API from "@/lib/axios";
@@ -49,9 +49,17 @@ const ITSkills = () => {
     <>
       <Card className="w-full max-w-4xl border border-slate-100 shadow-sm rounded-xl">
         <CardHeader className="flex flex-row items-center justify-between pb-4">
-          <CardTitle className="text-lg font-semibold text-slate-800">
+          <div>
+            <CardTitle className="text-xl font-semibold text-slate-800">
+              IT Skills
+            </CardTitle>
+            <CardDescription>
+              Mention the software, tools, and technical languages you are proficient in.
+            </CardDescription>
+          </div>
+          {/* <CardTitle className="text-lg font-semibold text-slate-800">
             IT Skills
-          </CardTitle>
+          </CardTitle> */}
           {/* <Button onClick={handleOpenCreate}>
             <Plus className="h-4 w-4 mr-1" />
             Add Skill

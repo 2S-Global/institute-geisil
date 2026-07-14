@@ -5,7 +5,7 @@ import API from "@/lib/axios";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import ProjectModal from "./projectModal";
 
 const Project = () => {
@@ -85,6 +85,9 @@ const Project = () => {
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle className="text-lg">Projects</CardTitle>
+            <CardDescription>
+              Showcase projects you've worked on, including academic and personal ones.
+            </CardDescription>
           </div>
 
           

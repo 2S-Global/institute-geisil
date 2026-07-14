@@ -1,45 +1,49 @@
 // Header.tsx
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
+import Cookies from "js-cookie";
 import api from "@/lib/axios";
 
-import {
-  ShieldCheck,
-  Zap,
-  Lock,
-  Users,
-  Award,
-  TrendingUp,
-  CheckCircle2,
-  ArrowRight,
-  ChevronLeft,
-  ChevronRight,
-  Building2,
-  CreditCard,
-  FileCheck,
-  Landmark,
-  UserCheck,
-  Fingerprint,
-  Quote,
-  Star,
-  Lightbulb,
-  Mail,
-  Phone,
-  MapPin,
-} from "lucide-react";
+// import {
+//   ShieldCheck,
+//   Zap,
+//   Lock,
+//   Users,
+//   Award,
+//   TrendingUp,
+//   CheckCircle2,
+//   ArrowRight,
+//   ChevronLeft,
+//   ChevronRight,
+//   Building2,
+//   CreditCard,
+//   FileCheck,
+//   Landmark,
+//   UserCheck,
+//   Fingerprint,
+//   Quote,
+//   Star,
+//   Lightbulb,
+//   Mail,
+//   Phone,
+//   MapPin,
+// } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
+import { UserMenu } from "@/components/UserMenu";
+import Logo from "../../assets/img/Logo.webp";
+
 export default function Header() {
   const [active, setActive] = useState("home");
+  const [token, setToken] = useState<string | null>(null);
+
+  useLayoutEffect(() => {
+    setToken(localStorage.getItem("token") || Cookies.get("token"));
+  }, []);
+
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-card/95 backdrop-blur">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
+        {/*  <Link to="/" className="flex items-center gap-2">
           <div className="h-9 w-9 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-bold">
             G
           </div>
@@ -49,6 +53,27 @@ export default function Header() {
               Employability · Reimagined
             </div>
           </div>
+        </Link> */}
+        {/*  <Link to="/" className="flex items-center gap-2">
+          <img
+            src={Logo}
+            alt="GEISIL Logo"
+            className="h-10 w-10 rounded-lg object-contain"
+          />
+
+          <div className="leading-tight">
+            <div className="font-bold text-foreground">GEISIL</div>
+            <div className="text-[10px] text-muted-foreground">
+              Employability · Reimagined
+            </div>
+          </div>
+        </Link> */}
+        <Link to="/" className="flex items-center">
+          <img
+            src={Logo}
+            alt="GEISIL Logo"
+            className="h-12 w-auto object-contain"
+          />
         </Link>
         <nav className="hidden md:flex items-center gap-7 text-sm">
           <a
@@ -130,9 +155,13 @@ export default function Header() {
           </a>
         </nav>
         <div className="flex items-center gap-2">
-          <Button asChild size="sm">
-            <Link to="/login">Log in</Link>
-          </Button>
+          {token ? (
+            <UserMenu />
+          ) : (
+            <Button asChild size="sm">
+              <Link to="/login">Log in</Link>
+            </Button>
+          )}
         </div>
       </div>
     </header>
