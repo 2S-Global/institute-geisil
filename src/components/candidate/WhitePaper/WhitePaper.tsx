@@ -139,8 +139,8 @@ const WhitePaper = () => {
                   </p>
 
                   {item.description && (
-                    <div 
-                      className="text-[#4B5563] mt-4 leading-relaxed text-left break-words prose max-w-none"
+                    <CardDescription 
+                      // className="text-[#4B5563] mt-4 leading-relaxed text-left break-words prose max-w-none"
                       dangerouslySetInnerHTML={{ __html: item.description }}
                     />
                   )}
