@@ -85,12 +85,12 @@ export default function Login() {
         localStorage.setItem("employer_name", employerName);
         localStorage.setItem("role", role);
 
-        window.location.href = "/employer";
+        window.location.href = "/employer/dashboard";
       } else if (role == "3") {
         localStorage.setItem("token", token);
         localStorage.setItem("role", role);
 
-        window.location.href = "/institute";
+        window.location.href = "/institute/dashboard";
       } else {
         setError("Unauthorized access");
 

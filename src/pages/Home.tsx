@@ -7,6 +7,7 @@ import WhyChooseUs from "@/components/home/WhyChooseUs";
 import PartnersSection from "@/components/home/PartnersSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
 import ContactSection from "@/components/home/ContactSection";
+import VerificationSection from "@/components/home/VerificationSection";
 import Footer from "@/components/home/Footer";
 export default function Home() {
   return (
@@ -16,8 +17,9 @@ export default function Home() {
       <AboutSection />
       <ServicesSection />
       <StatsSection />
-      <WhyChooseUs />
+      <VerificationSection />
       <PartnersSection />
+      <WhyChooseUs />
       <TestimonialsSection />
       <ContactSection />
       <Footer />

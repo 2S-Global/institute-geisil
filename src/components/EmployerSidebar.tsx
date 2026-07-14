@@ -27,9 +27,13 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-
 const main = [
-  { title: "Dashboard", url: "/employer", icon: LayoutDashboard, end: true },
+  {
+    title: "Dashboard",
+    url: "/employer/dashboard",
+    icon: LayoutDashboard,
+    end: true,
+  },
   { title: "Post a New Job", url: "/employer/post-jobs", icon: Briefcase },
   { title: "Job Postings", url: "/employer/jobs", icon: Briefcase },
   /* { title: "Candidates", url: "/employer/candidates", icon: Users }, */
@@ -73,7 +77,9 @@ export function EmployerSidebar() {
   const collapsed = state === "collapsed";
   const { pathname } = useLocation();
   const isActive = (path: string, end?: boolean) =>
-    end ? pathname === path : pathname === path || pathname.startsWith(path + "/");
+    end
+      ? pathname === path
+      : pathname === path || pathname.startsWith(path + "/");
 
   return (
     <Sidebar collapsible="icon" className="border-r  border-sidebar-border">
@@ -84,7 +90,9 @@ export function EmployerSidebar() {
           </div>
           {!collapsed && (
             <div className="min-w-0">
-              <p className="font-display font-bold text-sidebar-primary leading-tight truncate">GEISIL</p>
+              <p className="font-display font-bold text-sidebar-primary leading-tight truncate">
+                GEISIL
+              </p>
               <p className="text-[11px] uppercase tracking-wider text-sidebar-foreground/70 truncate">
                 Employer Portal
               </p>
@@ -111,7 +119,9 @@ export function EmployerSidebar() {
                   >
                     <NavLink to={item.url} className="flex items-center gap-3">
                       <item.icon className="h-[18px] w-[18px] shrink-0" />
-                      {!collapsed && <span className="truncate">{item.title}</span>}
+                      {!collapsed && (
+                        <span className="truncate">{item.title}</span>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -137,7 +147,9 @@ export function EmployerSidebar() {
                   >
                     <NavLink to={item.url} className="flex items-center gap-3">
                       <item.icon className="h-[18px] w-[18px] shrink-0" />
-                      {!collapsed && <span className="truncate">{item.title}</span>}
+                      {!collapsed && (
+                        <span className="truncate">{item.title}</span>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

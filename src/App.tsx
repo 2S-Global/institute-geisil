@@ -205,7 +205,7 @@ const App = () => {
                 element={
                   <ProtectedRoute role="3">
                     <Routes>
-                      <Route path="/" element={<Index />} />
+                      <Route path="/dashboard" element={<Index />} />
                       <Route path="/students" element={<Students />} />
                       <Route path="/students/:id" element={<StudentDetail />} />
                       <Route path="/recruiters" element={<Recruiters />} />
@@ -269,7 +269,10 @@ const App = () => {
                 element={
                   <ProtectedRoute role="2">
                     <Routes>
-                      <Route path="/" element={<EmployerDashboard />} />
+                      <Route
+                        path="/dashboard"
+                        element={<EmployerDashboard />}
+                      />
                       <Route path="/jobs" element={<Jobs />} />
                       <Route path="/jobs/:id" element={<JobDetail />} />
                       <Route path="/candidates" element={<Candidates />} />
@@ -338,7 +341,10 @@ const App = () => {
                 element={
                   <ProtectedRoute role="1">
                     <Routes>
-                      <Route path="/" element={<CandidateDashboard />} />
+                      <Route
+                        path="/dashboard"
+                        element={<CandidateDashboard />}
+                      />
                       <Route
                         path="/dashboard"
                         element={<CandidateDashboard />}

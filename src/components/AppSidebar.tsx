@@ -23,7 +23,12 @@ import {
 } from "@/components/ui/sidebar";
 
 const main = [
-  { title: "Dashboard", url: "/institute", icon: LayoutDashboard, end: true },
+  {
+    title: "Dashboard",
+    url: "/institute/dashboard",
+    icon: LayoutDashboard,
+    end: true,
+  },
   {
     title: "Student Verification",
     url: "/institute/student-verification",
