@@ -38,7 +38,7 @@ const ProfileMain = ({ setReload, list = [], setError, setSuccess }) => {
       >
         <Pencil className="h-4 w-4" />
       </button> */}
-          <Button onClick={() => openModal()}>
+          <Button size="sm" onClick={() => openModal()}>
             <Plus className="mr-2 h-4 w-4" />
             Add Online Profile
           </Button>

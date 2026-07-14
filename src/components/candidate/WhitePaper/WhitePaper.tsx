@@ -94,6 +94,7 @@ const WhitePaper = () => {
           </div>
 
           <Button
+            size="sm"
             onClick={() => {
               setSelectedItem(null);
               setOpen(true);

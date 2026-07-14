@@ -89,11 +89,11 @@ const CertificateMain = ({ setReload, list = [], setError, setSuccess }) => {
         </div>
         <Button
           size="sm"
-          variant="outline"
-          className="gap-1.5"
+          
+          
           onClick={openModal}
         >
-          <Plus className="h-4 w-4" /> Add
+          <Plus className="h-4 w-4" /> Add certifications
         </Button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -147,7 +147,6 @@ const CertificateMain = ({ setReload, list = [], setError, setSuccess }) => {
         <CertificateModal
           show={isModalOpen}
           onClose={closeModal}
-          setItem={setItem}
           item={item}
           setReload={setReload}
           setError={setError}

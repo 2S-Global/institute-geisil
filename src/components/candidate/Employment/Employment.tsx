@@ -163,7 +163,7 @@ export const EmploymentCard = () => {
             </CardDescription>
           </div>
 
-          <Button onClick={handleAdd}>
+          <Button size="sm" onClick={handleAdd}>
             <Plus className="h-4 w-4 mr-2" />
             Add Employment
           </Button>
@@ -188,7 +188,7 @@ export const EmploymentCard = () => {
 
               const companyStatus = resolveFieldStatus(job.workedInCompany);
 
-              // ⭐ FIX: If company status is pending, force fields to be pending as well
+             
               const designationStatus = companyStatus === "pending" 
                 ? "pending" 
                 : (job.designationVerified !== undefined ? resolveFieldStatus(job.designationVerified) : companyStatus);

@@ -1580,16 +1580,19 @@ const PersonalSection = () => {
                 <div className="mb-4 flex items-center justify-between">
                   <h5 className="text-lg font-bold">Languages</h5>
                   <Button
+                    
+                    size="sm"
+                    
                     onClick={() => openModalRH("languages", null)}
-                  > <Plus className="h-4 w-4" />
-                    Add  Languages
-                   
+                  >
+                    <Plus className="h-4 w-4" />
+                    Add Languages
                   </Button>
                 </div>
 
                 {personalDetails.languages &&
-                  personalDetails.languages.length > 0 && (
-                    <div className="overflow-x-auto rounded-lg border border-gray-200">
+                personalDetails.languages.length > 0 ? (
+                  <div className="overflow-x-auto rounded-lg border border-gray-200">
                       <table className="min-w-full divide-y divide-gray-200 text-sm">
                         <thead className="bg-gray-50">
                           <tr>
@@ -1659,6 +1662,10 @@ const PersonalSection = () => {
                           })}
                         </tbody>
                       </table>
+                    </div>
+                  ) : (
+                    <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-4 text-sm text-gray-600">
+                      No languages added yet. Use the button above to add your language proficiency.
                     </div>
                   )}
               </div>
