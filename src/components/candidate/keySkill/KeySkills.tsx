@@ -28,24 +28,24 @@ const KeySkills = () => {
     setIsModalOpen(false);
   };
 
-  useEffect(() => {
-    const fetchKeySkills = async () => {
-      try {
-        setSectionLoading(true);
+  const fetchKeySkills = async () => {
+    try {
+      setSectionLoading(true);
 
-        const response = await API.get("/api/userdata/candidateskills");
+      const response = await API.get("/api/userdata/candidateskills");
 
-        if (response.status === 200) {
-          setKeySkills(response.data?.data || response.data || []);
-        }
-      } catch (err) {
-        console.error("Error fetching key skills:", err);
-        setError("Failed to load key skills");
-      } finally {
-        setSectionLoading(false);
+      if (response.status === 200) {
+        setKeySkills(response.data?.data || response.data || []);
       }
-    };
+    } catch (err) {
+      console.error("Error fetching key skills:", err);
+      setError("Failed to load key skills");
+    } finally {
+      setSectionLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchKeySkills();
   }, []);
    
@@ -57,7 +57,7 @@ const KeySkills = () => {
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle className="text-lg">Key Skills</CardTitle>
-            <CardDescription />
+            <CardDescription>Highlight your core areas of expertise to match job roles.</CardDescription>
           </div>
 
           <Button variant="ghost" size="icon" onClick={openModal}>
@@ -95,7 +95,7 @@ const KeySkills = () => {
           show={isModalOpen}
           onClose={closeModal}
           selectedSkills={keySkills}
-          setKeySkill={setKeySkills}
+          refetchKeySkills={fetchKeySkills}
         />
       )}
 

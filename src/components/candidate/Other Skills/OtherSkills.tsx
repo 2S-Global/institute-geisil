@@ -1,7 +1,7 @@
 
 
 import React, { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Pencil, Plus } from "lucide-react";
 import API from "@/lib/axios";
@@ -58,16 +58,22 @@ const OtherSkills = () => {
     <>
       <Card className="w-full max-w-4xl border border-slate-100 shadow-sm rounded-xl">
         <CardHeader className="flex flex-row items-center justify-between pb-4">
-          <CardTitle className="text-lg font-semibold text-slate-800">
-            Other Skills
-          </CardTitle>
+          <div>
+            <CardTitle className="text-lg font-semibold text-slate-800">
+              Other Skills
+            </CardTitle>
+            <CardDescription>
+              Add other relevant professional skills and competencies.
+            </CardDescription>
+          </div>
 
-          {/* <Button onClick={handleOpenCreate}>
-            <Plus className="h-4 w-4 mr-1" />
-            Add Skill
-          </Button> */}
-          <Button variant="ghost" size="icon" onClick={handleOpenCreate}>
-            <Pencil className="h-4 w-4" />
+          <Button
+            type="button"
+            onClick={handleOpenCreate}
+            size="sm"
+            className="bg-blue-600 hover:bg-blue-700 text-white gap-1.5"
+          >
+            <Plus className="h-4 w-4" /> Add skill
           </Button>
         </CardHeader>
 

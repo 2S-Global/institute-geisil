@@ -188,8 +188,13 @@ const AcademicSection = () => {
           </div>
         ) : (
           <>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="font-display text-lg font-semibold">Education</h2>
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <h2 className="font-display text-lg font-semibold">Education</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Details about your academic qualifications and schools/colleges.
+                </p>
+              </div>
               <Button
                 size="sm"
                 className="gap-1.5"

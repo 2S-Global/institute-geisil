@@ -101,6 +101,9 @@ const Dashboard = () => {
       console.error("Error fetching department data", err);
     }
   };
+
+
+  
   const fetchStats = async () => {
     try {
       const res = await api.get("/api/institutestudent/get_students_counts");

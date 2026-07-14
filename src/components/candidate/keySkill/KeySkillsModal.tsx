@@ -199,6 +199,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import API from "@/lib/axios";
+import { useDebounce } from "@/hooks/use-debounce";
 
 import {
   Dialog,
@@ -219,7 +220,7 @@ interface Props {
   show: boolean;
   onClose: () => void;
   selectedSkills: string[];
-  setKeySkill: React.Dispatch<React.SetStateAction<string[]>>;
+  refetchKeySkills: () => Promise<void>;
 }
 
 // Helper function to format strings to "Title Case" (e.g., "web development" -> "Web Development")
@@ -236,7 +237,7 @@ const KeySkillsModal = ({
   show,
   onClose,
   selectedSkills,
-  setKeySkill,
+  refetchKeySkills,
 }: Props) => {
   const [skills, setSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState("");
@@ -253,23 +254,14 @@ const KeySkillsModal = ({
     }
   }, [selectedSkills]);
 
-  // Click outside listener to dismiss suggestion dropdown popup
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setSuggestions([]);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  const debouncedSkill = useDebounce(newSkill, 300);
 
   // SEARCH API
   useEffect(() => {
-    const timer = setTimeout(async () => {
-      const value = newSkill.trim();
+    const fetchSuggestions = async () => {
+      const value = debouncedSkill.trim();
 
-      if (value.length < 2) {
+      if (!value) {
         setSuggestions([]);
         return;
       }
@@ -288,10 +280,10 @@ const KeySkillsModal = ({
       } catch (err) {
         console.error(err);
       }
-    }, 300);
+    };
 
-    return () => clearTimeout(timer);
-  }, [newSkill]);
+    fetchSuggestions();
+  }, [debouncedSkill]);
 
   const addSkill = (rawSkill: string) => {
     const formattedSkill = toTitleCase(rawSkill);
@@ -329,8 +321,10 @@ const KeySkillsModal = ({
 
       const response = await API.post("/api/useraction/keyskills", { skills });
 
-      if (response.status === 201 || response.status === 200) {
-        setKeySkill(skills);
+      if (response.status === 200 || response.status === 201) {
+        await refetchKeySkills();
+
+        // 1. CLOSE MODAL FIRST
         onClose();
         toast({
           title: "Success",

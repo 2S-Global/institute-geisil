@@ -83,7 +83,7 @@ const ProfileSummarySection = () => {
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle className="text-lg">Profile Summary</CardTitle>
-            <CardDescription></CardDescription>
+            <CardDescription>A brief overview of your professional background and key strengths.</CardDescription>
           </div>
           <Button variant="ghost" size="icon" onClick={openModalRH}>
             <Pencil className="h-4 w-4" />

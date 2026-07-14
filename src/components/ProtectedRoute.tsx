@@ -29,7 +29,7 @@ useEffect(()=>{
   if (!token) {
     return (
       <Navigate
-        to="/"
+        to="/login"
         replace
         state={{ from: location.pathname }}
       />

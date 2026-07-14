@@ -1,4 +1,7 @@
-import React, { useEffect, useState } from "react";
+
+
+
+import { useEffect, useState } from "react";
 import { Pencil } from "lucide-react";
 import API from "../../../lib/axios";
 import CareerProfileModal from "./CareerProfileModal";
@@ -17,7 +20,7 @@ const CareerProfile = () => {
     try {
       setIsLoading(true);
       const response = await API.get("/api/useraction/get_career_profile");
-      
+
       if (response.data && response.data.success === true) {
         setProfileData(response.data.data);
       } else {
@@ -84,10 +87,18 @@ const CareerProfile = () => {
         <CardContent className="p-8">
           {/* Header Row */}
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-semibold text-slate-900 tracking-tight">
+            <div>
+              <h2 className="text-xl font-semibold text-slate-900 tracking-tight">
+                Career Profile
+              </h2>
+              <p className="text-sm text-slate-500 mt-1">
+                Your preferred work locations, industry, and role expectations.
+              </p>
+            </div>
+            {/* <h2 className="text-lg font-semibold text-slate-900 tracking-tight">
               Career Profile
-            </h2>
-            
+            </h2> */}
+
             <Button
               variant="ghost"
               size="icon"

@@ -33,7 +33,7 @@ export default function Login() {
 
     if (token) {
       if (role === "1") {
-        navigate("/candidate");
+        navigate("/candidate/dashboard");
       } else if (role === "2") {
         navigate("/employer");
       } else if (role === "3") {
@@ -79,18 +79,18 @@ export default function Login() {
         localStorage.setItem("token", token);
         // localStorage.setItem("candidate_name", candidateName);
         localStorage.setItem("role", role);
-        window.location.href = "/candidate";
+        window.location.href = "/candidate/dashboard";
       } else if (role == "2") {
         localStorage.setItem("token", token);
         localStorage.setItem("employer_name", employerName);
         localStorage.setItem("role", role);
 
-        window.location.href = "/employer";
+        window.location.href = "/employer/dashboard";
       } else if (role == "3") {
         localStorage.setItem("token", token);
         localStorage.setItem("role", role);
 
-        window.location.href = "/institute";
+        window.location.href = "/institute/dashboard";
       } else {
         setError("Unauthorized access");
 
