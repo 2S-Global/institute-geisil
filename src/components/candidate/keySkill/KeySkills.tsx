@@ -28,24 +28,24 @@ const KeySkills = () => {
     setIsModalOpen(false);
   };
 
-  useEffect(() => {
-    const fetchKeySkills = async () => {
-      try {
-        setSectionLoading(true);
+  const fetchKeySkills = async () => {
+    try {
+      setSectionLoading(true);
 
-        const response = await API.get("/api/userdata/candidateskills");
+      const response = await API.get("/api/userdata/candidateskills");
 
-        if (response.status === 200) {
-          setKeySkills(response.data?.data || response.data || []);
-        }
-      } catch (err) {
-        console.error("Error fetching key skills:", err);
-        setError("Failed to load key skills");
-      } finally {
-        setSectionLoading(false);
+      if (response.status === 200) {
+        setKeySkills(response.data?.data || response.data || []);
       }
-    };
+    } catch (err) {
+      console.error("Error fetching key skills:", err);
+      setError("Failed to load key skills");
+    } finally {
+      setSectionLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchKeySkills();
   }, []);
    
@@ -95,7 +95,7 @@ const KeySkills = () => {
           show={isModalOpen}
           onClose={closeModal}
           selectedSkills={keySkills}
-          setKeySkill={setKeySkills}
+          refetchKeySkills={fetchKeySkills}
         />
       )}
 

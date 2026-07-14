@@ -67,12 +67,13 @@ const OtherSkills = () => {
             </CardDescription>
           </div>
 
-          {/* <Button onClick={handleOpenCreate}>
-            <Plus className="h-4 w-4 mr-1" />
-            Add Skill
-          </Button> */}
-          <Button variant="ghost" size="icon" onClick={handleOpenCreate}>
-            <Pencil className="h-4 w-4" />
+          <Button
+            type="button"
+            onClick={handleOpenCreate}
+            size="sm"
+            className="bg-blue-600 hover:bg-blue-700 text-white gap-1.5"
+          >
+            <Plus className="h-4 w-4" /> Add skill
           </Button>
         </CardHeader>
 

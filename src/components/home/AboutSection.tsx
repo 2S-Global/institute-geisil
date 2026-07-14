@@ -39,7 +39,7 @@ export default function AboutSection() {
   const fetchList = async () => {
     try {
       const res = await api.get("/api/about/details");
-
+      
       setAbout(res?.data?.data[0] || {});
     } catch (err) {
       console.error(err);
@@ -78,7 +78,7 @@ export default function AboutSection() {
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             {about?.title}
           </h2>
-          <div className="space-y-4 text-muted-foreground">
+          <div className="space-y-4 text-sm text-muted-foreground">
             {/*   <p className="flex gap-2">
                 <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />{" "}
                 A pioneering information and HR solutions firm dedicated to
