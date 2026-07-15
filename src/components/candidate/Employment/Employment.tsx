@@ -267,7 +267,7 @@ export const EmploymentCard = () => {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleEdit(job)}
-                          className="text-gray-400 hover:text-gray-700 hover:bg-gray-50 shrink-0 ml-4"
+                          
                         >
                           <Pencil className="w-4 h-4" />
                         </Button>

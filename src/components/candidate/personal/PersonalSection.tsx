@@ -1371,7 +1371,7 @@ const PersonalSection = () => {
               onClick={() => openModalRH("editPersonal")}
               title="Edit Personal Details"
             >
-              <Pencil className="h-4 w-4 text-blue-600" />
+              <Pencil className="h-4 w-4" />
             </Button>
           ) : (
             <Button
@@ -1652,9 +1652,9 @@ const PersonalSection = () => {
                                     variant="ghost"
                                     size="icon"
                                     onClick={() => openModalRH("languages", correctHexId)}
-                                    className="h-8 w-8 hover:bg-gray-100"
+                                    className="h-8 w-8"
                                   >
-                                    <Pencil className="h-4 w-4 text-blue-600" />
+                                    <Pencil className="h-4 w-4 " />
                                   </Button>
                                 </td>
                               </tr>

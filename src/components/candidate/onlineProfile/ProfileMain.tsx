@@ -64,12 +64,13 @@ const ProfileMain = ({ setReload, list = [], setError, setSuccess }) => {
                   </a>
                 </div>
 
-                <button
+                <Button
                   onClick={() => openModal(item)}
-                  className="rounded-md p-2 hover:bg-muted transition-colors"
+                  variant="ghost"
+                  size="icon"
                 >
                   <Pencil className="h-4 w-4" />
-                </button>
+                </Button>
               </div>
 
               <div

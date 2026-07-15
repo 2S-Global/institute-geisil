@@ -178,7 +178,7 @@ const WorkProfileList = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 shrink-0 hover:bg-gray-100"
+                          
                           onClick={() => handleEdit(p)}
                         >
                           <Pencil className="h-4 w-4" />
