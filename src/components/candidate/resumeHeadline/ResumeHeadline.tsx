@@ -147,20 +147,21 @@ const ResumeHeadline = ({
 
           {/* Footer */}
           <div className="flex justify-end gap-3 border-t px-6 py-4">
-            <button
+            <Button
+              variant="ghost"
               onClick={onClose}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+             
             >
               Cancel
-            </button>
+            </Button>
 
-            <button
+            <Button
               onClick={handelSubmit}
               disabled={resumeHeadline.trim().split(/\s+/).length < 5}
-              className="rounded-lg bg-[#27406F] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#1F3358] disabled:cursor-not-allowed disabled:bg-gray-300"
+              
             >
               Save
-            </button>
+            </Button>
           </div>
         </div>
       </div>

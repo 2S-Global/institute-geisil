@@ -25,6 +25,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import { Button } from "@/components/ui/button";
 const ProfileModal = ({
   setReload,
   show,
@@ -418,23 +419,23 @@ const ProfileModal = ({
 
           {/* Footer */}
           <div className="flex justify-end gap-3 pt-6">
-            <button
+            <Button
+              variant="ghost"
               type="button"
               onClick={() => {
                 setFormData(null);
                 onClose();
               }}
-              className="rounded-md border border-gray-300 bg-white px-4 py-2 text-gray-700 transition-colors hover:bg-gray-100"
             >
               Cancel
-            </button>
+            </Button>
 
             <div className="relative inline-flex group">
-              <button
+              <Button
                 type="submit"
                 onClick={handleSave}
                 disabled={!isFormValid || saving}
-                className="rounded-md bg-[#27406F] px-4 py-2 text-white hover:bg-[#1F3358] disabled:cursor-not-allowed disabled:bg-[#27406F]/50"
+                
               >
                 {item._id
                   ? saving
@@ -443,7 +444,7 @@ const ProfileModal = ({
                   : saving
                     ? "Saving..."
                     : "Save"}
-              </button>
+              </Button>
 
               {!isFormValid && (
                 <div className="pointer-events-none absolute bottom-full right-0 mb-2 hidden w-52 rounded-md border border-red-300 bg-white p-2 text-center text-sm text-red-600 shadow-lg group-hover:block">

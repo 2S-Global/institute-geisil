@@ -209,22 +209,22 @@ const FormModal = ({ show, onClose, data = {}, mainprofilesummary,
       <div className="flex justify-end gap-3 pt-4">
 
        
-  <button
+  <Button
     type="button"
     onClick={onClose}
-    className="px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-colors"
+    variant="ghost"
   >
     Cancel
-  </button>
+  </Button>
 
-  <button
+  <Button
     type="button"
     onClick={handelSubmit}
     disabled={profilesummary.trim().length < 1}
-    className="px-4 py-2 rounded-md bg-[#27406F] text-white hover:bg-[#1F3358] transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed"
+    
   >
     Save
-  </button>
+  </Button>
 </div>
 
     </DialogContent>
