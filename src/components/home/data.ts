@@ -21,6 +21,9 @@ import {
   Mail,
   Phone,
   MapPin,
+  GraduationCap,
+  BriefcaseBusiness,
+  ShieldAlert,
 } from "lucide-react";
 export const slides = [
   {
@@ -70,6 +73,21 @@ export const services = [
     icon: Building2,
     title: "Business KYB",
     desc: "Onboard businesses with company, director, and beneficial owner checks.",
+  },
+  {
+    icon: GraduationCap,
+    title: "Academic Verification",
+    desc: "Validate degree certificates, transcripts, and academic records with trusted institutional checks.",
+  },
+  {
+    icon: BriefcaseBusiness,
+    title: "Professional Record Verification",
+    desc: "Confirm employment history, certifications, and professional memberships with verified records.",
+  },
+  {
+    icon: ShieldAlert,
+    title: "Criminal Record Verification",
+    desc: "Perform compliant background screening to support safe hiring and secure onboarding decisions.",
   },
 ];
 

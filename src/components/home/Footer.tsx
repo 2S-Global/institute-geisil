@@ -18,9 +18,9 @@ export default function Footer() {
           <h4 className="font-semibold mb-3">Company</h4>
           <ul className="space-y-2 text-sm opacity-80">
             <li>
-              <Link to="/about" className="hover:opacity-100">
+              <a href="#about" className="hover:opacity-100">
                 About
-              </Link>
+              </a>
             </li>
             <li>
               <Link to="/blog-list" className="hover:opacity-100">
@@ -28,9 +28,9 @@ export default function Footer() {
               </Link>
             </li>
             <li>
-              <Link to="/contact" className="hover:opacity-100">
+              <a href="#contact" className="hover:opacity-100">
                 Contact
-              </Link>
+              </a>
             </li>
           </ul>
         </div>
