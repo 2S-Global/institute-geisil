@@ -1,124 +1,98 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import PatentModal from "./PatentModal";
-  import { Pencil } from "lucide-react";
+import { Pencil, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
 const PatentMain = ({ setReload, list = [], setError, setSuccess }) => {
-const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [item, setItem] = useState([]);
 
   const openModal = (Edit_item) => {
-    if (Edit_item) {
-      setItem(Edit_item);
-      console.log("Selected Item:", item);
-    } else {
-      setItem([]);
-    }
+    setItem(Edit_item || []);
     setIsModalOpen(true);
-    document.body.style.overflow = "hidden"; // Disable background scrolling
+    document.body.style.overflow = "hidden";
   };
+
   const closeModal = () => {
     setIsModalOpen(false);
-    document.body.style.overflow = "auto"; // Re-enable background scrolling
+    document.body.style.overflow = "auto";
   };
 
   const monthNames = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
   ];
 
-return(<>
-  <div className="pt-4">
-    <div className="flex items-start justify-between">
-      <div>
-        <h5 className="text-lg font-semibold">Patent</h5>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Add details of patents you have filed
-        </p>
+  return (
+    <div className="pt-4 space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h5 className="text-lg font-semibold">Patent</h5>
+          <p className="text-sm text-muted-foreground">
+            Add details of patents you have filed
+          </p>
+        </div>
+
+        {/* Show 'Add' button only if list is empty */}
+        {(!Array.isArray(list) || list.length === 0) && (
+          <Button size="sm" onClick={() => openModal()} >
+            <Plus className="mr-2 h-4 w-4" /> Add Patent
+          </Button>
+        )}
       </div>
 
-      <button
-        onClick={() => openModal()}
-        className="rounded-md p-2 hover:bg-muted transition-colors"
-      >
-        <Pencil className="h-4 w-4" />
-      </button>
+      {Array.isArray(list) &&
+        list.map((item) => (
+          <Card key={item._id}>
+            <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
+              <div>
+                <CardTitle>{item.title}</CardTitle>
+                <CardDescription>
+                  <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                    {item.url}
+                  </a>
+                </CardDescription>
+              </div>
+              <Button variant="ghost" size="icon" onClick={() => openModal(item)}>
+                <Pencil className="h-4 w-4" />
+              </Button>
+            </CardHeader>
+            <CardContent className="text-sm space-y-1">
+              <p><strong>Patent office:</strong> {item.patent_office}</p>
+              <p><strong>Application number:</strong> {item.application_number}</p>
+              <p>
+                <strong>Issued on:</strong>{" "}
+                {item.status === "Patent pending"
+                  ? "Patent pending"
+                  : `${monthNames[item.issue_month - 1]} ${item.issue_year}`}
+              </p>
+              <div
+                className="mt-2 pt-2 border-t"
+                dangerouslySetInnerHTML={{ __html: item.description }}
+              />
+            </CardContent>
+          </Card>
+        ))}
+
+      {isModalOpen && (
+        <PatentModal
+          show={isModalOpen}
+          onClose={closeModal}
+          setItem={setItem}
+          item={item}
+          setReload={setReload}
+          setError={setError}
+          setSuccess={setSuccess}
+        />
+      )}
     </div>
-
-    {Array.isArray(list) &&
-      list.length > 0 &&
-      list.map((item) => (
-        <div
-          key={item._id}
-          className="mt-5 border-b pb-4 last:border-b-0"
-        >
-          <div className="flex items-center gap-4">
-            <h6 className="font-semibold text-gray-900">
-              {item.title}
-            </h6>
-
-            <button
-              onClick={() => openModal(item)}
-              className="rounded-md p-1 hover:bg-muted transition-colors"
-            >
-              <Pencil className="h-4 w-4" />
-            </button>
-          </div>
-
-          <a
-            href={item.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-1 block break-all text-sm text-blue-600 hover:underline"
-          >
-            {item.url}
-          </a>
-
-          <p className="mt-2">
-            <strong>Patent office:</strong> {item.patent_office}
-          </p>
-
-          <p className="">
-            <strong>Application number:</strong> {item.application_number}
-          </p>
-
-          <p className="">
-            <strong>Issued on:</strong>{" "}
-            {item.status === "Patent pending"
-              ? "-"
-              : `${monthNames[item.issue_month - 1]} ${item.issue_year}`}
-          </p>
-
-          <div
-            className="mt-2 justify-content-around"
-            dangerouslySetInnerHTML={{
-              __html: item.description,
-            }}
-          />
-        </div>
-      ))}
-  </div>
-
-  {isModalOpen && (
-    <PatentModal
-      show={isModalOpen}
-      onClose={closeModal}
-      setItem={setItem}
-      item={item}
-      setReload={setReload}
-      setError={setError}
-      setSuccess={setSuccess}
-    />
-  )}
-</>
   );
 };
 

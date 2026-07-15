@@ -61,7 +61,6 @@ const ITSkills = () => {
             type="button"
             onClick={handleOpenCreate}
             size="sm"
-            className="bg-blue-600 hover:bg-blue-700 text-white gap-1.5"
           >
             <Plus className="h-4 w-4" /> Add skill
           </Button>

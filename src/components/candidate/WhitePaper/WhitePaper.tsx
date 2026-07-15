@@ -1,5 +1,3 @@
-
-
 import React, { useEffect, useState } from "react";
 import {
   Card,
@@ -14,8 +12,18 @@ import API from "@/lib/axios";
 import WhitePaperModal from "./WhitePeperModal";
 
 const monthNames = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 const toCamelCaseTitle = (title: string = "") => {
@@ -55,7 +63,7 @@ const WhitePaper = () => {
     try {
       setSectionLoading(true);
       const response = await API.get(
-        "/api/candidate/accomplishments/get_research_publication"
+        "/api/candidate/accomplishments/get_research_publication",
       );
       if (response.status === 200) {
         setWhitePapers(response.data.data || []);
@@ -79,10 +87,14 @@ const WhitePaper = () => {
             <CardTitle className="text-lg">
               White Paper / Research Publication / Journal Entry
             </CardTitle>
-            <CardDescription>Showcase your published research papers, white papers, and articles.</CardDescription>
+            <CardDescription>
+              Showcase your published research papers, white papers, and
+              articles.
+            </CardDescription>
           </div>
 
           <Button
+            size="sm"
             onClick={() => {
               setSelectedItem(null);
               setOpen(true);
@@ -110,7 +122,7 @@ const WhitePaper = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 shrink-0"
+                      
                       onClick={() => {
                         setSelectedItem(item);
                         setOpen(true);
@@ -120,27 +132,26 @@ const WhitePaper = () => {
                     </Button>
                   </div>
 
-                  {item.url && (
-                    <a
-                      href={item.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 break-all mt-1 inline-block hover:underline"
-                    >
-                      {item.url}
-                    </a>
-                  )}
+                  <div className="mt-2 flex flex-col gap-2">
+                    {item.url && (
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 break-all hover:underline w-fit"
+                      >
+                        {item.url}
+                      </a>
+                    )}
 
-                  <p className="text-gray-500 mt-2">
-                    <span className="font-medium text-gray-600">
-                      Published On:
-                    </span>{" "}
-                    {formatPublishedDate(item)}
-                  </p>
-
+                    <CardDescription className="inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600 w-fit">
+                      Published On: {formatPublishedDate(item)}
+                    </CardDescription>
+                  </div>
                   {item.description && (
-                    <div 
-                      className="text-[#4B5563] mt-4 leading-relaxed text-left break-words prose max-w-none"
+                    <CardDescription
+                      className="text-justify"
+                      // className="text-[#4B5563] mt-4 leading-relaxed text-left break-words prose max-w-none"
                       dangerouslySetInnerHTML={{ __html: item.description }}
                     />
                   )}
@@ -148,11 +159,12 @@ const WhitePaper = () => {
               ))}
             </div>
           ) : (
-           
-
             <div className="flex flex-1 items-center justify-center w-full shadow-sm">
               <div className="w-full border-dashed border border-gray-200 rounded-xl p-8 text-center text-muted-foreground flex flex-col items-center justify-center">
-                <p className="text-sm"> No White Paper / Research Publication  added yet.</p>
+                <p className="text-sm">
+                  {" "}
+                  No White Paper / Research Publication added yet.
+                </p>
               </div>
             </div>
           )}

@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import Logo from "../assets/img/Logo.webp";
 export default function Login() {
   const navigate = useNavigate();
   const [showPwd, setShowPwd] = useState(false);
@@ -127,15 +128,20 @@ export default function Login() {
         <div className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-accent/30 blur-3xl" />
         <Link to="/">
           <div className="relative flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary-foreground text-primary font-display font-extrabold text-xl">
-              G
+            <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary-foreground overflow-hidden">
+              <img
+                src={Logo}
+                alt="GEISIL Logo"
+                className="h-10 w-10 object-contain"
+              />
             </div>
+
             <div>
               <p className="font-display font-bold text-xl leading-none">
                 GEISIL
               </p>
-              <p className="text-xs text-primary-foreground/70 mt-1">
-                Institute Portal
+              <p className="mt-1 text-xs text-primary-foreground/70">
+                Employability Reimagined
               </p>
             </div>
           </div>

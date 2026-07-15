@@ -25,6 +25,16 @@ interface Props {
   refetchKeySkills: () => Promise<void>;
 }
 
+// Helper function to format strings to "Title Case" (e.g., "web development" -> "Web Development")
+const toTitleCase = (str: string): string => {
+  if (!str) return "";
+  return str
+    .trim()
+    .split(/\s+/) // Split by any number of spaces
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" "); // Join words back with a single space
+};
+
 const KeySkillsModal = ({
   show,
   onClose,
@@ -39,8 +49,11 @@ const KeySkillsModal = ({
   const { toast } = useToast();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // Formats selectedSkills array to Title Case immediately when modal loads
   useEffect(() => {
-    setSkills(selectedSkills);
+    if (selectedSkills) {
+      setSkills(selectedSkills.map(toTitleCase));
+    }
   }, [selectedSkills]);
 
   const debouncedSkill = useDebounce(newSkill, 300);
@@ -60,15 +73,12 @@ const KeySkillsModal = ({
           `/api/sql/dropdown/matching_Skill?skill_name=${value}`,
         );
 
-        const data =
-          (response.data.data || []).map((item: string) =>
-            item
-              .split(" ")
-              .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-              .join(" "),
-          ) || [];
-
-        setSuggestions(data);
+        const rawData = response.data.data || [];
+        
+        // Formats dropdown suggestions to match Title Case layout
+        const formattedSuggestions = rawData.map((item: string) => toTitleCase(item));
+        
+        setSuggestions(formattedSuggestions);
       } catch (err) {
         console.error(err);
       }
@@ -77,14 +87,19 @@ const KeySkillsModal = ({
     fetchSuggestions();
   }, [debouncedSkill]);
 
-  const addSkill = (skill: string) => {
-    if (skills.some((s) => s.toLowerCase() === skill.toLowerCase())) {
+  const addSkill = (rawSkill: string) => {
+    const formattedSkill = toTitleCase(rawSkill);
+
+    if (!formattedSkill) return;
+
+    // Checks clean duplicates comparison
+    if (skills.includes(formattedSkill)) {
       setNewSkill("");
       setSuggestions([]);
       return;
     }
 
-    setSkills((prev) => [...prev, skill]);
+    setSkills((prev) => [...prev, formattedSkill]);
     setNewSkill("");
     setSuggestions([]);
   };
@@ -117,7 +132,6 @@ const KeySkillsModal = ({
           title: "Success",
           description: "Key Skills updated successfully.",
         });
-       
       }
     } catch (err: any) {
       toast({
@@ -129,6 +143,7 @@ const KeySkillsModal = ({
       setLoading(false);
     }
   };
+
   return (
     <Dialog open={show} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-xl">
@@ -140,7 +155,7 @@ const KeySkillsModal = ({
           Add skills that define your expertise (Minimum 1).
         </p>
 
-        {/* Selected Skills */}
+        {/* Selected Skills - rendered in Title Case */}
         <div className="flex flex-wrap gap-2 mb-4">
           {skills.map((skill) => (
             <Badge key={skill} variant="outline" className="px-3 py-2 text-sm">
@@ -152,7 +167,7 @@ const KeySkillsModal = ({
           ))}
         </div>
 
-        {/* Input + Suggestions */}
+        {/* Input field + popup elements */}
         <div className="relative" ref={dropdownRef}>
           <Input
             placeholder="Enter or search a skill"
@@ -162,7 +177,7 @@ const KeySkillsModal = ({
               if (e.key === "Enter") {
                 e.preventDefault();
                 if (newSkill.trim()) {
-                  addSkill(newSkill.trim());
+                  addSkill(newSkill);
                 }
               }
             }}
@@ -174,7 +189,7 @@ const KeySkillsModal = ({
                 <div
                   key={skill}
                   onClick={() => addSkill(skill)}
-                  className="cursor-pointer px-4 py-2 hover:bg-blue-50"
+                  className="cursor-pointer px-4 py-2 hover:bg-blue-50 text-sm text-slate-700"
                 >
                   {skill}
                 </div>
