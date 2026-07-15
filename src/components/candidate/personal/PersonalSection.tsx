@@ -94,7 +94,7 @@ const PersonalSection = () => {
     return date.toLocaleDateString("en-GB", options);
   };
 
-  // Helper check to see if the user has filled out any personal data
+  
   const hasPersonalData = !!(
     personalDetails.gender ||
     personalDetails.maritalStatus ||
@@ -112,7 +112,7 @@ const PersonalSection = () => {
             <CardDescription></CardDescription>
           </div>
           
-          {/* DYNAMIC BUTTON: Changes based on data availability */}
+          
           {hasPersonalData ? (
             <Button
               variant="ghost"
@@ -325,7 +325,7 @@ const PersonalSection = () => {
 
                 <hr className="my-8" />
 
-                {/* Languages Section Display */}
+               
                 <div className="mb-4 flex items-center justify-between">
                   <h5 className="text-lg font-bold">Languages</h5>
                   <Button

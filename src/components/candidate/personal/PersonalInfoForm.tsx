@@ -30,7 +30,7 @@ const FormModal = ({
   show,
   onClose,
   data = {},
-  setRefresh,
+  setReload,
   formData,
   setFormData,
   focusSection,
@@ -624,6 +624,7 @@ const FormModal = ({
                 setFormData={setFormData}
                 targetLanguageId={targetLanguageId}
                 onClose={onClose}
+                setReload={setReload}
               />
             </div>
           )}
