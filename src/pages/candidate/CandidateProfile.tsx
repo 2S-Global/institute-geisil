@@ -224,11 +224,11 @@ export default function CandidateProfile() {
     document.body.style.overflow = "auto"; // Re-enable background scrolling
   };
 
-    const openModalRHotp = () => {
+  const openModalRHotp = () => {
     setIsModalOpenotp(true);
     document.body.style.overflow = "hidden"; // Disable background scrolling
   };
-    const closeModalRHotp = () => {
+  const closeModalRHotp = () => {
     setIsModalOpenotp(false);
     document.body.style.overflow = "auto"; // Re-enable background scrolling
   };
@@ -377,7 +377,7 @@ export default function CandidateProfile() {
       const response = await API.get("/api/candidate/resume/get_resume", {
         responseType: "blob",
       });
-
+      console.log("response---", response)
       const contentDisposition =
         response.headers["content-disposition"] ||
         response.headers["Content-Disposition"] ||
@@ -529,27 +529,27 @@ export default function CandidateProfile() {
                     <span className="flex items-center gap-1">
                       <Phone className="h-4 w-4" />
                       {user?.phone_number}
-                     {!user?.numberVerified && (
-  <>
-    <CircleX className="ml-2 h-4 w-4 text-red-500" />
+                      {!user?.numberVerified && (
+                        <>
+                          <CircleX className="ml-2 h-4 w-4 text-red-500" />
 
-    {user?.isIndianNumber ? (
-      <button
-        className="ml-2 rounded bg-blue-600 px-2 py-1 text-[10px] leading-none text-white hover:bg-blue-700"
-        onClick={openModalRHotp}
-      >
-        Verify Now
-      </button>
-    ) : (
-      <CircleX className=" h-4 w-4 text-red-500" />
-    )}
-  </>
-)}
- {user?.numberVerified && <CheckCircle2 className="h-4 w-4 mr-1 text-green-500" />}
+                          {user?.isIndianNumber ? (
+                            <button
+                              className="ml-2 rounded bg-blue-600 px-2 py-1 text-[10px] leading-none text-white hover:bg-blue-700"
+                              onClick={openModalRHotp}
+                            >
+                              Verify Now
+                            </button>
+                          ) : (
+                            <CircleX className=" h-4 w-4 text-red-500" />
+                          )}
+                        </>
+                      )}
+                      {user?.numberVerified && <CheckCircle2 className="h-4 w-4 mr-1 text-green-500" />}
                     </span>
                     <span className="flex items-center gap-1">
                       <Mail className="h-4 w-4" />
-                      {user?.email} {user?.email && <CheckCircle2 className="h-4 w-4 mr-1 text-green-500" /> }
+                      {user?.email} {user?.email && <CheckCircle2 className="h-4 w-4 mr-1 text-green-500" />}
                     </span>
                   </div>
                 </div>
@@ -584,7 +584,7 @@ export default function CandidateProfile() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={handleResumeDownload}
+                  onClick={downloadResume}
                   disabled={downloadLoading}
                 >
                   {downloadLoading ? (
@@ -1104,7 +1104,7 @@ export default function CandidateProfile() {
         />
       )} */}
 
-       {isModalOpenotp && (
+      {isModalOpenotp && (
         <OTPModel
           phone={user?.phone_number}
           show={isModalOpenotp}
