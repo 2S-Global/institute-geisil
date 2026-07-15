@@ -1,30 +1,7 @@
-
-
-import React, { useState, useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
+import React, { useState, useEffect } from "react";
+import { Pencil, Plus } from "lucide-react";
 import API from "../../../lib/axios";
-
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-//import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { Pencil } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -35,78 +12,80 @@ import {
 import ResumeHeadline from "./ResumeHeadline";
 
 const ResumeHeadlineSection = ({
-  show,
-  onClose,
-  data = {},
-  setRefresh,
   setReload,
   setError_main,
   setSuccess_main,
 }) => {
-  const apiurl = import.meta.env.VITE_API_URL;
-  console.log("show", show);
-  const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [resumeHeadline, setResumeHeadline] = useState("");
-
   const [sectionloading, setSectionloading] = useState(true);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
   const openModalRH = () => {
     setIsModalOpen(true);
-    document.body.style.overflow = "hidden"; // Disable background scrolling
+    document.body.style.overflow = "hidden";
   };
+
   const closeModalRH = () => {
     setIsModalOpen(false);
-    document.body.style.overflow = "auto"; // Re-enable background scrolling
+    document.body.style.overflow = "auto";
   };
-  
+
   useEffect(() => {
     const fetchResumeHeadline = async () => {
       try {
         setSectionloading(true);
-        const token = localStorage.getItem("token");
         const response = await API.get(`/api/userdata/resume_headline`);
-
-        //set only if response code is 200
-        setResumeHeadline(response.data.resumeHeadline);
+        setResumeHeadline(response.data.resumeHeadline || "");
       } catch (error) {
-        console.error("Error fetching profile pic:", error);
+        console.error("Error fetching resume headline:", error);
       } finally {
         setSectionloading(false);
       }
     };
-
     fetchResumeHeadline();
-  }, [apiurl]);
-  //if (!show) return null;
+  }, []);
+
+  const hasData = resumeHeadline?.trim().length > 0;
 
   return (
     <>
-      {/* Resume Headline Section */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <div>
             <CardTitle className="text-lg">Resume Headline</CardTitle>
             <CardDescription>
               A short summary recruiters see first.
             </CardDescription>
           </div>
-          <Button variant="ghost" size="icon" onClick={openModalRH}>
-            <Pencil className="h-4 w-4" />
-          </Button>
+
+          {!sectionloading && (
+            hasData ? (
+              <Button variant="ghost" size="icon" onClick={openModalRH}>
+                <Pencil className="h-4 w-4" />
+              </Button>
+            ) : (
+              <Button  size="sm" onClick={openModalRH}>
+                <Plus className="mr-2 h-4 w-4" /> Add Headline
+              </Button>
+            )
+          )}
         </CardHeader>
+
         <CardContent>
           {sectionloading ? (
-            "loading............"
-          ) : resumeHeadline?.trim() ? (
-            <div className="mt-4">
-              <p>{resumeHeadline.trim()}</p>
+            <p className="text-sm text-muted-foreground">Loading...</p>
+          ) : hasData ? (
+            <div className="pt-2">
+              <p className="text-sm">{resumeHeadline.trim()}</p>
             </div>
           ) : (
-            <div className="flex flex-1 items-center justify-center w-full shadow-sm">
-              <div className="w-full border-dashed border border-gray-200 rounded-xl p-8 text-center text-muted-foreground flex flex-col items-center justify-center">
+            <div
+              className="flex flex-1 items-center justify-center w-full cursor-pointer mt-2"
+              onClick={openModalRH}
+            >
+              <div className="w-full border-dashed border border-gray-200 rounded-xl p-8 text-center text-muted-foreground flex flex-col items-center justify-center hover:border-gray-300 transition-colors">
                 <p className="text-sm">No Resume Headline added yet.</p>
               </div>
             </div>
@@ -114,7 +93,6 @@ const ResumeHeadlineSection = ({
         </CardContent>
       </Card>
 
-      {/* Modal */}
       {isModalOpen && (
         <ResumeHeadline
           show={isModalOpen}

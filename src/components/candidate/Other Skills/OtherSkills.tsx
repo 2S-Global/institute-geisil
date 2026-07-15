@@ -1,7 +1,11 @@
-
-
 import React, { useEffect, useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Pencil, Plus } from "lucide-react";
 import API from "@/lib/axios";
@@ -67,12 +71,8 @@ const OtherSkills = () => {
             </CardDescription>
           </div>
 
-          {/* <Button onClick={handleOpenCreate}>
-            <Plus className="h-4 w-4 mr-1" />
-            Add Skill
-          </Button> */}
-          <Button variant="ghost" size="icon" onClick={handleOpenCreate}>
-            <Pencil className="h-4 w-4" />
+          <Button type="button" onClick={handleOpenCreate} size="sm">
+            <Plus className="h-4 w-4" /> Add skill
           </Button>
         </CardHeader>
 

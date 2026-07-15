@@ -1,7 +1,9 @@
 
 
+
+
 import React, { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, Calendar, Briefcase } from "lucide-react";
+import { Plus, Pencil, Calendar, Briefcase } from "lucide-react";
 import API from "@/lib/axios";
 
 import { Button } from "@/components/ui/button";
@@ -70,6 +72,8 @@ const WorkProfileList = () => {
             response.data.message || "Work profile removed successfully.",
         });
         setReload((prev) => !prev);
+        setShowModal(false);
+        setSelectedProfile(null);
       }
     } catch (error) {
       console.error("Error deleting work profile:", error);
@@ -81,7 +85,6 @@ const WorkProfileList = () => {
     }
   };
 
-  // Uses the explicit string month names returned directly from your API data
   const getDurationString = (prof) => {
     const fromYear = prof.durationFrom?.year || prof.year;
     const fromMonth = prof.durationFrom?.month || prof.month;
@@ -158,7 +161,7 @@ const WorkProfileList = () => {
                         </p>
 
                         <div className="flex items-center gap-2 text-xs text-gray-400 mt-1.5 font-medium">
-                          <span className="flex items-center gap-1">
+                          <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600 w-fit">
                             <Calendar className="h-3.5 w-3.5 text-gray-400" />
                             {getDurationString(p)}
                           </span>
@@ -175,25 +178,17 @@ const WorkProfileList = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 shrink-0 hover:bg-gray-100"
+                          
                           onClick={() => handleEdit(p)}
                         >
                           <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-100"
-                          onClick={() => handleDeleteClick(p._id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
 
                     {p.description && (
-                      <div
-                        className="text-sm text-[#4B5563] mt-4 leading-relaxed text-left break-words prose max-w-none"
+                      <CardDescription className="text-justify"
+                        // className="text-sm text-[#4B5563] mt-4 leading-relaxed text-left break-words prose max-w-none"
                         dangerouslySetInnerHTML={{ __html: p.description }}
                       />
                     )}
@@ -214,6 +209,7 @@ const WorkProfileList = () => {
           }}
           item={selectedProfile}
           setReload={() => setReload((prev) => !prev)}
+          onDelete={handleDeleteClick}
         />
       )}
     </Card>
