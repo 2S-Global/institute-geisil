@@ -21,7 +21,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-
+import Logo from "../assets/img/Logo.webp";
 const main = [
   {
     title: "Dashboard",
@@ -72,15 +72,20 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
       <SidebarHeader className="border-b border-sidebar-border/60 px-4 py-5">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground font-display font-extrabold text-lg shadow-sm">
-            G
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-sidebar-primary shadow-sm sm:h-11 sm:w-11">
+            <img
+              src={Logo} // Replace with your logo path
+              alt="GEISIL Logo"
+              className="h-full w-full object-contain"
+            />
           </div>
+
           {!collapsed && (
             <div className="min-w-0">
-              <p className="font-display font-bold text-sidebar-primary leading-tight truncate">
+              <p className="truncate font-display font-bold leading-tight text-sidebar-primary">
                 GEISIL
               </p>
-              <p className="text-[11px] uppercase tracking-wider text-sidebar-foreground/70 truncate">
+              <p className="truncate text-[10px] uppercase tracking-wider text-sidebar-foreground/70 sm:text-[11px]">
                 Institute Portal
               </p>
             </div>

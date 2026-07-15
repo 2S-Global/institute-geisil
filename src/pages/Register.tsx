@@ -26,7 +26,7 @@ import {
   Institutetype,
   useRegisterInstitute,
 } from "./employer/hooks/useRegisterInstitute";
-
+import Logo from "../assets/img/Logo.webp";
 type Role = "candidate" | "employer" | "institute";
 
 const roles: { id: Role; label: string; icon: typeof User }[] = [
@@ -102,14 +102,19 @@ export default function Register() {
         <div className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-accent/30 blur-3xl" />
         <Link to="/">
           <div className="relative flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary-foreground text-primary font-display font-extrabold text-xl">
-              G
+            <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary-foreground overflow-hidden">
+              <img
+                src={Logo}
+                alt="GEISIL Logo"
+                className="h-10 w-10 object-contain"
+              />
             </div>
+
             <div>
               <p className="font-display font-bold text-xl leading-none">
                 GEISIL
               </p>
-              <p className="text-xs text-primary-foreground/70 mt-1">
+              <p className="mt-1 text-xs text-primary-foreground/70">
                 Employability Reimagined
               </p>
             </div>

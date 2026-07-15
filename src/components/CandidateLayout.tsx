@@ -4,8 +4,12 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { CandidateSidebar } from "@/components/CandidateSidebar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback,AvatarImage } from "@/components/ui/avatar";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
 import { useNavigate } from "react-router-dom";
 import { LogoutModal } from "@/components/LogoutModal";
 
@@ -26,14 +30,14 @@ export function CandidateLayout({ children }: { children: ReactNode }) {
     return () => clearTimeout(timer);
   }, []);
 
-  const displayName = name === 'null' ? "" : name || "Riya Sharma";
+  const displayName = name === "null" ? "" : name || "Riya Sharma";
   const initials = displayName
     ? displayName
-      .split(" ")
-      .map((w) => w[0])
-      .slice(0, 2)
-      .join("")
-      .toUpperCase()
+        .split(" ")
+        .map((w) => w[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase()
     : "RS";
 
   return (
@@ -62,39 +66,45 @@ export function CandidateLayout({ children }: { children: ReactNode }) {
                 <PopoverTrigger asChild>
                   <button className="flex items-center gap-2 md:gap-3 hover:bg-muted/60 p-1.5 pr-2.5 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none text-left animate-fade-in">
                     <div className="hidden sm:block text-right leading-tight">
-                      <p className="text-sm font-semibold text-foreground">{displayName}</p>
+                      <p className="text-sm font-semibold text-foreground">
+                        {displayName}
+                      </p>
                       <p className="text-xs text-muted-foreground">Candidate</p>
                     </div>
                     <Avatar className="h-9 w-9 border shadow-sm">
-                     {/*  <AvatarImage
+                      {/*  <AvatarImage
                         src={pic || ""}
                         alt={initials || "Profile"}
                         className="object-cover"
                       /> */}
-                     {/*  <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                      {/*  <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
                         {initials}
                       </AvatarFallback> */}
-                        {pic!=='null' ? (
-                          <AvatarImage
-                            src={pic}
-                            alt="profile"
-                            className="object-cover"
-                          />
-                        ) : (
-                          <AvatarFallback className="bg-primary text-primary-foreground font-semibold">{initials}</AvatarFallback>
-                        )}
+                      {pic !== "null" ? (
+                        <AvatarImage
+                          src={pic}
+                          alt="profile"
+                          className="object-cover"
+                        />
+                      ) : (
+                        <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                          {initials}
+                        </AvatarFallback>
+                      )}
                     </Avatar>
-                    
-                      
                   </button>
                 </PopoverTrigger>
-                <PopoverContent align="end" className="w-56 p-1.5 bg-popover border border-border rounded-xl shadow-lg">
+                <PopoverContent
+                  align="end"
+                  className="w-56 p-1.5 bg-popover border border-border rounded-xl shadow-lg"
+                >
                   <div className="px-2 py-1.5">
-                    <p className="text-xs text-muted-foreground font-medium">Signed in as</p>
+                    <p className="text-xs text-muted-foreground font-medium">
+                      Signed in as
+                    </p>
                     <p className="text-sm font-semibold text-foreground truncate mt-0.5">
                       {displayName || "Candidate"}
                     </p>
-                   
                   </div>
                   <div className="h-px bg-border my-1" />
                   <div className="space-y-0.5">

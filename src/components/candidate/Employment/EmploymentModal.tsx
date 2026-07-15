@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { X, ChevronDown, Sparkles, Trash2, Loader2 } from "lucide-react";
 import API from "../../../lib/axios";
+import { useDebounce } from "@/hooks/use-debounce";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -39,6 +40,7 @@ export const EmploymentModal = ({
   const [defaultOptions, setDefaultOptions] = useState([]);
   const [loading2, setLoading2] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [isDropdownSelect, setIsDropdownSelect] = useState(false);
 
   // Fetch dynamic notice periods from API
   useEffect(() => {
@@ -69,6 +71,7 @@ export const EmploymentModal = ({
       setCurrentlyWorking(editData.currentlyWorking ?? true);
       setEmploymentType(editData.employmenttype || "full-time");
       setCompanyName(editData.company_name || "");
+      setIsDropdownSelect(true);
       setJobTitle(editData.job_title || "");
       setJoiningYear(
         editData.joining_year ? String(editData.joining_year) : "",
@@ -89,6 +92,7 @@ export const EmploymentModal = ({
       setCurrentlyWorking(true);
       setEmploymentType("full-time");
       setCompanyName("");
+      setIsDropdownSelect(false);
       setJobTitle("");
       setJoiningYear("");
       setJoiningMonth("");
@@ -108,10 +112,15 @@ export const EmploymentModal = ({
 
   const formats = ["bold", "italic", "underline", "strike", "script"];
 
+  const debouncedCompanyName = useDebounce(companyName, 300);
+
   // Handles dynamic company matching and input backspacing
   useEffect(() => {
     const fetchDefaultOptions = async () => {
-      if (!companyName.trim()) {
+      if (isDropdownSelect) {
+        return;
+      }
+      if (!debouncedCompanyName.trim()) {
         setDefaultOptions([]);
         return;
       }
@@ -119,6 +128,7 @@ export const EmploymentModal = ({
       setLoading2(true);
       try {
         const response = await API.get(
+          `/api/candidate/employment/random_company?company_name=${encodeURIComponent(debouncedCompanyName)}`,
           "/api/candidate/employment/matching_company",
           {
             params: { company_name: companyName },
@@ -139,12 +149,8 @@ export const EmploymentModal = ({
       }
     };
 
-    const delayDebounce = setTimeout(() => {
-      fetchDefaultOptions();
-    }, 300);
-
-    return () => clearTimeout(delayDebounce);
-  }, [companyName]);
+    fetchDefaultOptions();
+  }, [debouncedCompanyName, isDropdownSelect]);
 
   if (!isOpen) return null;
 
@@ -414,6 +420,9 @@ export const EmploymentModal = ({
                 placeholder="Enter or create a company name"
                 value={companyName}
                 onChange={(e) => {
+                  setCompanyName(e.target.value);
+                  setIsDropdownSelect(false);
+                  setShowDropdown(true);
                   const val = e.target.value;
                   setCompanyName(val);
                   setShowDropdown(val.trim() !== "");
@@ -446,6 +455,7 @@ export const EmploymentModal = ({
                     key={index}
                     onMouseDown={() => {
                       setCompanyName(option.value);
+                      setIsDropdownSelect(true);
                       setShowDropdown(false);
                     }}
                     className="px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors"
