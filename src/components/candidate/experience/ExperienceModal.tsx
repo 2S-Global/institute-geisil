@@ -127,9 +127,29 @@ const WorkProfileModal = ({ show, onClose, item, setReload, onDelete }) => {
     }
   }, [show, item]);
 
+  // Handle Input changes and reset target values if conditions change
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    setFormData((prev) => {
+      const updated = { ...prev, [name]: value };
+
+      // Reset 'To' fields if the 'From' date moves past the selected 'To' date
+      if (name === "durationFromYear" && updated.durationToYear && parseInt(value, 10) > parseInt(updated.durationToYear, 10)) {
+        updated.durationToYear = "";
+        updated.durationToMonth = "";
+      }
+      
+      if (name === "durationFromMonth" && updated.durationFromYear === updated.durationToYear && updated.durationToMonth) {
+        const fromIdx = monthNames.indexOf(value);
+        const toIdx = monthNames.indexOf(updated.durationToMonth);
+        if (fromIdx > toIdx) {
+          updated.durationToMonth = "";
+        }
+      }
+
+      return updated;
+    });
   };
 
   const handleCheckboxChange = (checked) => {
@@ -146,8 +166,7 @@ const WorkProfileModal = ({ show, onClose, item, setReload, onDelete }) => {
       toast({
         variant: "destructive",
         title: "Profile Title Required",
-        description:
-          "Please enter a work title first so AI can write a description.",
+        description: "Please enter a work title first so AI can write a description.",
       });
       return;
     }
@@ -169,6 +188,43 @@ const WorkProfileModal = ({ show, onClose, item, setReload, onDelete }) => {
       return;
     }
 
+    const fromYear = formData.durationFromYear ? parseInt(formData.durationFromYear, 10) : null;
+    const fromMonthIndex = formData.durationFromMonth ? monthNames.indexOf(formData.durationFromMonth) : -1;
+    
+    const toYear = formData.durationToYear ? parseInt(formData.durationToYear, 10) : null;
+    const toMonthIndex = formData.durationToMonth ? monthNames.indexOf(formData.durationToMonth) : -1;
+
+    if ((fromYear && fromMonthIndex === -1) || (!fromYear && fromMonthIndex !== -1)) {
+      toast({
+        variant: "destructive",
+        title: "Incomplete Start Date",
+        description: "Please select both a year and a month for your start date.",
+      });
+      return;
+    }
+
+    if (!formData.currentlyWorking) {
+      if ((toYear && toMonthIndex === -1) || (!toYear && toMonthIndex !== -1)) {
+        toast({
+          variant: "destructive",
+          title: "Incomplete End Date",
+          description: "Please select both a year and a month for your end date.",
+        });
+        return;
+      }
+
+      if (fromYear && toYear) {
+        if (toYear < fromYear || (toYear === fromYear && toMonthIndex < fromMonthIndex)) {
+          toast({
+            variant: "destructive",
+            title: "Invalid Date Range",
+            description: "The end date cannot be earlier than the start date.",
+          });
+          return;
+        }
+      }
+    }
+
     const fromMonthValue = formData.durationFromMonth
       ? String(monthNames.indexOf(formData.durationFromMonth) + 1)
       : "";
@@ -185,9 +241,7 @@ const WorkProfileModal = ({ show, onClose, item, setReload, onDelete }) => {
       currentlyWorking: formData.currentlyWorking,
       durationFromYear: formData.durationFromYear || "",
       durationFromMonth: fromMonthValue,
-      durationToYear: formData.currentlyWorking
-        ? ""
-        : formData.durationToYear || "",
+      durationToYear: formData.currentlyWorking ? "" : formData.durationToYear || "",
       durationToMonth: formData.currentlyWorking ? "" : toMonthValue,
     };
 
@@ -196,23 +250,15 @@ const WorkProfileModal = ({ show, onClose, item, setReload, onDelete }) => {
       let response;
 
       if (formData._id) {
-        response = await API.put(
-          "/api/candidate/accomplishments/edit_work_samples",
-          payload,
-        );
+        response = await API.put("/api/candidate/accomplishments/edit_work_samples", payload);
       } else {
-        response = await API.post(
-          "/api/candidate/accomplishments/add_work_samples",
-          payload,
-        );
+        response = await API.post("/api/candidate/accomplishments/add_work_samples", payload);
       }
 
       if (response.status === 200 || response.data?.success) {
         toast({
           title: "Success",
-          description: formData._id
-            ? "Work profile updated successfully."
-            : "Work profile saved successfully.",
+          description: formData._id ? "Work profile updated successfully." : "Work profile saved successfully.",
         });
         setReload();
         onClose();
@@ -235,18 +281,17 @@ const WorkProfileModal = ({ show, onClose, item, setReload, onDelete }) => {
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <DialogTitle className="text-lg font-semibold text-gray-800">
             {formData._id ? "Edit Work Profile" : "Add Work Profile"}
-            
           </DialogTitle>
         </div>
         <div className="px-6 py-4 max-h-[75vh] overflow-y-auto space-y-4 text-left">
           <div className="flex justify-end">
-              {formData._id && (
-                <Trash2
-                  className="w-4 h-4 cursor-pointer text-red-500 hover:text-red-600"
-                  onClick={() => onDelete(formData._id)}
-                />
-              )}
-            </div>
+            {formData._id && (
+              <Trash2
+                className="w-4 h-4 cursor-pointer text-red-500 hover:text-red-600"
+                onClick={() => onDelete(formData._id)}
+              />
+            )}
+          </div>
           <p className="text-sm text-gray-700">
             Link relevant work profiles (e.g. Github, Behance)
           </p>
@@ -277,6 +322,7 @@ const WorkProfileModal = ({ show, onClose, item, setReload, onDelete }) => {
             />
           </div>
 
+          {/* DURATION FROM */}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-gray-900 tracking-wide">
               Duration From
@@ -289,13 +335,11 @@ const WorkProfileModal = ({ show, onClose, item, setReload, onDelete }) => {
                 className="flex h-11 w-full rounded-md bg-[#F4F8FA] border-none px-3 text-sm text-gray-600 outline-none focus:ring-1 focus:ring-primary"
               >
                 <option value="">Select Year</option>
-                {Array.from({ length: 25 }, (_, i) => currentYear - i).map(
-                  (yr) => (
-                    <option key={yr} value={yr}>
-                      {yr}
-                    </option>
-                  ),
-                )}
+                {Array.from({ length: 25 }, (_, i) => currentYear - i).map((yr) => (
+                  <option key={yr} value={yr}>
+                    {yr}
+                  </option>
+                ))}
               </select>
 
               <select
@@ -314,12 +358,14 @@ const WorkProfileModal = ({ show, onClose, item, setReload, onDelete }) => {
             </div>
           </div>
 
+          {/* DURATION TO */}
           {!formData.currentlyWorking && (
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-gray-900 tracking-wide">
                 Duration To
               </label>
               <div className="grid grid-cols-2 gap-3">
+                {/* Dynamically hides years below selected Duration From Year */}
                 <select
                   name="durationToYear"
                   value={formData.durationToYear}
@@ -327,15 +373,16 @@ const WorkProfileModal = ({ show, onClose, item, setReload, onDelete }) => {
                   className="flex h-11 w-full rounded-md bg-[#F4F8FA] border-none px-3 text-sm text-gray-600 outline-none focus:ring-1 focus:ring-primary"
                 >
                   <option value="">Select Year</option>
-                  {Array.from({ length: 25 }, (_, i) => currentYear - i).map(
-                    (yr) => (
+                  {Array.from({ length: 25 }, (_, i) => currentYear - i)
+                    .filter((yr) => !formData.durationFromYear || yr >= parseInt(formData.durationFromYear, 10))
+                    .map((yr) => (
                       <option key={yr} value={yr}>
                         {yr}
                       </option>
-                    ),
-                  )}
+                    ))}
                 </select>
 
+                {/* Dynamically hides months below selected Duration From Month if target year matches */}
                 <select
                   name="durationToMonth"
                   value={formData.durationToMonth}
@@ -343,11 +390,17 @@ const WorkProfileModal = ({ show, onClose, item, setReload, onDelete }) => {
                   className="flex h-11 w-full rounded-md bg-[#F4F8FA] border-none px-3 text-sm text-gray-600 outline-none focus:ring-1 focus:ring-primary"
                 >
                   <option value="">Select Month</option>
-                  {monthNames.map((m) => (
-                    <option key={m} value={m}>
-                      {m}
-                    </option>
-                  ))}
+                  {monthNames
+                    .filter((m) => {
+                      if (!formData.durationFromYear || !formData.durationToYear || !formData.durationFromMonth) return true;
+                      if (formData.durationFromYear !== formData.durationToYear) return true;
+                      return monthNames.indexOf(m) >= monthNames.indexOf(formData.durationFromMonth);
+                    })
+                    .map((m) => (
+                      <option key={m} value={m}>
+                        {m}
+                      </option>
+                    ))}
                 </select>
               </div>
             </div>
@@ -374,9 +427,7 @@ const WorkProfileModal = ({ show, onClose, item, setReload, onDelete }) => {
             <ReactQuill
               theme="snow"
               value={formData.description}
-              onChange={(value) =>
-                setFormData((prev) => ({ ...prev, description: value }))
-              }
+              onChange={(value) => setFormData((prev) => ({ ...prev, description: value }))}
               modules={quillModules}
               formats={quillFormats}
               placeholder="Type here..."
@@ -395,7 +446,7 @@ const WorkProfileModal = ({ show, onClose, item, setReload, onDelete }) => {
           </Button>
         </div>
 
-        <DialogFooter className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex items-centerjustify-end sm:justify-end gap-2 w-full">
+        <DialogFooter className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex items-center justify-end sm:justify-end gap-2 w-full">
           <div className="flex items-end gap-2">
             <Button type="button" variant="ghost" onClick={onClose}>
               Cancel
