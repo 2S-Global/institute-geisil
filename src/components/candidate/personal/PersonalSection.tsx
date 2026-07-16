@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Pencil, CircleX, CircleCheck, Plus } from "lucide-react";
@@ -53,7 +52,7 @@ const PersonalSection = () => {
       try {
         setSectionloading(true);
         const response = await API.get(
-          `/api/candidate/personal/get_personal_details_with_name`,
+          `/api/candidate/personal/get_personal_details_with_name`
         );
         if (response.status === 200) {
           const maindata = response.data.data;
@@ -94,7 +93,6 @@ const PersonalSection = () => {
     return date.toLocaleDateString("en-GB", options);
   };
 
-  
   const hasPersonalData = !!(
     personalDetails.gender ||
     personalDetails.maritalStatus ||
@@ -111,7 +109,6 @@ const PersonalSection = () => {
             <CardTitle className="text-lg">Personal Details</CardTitle>
             <CardDescription></CardDescription>
           </div>
-          
           
           {hasPersonalData ? (
             <Button
@@ -296,8 +293,7 @@ const PersonalSection = () => {
                     <strong>Differently Abled</strong>
                     <div className="mt-2">
                       {personalDetails.differentlyAbled ? (
-                        personalDetails.differentlyAbled.toLowerCase() ===
-                        "yes" ? (
+                        personalDetails.differentlyAbled.toLowerCase() === "yes" ? (
                           <>
                             {[
                               personalDetails.differentlyAbled,
@@ -325,13 +321,10 @@ const PersonalSection = () => {
 
                 <hr className="my-8" />
 
-               
                 <div className="mb-4 flex items-center justify-between">
                   <h5 className="text-lg font-bold">Languages</h5>
                   <Button
-                    
                     size="sm"
-                    
                     onClick={() => openModalRH("languages", null)}
                   >
                     <Plus className="h-4 w-4" />
@@ -342,81 +335,78 @@ const PersonalSection = () => {
                 {personalDetails.languages &&
                 personalDetails.languages.length > 0 ? (
                   <div className="overflow-x-auto rounded-lg border border-gray-200">
-                      <table className="min-w-full divide-y divide-gray-200 text-sm">
-                        <thead className="bg-gray-50">
-                          <tr>
-                            <th className="px-6 py-3 text-left font-semibold text-gray-700 w-1/3">Language</th>
-                            <th className="px-6 py-3 text-left font-semibold text-gray-700 w-1/4">Proficiency</th>
-                            <th className="px-4 py-3 text-center font-semibold text-gray-700 w-12">Read</th>
-                            <th className="px-4 py-3 text-center font-semibold text-gray-700 w-12">Write</th>
-                            <th className="px-4 py-3 text-center font-semibold text-gray-700 w-12">Speak</th>
-                            <th className="px-6 py-3 text-right font-semibold text-gray-700 w-16">Action</th>
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                          {personalDetails.languages.map((lang, index) => {
-                            const matchingDetailsObj =
-                              personalDetails.languagesDetails?.[index];
-                            const correctHexId = matchingDetailsObj
-                              ? matchingDetailsObj._id
-                              : null;
+                    <table className="min-w-full divide-y divide-gray-200 text-sm">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left font-semibold text-gray-700 w-1/3">Language</th>
+                          <th className="px-6 py-3 text-left font-semibold text-gray-700 w-1/4">Proficiency</th>
+                          <th className="px-4 py-3 text-center font-semibold text-gray-700 w-12">Read</th>
+                          <th className="px-4 py-3 text-center font-semibold text-gray-700 w-12">Write</th>
+                          <th className="px-4 py-3 text-center font-semibold text-gray-700 w-12">Speak</th>
+                          <th className="px-6 py-3 text-right font-semibold text-gray-700 w-16">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {personalDetails.languages.map((lang, index) => {
+                          const matchingDetailsObj = personalDetails.languagesDetails?.[index];
+                          const correctHexId = matchingDetailsObj ? matchingDetailsObj._id : null;
 
-                            return (
-                              <tr key={index} className="hover:bg-gray-50/70 transition-colors">
-                                <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                                  {lang.language_name || lang.language}
-                                </td>
-                                <td className="px-6 py-4 text-gray-600 whitespace-nowrap">
-                                  {lang.proficiency_name || lang.proficiency}
-                                </td>
-                                <td className="px-4 py-4 whitespace-nowrap">
-                                  <div className="flex justify-center">
-                                    {lang.read ? (
-                                      <CircleCheck color="#00A85A" size={18} />
-                                    ) : (
-                                      <CircleX color="#FF0000" size={18} />
-                                    )}
-                                  </div>
-                                </td>
-                                <td className="px-4 py-4 whitespace-nowrap">
-                                  <div className="flex justify-center">
-                                    {lang.write ? (
-                                      <CircleCheck color="#00A85A" size={18} />
-                                    ) : (
-                                      <CircleX color="#FF0000" size={18} />
-                                    )}
-                                  </div>
-                                </td>
-                                <td className="px-4 py-4 whitespace-nowrap">
-                                  <div className="flex justify-center">
-                                    {lang.speak ? (
-                                      <CircleCheck color="#00A85A" size={18} />
-                                    ) : (
-                                      <CircleX color="#FF0000" size={18} />
-                                    )}
-                                  </div>
-                                </td>
-                                <td className="px-6 py-4 text-right whitespace-nowrap">
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => openModalRH("languages", correctHexId)}
-                                    className="h-8 w-8"
-                                  >
-                                    <Pencil className="h-4 w-4 " />
-                                  </Button>
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  ) : (
-                    <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-4 text-sm text-gray-600">
-                      No languages added yet. Use the button above to add your language proficiency.
-                    </div>
-                  )}
+                          return (
+                            <tr key={index} className="hover:bg-gray-50/70 transition-colors">
+                              <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                                {lang.language_name || lang.language}
+                              </td>
+                              <td className="px-6 py-4 text-gray-600 whitespace-nowrap">
+                                {lang.proficiency_name || lang.proficiency}
+                              </td>
+                              <td className="px-4 py-4 whitespace-nowrap">
+                                <div className="flex justify-center">
+                                  {lang.read ? (
+                                    <CircleCheck color="#00A85A" size={18} />
+                                  ) : (
+                                    <CircleX color="#FF0000" size={18} />
+                                  )}
+                                </div>
+                              </td>
+                              <td className="px-4 py-4 whitespace-nowrap">
+                                <div className="flex justify-center">
+                                  {lang.write ? (
+                                    <CircleCheck color="#00A85A" size={18} />
+                                  ) : (
+                                    <CircleX color="#FF0000" size={18} />
+                                  )}
+                                </div>
+                              </td>
+                              <td className="px-4 py-4 whitespace-nowrap">
+                                <div className="flex justify-center">
+                                  {lang.speak ? (
+                                    <CircleCheck color="#00A85A" size={18} />
+                                  ) : (
+                                    <CircleX color="#FF0000" size={18} />
+                                  )}
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 text-right whitespace-nowrap">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => openModalRH("languages", correctHexId)}
+                                  className="h-8 w-8"
+                                >
+                                  <Pencil className="h-4 w-4 " />
+                                </Button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-4 text-sm text-gray-600">
+                    No languages added yet. Use the button above to add your language proficiency.
+                  </div>
+                )}
               </div>
             </>
           )}
