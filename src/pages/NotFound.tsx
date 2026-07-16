@@ -53,7 +53,7 @@ const NotFound = () => {
           </Button> */}
           {localStorage.getItem("role") === "1" && (
             <Button asChild variant="outline">
-              <Link to="/employer/dashboard">
+              <Link to="/candidate/dashboard">
                 <Home className="h-4 w-4" /> Back to home
               </Link>
             </Button>
