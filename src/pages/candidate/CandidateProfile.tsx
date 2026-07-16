@@ -66,6 +66,7 @@ import CertificationSection from "@/components/candidate/certification/Certifica
 import WhitePaper from "@/components/candidate/WhitePaper/WhitePaper";
 import Employment from "../../components/candidate/Employment/Employment";
 import CareerProfile from "@/components/candidate/Career Profile/CareerProfile";
+import JobPreferences from "@/components/candidate/jobPreferences/JobPreferences";
 import ITSkills from "@/components/candidate/ITSkills/ITSkills";
 import OtherSkills from "@/components/candidate/Other Skills/OtherSkills";
 import ProfileStrength from "./components/ProfileStrength";
@@ -1025,21 +1026,7 @@ export default function CandidateProfile() {
 
           <div className="space-y-6">
             <ProfileStrength />
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Job preferences</CardTitle>
-                <CardDescription>
-                  Used to match you to the right roles.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4 text-sm">
-                <Pref label="Desired role" value="Senior Frontend Engineer" />
-                <Pref label="Employment type" value="Full-time · Remote" />
-                <Pref label="Expected salary" value="₹18 – 24 LPA" />
-                <Pref label="Notice period" value="30 days" />
-                <Pref label="Preferred locations" value="Bengaluru, Remote" />
-              </CardContent>
-            </Card>
+            <JobPreferences />
 
             <Card>
               <CardHeader>
