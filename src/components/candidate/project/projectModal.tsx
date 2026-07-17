@@ -176,6 +176,24 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth() + 1;
 
+  const renderYearOptions = (isEndDate: boolean) => {
+    return Array.from({ length: 30 }, (_, i) => {
+      const year = currentYear - i;
+      const yearValue = year.toString();
+      const isDisabled = Boolean(
+        isEndDate &&
+          formData.workfromyear &&
+          Number(yearValue) < Number(formData.workfromyear)
+      );
+
+      return (
+        <option key={year} value={yearValue} disabled={isDisabled}>
+          {year}
+        </option>
+      );
+    });
+  };
+
   const generateMonthOptions = (selectedYear: number) => {
     const maxMonth = selectedYear === currentYear ? currentMonth : 12;
     return monthNames.slice(0, maxMonth).map((month, index) => (
@@ -188,6 +206,21 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
   useEffect(() => {
     setIsFormValid(!!(formData.title && formData.title.trim() !== ""));
   }, [formData.title]);
+
+  useEffect(() => {
+    if (!formData.workfromyear || !formData.worktoyear) return;
+
+    const startYear = Number(formData.workfromyear);
+    const endYear = Number(formData.worktoyear);
+
+    if (!Number.isNaN(startYear) && !Number.isNaN(endYear) && endYear < startYear) {
+      setFormData((prev) => ({
+        ...prev,
+        worktoyear: "",
+        worktomonth: "",
+      }));
+    }
+  }, [formData.workfromyear, formData.worktoyear]);
 
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -407,10 +440,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                 }
               >
                 <option value="">Select Year</option>
-                {Array.from({ length: 30 }, (_, i) => {
-                  const year = currentYear - i;
-                  return <option key={year} value={year.toString()}>{year}</option>;
-                })}
+                {renderYearOptions(false)}
               </select>
 
               <select
@@ -443,10 +473,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                   }
                 >
                   <option value="">Select Year</option>
-                  {Array.from({ length: 30 }, (_, i) => {
-                    const year = currentYear - i;
-                    return <option key={year} value={year.toString()}>{year}</option>;
-                  })}
+                  {renderYearOptions(true)}
                 </select>
 
                 <select
