@@ -180,18 +180,21 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
     return Array.from({ length: 30 }, (_, i) => {
       const year = currentYear - i;
       const yearValue = year.toString();
-      const isDisabled = Boolean(
+
+      if (
         isEndDate &&
-          formData.workfromyear &&
-          Number(yearValue) < Number(formData.workfromyear)
-      );
+        formData.workfromyear &&
+        Number(yearValue) < Number(formData.workfromyear)
+      ) {
+        return null;
+      }
 
       return (
-        <option key={year} value={yearValue} disabled={isDisabled}>
+        <option key={year} value={yearValue}>
           {year}
         </option>
       );
-    });
+    }).filter(Boolean);
   };
 
   const generateMonthOptions = (selectedYear: number) => {
