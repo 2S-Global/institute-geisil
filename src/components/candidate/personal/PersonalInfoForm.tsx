@@ -31,6 +31,8 @@ const PersonalInfoForm = ({
   const [UsaVisaList, setUsaVisaList] = useState([]);
 
   const [renderLanguages, setRenderLanguages] = useState(false);
+  // Self-contained state to track which block is currently flashing/active
+  const [activeHighlight, setActiveHighlight] = useState(null);
 
   useEffect(() => {
     if (!focusSection || focusSection === "languages") {
@@ -87,15 +89,14 @@ const PersonalInfoForm = ({
             block: "center",
           });
 
-          targetRef.current.style.transition = "background-color 0.5s ease";
-          const originalBg = targetRef.current.style.backgroundColor;
-          targetRef.current.style.backgroundColor = "#ffffcc";
+          // Set the active component highlight row
+          setActiveHighlight(focusSection);
 
-          setTimeout(() => {
-            if (targetRef.current) {
-              targetRef.current.style.backgroundColor = originalBg || "transparent";
-            }
-          }, 1500);
+          const timeout = setTimeout(() => {
+            setActiveHighlight(null);
+          }, 3000);
+
+          return () => clearTimeout(timeout);
         } catch (err) {
           console.error("Scroll error:", err);
         }
@@ -219,9 +220,17 @@ const PersonalInfoForm = ({
     }
   }, [formData?.have_usa_visa]);
 
+  // Helper to append dynamic classes without needing any external CSS layout targets
+  const getHighlightClass = (sectionId) => {
+    const baseClass = "p-3 border rounded-lg transition-all duration-500 ease-in-out ";
+    if (activeHighlight === sectionId) {
+      return baseClass + "border-[#223B6B] bg-[#223B6B]/[0.02] shadow-[0_0_0_3px_rgba(34,59,107,0.15)]";
+    }
+    return baseClass + "border-transparent bg-transparent";
+  };
+
   if (!show) return null;
 
-  // Safe configurations arrays instantiation parsing
   const safeMoreInfo = Array.isArray(formData?.more_info) ? formData.more_info : [];
   const safeWorkPermitCountries = Array.isArray(formData?.work_permit_other_countries) ? formData.work_permit_other_countries : [];
   const safePartnerList = Array.isArray(withpartnername) ? withpartnername : [];
@@ -234,7 +243,8 @@ const PersonalInfoForm = ({
         <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
           {!renderLanguages && (
             <>
-              <div ref={personalInfo} id="personalInfo" className="space-y-6">
+              {/* Personal Info Section Container */}
+              <div ref={personalInfo} id="personalInfo" className={`${getHighlightClass("personalInfo")} space-y-6`}>
                 {/* Gender */}
                 <div>
                   <label className="block text-sm font-semibold mb-2">
@@ -324,36 +334,36 @@ const PersonalInfoForm = ({
                     />
                   </div>
                 )}
+              </div>
 
-                {/* DOB */}
-                <div ref={dob} id="dob">
-                  <label className="block text-sm font-semibold mb-2">
-                    Date of Birth <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative flex items-center">
-                    <input
-                      type="date"
-                      className="w-full border border-gray-300 rounded-md pl-3 pr-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer accent-indigo-600 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                      value={
-                        formData?.dob
-                          ? new Date(formData.dob).toISOString().split("T")[0]
-                          : ""
-                      }
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          dob: e.target.value,
-                        })
-                      }
-                      max={today.toISOString().split("T")[0]}
-                    />
-                    <Calendar className="absolute right-3 h-4 w-4 text-gray-400 pointer-events-none" />
-                  </div>
+              {/* DOB Section Container */}
+              <div ref={dob} id="dob" className={getHighlightClass("dob")}>
+                <label className="block text-sm font-semibold mb-2">
+                  Date of Birth <span className="text-red-500">*</span>
+                </label>
+                <div className="relative flex items-center">
+                  <input
+                    type="date"
+                    className="w-full border border-gray-300 rounded-md pl-3 pr-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer accent-indigo-600 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                    value={
+                      formData?.dob
+                        ? new Date(formData.dob).toISOString().split("T")[0]
+                        : ""
+                    }
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        dob: e.target.value,
+                      })
+                    }
+                    max={today.toISOString().split("T")[0]}
+                  />
+                  <Calendar className="absolute right-3 h-4 w-4 text-gray-400 pointer-events-none" />
                 </div>
               </div>
 
-              {/* Category */}
-              <div ref={category} id="category">
+              {/* Category Section Container */}
+              <div ref={category} id="category" className={getHighlightClass("category")}>
                 <label className="block text-sm font-semibold mb-2">
                   Category
                 </label>
@@ -378,12 +388,12 @@ const PersonalInfoForm = ({
                 </div>
               </div>
 
-              {/* Differently abled */}
-              <div ref={differentlyAbled} id="differentlyAbled">
+              {/* Differently Abled Section Container */}
+              <div ref={differentlyAbled} id="differentlyAbled" className={getHighlightClass("differentlyAbled")}>
                 <label className="block text-sm font-semibold mb-2">
                   Are you differently abled?
                 </label>
-                <div className="flex gap-4">
+                <div className="flex gap-4 mb-2">
                   {["Yes", "No"].map((option) => (
                     <label
                       key={option}
@@ -413,12 +423,12 @@ const PersonalInfoForm = ({
                 )}
               </div>
 
-              {/* Career Break */}
-              <div ref={careerBreak} id="careerBreak">
+              {/* Career Break Section Container */}
+              <div ref={careerBreak} id="careerBreak" className={getHighlightClass("careerBreak")}>
                 <label className="block text-sm font-semibold mb-2">
                   Have you taken a career break?
                 </label>
-                <div className="flex gap-4">
+                <div className="flex gap-4 mb-2">
                   {["Yes", "No"].map((option) => (
                     <label
                       key={option}
@@ -449,8 +459,8 @@ const PersonalInfoForm = ({
                 )}
               </div>
 
-              {/* Work permit */}
-              <div ref={workPermit} id="workPermit">
+              {/* Work Permit Section Container */}
+              <div ref={workPermit} id="workPermit" className={getHighlightClass("workPermit")}>
                 <div>
                   <label className="block text-sm font-semibold mb-2">
                     Do you have a Work permit for USA
@@ -496,7 +506,6 @@ const PersonalInfoForm = ({
                   </div>
                 )}
 
-                {/* Multi select countries */}
                 <div className="mt-3">
                   <label className="block text-sm font-semibold mb-2">
                     Work permit for other countries (Max 3)
@@ -513,37 +522,40 @@ const PersonalInfoForm = ({
                 </div>
               </div>
 
-              {/* Address */}
-              <div ref={address} id="address" className="space-y-3">
-                <label className="block text-sm font-semibold mb-2">
-                  Permanent address
-                </label>
-                <input
-                  className="w-full border px-3 py-2 rounded-md"
-                  placeholder="Permanent address"
-                  value={formData?.permanent_address || ""}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      permanent_address: e.target.value,
-                    })
-                  }
-                />
-                <label className="block text-sm font-semibold mb-2">
-                  Hometown
-                </label>
-                <input
-                  className="w-full border px-3 py-2 rounded-md"
-                  placeholder="Hometown"
-                  value={formData?.hometown || ""}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      hometown: e.target.value,
-                    })
-                  }
-                />
-
+              {/* Address Section Container */}
+              <div ref={address} id="address" className={`${getHighlightClass("address")} space-y-3`}>
+                <div>
+                  <label className="block text-sm font-semibold mb-2">
+                    Permanent address
+                  </label>
+                  <input
+                    className="w-full border px-3 py-2 rounded-md"
+                    placeholder="Permanent address"
+                    value={formData?.permanent_address || ""}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        permanent_address: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2">
+                    Hometown
+                  </label>
+                  <input
+                    className="w-full border px-3 py-2 rounded-md"
+                    placeholder="Hometown"
+                    value={formData?.hometown || ""}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        hometown: e.target.value,
+                      })
+                    }
+                  />
+                </div>
                 <div>
                   <label className="block text-sm font-semibold mb-2">
                     Pin
@@ -572,9 +584,9 @@ const PersonalInfoForm = ({
             </>
           )}
 
-          {/* Languages Segment Routing */}
+          {/* Languages Section Container */}
           {renderLanguages && (
-            <div ref={languages} id="languages">
+            <div ref={languages} id="languages" className={getHighlightClass("languages")}>
               <LanguageProficiency
                 formData={formData}
                 setFormData={setFormData}

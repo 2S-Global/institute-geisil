@@ -16,9 +16,7 @@ const AadharCardInfo = ({
 }) => {
   const apiurl = import.meta.env.VITE_API_URL;
   const token =
-    typeof window !== "undefined"
-      ? localStorage.getItem("token")
-      : null;
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   const [payment_Response, setPaymentResponse] = useState(null);
   const [resendTimer, setResendTimer] = useState(30);
@@ -28,14 +26,11 @@ const AadharCardInfo = ({
     setSectionloading(true);
     setPaymentResponse(response);
     try {
-      const res = await axios.post(
-        `${apiurl}/api/candidatekyc/verify-order`,
-        {
-          razorpay_payment_id: response.razorpay_payment_id,
-          razorpay_order_id: response.razorpay_order_id,
-          razorpay_signature: response.razorpay_signature,
-        }
-      );
+      const res = await axios.post(`${apiurl}/api/candidatekyc/verify-order`, {
+        razorpay_payment_id: response.razorpay_payment_id,
+        razorpay_order_id: response.razorpay_order_id,
+        razorpay_signature: response.razorpay_signature,
+      });
 
       if (res.data.success) {
         setError(null);
@@ -57,7 +52,7 @@ const AadharCardInfo = ({
       console.error("❌ Verification API Error:", error);
       setError(
         error.response?.data?.message ||
-          "Failed to update KYC. Try again later."
+          "Failed to update KYC. Try again later.",
       );
       setErrorId(Date.now());
     } finally {
@@ -77,17 +72,15 @@ const AadharCardInfo = ({
   const handleOTPSubmit = async (otp) => {
     //console.log("Submitting OTP:", otp);
     try {
-      const res = await axios.post(
-        `${apiurl}/api/candidatekyc/verify-otp`,
-        { otp },
-      
-      );
+      const res = await axios.post(`${apiurl}/api/candidatekyc/verify-otp`, {
+        otp,
+      });
 
       if (res.data.success) {
         Swal.fire(
           "Success",
           res.data.message || "OTP Verified Successfully",
-          "success"
+          "success",
         );
         setReload(true);
       } else {
@@ -97,7 +90,7 @@ const AadharCardInfo = ({
       Swal.fire(
         "❌ Error",
         error.response?.data?.message || "Failed to verify OTP",
-        "error"
+        "error",
       );
     }
   };
@@ -179,49 +172,48 @@ const AadharCardInfo = ({
   };
 
   return (
-   <>
-  <div className="mb-6">
-    <div className="flex items-center gap-2">
-      <strong>Aadhaar Number</strong>
+    <>
+      <div className="mb-6">
+        <div className="flex items-center gap-2">
+          <strong>Aadhaar Number</strong>
 
-      {userdata?.aadhar_number &&
-        (userdata?.aadhar_verified ? (
-          <CheckCircle className="h-5 w-5 text-green-600" />
-        ) : (
-          <>
-            <CircleX className="h-5 w-5 text-red-600" />
-            <RazorpayPayment
-              onSuccess={handlePaymentSuccessAadhar}
-              documentType="aadhar"
-            />
-          </>
-        ))}
-    </div>
-
-    <div className="mt-2">
-      {userdata?.aadhar_number ? (
-        <div className="leading-6 text-gray-600">
-          
-          <div>
-            <span className="font-semibold">Aadhaar Name:</span>{" "}
-            {userdata?.aadhar_name}
-          </div>
-          <div>
-            <span className="font-semibold">Aadhaar Number:</span>{" "}
-            {userdata?.aadhar_number}
-          </div>
+          {userdata?.aadhar_number &&
+            (userdata?.aadhar_verified ? (
+              <CheckCircle className="h-5 w-5 text-green-600" />
+            ) : (
+              <>
+                <CircleX className="h-5 w-5 text-red-600" />
+                <RazorpayPayment
+                  onSuccess={handlePaymentSuccessAadhar}
+                  documentType="aadhar"
+                />
+              </>
+            ))}
         </div>
-      ) : (
-        <span
-          className="cursor-pointer font-semibold font-bold text-blue-600 hover:underline"
-          onClick={() => openModalRH("aadhar")}
-        >
-          Add Aadhar Card With OTP Info
-        </span>
-      )}
-    </div>
-  </div>
-</>
+
+        <div className="mt-2">
+          {userdata?.aadhar_number ? (
+            <div className="leading-6 text-gray-600">
+              <div>
+                <span className="font-semibold">Aadhaar Name:</span>{" "}
+                {userdata?.aadhar_name}
+              </div>
+              <div>
+                <span className="font-semibold">Aadhaar Number:</span>{" "}
+                {userdata?.aadhar_number}
+              </div>
+            </div>
+          ) : (
+            <span
+              className="text-sm font-medium text-blue-600 cursor-pointer hover:underline"
+              onClick={() => openModalRH("aadhar")}
+            >
+              Add Aadhaar Card With OTP Info
+            </span>
+          )}
+        </div>
+      </div>
+    </>
   );
 };
 

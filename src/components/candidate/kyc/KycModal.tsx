@@ -1,9 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import API from "../../../lib/axios";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker"
 import {
   Dialog,
   DialogContent,
@@ -11,21 +9,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-//import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import KycBox from "./KycBox";
-const KycModal = ({ show,
+
+const KycModal = ({ 
+  show,
   onClose,
   setError,
   setSuccess,
@@ -33,15 +22,13 @@ const KycModal = ({ show,
   setErrorId,
   setReload,
   focusSection,
-  data,}) => {
-  const apiurl =  import.meta.env.VITE_API_URL;
- // console.log("show",show)
-   const [isFormValid, setIsFormValid] = useState(false);
+  data,
+}) => {
+  const apiurl = import.meta.env.VITE_API_URL;
+  const [isFormValid, setIsFormValid] = useState(false);
   const [saving, setSaving] = useState(false);
-  const token = localStorage.getItem("token");
-  /* 
-  console.log("data", data); */
-   const { toast } = useToast();
+  const { toast } = useToast();
+  
   const [formData, setFormData] = useState({
     pan_number: data?.pan_number || "",
     pan_name: data?.pan_name || "",
@@ -78,26 +65,24 @@ const KycModal = ({ show,
     },
     {
       fields: ["aadhar_number", "aadhar_name"],
-      message: "Please fill a valid Aadhar number and name.",
+      message: "Please fill a valid Aadhaar number and name.",
     },
   ];
 
   const ValidateForm = () => {
     setFormErrors("");
-    setIsFormValid(false); // default: invalid
+    setIsFormValid(false);
 
     let hasAnyGroupFilled = false;
 
     for (const { fields, message } of validationConfig) {
-      // Check if at least one field in this group is filled
       const isAnyFilled = fields.some(
         (field) => formData[field]?.toString().trim() !== ""
       );
 
       if (isAnyFilled) {
-        hasAnyGroupFilled = true; // ✅ at least one group has data
+        hasAnyGroupFilled = true;
 
-        // If some are filled, ensure all are filled
         const isAllFilled = fields.every(
           (field) => formData[field]?.toString().trim() !== ""
         );
@@ -116,7 +101,6 @@ const KycModal = ({ show,
       return;
     }
 
-    // ✅ Passed all checks
     setIsFormValid(true);
   };
 
@@ -135,13 +119,12 @@ const KycModal = ({ show,
     try {
       const response = await API.post(
         `${apiurl}/api/candidatekyc/kyc`,
-        formData,
-       
+        formData
       );
 
       if (response.data.success) {
         setSuccess(response.data.message || "KYC updated successfully.");
-         toast({
+        toast({
           title: "Success",
           description: response.data.message || "KYC updated successfully.",
         });
@@ -152,130 +135,81 @@ const KycModal = ({ show,
 
       if (!response.data.success) {
         setError(response.data.message || "Failed to update KYC.");
-         toast({
+        toast({
           title: "Error",
           variant: "destructive",
           description: response.data.message || "Failed to update KYC.",
-        })
+        });
         setErrorId(Date.now());
       }
     } catch (error) {
       console.error(error);
       setError("Failed to update KYC. Try again later.");
-        toast({
-          title: "Error",
-          variant: "destructive",
-          description: "Failed to update KYC. Try again later.",
-        })
+      toast({
+        title: "Error",
+        variant: "destructive",
+        description: "Failed to update KYC. Try again later.",
+      });
     } finally {
       setSaving(false);
     }
   };
+  
   if (!show) return null;
 
   return (
-<Dialog open={show} onOpenChange={onClose}>
-  <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
+    <Dialog open={show} onOpenChange={onClose}>
+      {/* ADDED onOpenAutoFocus HERE TO STOP AUTO FOCUS ON THE INPUT BOX */}
+      <DialogContent 
+        className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
+        <DialogHeader>
+          <DialogTitle className="font-display text-xl">KYC</DialogTitle>
+          <DialogDescription>
+            Complete your KYC verification details below.
+          </DialogDescription>
+        </DialogHeader>
 
-    {/* Header */}
-    <DialogHeader>
-      <DialogTitle className="font-display text-xl">
-        KYC
-      </DialogTitle>
+        <form className="space-y-5 pt-2" onSubmit={handleSubmit}>
+          <div className="space-y-4">
+            <KycBox
+              formData={formData}
+              setFormData={setFormData}
+              focusSection={focusSection}
+            />
+          </div>
 
-      <DialogDescription>
-        Complete your KYC verification details below.
-      </DialogDescription>
-    </DialogHeader>
+          <DialogFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="w-full sm:w-auto"
+            >
+              Cancel
+            </Button>
 
-    <form className="space-y-5 pt-2" onSubmit={handleSubmit}>
+            <div className="relative w-full sm:w-auto">
+              {!isFormValid && (
+                <div className="absolute bottom-full right-0 mb-2 z-50 w-max max-w-[220px] rounded bg-gray-800 px-3 py-2 text-sm text-white shadow-lg">
+                  Please fill all required fields
+                  <div className="absolute right-6 top-full border-4 border-transparent border-t-gray-800" />
+                </div>
+              )}
 
-      {/* Body */}
-      <div className="space-y-4">
-        <KycBox
-          formData={formData}
-          setFormData={setFormData}
-          focusSection={focusSection}
-        />
-      </div>
-
-      {/* Footer */}
-      {/* <DialogFooter className="gap-2 pt-2">
-
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onClose}
-        >
-          Cancel
-        </Button>
-
-     
-
-
-<div className="relative inline-block">
-  {(!isFormValid) && (
-    <div className="absolute bottom-full right-0 mb-2 z-50 w-max max-w-[220px] rounded bg-gray-800 px-3 py-2 text-sm text-white shadow-lg">
-      {!isFormValid
-        ? "Please fill all required fields"
-        : "Not valid Date Range"}
-
-      <div className="absolute right-6 top-full border-4 border-transparent border-t-gray-800" />
-    </div>
-  )}
-
-  <Button  disabled={!isFormValid || saving}>
-    {saving ? "Saving..." : "Save"}
-  </Button>
-</div>
-
-      </DialogFooter> */}
-
-      <DialogFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-  <Button
-    type="button"
-    variant="outline"
-    onClick={onClose}
-    className="w-full sm:w-auto"
-  >
-    Cancel
-  </Button>
-
-  <div className="relative w-full sm:w-auto">
-    {!isFormValid && (
-      <div className="absolute bottom-full right-0 mb-2 z-50 w-max max-w-[220px] rounded bg-gray-800 px-3 py-2 text-sm text-white shadow-lg">
-        Please fill all required fields
-
-        <div className="absolute right-6 top-full border-4 border-transparent border-t-gray-800" />
-      </div>
-    )}
-
-    <Button
-      type="submit"
-      disabled={!isFormValid || saving}
-      className="w-full sm:w-auto"
-    >
-      {saving ? "Saving..." : "Save"}
-    </Button>
-  </div>
-</DialogFooter>
-
-    </form>
-       {/* Messages */}
-    {/*   {success && (
-        <div className="text-sm text-green-600 bg-green-50 p-2 rounded">
-          {success}
-        </div>
-      )}
-
-      {error && (
-        <div className="text-sm text-red-500 bg-red-50 p-2 rounded">
-          {error}
-        </div>
-      )} */}
-
-  </DialogContent>
-</Dialog>
+              <Button
+                type="submit"
+                disabled={!isFormValid || saving}
+                className="w-full sm:w-auto"
+              >
+                {saving ? "Saving..." : "Save"}
+              </Button>
+            </div>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };
 
