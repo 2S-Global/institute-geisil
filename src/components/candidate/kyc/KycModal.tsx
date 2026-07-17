@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import API from "../../../lib/axios";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker"
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import {
   Dialog,
   DialogContent,
@@ -25,7 +25,8 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import KycBox from "./KycBox";
-const KycModal = ({ show,
+const KycModal = ({
+  show,
   onClose,
   setError,
   setSuccess,
@@ -33,15 +34,16 @@ const KycModal = ({ show,
   setErrorId,
   setReload,
   focusSection,
-  data,}) => {
-  const apiurl =  import.meta.env.VITE_API_URL;
- // console.log("show",show)
-   const [isFormValid, setIsFormValid] = useState(false);
+  data,
+}) => {
+  const apiurl = import.meta.env.VITE_API_URL;
+  // console.log("show",show)
+  const [isFormValid, setIsFormValid] = useState(false);
   const [saving, setSaving] = useState(false);
   const token = localStorage.getItem("token");
   /* 
   console.log("data", data); */
-   const { toast } = useToast();
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     pan_number: data?.pan_number || "",
     pan_name: data?.pan_name || "",
@@ -91,7 +93,7 @@ const KycModal = ({ show,
     for (const { fields, message } of validationConfig) {
       // Check if at least one field in this group is filled
       const isAnyFilled = fields.some(
-        (field) => formData[field]?.toString().trim() !== ""
+        (field) => formData[field]?.toString().trim() !== "",
       );
 
       if (isAnyFilled) {
@@ -99,7 +101,7 @@ const KycModal = ({ show,
 
         // If some are filled, ensure all are filled
         const isAllFilled = fields.every(
-          (field) => formData[field]?.toString().trim() !== ""
+          (field) => formData[field]?.toString().trim() !== "",
         );
 
         if (!isAllFilled) {
@@ -136,12 +138,11 @@ const KycModal = ({ show,
       const response = await API.post(
         `${apiurl}/api/candidatekyc/kyc`,
         formData,
-       
       );
 
       if (response.data.success) {
         setSuccess(response.data.message || "KYC updated successfully.");
-         toast({
+        toast({
           title: "Success",
           description: response.data.message || "KYC updated successfully.",
         });
@@ -152,21 +153,21 @@ const KycModal = ({ show,
 
       if (!response.data.success) {
         setError(response.data.message || "Failed to update KYC.");
-         toast({
+        toast({
           title: "Error",
           variant: "destructive",
           description: response.data.message || "Failed to update KYC.",
-        })
+        });
         setErrorId(Date.now());
       }
     } catch (error) {
       console.error(error);
       setError("Failed to update KYC. Try again later.");
-        toast({
-          title: "Error",
-          variant: "destructive",
-          description: "Failed to update KYC. Try again later.",
-        })
+      toast({
+        title: "Error",
+        variant: "destructive",
+        description: "Failed to update KYC. Try again later.",
+      });
     } finally {
       setSaving(false);
     }
@@ -174,33 +175,29 @@ const KycModal = ({ show,
   if (!show) return null;
 
   return (
-<Dialog open={show} onOpenChange={onClose}>
-  <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
+    <Dialog open={show} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <DialogHeader>
+          <DialogTitle className="font-display text-xl">KYC</DialogTitle>
 
-    {/* Header */}
-    <DialogHeader>
-      <DialogTitle className="font-display text-xl">
-        KYC
-      </DialogTitle>
+          <DialogDescription>
+            Complete your KYC verification details below.
+          </DialogDescription>
+        </DialogHeader>
 
-      <DialogDescription>
-        Complete your KYC verification details below.
-      </DialogDescription>
-    </DialogHeader>
+        <form className="space-y-5 pt-2" onSubmit={handleSubmit}>
+          {/* Body */}
+          <div className="space-y-4">
+            <KycBox
+              formData={formData}
+              setFormData={setFormData}
+              focusSection={focusSection}
+            />
+          </div>
 
-    <form className="space-y-5 pt-2" onSubmit={handleSubmit}>
-
-      {/* Body */}
-      <div className="space-y-4">
-        <KycBox
-          formData={formData}
-          setFormData={setFormData}
-          focusSection={focusSection}
-        />
-      </div>
-
-      {/* Footer */}
-      {/* <DialogFooter className="gap-2 pt-2">
+          {/* Footer */}
+          {/* <DialogFooter className="gap-2 pt-2">
 
         <Button
           type="button"
@@ -231,38 +228,52 @@ const KycModal = ({ show,
 
       </DialogFooter> */}
 
-      <DialogFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-  <Button
-    type="button"
-    variant="outline"
-    onClick={onClose}
-    className="w-full sm:w-auto"
-  >
-    Cancel
-  </Button>
+          <DialogFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            {/*    <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="w-full sm:w-auto"
+            >
+              Cancel
+            </Button>
 
-  <div className="relative w-full sm:w-auto">
-    {!isFormValid && (
-      <div className="absolute bottom-full right-0 mb-2 z-50 w-max max-w-[220px] rounded bg-gray-800 px-3 py-2 text-sm text-white shadow-lg">
-        Please fill all required fields
+            <div className="relative w-full sm:w-auto">
+              {!isFormValid && (
+                <div className="absolute bottom-full right-0 mb-2 z-50 w-max max-w-[220px] rounded bg-gray-800 px-3 py-2 text-sm text-white shadow-lg">
+                  Please fill all required fields ddddddddddddddddd
+                  <div className="absolute right-6 top-full border-4 border-transparent border-t-gray-800" />
+                </div>
+              )}
 
-        <div className="absolute right-6 top-full border-4 border-transparent border-t-gray-800" />
-      </div>
-    )}
+              <Button
+                type="submit"
+                disabled={!isFormValid || saving}
+                className="w-full sm:w-auto"
+              >
+                {saving ? "Saving..." : "Save"}
+              </Button>
+            </div> */}
 
-    <Button
-      type="submit"
-      disabled={!isFormValid || saving}
-      className="w-full sm:w-auto"
-    >
-      {saving ? "Saving..." : "Save"}
-    </Button>
-  </div>
-</DialogFooter>
-
-    </form>
-       {/* Messages */}
-    {/*   {success && (
+            <div className="flex justify-end gap-3 pt-6">
+              <Button type="button" onClick={onClose} variant="ghost">
+                Cancel
+              </Button>
+              <div className="relative inline-flex group cursor-pointer">
+                <Button type="submit" disabled={!isFormValid || saving}>
+                  {saving ? "Saving..." : "Save"}
+                </Button>
+                {!isFormValid && (
+                  <div className="pointer-events-none absolute bottom-full right-0 mb-2 hidden w-52 rounded-md border border-red-300 bg-white p-2 text-center text-sm text-red-600 shadow-lg group-hover:block">
+                    Please fill all required fields.
+                  </div>
+                )}
+              </div>
+            </div>
+          </DialogFooter>
+        </form>
+        {/* Messages */}
+        {/*   {success && (
         <div className="text-sm text-green-600 bg-green-50 p-2 rounded">
           {success}
         </div>
@@ -273,9 +284,8 @@ const KycModal = ({ show,
           {error}
         </div>
       )} */}
-
-  </DialogContent>
-</Dialog>
+      </DialogContent>
+    </Dialog>
   );
 };
 

@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Pencil, Plus } from "lucide-react";
 import API from "@/lib/axios";
@@ -54,15 +60,12 @@ const ITSkills = () => {
               IT Skills
             </CardTitle>
             <CardDescription>
-              Mention the software, tools, and technical languages you are proficient in.
+              Mention the software, tools, and technical languages you are
+              proficient in.
             </CardDescription>
           </div>
-          <Button
-            type="button"
-            onClick={handleOpenCreate}
-            size="sm"
-          >
-            <Plus className="h-4 w-4" /> Add skill
+          <Button type="button" onClick={handleOpenCreate} size="sm">
+            <Plus className="h-4 w-4" /> Add Skill
           </Button>
         </CardHeader>
 
