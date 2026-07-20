@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Pencil, Plus } from "lucide-react";
 import API from "@/lib/axios";
 import ITSkillModal from "./ITSkillsModal";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ITSkills = () => {
   const [sectionLoading, setSectionLoading] = useState(false);
@@ -68,7 +69,20 @@ const ITSkills = () => {
 
         <CardContent className="pt-0">
           {sectionLoading ? (
-            <p className="text-slate-500 text-sm">Loading...</p>
+            <div className="space-y-4 animate-pulse pt-2">
+              <div className="flex gap-4 border-b pb-3">
+                <Skeleton className="h-4 w-1/4 bg-muted" />
+                <Skeleton className="h-4 w-1/4 bg-muted" />
+                <Skeleton className="h-4 w-1/4 bg-muted" />
+              </div>
+              {[1, 2].map((i) => (
+                <div key={i} className="flex gap-4 py-2">
+                  <Skeleton className="h-4 w-1/4 bg-muted" />
+                  <Skeleton className="h-4 w-1/4 bg-muted" />
+                  <Skeleton className="h-4 w-1/4 bg-muted" />
+                </div>
+              ))}
+            </div>
           ) : error ? (
             <p className="text-red-500 text-sm">{error}</p>
           ) : itSkills.length > 0 ? (

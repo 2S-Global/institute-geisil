@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Shared dynamic verification icon component matching API state fields
 const StatusIcon = ({ status, inlineBadge = false }) => {
@@ -134,20 +135,12 @@ export const EmploymentCard = () => {
     }
   };
 
-  
+
   const resolveFieldStatus = (flag) => {
     if (flag === true) return "verified";
     if (flag === false) return "rejected";
     return "pending";
   };
-
-  if (loading) {
-    return (
-      <div className="text-center p-8 text-gray-500">
-        Loading employment details...
-      </div>
-    );
-  }
 
   return (
     <>
@@ -170,7 +163,21 @@ export const EmploymentCard = () => {
         </CardHeader>
 
         <CardContent className="space-y-6">
-          {error ? (
+          {loading ? (
+            <div className="space-y-6 animate-pulse">
+              {[1, 2].map((i) => (
+                <div key={i} className="border rounded-xl p-6 space-y-4">
+                  <div className="flex justify-between items-start">
+                    <div className="space-y-2">
+                      <Skeleton className="h-5 w-48 bg-muted" />
+                      <Skeleton className="h-4 w-36 bg-muted" />
+                    </div>
+                    <Skeleton className="h-6 w-20 rounded-full bg-muted" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : error ? (
             <div className="text-center p-8 text-red-500 bg-red-50 rounded-xl border border-red-100">
               {error}
             </div>
@@ -188,17 +195,17 @@ export const EmploymentCard = () => {
 
               const companyStatus = resolveFieldStatus(job.workedInCompany);
 
-             
-              const designationStatus = companyStatus === "pending" 
-                ? "pending" 
+
+              const designationStatus = companyStatus === "pending"
+                ? "pending"
                 : (job.designationVerified !== undefined ? resolveFieldStatus(job.designationVerified) : companyStatus);
 
-              const typeStatus = companyStatus === "pending" 
-                ? "pending" 
+              const typeStatus = companyStatus === "pending"
+                ? "pending"
                 : (job.jobTypeVerified !== undefined ? resolveFieldStatus(job.jobTypeVerified) : companyStatus);
 
-              const durationStatus = companyStatus === "pending" 
-                ? "pending" 
+              const durationStatus = companyStatus === "pending"
+                ? "pending"
                 : (job.jobDurationVerified !== undefined ? resolveFieldStatus(job.jobDurationVerified) : companyStatus);
 
               return (
@@ -267,7 +274,7 @@ export const EmploymentCard = () => {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleEdit(job)}
-                          
+
                         >
                           <Pencil className="w-4 h-4" />
                         </Button>
