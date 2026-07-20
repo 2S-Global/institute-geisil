@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { CheckCircle, CircleX } from "lucide-react";
 import RazorpayPayment from "./Razorpay";
-import axios from "axios";
+import API from "../../../lib/axios";
 import Swal from "sweetalert2";
 
 const AadharCardInfo = ({
@@ -26,13 +26,13 @@ const AadharCardInfo = ({
     setSectionloading(true);
     setPaymentResponse(response);
     try {
-      const res = await axios.post(`${apiurl}/api/candidatekyc/verify-order`, {
+      const res = await API.post(`${apiurl}/api/candidatekyc/verify-order`, {
         razorpay_payment_id: response.razorpay_payment_id,
         razorpay_order_id: response.razorpay_order_id,
         razorpay_signature: response.razorpay_signature,
       });
 
-      if (res.data.success) {
+      if (res?.data?.success) {
         setError(null);
         setErrorId(null);
         setSuccess(res.data.verificationResult?.message || res.data.message);
@@ -72,17 +72,20 @@ const AadharCardInfo = ({
   const handleOTPSubmit = async (otp) => {
     //console.log("Submitting OTP:", otp);
     try {
-      const res = await axios.post(`${apiurl}/api/candidatekyc/verify-otp`, {
+      const res = await API.post(`${apiurl}/api/candidatekyc/verify-otp`, {
         otp,
       });
 
-      if (res.data.success) {
+      if (res?.data?.success) {
         Swal.fire(
           "Success",
           res.data.message || "OTP Verified Successfully",
           "success",
         );
-        setReload(true);
+
+        if (typeof setReload === "function") {
+          setReload((prev) => (typeof prev === "number" ? prev + 1 : 1));
+        }
       } else {
         Swal.fire("❌ Failed", res.data.message, "error");
       }
@@ -100,17 +103,17 @@ const AadharCardInfo = ({
     let otpValue = "";
 
     Swal.fire({
-      title: `<h3 class="mb-2 text-dark fw-bold">Enter OTP</h3>`,
+      title: `<h3 class="mb-2 fw-semibold" style="color:#0f172a;">Enter OTP</h3>`,
       html: `
-      <div class="mb-3 p-2 rounded bg-light text-dark" style="font-size: 0.9rem;">
-        ⚠️ <b>Do not refresh this page.</b>
+      <div class="mb-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" style="font-size: 0.9rem;">
+        <span style="color:#2563eb;">⚠️</span> <b style="color:#0f172a;">Do not refresh this page.</b>
       </div>
       <input type="text" id="otpInput" class="swal2-input" 
         placeholder="Enter 6-digit OTP" 
-        style="text-align:center; font-size:1.2rem; letter-spacing:4px;" />
-      <button id="resendOtpBtn" class="btn btn-outline-primary w-100 mt-3" ${
+        style="text-align:center; font-size:1.1rem; letter-spacing:4px; border:1px solid #cbd5e1; border-radius:10px; padding:10px 12px; box-shadow:none;" />
+      <button id="resendOtpBtn" class="w-100 mt-3 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:border-blue-500 hover:text-blue-600" ${
         resendTimer > 0 ? "disabled" : ""
-      }>
+      } style="${resendTimer > 0 ? "opacity:0.7; cursor:not-allowed;" : "cursor:pointer;"}">
         ${resendTimer > 0 ? `Resend OTP in ${resendTimer}s` : "Resend OTP"}
       </button>
     `,
@@ -119,12 +122,22 @@ const AadharCardInfo = ({
       confirmButtonText: "Verify OTP",
       cancelButtonText: "Cancel",
       customClass: {
-        popup: "p-4 rounded-4 shadow-lg",
-        confirmButton: "btn btn-success px-4 py-2 me-2",
-        cancelButton: "btn btn-secondary px-4 py-2",
+        popup: "rounded-2xl shadow-xl border border-slate-200 p-4",
+        confirmButton: "px-4 py-2 me-2 rounded-md",
+        cancelButton: "px-4 py-2 rounded-md",
         title: "mb-3",
       },
-      buttonsStyling: false, // allow Bootstrap classes
+      buttonsStyling: false,
+      didRender: () => {
+        const confirmBtn = document.querySelector('.swal2-confirm');
+        const cancelBtn = document.querySelector('.swal2-cancel');
+        if (confirmBtn) {
+          confirmBtn.setAttribute('style', 'background:#2563eb;color:#fff;border:none;');
+        }
+        if (cancelBtn) {
+          cancelBtn.setAttribute('style', 'background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;');
+        }
+      },
       preConfirm: () => {
         otpValue = document.getElementById("otpInput").value;
         if (!otpValue) {
@@ -163,6 +176,18 @@ const AadharCardInfo = ({
         resendBtn.innerText =
           timeLeft > 0 ? `Resend OTP in ${timeLeft}s` : "Resend OTP";
         resendBtn.disabled = timeLeft > 0;
+
+        if (timeLeft > 0) {
+          resendBtn.setAttribute(
+            "style",
+            "opacity:0.7; cursor:not-allowed; border:1px solid #cbd5e1; background:#fff; color:#334155;"
+          );
+        } else {
+          resendBtn.setAttribute(
+            "style",
+            "cursor:pointer; border:1px solid #60a5fa; background:#eff6ff; color:#2563eb;"
+          );
+        }
       }
 
       if (timeLeft <= 0) {
