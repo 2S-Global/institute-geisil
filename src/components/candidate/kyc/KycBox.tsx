@@ -1,337 +1,315 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import API from "../../../lib/axios";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-//import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
 
-const KycBox = ({ show, onClose, data = {}, setRefresh,formData, setFormData, focusSection }) => {
-  const apiurl =  import.meta.env.VITE_API_URL;
-  console.log("show",show)
-   const token = localStorage.getItem("token");
-  const [error, setError] = useState(null);
-  const [errorId, setErrorId] = useState(null);
-  const [message_id, setMessageId] = useState(null);
-  const [success, setSuccess] = useState(null);
+
+import React, { useState, useEffect } from "react";
+
+const KycBox = ({ show, onClose, data = {}, setRefresh, formData, setFormData, focusSection }) => {
   const [loading, setLoading] = useState(false);
-//console.log("formData",formData)
+  const [activeHighlight, setActiveHighlight] = useState(null);
+
   useEffect(() => {
     if (focusSection) {
-      const element = document.getElementById(focusSection);
+      let targetId = focusSection.toLowerCase();
+      if (targetId === "aadhar") {
+        targetId = "aadhaar";
+      }
+
+      const element = document.getElementById(targetId);
 
       if (element) {
-        // Scroll into view
-        element.scrollIntoView({ behavior: "smooth" });
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
 
-        if (focusSection != "all") {
-          // Add highlight class
-          element.classList.add("highlight");
+        if (focusSection !== "all") {
+          setActiveHighlight(targetId);
         }
-        // Remove after 3s
+        
         const timeout = setTimeout(() => {
-          element.classList.remove("highlight");
+          setActiveHighlight(null);
         }, 3000);
 
-        // Cleanup if effect re-runs
         return () => clearTimeout(timeout);
       }
     }
   }, [focusSection]);
 
-  const today = new Date();
-/*   const eighteenYearsAgo = new Date(
-    today.getFullYear() - 18,
-    today.getMonth(),
-    today.getDate()
-  ); */
-  //if (!show) return null;
-const eighteenYearsAgo = new Date();
-eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
+  const eighteenYearsAgo = new Date();
+  eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
+
+  // Generates smooth background and border transitions strictly for the container
+  const getHighlightClass = (sectionId, columnsCount = "md:grid-cols-2") => {
+    const baseClass = `grid grid-cols-1 ${columnsCount} gap-4 p-3 border rounded-lg transition-all duration-500 ease-in-out `;
+    if (activeHighlight === sectionId) {
+      return baseClass + "border-[#223B6B] bg-[#223B6B]/[0.02] shadow-[0_0_0_3px_rgba(34,59,107,0.15)]";
+    }
+    return baseClass + "border-slate-100 bg-transparent";
+  };
+  
   return (
-<>
-  {/* Header */}
-  <div className="mb-6">
-    <h2 className="font-display text-2xl font-semibold">
-      Identity Documents
-    </h2>
-
-    <p className="text-sm text-muted-foreground mt-1">
-      Update your PAN, Driving License, Passport, EPIC and Aadhaar details.
-    </p>
-  </div>
-
-  {/* Messages */}
-  {/* <MessageComponent
-    error={error}
-    success={success}
-    errorId={errorId}
-    message_id={message_id}
-  /> */}
-
-  {/* Loading */}
-  {loading && (
-    <div className="fixed inset-0 flex items-center justify-center bg-white/75 z-50">
-      loading....
-    </div>
-  )}
-
-  <div className="space-y-6">
-    {/* PAN */}
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div className="space-y-1.5">
-        <label className="text-sm font-medium">PAN Number</label>
-        <input
-          type="text"
-          className="w-full border rounded-md px-3 py-2 text-sm"
-          value={formData.pan_number}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              pan_number: e.target.value,
-            })
-          }
-          pattern="^[A-Z]{5}[0-9]{4}[A-Z]{1}$"
-          placeholder="Enter PAN Number"
-        />
+    <>
+      {/* Header */}
+      <div className="mb-6">
+        <h2 className="font-display text-2xl font-semibold">
+          Identity Documents
+        </h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          Update your PAN, Driving License, Passport, EPIC and Aadhaar details.
+        </p>
       </div>
 
-      <div className="space-y-1.5">
-        <label className="text-sm font-medium">Name as per PAN</label>
-        <input
-          type="text"
-          className="w-full border rounded-md px-3 py-2 text-sm"
-          value={formData.pan_name}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              pan_name: e.target.value,
-            })
-          }
-          placeholder="Enter Name as per PAN"
-        />
+      {/* Loading */}
+      {loading && (
+        <div className="fixed inset-0 flex items-center justify-center bg-white/75 z-50">
+          loading....
+        </div>
+      )}
+
+      <div className="space-y-6">
+        {/* PAN Row Section */}
+        <div id="pan" className={getHighlightClass("pan", "md:grid-cols-2")}>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">PAN Number</label>
+            <input
+              type="text"
+              className="w-full border rounded-md px-3 py-2 text-sm uppercase font-mono focus:outline-none focus:ring-0 focus:ring-offset-0 focus:border-slate-300 transition-colors"
+              value={formData.pan_number || ""}
+              onChange={(e) => {
+                const sanitized = e.target.value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+                setFormData({
+                  ...formData,
+                  pan_number: sanitized,
+                });
+              }}
+              maxLength={10}
+              pattern="^[A-Z]{5}[0-9]{4}[A-Z]{1}$"
+              placeholder="ABCDE1234F"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">Name as per PAN</label>
+            <input
+              type="text"
+              className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-0 focus:ring-offset-0 focus:border-slate-300 transition-colors"
+              value={formData.pan_name || ""}
+              onChange={(e) => {
+                const alphabetOnly = e.target.value.replace(/[^a-zA-Z\s.]/g, "");
+                setFormData({
+                  ...formData,
+                  pan_name: alphabetOnly,
+                });
+              }}
+              placeholder="e.g. RAHUL KUMAR SHARMA"
+            />
+          </div>
+        </div>
+
+        {/* Driving License Row Section */}
+        <div id="dl" className={getHighlightClass("dl", "md:grid-cols-3")}>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">
+              Driving License Number
+            </label>
+            <input
+              type="text"
+              className="w-full border rounded-md px-3 py-2 text-sm uppercase font-mono focus:outline-none focus:ring-0 focus:ring-offset-0 focus:border-slate-300 transition-colors"
+              value={formData.dl_number || ""}
+              onChange={(e) => {
+                const sanitized = e.target.value.replace(/[^a-zA-Z0-9\s-]/g, "").toUpperCase();
+                setFormData({
+                  ...formData,
+                  dl_number: sanitized,
+                });
+              }}
+              maxLength={16}
+              pattern="^[A-Z]{2}[0-9]{2}[0-9]{4}[0-9]{7}$"
+              placeholder="DL-1420110068753"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">
+              Name as per Driving License
+            </label>
+            <input
+              type="text"
+              className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-0 focus:ring-offset-0 focus:border-slate-300 transition-colors"
+              value={formData.dl_name || ""}
+              onChange={(e) => {
+                const alphabetOnly = e.target.value.replace(/[^a-zA-Z\s.]/g, "");
+                setFormData({
+                  ...formData,
+                  dl_name: alphabetOnly,
+                });
+              }}
+              placeholder="e.g. RAHUL KUMAR SHARMA"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">
+              Date of Birth as per Driving License
+            </label>
+            <input
+              type="date"
+              className="w-full border rounded-md px-3 py-2 text-sm relative focus:outline-none focus:ring-0 focus:ring-offset-0 focus:border-slate-300 transition-colors"
+              value={formData.dl_dob ? new Date(formData.dl_dob).toISOString().split("T")[0] : ""}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  dl_dob: e.target.value,
+                })
+              }
+              max={eighteenYearsAgo.toISOString().split("T")[0]}
+            />
+          </div>
+        </div>
+
+        {/* EPIC Row Section */}
+        <div id="epic" className={getHighlightClass("epic", "md:grid-cols-2")}>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">
+              EPIC (Voter) Number
+            </label>
+            <input
+              type="text"
+              className="w-full border rounded-md px-3 py-2 text-sm uppercase font-mono focus:outline-none focus:ring-0 focus:ring-offset-0 focus:border-slate-300 transition-colors"
+              value={formData.epic_number || ""}
+              onChange={(e) => {
+                const sanitized = e.target.value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+                setFormData({
+                  ...formData,
+                  epic_number: sanitized,
+                });
+              }}
+              maxLength={10}
+              pattern="^[A-Z]{3}[0-9]{7}$"
+              placeholder="ABC1234567"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">
+              Name as per EPIC
+            </label>
+            <input
+              type="text"
+              className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-0 focus:ring-offset-0 focus:border-slate-300 transition-colors"
+              value={formData.epic_name || ""}
+              onChange={(e) => {
+                const alphabetOnly = e.target.value.replace(/[^a-zA-Z\s.]/g, "");
+                setFormData({
+                  ...formData,
+                  epic_name: alphabetOnly,
+                });
+              }}
+              placeholder="e.g. RAHUL KUMAR SHARMA"
+            />
+          </div>
+        </div>
+
+        {/* Passport Row Section */}
+        <div id="passport" className={getHighlightClass("passport", "md:grid-cols-3")}>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">
+              Passport File Number
+            </label>
+            <input
+              type="text"
+              className="w-full border rounded-md px-3 py-2 text-sm uppercase font-mono focus:outline-none focus:ring-0 focus:ring-offset-0 focus:border-slate-300 transition-colors"
+              value={formData.passport_number || ""}
+              onChange={(e) => {
+                const sanitized = e.target.value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+                setFormData({
+                  ...formData,
+                  passport_number: sanitized,
+                });
+              }}
+              maxLength={12}
+              placeholder="ABCD12345678"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">
+              Name as per Passport
+            </label>
+            <input
+              type="text"
+              className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-0 focus:ring-offset-0 focus:border-slate-300 transition-colors"
+              value={formData.passport_name || ""}
+              onChange={(e) => {
+                const alphabetOnly = e.target.value.replace(/[^a-zA-Z\s.]/g, "");
+                setFormData({
+                  ...formData,
+                  passport_name: alphabetOnly,
+                });
+              }}
+              placeholder="e.g. RAHUL KUMAR SHARMA"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">
+              Date of Birth as per Passport
+            </label>
+            <input
+              type="date"
+              className="w-full border rounded-md px-3 py-2 text-sm relative focus:outline-none focus:ring-0 focus:ring-offset-0 focus:border-slate-300 transition-colors"
+              value={formData.passport_dob ? new Date(formData.passport_dob).toISOString().split("T")[0] : ""}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  passport_dob: e.target.value,
+                })
+              }
+              max={eighteenYearsAgo.toISOString().split("T")[0]}
+            />
+          </div>
+        </div>
+
+        {/* Aadhaar Row Section */}
+        <div id="aadhaar" className={getHighlightClass("aadhaar", "md:grid-cols-2")}>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">
+              Aadhaar Number
+            </label>
+            <input
+              type="text"
+              className="w-full border rounded-md px-3 py-2 text-sm font-mono focus:outline-none focus:ring-0 focus:ring-offset-0 focus:border-slate-300 transition-colors"
+              value={formData.aadhar_number || ""}
+              onChange={(e) => {
+                const numericValue = e.target.value.replace(/\D/g, "");
+                setFormData({
+                  ...formData,
+                  aadhar_number: numericValue,
+                });
+              }}
+              maxLength={12}
+              pattern="[0-9]{12}"
+              placeholder="Enter 12-digit Aadhaar Number"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium">
+              Name as per Aadhaar
+            </label>
+            <input
+              type="text"
+              className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-0 focus:ring-offset-0 focus:border-slate-300 transition-colors"
+              value={formData.aadhar_name || ""}
+              onChange={(e) => {
+                const alphabetOnly = e.target.value.replace(/[^a-zA-Z\s.]/g, "");
+                setFormData({
+                  ...formData,
+                  aadhar_name: alphabetOnly,
+                });
+              }}
+              placeholder="e.g. RAHUL KUMAR SHARMA"
+            />
+          </div>
+        </div>
       </div>
-    </div>
-
-    {/* Driving License */}
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div className="space-y-1.5">
-        <label className="text-sm font-medium">
-          Driving License Number
-        </label>
-        <input
-          type="text"
-          className="w-full border rounded-md px-3 py-2 text-sm"
-          value={formData.dl_number}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              dl_number: e.target.value,
-            })
-          }
-          pattern="^[A-Z]{2}[0-9]{2}[0-9]{4}[0-9]{7}$"
-          placeholder="Enter Driving License Number"
-        />
-      </div>
-
-      <div className="space-y-1.5">
-        <label className="text-sm font-medium">
-          Name as per Driving License
-        </label>
-        <input
-          type="text"
-          className="w-full border rounded-md px-3 py-2 text-sm"
-          value={formData.dl_name}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              dl_name: e.target.value,
-            })
-          }
-          placeholder="Enter Name as per Driving License"
-        />
-      </div>
-
-     <div className="space-y-1.5">
-  <label className="text-sm font-medium">
-    Date of Birth as per Driving License
-  </label>
-
-  <input
-    type="date"
-    className="w-full border rounded-md px-3 py-2 text-sm relative"
-    value={formData.dl_dob? new Date(formData.dl_dob).toISOString().split("T")[0]: ""}
-    onChange={(e) =>
-      setFormData({
-        ...formData,
-        dl_dob: e.target.value,
-      })
-    }
-    max={eighteenYearsAgo.toISOString().split("T")[0]}
-  />
-</div>
-    </div>
-
-    {/* EPIC */}
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div className="space-y-1.5">
-        <label className="text-sm font-medium">
-          EPIC (Voter) Number
-        </label>
-        <input
-          type="text"
-          className="w-full border rounded-md px-3 py-2 text-sm"
-          value={formData.epic_number}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              epic_number: e.target.value,
-            })
-          }
-          pattern="^[A-Z]{3}[0-9]{7}$"
-          placeholder="Enter EPIC Number"
-        />
-      </div>
-
-      <div className="space-y-1.5">
-        <label className="text-sm font-medium">
-          Name as per EPIC
-        </label>
-        <input
-          type="text"
-          className="w-full border rounded-md px-3 py-2 text-sm"
-          value={formData.epic_name}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              epic_name: e.target.value,
-            })
-          }
-          placeholder="Enter Name as per EPIC"
-        />
-      </div>
-    </div>
-
-    {/* Passport */}
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div className="space-y-1.5">
-        <label className="text-sm font-medium">
-          Passport File Number
-        </label>
-        <input
-          type="text"
-          className="w-full border rounded-md px-3 py-2 text-sm"
-          value={formData.passport_number}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              passport_number: e.target.value,
-            })
-          }
-          placeholder="Enter Passport File Number"
-        />
-      </div>
-
-      <div className="space-y-1.5">
-        <label className="text-sm font-medium">
-          Name as per Passport
-        </label>
-        <input
-          type="text"
-          className="w-full border rounded-md px-3 py-2 text-sm"
-          value={formData.passport_name}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              passport_name: e.target.value,
-            })
-          }
-          placeholder="Enter Name as per Passport"
-        />
-      </div>
-
-      <div className="space-y-1.5">
-        <label className="text-sm font-medium">
-          Date of Birth as per Passport
-        </label>
-
-       
-        <input
-    type="date"
-    className="w-full border rounded-md px-3 py-2 text-sm relative"
-     value={formData.passport_dob? new Date(formData.passport_dob).toISOString().split("T")[0]: ""}
-    onChange={(e) =>
-      setFormData({
-        ...formData,
-        passport_dob: e.target.value,
-      })
-    }
-    max={eighteenYearsAgo.toISOString().split("T")[0]}
-  />
-      </div>
-    </div>
-
-    {/* Aadhaar */}
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div className="space-y-1.5">
-        <label className="text-sm font-medium">
-          Aadhaar Number
-        </label>
-        <input
-          type="text"
-          className="w-full border rounded-md px-3 py-2 text-sm"
-          value={formData.aadhar_number}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              aadhar_number: e.target.value,
-            })
-          }
-          pattern="^\d{12}$"
-          placeholder="Enter Aadhaar Number"
-        />
-      </div>
-
-      <div className="space-y-1.5">
-        <label className="text-sm font-medium">
-          Name as per Aadhaar
-        </label>
-        <input
-          type="text"
-          className="w-full border rounded-md px-3 py-2 text-sm"
-          value={formData.aadhar_name}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              aadhar_name: e.target.value,
-            })
-          }
-          placeholder="Enter Name as per Aadhaar"
-        />
-      </div>
-    </div>
-
-  </div>
-</>
+    </>
   );
 };
 

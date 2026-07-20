@@ -27,6 +27,44 @@ const Project = () => {
     fetchProjects();
   }, [reload]);
 
+  const sortProjectsByNewest = (projectList: any[]) => {
+    const getTimestamp = (project: any) => {
+      const candidates = [
+        project?.createdAt,
+        project?.updatedAt,
+        project?.created_at,
+        project?.updated_at,
+        project?.created_on,
+        project?.updated_on,
+      ];
+
+      for (const value of candidates) {
+        if (!value) continue;
+
+        const parsed = new Date(value).getTime();
+        if (!Number.isNaN(parsed)) {
+          return parsed;
+        }
+      }
+
+      return null;
+    };
+
+    return [...projectList].sort((a, b) => {
+      const aTime = getTimestamp(a);
+      const bTime = getTimestamp(b);
+
+      if (aTime !== null && bTime !== null) {
+        return bTime - aTime;
+      }
+
+      if (aTime !== null) return -1;
+      if (bTime !== null) return 1;
+
+      return 0;
+    });
+  };
+
   const fetchProjects = async () => {
     try {
       setLoading(true);
@@ -36,7 +74,9 @@ const Project = () => {
       );
 
       if (response.status === 200) {
-        setProjects(response.data.data || response.data || []);
+        // setProjects(response.data.data || response.data || []);
+        const projectData = response.data.data || response.data || [];
+        setProjects(sortProjectsByNewest(projectData));
       }
     } catch (error: any) {
       console.error("Error fetching projects:", error);
