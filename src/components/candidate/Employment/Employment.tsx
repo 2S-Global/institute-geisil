@@ -134,7 +134,7 @@ export const EmploymentCard = () => {
     }
   };
 
-  // Helper function to resolve boolean/undefined API response values to custom status strings
+  
   const resolveFieldStatus = (flag) => {
     if (flag === true) return "verified";
     if (flag === false) return "rejected";

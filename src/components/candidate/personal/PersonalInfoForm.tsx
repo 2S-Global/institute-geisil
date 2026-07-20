@@ -2,44 +2,26 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import API from "../../../lib/axios";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import Select from "react-select";
-import { useToast } from "@/hooks/use-toast";
 import { Calendar } from "lucide-react";
 import Disability from "./Disability";
 import CareerBreak from "./CareerBreak";
 import LanguageProficiency from "./Language";
 
-const FormModal = ({
+const PersonalInfoForm = ({
   show,
   onClose,
-  data = {},
   setReload,
   formData,
   setFormData,
   focusSection,
   setWrongDate,
-  targetLanguageId, // Injected target contextual routing id property safely
+  targetLanguageId,
 }) => {
   const apiurl = import.meta.env.VITE_API_URL;
 
-  // list configurations state
   const [Genders, setGenders] = useState([]);
   const [countries, setCountries] = useState([]);
   const [more_info_list, setMore_info_list] = useState([]);
@@ -51,18 +33,13 @@ const FormModal = ({
   const [renderLanguages, setRenderLanguages] = useState(false);
 
   useEffect(() => {
-    if (!focusSection) {
-      setRenderLanguages(true);
-    }
-
-    if (focusSection === "languages") {
+    if (!focusSection || focusSection === "languages") {
       setRenderLanguages(true);
     } else {
       setRenderLanguages(false);
     }
   }, [focusSection]);
 
-  // reference elements mapping hooks
   const personalInfo = useRef(null);
   const category = useRef(null);
   const careerBreak = useRef(null);
@@ -73,13 +50,7 @@ const FormModal = ({
   const address = useRef(null);
 
   const today = new Date();
-  const eighteenYearsAgo = new Date(
-    today.getFullYear() - 18,
-    today.getMonth(),
-    today.getDate(),
-  );
 
-  // loading state
   const [loading, setLoading] = useState(false);
   const [onpincode, setOnPincode] = useState(false);
 
@@ -122,15 +93,12 @@ const FormModal = ({
 
           setTimeout(() => {
             if (targetRef.current) {
-              targetRef.current.style.backgroundColor =
-                originalBg || "transparent";
+              targetRef.current.style.backgroundColor = originalBg || "transparent";
             }
           }, 1500);
         } catch (err) {
           console.error("Scroll error:", err);
         }
-      } else {
-        console.warn("Ref is null at scroll time for:", focusSection);
       }
     }, 100);
   }, [show, focusSection, loading]);
@@ -140,7 +108,7 @@ const FormModal = ({
       try {
         const response = await fetch(`${apiurl}/api/sql/dropdown/All_gender`);
         const data = await response.json();
-        setGenders(data.data);
+        setGenders(data.data || []);
       } catch (error) {
         console.error("Error fetching genders:", error);
       }
@@ -148,11 +116,9 @@ const FormModal = ({
 
     const fetchMoreInfoList = async () => {
       try {
-        const response = await fetch(
-          `${apiurl}/api/sql/dropdown/more_information`,
-        );
+        const response = await fetch(`${apiurl}/api/sql/dropdown/more_information`);
         const data = await response.json();
-        setMore_info_list(data.data);
+        setMore_info_list(data.data || []);
       } catch (error) {
         console.error("Error fetching more info list:", error);
       }
@@ -160,12 +126,10 @@ const FormModal = ({
 
     const fetchMarriageStatusList = async () => {
       try {
-        const response = await fetch(
-          `${apiurl}/api/sql/dropdown/marital_status`,
-        );
+        const response = await fetch(`${apiurl}/api/sql/dropdown/marital_status`);
         const data = await response.json();
-        setMarriageStatusList(data.data);
-        setWithpartnername(data.hasPartner);
+        setMarriageStatusList(data.data || []);
+        setWithpartnername(data.hasPartner || []);
       } catch (error) {
         console.error("Error fetching marriage status list:", error);
       }
@@ -173,11 +137,9 @@ const FormModal = ({
 
     const fetchCategories = async () => {
       try {
-        const response = await fetch(
-          `${apiurl}/api/sql/dropdown/category_details`,
-        );
+        const response = await fetch(`${apiurl}/api/sql/dropdown/category_details`);
         const data = await response.json();
-        setCategories(data.data);
+        setCategories(data.data || []);
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
@@ -187,7 +149,7 @@ const FormModal = ({
       try {
         const response = await fetch(`${apiurl}/api/sql/dropdown/visa_type`);
         const data = await response.json();
-        setUsaVisaList(data.data);
+        setUsaVisaList(data.data || []);
       } catch (error) {
         console.error("Error fetching USA visa list:", error);
       }
@@ -198,10 +160,10 @@ const FormModal = ({
         const response = await fetch(`${apiurl}/api/sql/dropdown/All_contry`);
         const data = await response.json();
         setCountries(
-          data.data.map((country) => ({
+          (data.data || []).map((country) => ({
             label: country.name,
             value: country.id,
-          })),
+          }))
         );
       } catch (error) {
         console.error("Error fetching countries:", error);
@@ -219,7 +181,6 @@ const FormModal = ({
     ]).finally(() => setLoading(false));
   }, [apiurl]);
 
-  // handlers configurations
   const handleSelect = (key, value, e) => {
     e.preventDefault();
     setFormData((prevData) => ({
@@ -245,20 +206,25 @@ const FormModal = ({
   const handleChange = (selectedOptions) => {
     setFormData({
       ...formData,
-      work_permit_other_countries: selectedOptions.map((opt) => opt.value),
+      work_permit_other_countries: selectedOptions ? selectedOptions.map((opt) => opt.value) : [],
     });
   };
 
   useEffect(() => {
-    if (!formData.have_usa_visa) {
-      setFormData({
-        ...formData,
+    if (!formData?.have_usa_visa) {
+      setFormData((prev) => ({
+        ...prev,
         usa_visa_type: "",
-      });
+      }));
     }
-  }, [formData.have_usa_visa]);
+  }, [formData?.have_usa_visa]);
 
   if (!show) return null;
+
+  // Safe configurations arrays instantiation parsing
+  const safeMoreInfo = Array.isArray(formData?.more_info) ? formData.more_info : [];
+  const safeWorkPermitCountries = Array.isArray(formData?.work_permit_other_countries) ? formData.work_permit_other_countries : [];
+  const safePartnerList = Array.isArray(withpartnername) ? withpartnername : [];
 
   return (
     <>
@@ -281,7 +247,7 @@ const FormModal = ({
                         key={gender.id}
                         onClick={(e) => handleSelect("gender", gender.id, e)}
                         className={`px-4 py-1.5 rounded-full border text-sm transition-all ${
-                          formData.gender == gender.id
+                          formData?.gender == gender.id
                             ? "bg-indigo-100 border-indigo-500 font-semibold"
                             : "bg-white border-gray-400 text-gray-700"
                         }`}
@@ -302,11 +268,9 @@ const FormModal = ({
                       <button
                         type="button"
                         key={info.id}
-                        onClick={(e) =>
-                          handleMultiSelect("more_info", info.id, e)
-                        }
+                        onClick={(e) => handleMultiSelect("more_info", info.id, e)}
                         className={`px-4 py-1.5 rounded-full border text-sm transition-all ${
-                          formData.more_info.includes(info.id)
+                          safeMoreInfo.includes(info.id)
                             ? "bg-indigo-100 border-indigo-500 font-semibold"
                             : "bg-white border-gray-400 text-gray-700"
                         }`}
@@ -327,11 +291,9 @@ const FormModal = ({
                       <button
                         type="button"
                         key={status.id}
-                        onClick={(e) =>
-                          handleSelect("marital_status", status.id, e)
-                        }
+                        onClick={(e) => handleSelect("marital_status", status.id, e)}
                         className={`px-4 py-1.5 rounded-full border text-sm transition-all ${
-                          formData.marital_status == status.id
+                          formData?.marital_status == status.id
                             ? "bg-indigo-100 border-indigo-500 font-semibold"
                             : "bg-white border-gray-400 text-gray-700"
                         }`}
@@ -343,8 +305,7 @@ const FormModal = ({
                 </div>
 
                 {/* Partner Name */}
-                {(withpartnername?.includes(formData.marital_status) ||
-                  Boolean(formData.partner_name)) && (
+                {(safePartnerList.includes(formData?.marital_status) || Boolean(formData?.partner_name)) && (
                   <div>
                     <label className="block text-sm font-semibold mb-2">
                       Partner Name
@@ -353,7 +314,7 @@ const FormModal = ({
                       type="text"
                       className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-300"
                       placeholder="Partner Name"
-                      value={formData.partner_name || ""}
+                      value={formData?.partner_name || ""}
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
@@ -384,10 +345,8 @@ const FormModal = ({
                           dob: e.target.value,
                         })
                       }
-                      /* CHANGED HERE: Allows selection of any date up to today's current date */
                       max={today.toISOString().split("T")[0]}
                     />
-                    {/* FIXED: Added pointer-events-none to prevent the Lucide icon from blocking native field selection clicks */}
                     <Calendar className="absolute right-3 h-4 w-4 text-gray-400 pointer-events-none" />
                   </div>
                 </div>
@@ -399,8 +358,7 @@ const FormModal = ({
                   Category
                 </label>
                 <p className="text-gray-500 text-sm mb-2">
-                  Companies welcome people from various categories to bring
-                  equality among all citizens.
+                  Companies welcome people from various categories to bring equality among all citizens.
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {categories.map((cat) => (
@@ -409,7 +367,7 @@ const FormModal = ({
                       key={cat.id}
                       onClick={(e) => handleSelect("category", cat.id, e)}
                       className={`px-4 py-1.5 rounded-full border text-sm transition-all ${
-                        formData.category == cat.id
+                        formData?.category == cat.id
                           ? "bg-indigo-100 border-indigo-500 font-semibold"
                           : "bg-white border-gray-400 text-gray-700"
                       }`}
@@ -433,7 +391,7 @@ const FormModal = ({
                     >
                       <input
                         type="radio"
-                        checked={formData.differently_abled === option}
+                        checked={formData?.differently_abled === option}
                         onChange={() =>
                           setFormData({
                             ...formData,
@@ -446,7 +404,7 @@ const FormModal = ({
                   ))}
                 </div>
 
-                {formData.differently_abled === "Yes" && (
+                {formData?.differently_abled === "Yes" && (
                   <Disability
                     formData={formData}
                     setFormData={setFormData}
@@ -468,7 +426,7 @@ const FormModal = ({
                     >
                       <input
                         type="radio"
-                        checked={formData.career_break === option}
+                        checked={formData?.career_break === option}
                         onChange={() =>
                           setFormData({
                             ...formData,
@@ -481,7 +439,7 @@ const FormModal = ({
                   ))}
                 </div>
 
-                {formData.career_break === "Yes" && (
+                {formData?.career_break === "Yes" && (
                   <CareerBreak
                     formData={formData}
                     setFormData={setFormData}
@@ -498,8 +456,8 @@ const FormModal = ({
                     Do you have a Work permit for USA
                   </label>
                   <select
-                    className="w-full border px-3 py-2 rounded-md"
-                    value={String(formData.have_usa_visa)}
+                    className="w-full border px-3 py-2 rounded-md bg-white"
+                    value={String(formData?.have_usa_visa ?? false)}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
@@ -513,14 +471,14 @@ const FormModal = ({
                   </select>
                 </div>
 
-                {formData.have_usa_visa && (
+                {formData?.have_usa_visa && (
                   <div className="mt-3">
                     <label className="block text-sm font-semibold mb-2">
                       Work permit for USA
                     </label>
                     <select
-                      className="w-full border px-3 py-2 rounded-md"
-                      value={formData.usa_visa_type}
+                      className="w-full border px-3 py-2 rounded-md bg-white"
+                      value={formData?.usa_visa_type || ""}
                       onChange={(e) =>
                         setFormData({
                           ...formData,
@@ -547,9 +505,7 @@ const FormModal = ({
                     isMulti
                     options={countries}
                     value={countries.filter((option) =>
-                      formData.work_permit_other_countries.includes(
-                        option.value,
-                      ),
+                      safeWorkPermitCountries.includes(option.value)
                     )}
                     onChange={handleChange}
                     className="text-sm"
@@ -565,7 +521,7 @@ const FormModal = ({
                 <input
                   className="w-full border px-3 py-2 rounded-md"
                   placeholder="Permanent address"
-                  value={formData.permanent_address || ""}
+                  value={formData?.permanent_address || ""}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
@@ -579,7 +535,7 @@ const FormModal = ({
                 <input
                   className="w-full border px-3 py-2 rounded-md"
                   placeholder="Hometown"
-                  value={formData.hometown || ""}
+                  value={formData?.hometown || ""}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
@@ -595,7 +551,7 @@ const FormModal = ({
                   <input
                     className="w-full border px-3 py-2 rounded-md"
                     placeholder="Pincode"
-                    value={formData.pincode || ""}
+                    value={formData?.pincode || ""}
                     onChange={(e) => {
                       const value = e.target.value;
                       if (/^\d{0,6}$/.test(value)) {
@@ -604,7 +560,7 @@ const FormModal = ({
                     }}
                   />
 
-                  {formData.pincode &&
+                  {formData?.pincode &&
                     formData.pincode.length !== 6 &&
                     !onpincode && (
                       <p className="text-red-500 text-xs mt-1">
@@ -616,7 +572,7 @@ const FormModal = ({
             </>
           )}
 
-          {/* Languages sub-form module component routing */}
+          {/* Languages Segment Routing */}
           {renderLanguages && (
             <div ref={languages} id="languages">
               <LanguageProficiency
@@ -634,4 +590,4 @@ const FormModal = ({
   );
 };
 
-export default FormModal;
+export default PersonalInfoForm;

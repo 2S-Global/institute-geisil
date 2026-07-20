@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import API from "../../../lib/axios";
@@ -44,6 +46,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
 const AcademicSection = () => {
   const apiurl = import.meta.env.VITE_API_URL;
   // console.log("show",show)
@@ -190,9 +193,12 @@ const AcademicSection = () => {
           <>
             <div className="flex items-start justify-between mb-3">
               <div>
-                <h2 className="font-display text-lg font-semibold">Education</h2>
+                <h2 className="font-display text-lg font-semibold">
+                  Education
+                </h2>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Details about your academic qualifications and schools/colleges.
+                  Details about your academic qualifications and
+                  schools/colleges.
                 </p>
               </div>
               <Button
@@ -206,19 +212,33 @@ const AcademicSection = () => {
             <div>
               {/* Existing Education List */}
               <div className="space-y-4">
-                {userdata.map((item, index) => (
-                  <div key={index}>
-                    {item.level_id == 1 || item.level_id == 2 ? (
-                      <>
+                {userdata.map((item, index) => {
+                  // 1. VERIFIED: Master boolean is true
+                  const isVerified = item.is_verified === true;
+
+                  // 2. REJECTED: Not verified, and explicitly marked false for studying there
+                  const isRejected =
+                    !isVerified && item.is_studied_here === false;
+
+                  // 3. PENDING: Not verified, and has not been marked false (e.g., it is true or undefined/null)
+                  const isPending = !isVerified && !isRejected;
+
+                  return (
+                    <div key={index}>
+                      {item.level_id == 1 || item.level_id == 2 ? (
                         <SchoolDisplay data={item} openModalRH={openModalRH} />
-                      </>
-                    ) : (
-                      <>
-                        <ClgDisplay data={item} openModalRH={openModalRH} />
-                      </>
-                    )}
-                  </div>
-                ))}
+                      ) : (
+                        <ClgDisplay
+                          data={item}
+                          openModalRH={openModalRH}
+                          isVerified={isVerified}
+                          isPending={isPending}
+                          isRejected={isRejected}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
 
               {/* Missing Levels */}
@@ -240,7 +260,7 @@ const AcademicSection = () => {
         )}
       </div>
 
-      {/*  </Card> */}
+      {/*   </Card> */}
 
       {/* Modal */}
       {isModalOpen && (

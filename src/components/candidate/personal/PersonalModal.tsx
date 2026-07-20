@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect } from "react";
 import API from "../../../lib/axios";
 import PersonalInfoForm from "./PersonalInfoForm";
@@ -60,6 +59,15 @@ const FormModal = ({
   const [isFormValid, setIsFormValid] = useState(false);
 
   const formatPersonalDetailsResponse = (data) => {
+    if (!data) return {};
+    const activeLanguages = Array.isArray(data.languages) ? data.languages : [];
+
+    // Safely parse work permits into numerical array IDs
+    let safePermits = [];
+    if (Array.isArray(data.work_permit_other_countries)) {
+      safePermits = data.work_permit_other_countries.map(Number);
+    }
+
     return {
       gender: String(data.gender || ""),
       dob: data.dob ? new Date(data.dob) : null,
@@ -80,21 +88,19 @@ const FormModal = ({
       career_break_end_year: String(data.career_break_end_year || ""),
       career_break_end_month: String(data.career_break_end_month || ""),
       usa_visa_type: String(data.usa_visa_type || ""),
-      work_permit_other_countries: Array.isArray(data.work_permit_other_countries) ? data.work_permit_other_countries.map(Number) : [],
+      work_permit_other_countries: safePermits,
       permanent_address: data.permanent_address || "",
       hometown: data.hometown || "",
       pincode: data.pincode || "",
-      languages: Array.isArray(data.languages) ? data.languages : [],
-      languagesDetails: Array.isArray(data.languagesDetails)
-        ? data.languagesDetails.map((lang) => ({
-            language: String(lang.language || ""),
-            proficiency: String(lang.proficiency || ""),
-            read: !!lang.read,
-            write: !!lang.write,
-            speak: !!lang.speak,
-            _id: lang._id || undefined
-          }))
-        : [],
+      languages: activeLanguages,
+      languagesDetails: activeLanguages.map((lang) => ({
+        language: String(lang.language || ""),
+        proficiency: String(lang.proficiency || ""),
+        read: !!lang.read,
+        write: !!lang.write,
+        speak: !!lang.speak,
+        _id: lang._id || undefined
+      })),
     };
   };
 
@@ -102,20 +108,16 @@ const FormModal = ({
     const fetchPersonalDetails = async () => {
       try {
         setLoading(true);
-        const response = await API.get(`/api/candidate/personal/get_personal_details_with_name`);
+        const response = await API.get(`/api/candidate/personal/get_personal_details`);
         if (response.status === 200) {
-          const formatted = formatPersonalDetailsResponse(response.data.data);
+          // FIXED: Checks structural object layer variance dynamically
+          const actualData = response.data?.data ? response.data.data : response.data;
+          const formatted = formatPersonalDetailsResponse(actualData);
           
-          // FIXED: If user clicked "Add New Languages", inject a pristine blank item row structure straight away
           if (focusSection === "languages" && !targetLanguageId) {
-            formatted.languagesDetails = [
-              ...formatted.languagesDetails,
-              { language: "", proficiency: "", read: false, write: false, speak: false }
-            ];
-            formatted.languages = [
-              ...formatted.languages,
-              { language: "", proficiency: "", read: false, write: false, speak: false }
-            ];
+            const blankRow = { language: "", proficiency: "", read: false, write: false, speak: false };
+            formatted.languagesDetails = [...formatted.languagesDetails, blankRow];
+            formatted.languages = [...formatted.languages, blankRow];
           }
 
           setFormData(formatted);
@@ -131,13 +133,11 @@ const FormModal = ({
 
   const validateForm = () => {
     if (focusSection === "languages") {
-      // Find the row we are currently editing/adding
       let targetIndex = -1;
       if (targetLanguageId) {
         const targetStr = String(targetLanguageId).trim().toLowerCase();
         targetIndex = formData.languagesDetails.findIndex((l) => String(l._id || "").trim().toLowerCase() === targetStr);
       } else {
-        // If adding new, the target is the last item we just injected
         targetIndex = formData.languagesDetails.length - 1;
       }
 
@@ -145,17 +145,13 @@ const FormModal = ({
 
       const currentLangRow = formData.languagesDetails[targetIndex];
       
-      // FIXED: Ensure the language field drop-down has a valid selection
       if (!currentLangRow.language || currentLangRow.language.toString().trim() === "") return false;
-      // FIXED: Ensure the proficiency field drop-down has a valid selection
       if (!currentLangRow.proficiency || currentLangRow.proficiency.toString().trim() === "") return false;
-      // Ensure at least one skill checkbox is checked
       if (!(currentLangRow.read || currentLangRow.write || currentLangRow.speak)) return false;
 
       return true;
     }
 
-    // Main details fallback paths
     if (!formData.gender || formData.gender.toString().trim() === "") return false;
     if (!formData.dob) return false;
 
@@ -240,7 +236,7 @@ const FormModal = ({
                 targetLanguageId={targetLanguageId}
                 show={show}
                 onClose={onClose}
-                setReload ={setReload}
+                setReload={setReload}
                 setWrongDate={setWrongDate}
               />
             </>
@@ -260,7 +256,6 @@ const FormModal = ({
               type="submit"
               onClick={handleSave}
               disabled={!isFormValid || saving || wrongdate2}
-             
             >
               {saving ? "Saving..." : "Save"}
             </Button>
