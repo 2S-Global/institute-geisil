@@ -341,14 +341,10 @@ export default function CandidateJobs() {
         j.companyName.toLowerCase().includes(q);
 
       // Location
-      const matchLoc =
-        location === "all" ||
-        (j.location || "").toLowerCase().includes(location.toLowerCase());
+      const matchLoc = location === "all" || (j.location || "").toLowerCase().includes(location.toLowerCase());
 
       // Job Type
-      const matchType =
-        !selectedTypes.length ||
-        j.jobType.some((type: string) => selectedTypes.includes(type));
+      const matchType = !selectedTypes.length || j.jobType.some((type: string) => selectedTypes.includes(type));
 
       // Work Mode
       const matchMode =
@@ -438,9 +434,9 @@ export default function CandidateJobs() {
   ]);
 
   const JobCard = ({ job }: { job: any }) => {
-  
 
-    console.log("coming data ===>" , job)
+
+    console.log("coming data ===>", job)
 
     //destructure
     const isSaved = job?.isBookmarked
@@ -454,145 +450,145 @@ export default function CandidateJobs() {
           </div>
         )} */}
         <Link to={`/candidate/jobs/${job._id}`}>
-        <CardContent className="p-5">
-          <div className="flex items-start gap-4">
-            <div className="h-12 w-12 shrink-0 rounded-lg border bg-muted/40 flex items-center justify-center overflow-hidden">
-              <img
-                src={job.logo || 'https://abdaa.net/storage/2022/04/download.png'}
-                alt={job.company}
-                className="h-full w-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = "none";
-                }}
-              />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <h3 className="font-display font-semibold text-base text-foreground truncate group-hover:text-primary transition-colors">
-                    {job.jobTitle}
-                  </h3>
-                  <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-0.5">
-                    <Building2 className="h-3.5 w-3.5" />
-                    {job.companyName}
-                  </p>
-                </div>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    if (!bookmarkLoading[job._id]) {
-                      toggleSave(job._id, !!isSaved);
-                    }
+          <CardContent className="p-5">
+            <div className="flex items-start gap-4">
+              <div className="h-12 w-12 shrink-0 rounded-lg border bg-muted/40 flex items-center justify-center overflow-hidden">
+                <img
+                  src={job.logo || 'https://abdaa.net/storage/2022/04/download.png'}
+                  alt={job.company}
+                  className="h-full w-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = "none";
                   }}
-                  disabled={bookmarkLoading[job._id]}
-                  className={cn(
-                    "text-muted-foreground hover:text-primary transition-colors",
-                    bookmarkLoading[job._id] && "opacity-50 "
-                  )}
-                  aria-label="Save job"
-                >
-                  {bookmarkLoading[job._id] ? (
-                    <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                  ) : isSaved ? (
-                    <BookmarkCheck className="h-5 w-5 fill-primary text-primary" />
-                  ) : (
-                    <Bookmark className="h-5 w-5" />
-                  )}
-                </button>
+                />
               </div>
-
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-3 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <MapPin className="h-3.5 w-3.5" />
-                  {job.jobLocationType === "remote"
-                    ? "Remote"
-                    : job.location || job.advertiseCityName || "On-site"}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Briefcase className="h-3.5 w-3.5" />
-                  {job.jobExperienceLevel}
-                </span>
-                <span className="flex items-center gap-1">
-                  <IndianRupee className="h-3.5 w-3.5" />
-                  {formatSalary(job.salary)}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Clock className="h-3.5 w-3.5" />
-                  {job.createdAgo}
-                </span>
-              </div>
-
-              <div className="flex flex-wrap gap-1.5 mt-3">
-                <Badge
-                  variant="outline"
-                  className={cn("text-[10px]", modeStyles[workMode])}
-                >
-                  {workMode}
-                </Badge>
-
-                {job.urgent && (
-                  <Badge className="text-[10px] bg-destructive/10 text-destructive border-destructive/20 border">
-                    Urgent
-                  </Badge>
-                )}
-                {job.jobType?.map((type: string) => (
-                  <Badge
-                    key={type}
-                    variant="outline"
-                    className="text-[10px] font-normal"
-                  >
-                    {type}
-                  </Badge>
-                ))}
-              </div>
-
-              <p className="text-sm text-muted-foreground mt-3 line-clamp-2">
-                {job.description}
-              </p>
-
-              <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/60">
-                <div className="flex items-center gap-1.5">
-                  {/* <div className="h-7 w-7 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                    <Star className="h-3.5 w-3.5 text-emerald-600 fill-emerald-600" />
-                  </div> */}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" asChild onClick={(e) => e.stopPropagation()}>
-                    <Link to={`/candidate/jobs/${job._id}`}>View</Link>
-                  </Button>
-                  <Button
-                    size="sm"
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <h3 className="font-display font-semibold text-base text-foreground truncate group-hover:text-primary transition-colors">
+                      {job.jobTitle}
+                    </h3>
+                    <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-0.5">
+                      <Building2 className="h-3.5 w-3.5" />
+                      {job.companyName}
+                    </p>
+                  </div>
+                  <button
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
-                      setApplyingJob(job);
+                      if (!bookmarkLoading[job._id]) {
+                        toggleSave(job._id, !!isSaved);
+                      }
                     }}
-                    disabled={isApplied}
-                    className="gap-1.5"
-                  >
-                    {isApplied ? (
-                      <>
-                        <CheckCircle2 className="h-3.5 w-3.5" />
-                        Applied
-                      </>
-                    ) : (
-                      <>
-                        <Send className="h-3.5 w-3.5" />
-                        Apply
-                      </>
+                    disabled={bookmarkLoading[job._id]}
+                    className={cn(
+                      "text-muted-foreground hover:text-primary transition-colors p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center",
+                      bookmarkLoading[job._id] && "opacity-50"
                     )}
-                  </Button>
+                    aria-label="Save job"
+                  >
+                    {bookmarkLoading[job._id] ? (
+                      <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                    ) : isSaved ? (
+                      <BookmarkCheck className="h-5 w-5 fill-primary text-primary" />
+                    ) : (
+                      <Bookmark className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-3 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <MapPin className="h-3.5 w-3.5" />
+                    {job.jobLocationType === "remote"
+                      ? "Remote"
+                      : job.location || job.advertiseCityName || "On-site"}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Briefcase className="h-3.5 w-3.5" />
+                    {job.jobExperienceLevel}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <IndianRupee className="h-3.5 w-3.5" />
+                    {formatSalary(job.salary)}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-3.5 w-3.5" />
+                    {job.createdAgo}
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5 mt-3">
+                  <Badge
+                    variant="outline"
+                    className={cn("text-[10px]", modeStyles[workMode])}
+                  >
+                    {workMode}
+                  </Badge>
+
+                  {job.urgent && (
+                    <Badge className="text-[10px] bg-destructive/10 text-destructive border-destructive/20 border">
+                      Urgent
+                    </Badge>
+                  )}
+                  {job.jobType?.map((type: string) => (
+                    <Badge
+                      key={type}
+                      variant="outline"
+                      className="text-[10px] font-normal"
+                    >
+                      {type}
+                    </Badge>
+                  ))}
+                </div>
+
+                <p className="text-sm text-muted-foreground mt-3 line-clamp-2">
+                  {job.description}
+                </p>
+
+                <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/60">
+                  <div className="flex items-center gap-1.5">
+                    {/* <div className="h-7 w-7 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                    <Star className="h-3.5 w-3.5 text-emerald-600 fill-emerald-600" />
+                  </div> */}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" asChild onClick={(e) => e.stopPropagation()}>
+                      <Link to={`/candidate/jobs/${job._id}`}>View</Link>
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setApplyingJob(job);
+                      }}
+                      disabled={isApplied}
+                      className="gap-1.5"
+                    >
+                      {isApplied ? (
+                        <>
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                          Applied
+                        </>
+                      ) : (
+                        <>
+                          <Send className="h-3.5 w-3.5" />
+                          Apply
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </CardContent>
+          </CardContent>
         </Link>
       </Card>
     );
   };
-  
+
   return (
     <CandidateLayout>
       <div className="space-y-6">
@@ -722,7 +718,7 @@ export default function CandidateJobs() {
                       <SelectItem value="salary">Highest Salary</SelectItem>
                     </SelectContent>
                   </Select>
-                {/*   <div className="hidden sm:flex border rounded-md p-0.5">
+                  {/*   <div className="hidden sm:flex border rounded-md p-0.5">
                     <Button
                       variant={view === "list" ? "secondary" : "ghost"}
                       size="icon"
