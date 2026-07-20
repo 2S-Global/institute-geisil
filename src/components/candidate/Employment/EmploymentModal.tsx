@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import * as Dialog from "@radix-ui/react-dialog";
@@ -25,7 +24,7 @@ import { useToast } from "@/hooks/use-toast";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
-// Helper definitions for Month dropdown
+
 const monthNames = [
   "January",
   "February",
@@ -46,14 +45,12 @@ const months = monthNames.map((name, index) => ({
   label: name,
 }));
 
-// Utility for Tailwind class merging
+
 function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
-// -----------------------------------------------------------------------------
-// MAIN COMPONENT
-// -----------------------------------------------------------------------------
+
 export const EmploymentModal = ({
   isOpen,
   onClose,
@@ -77,7 +74,7 @@ export const EmploymentModal = ({
   const [showDropdown, setShowDropdown] = useState(false);
   const [isDropdownSelect, setIsDropdownSelect] = useState(false);
 
-  // React Hook Form setup
+  
   const {
     control,
     handleSubmit,
@@ -409,11 +406,7 @@ export const EmploymentModal = ({
     return { yr: "", mnth: "" };
   };
 
-  // -----------------------------------------------------------------------------
-  // DEDICATED SINGLE API FUNCTIONS
-  // -----------------------------------------------------------------------------
-
-  // 1. ADD EMPLOYMENT API
+  
   const handleAddEmployment = async (payload) => {
     try {
       const response = await API.post(
@@ -597,10 +590,10 @@ export const EmploymentModal = ({
   return (
     <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <Dialog.Portal>
-        {/* Animated Backdrop Blur */}
+        
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
 
-        {/* Modal Container */}
+        
         <Dialog.Content
           onPointerDownOutside={(e) => e.preventDefault()}
           onInteractOutside={(e) => e.preventDefault()}
@@ -649,7 +642,7 @@ export const EmploymentModal = ({
             </div>
           </div>
 
-          {/* Form Content */}
+          
           <form
             onSubmit={handleSubmit(onSubmit, (errs) =>
               console.log("Validation Errors:", errs),
