@@ -12,6 +12,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import ProjectModal from "./projectModal";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Project = () => {
   const [projects, setProjects] = useState<any[]>([]);
@@ -26,6 +27,44 @@ const Project = () => {
     fetchProjects();
   }, [reload]);
 
+  const sortProjectsByNewest = (projectList: any[]) => {
+    const getTimestamp = (project: any) => {
+      const candidates = [
+        project?.createdAt,
+        project?.updatedAt,
+        project?.created_at,
+        project?.updated_at,
+        project?.created_on,
+        project?.updated_on,
+      ];
+
+      for (const value of candidates) {
+        if (!value) continue;
+
+        const parsed = new Date(value).getTime();
+        if (!Number.isNaN(parsed)) {
+          return parsed;
+        }
+      }
+
+      return null;
+    };
+
+    return [...projectList].sort((a, b) => {
+      const aTime = getTimestamp(a);
+      const bTime = getTimestamp(b);
+
+      if (aTime !== null && bTime !== null) {
+        return bTime - aTime;
+      }
+
+      if (aTime !== null) return -1;
+      if (bTime !== null) return 1;
+
+      return 0;
+    });
+  };
+
   const fetchProjects = async () => {
     try {
       setLoading(true);
@@ -35,7 +74,9 @@ const Project = () => {
       );
 
       if (response.status === 200) {
-        setProjects(response.data.data || response.data || []);
+        // setProjects(response.data.data || response.data || []);
+        const projectData = response.data.data || response.data || [];
+        setProjects(sortProjectsByNewest(projectData));
       }
     } catch (error: any) {
       console.error("Error fetching projects:", error);
@@ -101,9 +142,20 @@ const Project = () => {
 
         <CardContent>
           {loading ? (
-            <p className="text-sm text-gray-500 font-medium">
-              Loading projects...
-            </p>
+            <div className="grid grid-cols-1 gap-4 w-full animate-pulse">
+              {[1, 2].map((i) => (
+                <Card key={i} className="w-full border shadow-none">
+                  <CardContent className="space-y-3 p-5">
+                    <div className="flex justify-between items-start">
+                      <Skeleton className="h-5 w-40 bg-muted" />
+                      <Skeleton className="h-8 w-8 rounded bg-muted" />
+                    </div>
+                    <Skeleton className="h-4 w-full bg-muted" />
+                    <Skeleton className="h-4 w-5/6 bg-muted mt-2" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           ) : projects.length > 0 ? (
             <div className="grid grid-cols-1 gap-4 w-full">
               {projects.map((project, index) => {

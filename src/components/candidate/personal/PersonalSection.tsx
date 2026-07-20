@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import FormModal from "./PersonalModal";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const PersonalSection = () => {
   const [modalType, setModalType] = useState(null);
@@ -126,7 +127,16 @@ const PersonalSection = () => {
         </CardHeader>
         <CardContent>
           {sectionloading ? (
-            "loading............"
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-pulse">
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24 bg-muted" />
+                <Skeleton className="h-4 w-40 bg-muted" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24 bg-muted" />
+                <Skeleton className="h-4 w-40 bg-muted" />
+              </div>
+            </div>
           ) : (
             <>
               <div>

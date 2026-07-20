@@ -48,7 +48,7 @@ const FormModal = ({
     hometown: "",
     pincode: "",
     languages: [],
-    languagesDetails: [], 
+    languagesDetails: [],
     have_usa_visa: false,
   });
 
@@ -113,7 +113,7 @@ const FormModal = ({
           // FIXED: Checks structural object layer variance dynamically
           const actualData = response.data?.data ? response.data.data : response.data;
           const formatted = formatPersonalDetailsResponse(actualData);
-          
+
           if (focusSection === "languages" && !targetLanguageId) {
             const blankRow = { language: "", proficiency: "", read: false, write: false, speak: false };
             formatted.languagesDetails = [...formatted.languagesDetails, blankRow];
@@ -144,7 +144,7 @@ const FormModal = ({
       if (targetIndex === -1 || !formData.languagesDetails[targetIndex]) return false;
 
       const currentLangRow = formData.languagesDetails[targetIndex];
-      
+
       if (!currentLangRow.language || currentLangRow.language.toString().trim() === "") return false;
       if (!currentLangRow.proficiency || currentLangRow.proficiency.toString().trim() === "") return false;
       if (!(currentLangRow.read || currentLangRow.write || currentLangRow.speak)) return false;
@@ -193,7 +193,8 @@ const FormModal = ({
         );
       }
 
-      await API.post(`/api/candidate/personal/submit_personal_details`, finalFormData);
+      const response = await API.post(`/api/candidate/personal/submit_personal_details`, finalFormData);
+      console.log("response is", response);
       setSaving(false);
       setReload(!reload);
       toast({
@@ -201,14 +202,15 @@ const FormModal = ({
         description: "Personal details updated successfully",
       });
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving personal details:", error);
       setSaving(false);
-      setError("Error saving personal details. Please try again.");
+      const errMsg = error.response?.data?.message || "Error saving personal details. Please try again.";
+      setError(errMsg);
       toast({
         title: "Error",
         variant: "destructive",
-        description: "Error saving personal details. Please try again.",
+        description: errMsg,
       });
     }
   };
