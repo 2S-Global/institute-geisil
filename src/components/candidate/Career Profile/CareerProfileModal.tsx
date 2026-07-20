@@ -639,6 +639,9 @@ const CareerProfileModal = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Self-contained state to track which field container block is actively flashing
+  const [activeHighlight, setActiveHighlight] = useState(null);
+
   // API Data Dropdown States
   const [apiIndustries, setApiIndustries] = useState([]);
   const [apiDepartments, setApiDepartments] = useState([]);
@@ -684,7 +687,6 @@ const CareerProfileModal = ({
     const fetchInitialDropdowns = async () => {
       setLoading(true);
       try {
-        // Fetch Industries
         const indResponse = await API.get("/api/sql/dropdown/get_industry");
         let industriesList = [];
         if (indResponse.data?.success) {
@@ -694,7 +696,6 @@ const CareerProfileModal = ({
         }
         setApiIndustries(industriesList);
 
-        // Fetch Preferred Locations
         const locResponse = await API.get("/api/sql/dropdown/get_cities");
         let locationsList = [];
         if (locResponse.data?.success) {
@@ -715,11 +716,29 @@ const CareerProfileModal = ({
     }
   }, [isOpen]);
 
+  // Handle scrolling and self-contained border flash highlights securely when opened
+  useEffect(() => {
+    if (isOpen && highlightField && !loading) {
+      setTimeout(() => {
+        const element = document.getElementById(highlightField);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "center" });
+          setActiveHighlight(highlightField);
+
+          const timeout = setTimeout(() => {
+            setActiveHighlight(null);
+          }, 3000);
+
+          return () => clearTimeout(timeout);
+        }
+      }, 150);
+    }
+  }, [isOpen, highlightField, loading]);
+
   // 2. Map loaded city name text identifiers ("Kolkata") to ID keys ("4101") inside state array mapping definitions
   useEffect(() => {
     if (apiLocations.length > 0 && formData.work_location.length > 0) {
       const updatedLocations = formData.work_location.map((loc) => {
-        // If the location badge element only contains a ID reference string/number representation fallback
         if (loc.id && (loc.name === String(loc.id) || !loc.name)) {
           const foundCity = apiLocations.find(
             (apiLoc) =>
@@ -738,7 +757,6 @@ const CareerProfileModal = ({
         return loc;
       });
 
-      // Quick equality assessment checklist reference flag to prevent infinite loops updates cycles
       if (
         JSON.stringify(updatedLocations) !==
         JSON.stringify(formData.work_location)
@@ -829,7 +847,7 @@ const CareerProfileModal = ({
         work_location: initialLocations.map((loc) => {
           if (typeof loc === "object" && loc !== null) return loc;
           const numId = isNaN(Number(loc)) ? loc : Number(loc);
-          return { id: numId, name: String(numId) }; // initialized placeholder name with stringified ID until dropdown API responds
+          return { id: numId, name: String(numId) };
         }),
         currency_type: currentData.currency_type || "INR",
         expected_salary: currentData.expected_salary ?? 0,
@@ -870,7 +888,7 @@ const CareerProfileModal = ({
       job_type: formData.job_type.join(", ") || "",
       employment_type: formData.employment_type.join(", ") || "",
       shift: formData.shift,
-      work_location: formData.work_location.map((loc) => loc.id), // Submits correct ID payload: [4101]
+      work_location: formData.work_location.map((loc) => loc.id),
       currency_type: formData.currency_type,
       expected_salary:
         Number(formData.expected_salary.toString().replace(/,/g, "")) || 0,
@@ -896,6 +914,15 @@ const CareerProfileModal = ({
     }
   };
 
+  // Helper method to attach local dynamic outline classes to active inputs
+  const getHighlightClass = (fieldKey) => {
+    const baseClass = "p-2 border rounded-lg transition-all duration-500 ease-in-out ";
+    if (activeHighlight === fieldKey) {
+      return baseClass + "border-[#223B6B] bg-[#223B6B]/[0.02] shadow-[0_0_0_3px_rgba(34,59,107,0.15)]";
+    }
+    return baseClass + "border-transparent bg-transparent";
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[480px] p-0 bg-white overflow-hidden rounded-xl border-0 shadow-lg">
@@ -907,15 +934,15 @@ const CareerProfileModal = ({
 
         <form
           onSubmit={handleSubmit}
-          className="px-6 py-4 space-y-5 max-h-[75vh] overflow-y-auto"
+          className="px-6 py-4 space-y-3 max-h-[75vh] overflow-y-auto"
         >
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 mb-2">
             Add details about your current and preferred job profile. This helps
             us personalise your job recommendations.
           </p>
 
           {/* Industry Field */}
-          <div>
+          <div id="industry" className={getHighlightClass("industry")}>
             <label className="text-xs font-semibold text-slate-700 block mb-1.5">
               Current industry<span className="text-red-500 ml-0.5">*</span>
             </label>
@@ -930,7 +957,7 @@ const CareerProfileModal = ({
                     job_role: "",
                   }))
                 }
-                className="w-full h-11 px-3 bg-slate-50 border border-slate-200/60 rounded-lg text-sm appearance-none cursor-pointer"
+                className="w-full h-11 px-3 bg-slate-50 border border-slate-200/60 rounded-lg text-sm appearance-none cursor-pointer focus:outline-none"
               >
                 <option value="">Select Industry</option>
                 {apiIndustries.map((ind) => (
@@ -946,7 +973,7 @@ const CareerProfileModal = ({
           </div>
 
           {/* Department Field */}
-          <div>
+          <div id="department" className={getHighlightClass("department")}>
             <label className="text-xs font-semibold text-slate-700 block mb-1.5">
               Current department<span className="text-red-500 ml-0.5">*</span>
             </label>
@@ -961,7 +988,7 @@ const CareerProfileModal = ({
                     job_role: "",
                   }))
                 }
-                className="w-full h-11 px-3 bg-slate-50 border border-slate-200/60 rounded-lg text-sm appearance-none cursor-pointer disabled:opacity-60"
+                className="w-full h-11 px-3 bg-slate-50 border border-slate-200/60 rounded-lg text-sm appearance-none cursor-pointer disabled:opacity-60 focus:outline-none"
               >
                 <option value="">Select Department</option>
                 {apiDepartments.map((dept) => (
@@ -977,7 +1004,7 @@ const CareerProfileModal = ({
           </div>
 
           {/* Job Role Field */}
-          <div>
+          <div id="job_role" className={getHighlightClass("job_role")}>
             <label className="text-xs font-semibold text-slate-700 block mb-1.5">
               Job role<span className="text-red-500 ml-0.5">*</span>
             </label>
@@ -988,7 +1015,7 @@ const CareerProfileModal = ({
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, job_role: e.target.value }))
                 }
-                className="w-full h-11 px-3 bg-slate-50 border border-slate-200/60 rounded-lg text-sm appearance-none cursor-pointer disabled:opacity-60"
+                className="w-full h-11 px-3 bg-slate-50 border border-slate-200/60 rounded-lg text-sm appearance-none cursor-pointer disabled:opacity-60 focus:outline-none"
               >
                 <option value="">Select Job Role</option>
                 {apiJobRoles.map((role) => (
@@ -1004,7 +1031,7 @@ const CareerProfileModal = ({
           </div>
 
           {/* Desired Job Type */}
-          <div>
+          <div id="job_type" className={getHighlightClass("job_type")}>
             <label className="text-xs font-semibold text-slate-700 block mb-2">
               Desired job type
             </label>
@@ -1027,7 +1054,7 @@ const CareerProfileModal = ({
           </div>
 
           {/* Desired Employment Type */}
-          <div>
+          <div id="employment_type" className={getHighlightClass("employment_type")}>
             <label className="text-xs font-semibold text-slate-700 block mb-2">
               Desired employment type
             </label>
@@ -1050,7 +1077,7 @@ const CareerProfileModal = ({
           </div>
 
           {/* Shift Type */}
-          <div>
+          <div id="shift" className={getHighlightClass("shift")}>
             <label className="text-xs font-semibold text-slate-700 block mb-2">
               Shift type
             </label>
@@ -1076,7 +1103,7 @@ const CareerProfileModal = ({
           </div>
 
           {/* Searchable Work Location */}
-          <div>
+          <div id="work_location" className={getHighlightClass("work_location")}>
             <label className="text-xs font-semibold text-slate-700 block mb-1.5">
               Preferred work location (Max 10)
             </label>
@@ -1093,7 +1120,7 @@ const CareerProfileModal = ({
                   disabled={formData.work_location.length >= 10}
                   onFocus={() => setIsLocationDropdownOpen(true)}
                   onChange={(e) => setLocationSearch(e.target.value)}
-                  className="w-full h-11 bg-slate-50 border border-slate-200/60 rounded-lg text-sm"
+                  className="w-full h-11 bg-slate-50 border border-slate-200/60 rounded-lg text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
               </div>
 
@@ -1145,7 +1172,6 @@ const CareerProfileModal = ({
                 </div>
               )}
 
-              {/* Badges container: Correctly displays "Kolkata" instead of "4101" */}
               <div className="min-h-11 p-1.5 bg-slate-50 rounded-lg flex flex-wrap items-center gap-1.5 border border-slate-100">
                 {formData.work_location.length === 0 && (
                   <span className="text-xs text-slate-400 px-1">
@@ -1172,7 +1198,7 @@ const CareerProfileModal = ({
           </div>
 
           {/* Expected Salary */}
-          <div>
+          <div id="expected_salary" className={getHighlightClass("expected_salary")}>
             <label className="text-xs font-semibold text-slate-700 block mb-1.5">
               Expected salary
             </label>
@@ -1185,7 +1211,7 @@ const CareerProfileModal = ({
                     currency_type: e.target.value,
                   }))
                 }
-                className="w-16 h-11 bg-slate-50 border border-slate-200/60 rounded-lg text-sm text-center"
+                className="w-16 h-11 bg-slate-50 border border-slate-200/60 rounded-lg text-sm text-center focus:outline-none"
               >
                 <option value="INR">₹</option>
               </select>
@@ -1198,6 +1224,7 @@ const CareerProfileModal = ({
                     expected_salary: Number(e.target.value),
                   }))
                 }
+                className="focus-visible:ring-0 focus-visible:ring-offset-0"
               />
             </div>
           </div>
@@ -1207,7 +1234,7 @@ const CareerProfileModal = ({
           <Button
             type="button"
             onClick={onClose}
-           variant="ghost"
+            variant="ghost"
           >
             Cancel
           </Button>
@@ -1215,7 +1242,6 @@ const CareerProfileModal = ({
             type="submit"
             disabled={isSubmitting || loading}
             onClick={handleSubmit}
-            
           >
             {isSubmitting ? "Saving..." : "Save"}
           </Button>
@@ -1226,4 +1252,3 @@ const CareerProfileModal = ({
 };
 
 export default CareerProfileModal;
-

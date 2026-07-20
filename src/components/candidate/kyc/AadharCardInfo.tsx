@@ -173,16 +173,18 @@ const AadharCardInfo = ({
 
   return (
     <>
-      <div className="mb-6">
-        <div className="flex items-center gap-2">
-          <strong>Aadhaar Number</strong>
+      <div className="space-y-1">
+        <div className="flex items-center">
+          <span className="text-base font-semibold text-slate-900">
+            Aadhaar Number
+          </span>
 
           {userdata?.aadhar_number &&
             (userdata?.aadhar_verified ? (
-              <CheckCircle className="h-5 w-5 text-green-600" />
+              <CheckCircle className="ml-2 h-4 w-4 text-green-600" />
             ) : (
               <>
-                <CircleX className="h-5 w-5 text-red-600" />
+                <CircleX className="ml-2 h-4 w-4 text-red-600" />
                 <RazorpayPayment
                   onSuccess={handlePaymentSuccessAadhar}
                   documentType="aadhar"
@@ -191,24 +193,27 @@ const AadharCardInfo = ({
             ))}
         </div>
 
-        <div className="mt-2">
+        <div className="text-sm">
           {userdata?.aadhar_number ? (
-            <div className="leading-6 text-gray-600">
+            <div className="text-slate-600 space-y-0.5">
               <div>
-                <span className="font-semibold">Aadhaar Name:</span>{" "}
+                <span className="font-medium text-slate-700">Name:</span>{" "}
                 {userdata?.aadhar_name}
               </div>
+
               <div>
-                <span className="font-semibold">Aadhaar Number:</span>{" "}
+                <span className="font-medium text-slate-700">
+                  Aadhaar Number:
+                </span>{" "}
                 {userdata?.aadhar_number}
               </div>
             </div>
           ) : (
             <span
-              className="text-sm font-medium text-blue-600 cursor-pointer hover:underline"
+              className="font-medium text-blue-600 cursor-pointer hover:underline"
               onClick={() => openModalRH("aadhar")}
             >
-              Add Aadhaar Card With OTP Info
+              Add Aadhaar Details
             </span>
           )}
         </div>
