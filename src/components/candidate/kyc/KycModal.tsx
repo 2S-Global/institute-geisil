@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import API from "../../../lib/axios";
@@ -13,7 +12,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import KycBox from "./KycBox";
 
-const KycModal = ({ 
+const KycModal = ({
   show,
   onClose,
   setError,
@@ -28,7 +27,7 @@ const KycModal = ({
   const [isFormValid, setIsFormValid] = useState(false);
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
-  
+
   const [formData, setFormData] = useState({
     pan_number: data?.pan_number || "",
     pan_name: data?.pan_name || "",
@@ -77,14 +76,14 @@ const KycModal = ({
 
     for (const { fields, message } of validationConfig) {
       const isAnyFilled = fields.some(
-        (field) => formData[field]?.toString().trim() !== ""
+        (field) => formData[field]?.toString().trim() !== "",
       );
 
       if (isAnyFilled) {
         hasAnyGroupFilled = true;
 
         const isAllFilled = fields.every(
-          (field) => formData[field]?.toString().trim() !== ""
+          (field) => formData[field]?.toString().trim() !== "",
         );
 
         if (!isAllFilled) {
@@ -119,7 +118,7 @@ const KycModal = ({
     try {
       const response = await API.post(
         `${apiurl}/api/candidatekyc/kyc`,
-        formData
+        formData,
       );
 
       if (response.data.success) {
@@ -154,13 +153,13 @@ const KycModal = ({
       setSaving(false);
     }
   };
-  
+
   if (!show) return null;
 
   return (
     <Dialog open={show} onOpenChange={onClose}>
       {/* ADDED onOpenAutoFocus HERE TO STOP AUTO FOCUS ON THE INPUT BOX */}
-      <DialogContent 
+      <DialogContent
         className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
@@ -181,7 +180,7 @@ const KycModal = ({
           </div>
 
           <DialogFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-            <Button
+            {/* <Button
               type="button"
               variant="outline"
               onClick={onClose}
@@ -205,6 +204,32 @@ const KycModal = ({
               >
                 {saving ? "Saving..." : "Save"}
               </Button>
+            </div> */}
+
+            <div className="flex justify-end gap-3 pt-6">
+              <button
+                type="button"
+                onClick={onClose}
+                className="rounded-md border border-gray-300 bg-white px-4 py-2 text-gray-700 transition-colors hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+
+              <div className="relative inline-flex group">
+                <button
+                  type="submit"
+                  disabled={!isFormValid || saving}
+                  className="rounded-md bg-[#27406F] px-4 py-2 text-white hover:bg-[#1F3358] disabled:cursor-not-allowed disabled:bg-[#27406F]/50"
+                >
+                  {saving ? "Saving..." : "Save"}
+                </button>
+
+                {!isFormValid && (
+                  <div className="pointer-events-none absolute bottom-full right-0 mb-2 hidden w-52 rounded-md border border-red-300 bg-white p-2 text-center text-sm text-red-600 shadow-lg group-hover:block">
+                    Please fill all required fields.
+                  </div>
+                )}
+              </div>
             </div>
           </DialogFooter>
         </form>

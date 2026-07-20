@@ -4,6 +4,7 @@ import { Pencil, Plus } from "lucide-react";
 import API from "../../../lib/axios";
 import Profilesum from "./Profilesum";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Card,
   CardContent,
@@ -74,7 +75,11 @@ const ProfileSummarySection = () => {
 
         <CardContent>
           {sectionloading ? (
-            <p className="text-sm text-muted-foreground">Loading...</p>
+            <div className="space-y-2 animate-pulse pt-2">
+              <Skeleton className="h-4 w-full bg-muted" />
+              <Skeleton className="h-4 w-full bg-muted" />
+              <Skeleton className="h-4 w-2/3 bg-muted" />
+            </div>
           ) : hasData ? (
             <div className="pt-2">
               <p className="whitespace-pre-line text-justify text-sm">

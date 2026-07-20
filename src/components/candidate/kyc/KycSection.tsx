@@ -7,18 +7,19 @@ import RazorpayPayment from "./Razorpay";
 import AadharCardInfo from "./AadharCardInfo";
 import KycModal from "./KycModal";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const KycSection = ({ show, onClose, data = {}, setRefresh }) => {
   const apiurl = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
-  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [focusSection, setFocusSection] = useState(null);
   const [error, setError] = useState(null);
@@ -28,7 +29,7 @@ const KycSection = ({ show, onClose, data = {}, setRefresh }) => {
   const [reload, setReload] = useState(false);
   const [sectionloading, setSectionloading] = useState(true);
   const [userdata, setUserdata] = useState(null);
-  
+
   const { toast } = useToast();
 
   useEffect(() => {
@@ -103,7 +104,7 @@ const KycSection = ({ show, onClose, data = {}, setRefresh }) => {
             <CardTitle className="text-lg">KYC</CardTitle>
             <CardDescription>Verify your identity and official documents.</CardDescription>
           </div>
-          
+
           {!sectionloading && (
             hasKycData ? (
               <Button variant="ghost" size="icon" onClick={() => openModalRH("all")}>
@@ -119,8 +120,13 @@ const KycSection = ({ show, onClose, data = {}, setRefresh }) => {
 
         <CardContent className="pt-2">
           {sectionloading ? (
-            <div className="flex justify-center p-8">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-[#223B6B]"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-pulse">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="space-y-2">
+                  <Skeleton className="h-5 w-28 bg-muted" />
+                  <Skeleton className="h-4 w-44 bg-muted" />
+                </div>
+              ))}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -129,11 +135,11 @@ const KycSection = ({ show, onClose, data = {}, setRefresh }) => {
                 <div className="flex items-center">
                   <span className="text-base font-semibold text-slate-900">PAN Number</span>
                   {userdata?.pan_number && (
-                    userdata?.pan_verified ? <CheckCircle className="ml-2 text-green-600 h-4 w-4" /> : 
-                    <>
-                      <CircleX className="ml-2 text-red-600 h-4 w-4" />
-                      <RazorpayPayment onSuccess={handelpaymentsuccess} documentType="pan" />
-                    </>
+                    userdata?.pan_verified ? <CheckCircle className="ml-2 text-green-600 h-4 w-4" /> :
+                      <>
+                        <CircleX className="ml-2 text-red-600 h-4 w-4" />
+                        <RazorpayPayment onSuccess={handelpaymentsuccess} documentType="pan" />
+                      </>
                   )}
                 </div>
                 <div className="text-sm">
@@ -153,11 +159,11 @@ const KycSection = ({ show, onClose, data = {}, setRefresh }) => {
                 <div className="flex items-center">
                   <span className="text-base font-semibold text-slate-900">Driving License</span>
                   {userdata?.dl_number && (
-                    userdata?.dl_verified ? <CheckCircle className="ml-2 text-green-600 h-4 w-4" /> : 
-                    <>
-                      <CircleX className="ml-2 text-red-600 h-4 w-4" />
-                      <RazorpayPayment onSuccess={handelpaymentsuccess} documentType="dl" />
-                    </>
+                    userdata?.dl_verified ? <CheckCircle className="ml-2 text-green-600 h-4 w-4" /> :
+                      <>
+                        <CircleX className="ml-2 text-red-600 h-4 w-4" />
+                        <RazorpayPayment onSuccess={handelpaymentsuccess} documentType="dl" />
+                      </>
                   )}
                 </div>
                 <div className="text-sm">
@@ -177,11 +183,11 @@ const KycSection = ({ show, onClose, data = {}, setRefresh }) => {
                 <div className="flex items-center">
                   <span className="text-base font-semibold text-slate-900">EPIC Number</span>
                   {userdata?.epic_number && (
-                    userdata?.epic_verified ? <CheckCircle className="ml-2 text-green-600 h-4 w-4" /> : 
-                    <>
-                      <CircleX className="ml-2 text-red-600 h-4 w-4" />
-                      <RazorpayPayment onSuccess={handelpaymentsuccess} documentType="epic" />
-                    </>
+                    userdata?.epic_verified ? <CheckCircle className="ml-2 text-green-600 h-4 w-4" /> :
+                      <>
+                        <CircleX className="ml-2 text-red-600 h-4 w-4" />
+                        <RazorpayPayment onSuccess={handelpaymentsuccess} documentType="epic" />
+                      </>
                   )}
                 </div>
                 <div className="text-sm">
@@ -196,16 +202,14 @@ const KycSection = ({ show, onClose, data = {}, setRefresh }) => {
                 </div>
               </div>
 
-              {/* Aadhaar Row */}
-              <div className="space-y-1">
-                <AadharCardInfo 
-                   userdata={userdata} 
-                   openModalRH={openModalRH} 
-                   setSectionloading={setSectionloading}
-                   setError={setError} setErrorId={setErrorId} setSuccess={setSuccess}
-                   setMessageId={setMessageId} setReload={setReload}
-                />
-              </div>
+              {/* Aadhaar (Handled by your existing child component) */}
+              <AadharCardInfo 
+                 userdata={userdata} 
+                 openModalRH={openModalRH} 
+                 setSectionloading={setSectionloading}
+                 setError={setError} setErrorId={setErrorId} setSuccess={setSuccess}
+                 setMessageId={setMessageId} setReload={setReload}
+              />
             </div>
           )}
         </CardContent>

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle, CircleX,Pencil,CircleCheck } from "lucide-react";
 import API from "../../../lib/axios"
 import PresentationMain from "./PresentationMain"
+import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
@@ -81,8 +82,10 @@ const apiurl =  import.meta.env.VITE_API_URL;
   <Card>
     <CardContent>
       {sectionloading ? (
-        "loading............."
-        // or <CustomizedProgressBars />
+        <div className="space-y-3 animate-pulse">
+          <Skeleton className="h-4 w-1/3 bg-muted" />
+          <Skeleton className="h-4 w-2/3 bg-muted" />
+        </div>
       ) : (
         <>
           <PresentationMain

@@ -12,6 +12,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import ProjectModal from "./projectModal";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Project = () => {
   const [projects, setProjects] = useState<any[]>([]);
@@ -141,9 +142,20 @@ const Project = () => {
 
         <CardContent>
           {loading ? (
-            <p className="text-sm text-gray-500 font-medium">
-              Loading projects...
-            </p>
+            <div className="grid grid-cols-1 gap-4 w-full animate-pulse">
+              {[1, 2].map((i) => (
+                <Card key={i} className="w-full border shadow-none">
+                  <CardContent className="space-y-3 p-5">
+                    <div className="flex justify-between items-start">
+                      <Skeleton className="h-5 w-40 bg-muted" />
+                      <Skeleton className="h-8 w-8 rounded bg-muted" />
+                    </div>
+                    <Skeleton className="h-4 w-full bg-muted" />
+                    <Skeleton className="h-4 w-5/6 bg-muted mt-2" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           ) : projects.length > 0 ? (
             <div className="grid grid-cols-1 gap-4 w-full">
               {projects.map((project, index) => {

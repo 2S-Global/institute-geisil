@@ -34,8 +34,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 
 export default function ContactSection() {
-
-
   const [contact, setContact] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -93,7 +91,7 @@ export default function ContactSection() {
       const res = await api.post("/api/home/add-contact", formData);
 
       if (res.data.success) {
-        toast.success(res.data.message || "Message sent successfully.");
+        toast.success("Message sent successfully.");
 
         setFormData({
           name: "",

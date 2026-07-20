@@ -72,7 +72,8 @@ export default function Footer() {
       </div>
       <div className="border-t border-primary-foreground/15">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 text-xs opacity-70 text-center">
-          © {new Date().getFullYear()} GEISIL. All rights reserved.
+          © {new Date().getFullYear()} GEISIL. Developed and Maintained by
+          2sglobal Technologies.
         </div>
       </div>
     </footer>

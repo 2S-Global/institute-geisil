@@ -457,6 +457,7 @@ import API from "@/lib/axios";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 import WorkProfileModal from "./ExperienceModal";
 
 const WorkProfileList = () => {
@@ -596,10 +597,17 @@ const WorkProfileList = () => {
 
       <CardContent className="p-6">
         {loading ? (
-          <div className="flex flex-1 items-center justify-center py-12 w-full">
-            <p className="text-sm text-gray-500 font-medium animate-pulse">
-              Loading work experiences...
-            </p>
+          <div className="space-y-4 animate-pulse">
+            {[1, 2].map((i) => (
+              <div key={i} className="flex gap-4 items-start border-b border-gray-100 pb-4 last:border-b-0 last:pb-0">
+                <Skeleton className="h-12 w-12 rounded-lg bg-muted shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-5 w-40 bg-muted" />
+                  <Skeleton className="h-4 w-28 bg-muted" />
+                  <Skeleton className="h-4 w-full bg-muted mt-1" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : profiles.length === 0 ? (
           <div className="flex flex-1 items-center justify-center w-full shadow-sm">

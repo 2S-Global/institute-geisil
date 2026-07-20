@@ -39,6 +39,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -72,84 +73,7 @@ import OtherSkills from "@/components/candidate/Other Skills/OtherSkills";
 import ProfileStrength from "./components/ProfileStrength";
 // import ProfileStrength from "../candidate/components/pro"
 import OTPModel from "@/components/candidate/myprofile/OTPModal";
-const experiences = [
-  {
-    role: "Frontend Engineer",
-    company: "Lumen Labs",
-    type: "Full-time",
-    period: "Jun 2023 — Present",
-    loc: "Bengaluru, India",
-    desc: "Building accessible React interfaces for a B2B analytics suite. Led migration to TypeScript and improved Lighthouse scores by 38%.",
-  },
-  {
-    role: "UI Developer Intern",
-    company: "Pixel Forge",
-    type: "Internship",
-    period: "Jan 2023 — May 2023",
-    loc: "Remote",
-    desc: "Shipped marketing site redesign with Next.js and Tailwind. Collaborated with design on a shared component library.",
-  },
-];
-
-const education = [
-  {
-    degree: "B.Tech, Computer Science",
-    school: "Indian Institute of Information Technology",
-    period: "2019 — 2023",
-    grade: "CGPA 8.6 / 10",
-  },
-  {
-    degree: "Higher Secondary (PCM)",
-    school: "Delhi Public School",
-    period: "2017 — 2019",
-    grade: "92.4%",
-  },
-];
-
-const projects = [
-  {
-    name: "Pulse Analytics",
-    desc: "Realtime dashboard with WebSockets, 25k MAUs.",
-    tags: ["React", "Node", "Postgres"],
-  },
-  {
-    name: "Atlas UI Kit",
-    desc: "Open-source React + Tailwind component library.",
-    tags: ["TypeScript", "Tailwind", "Storybook"],
-  },
-  {
-    name: "FinTrack",
-    desc: "Personal finance PWA with offline support.",
-    tags: ["React", "IndexedDB", "Vite"],
-  },
-];
-
-const certifications = [
-  { name: "Meta Front-End Developer", issuer: "Coursera", year: "2024" },
-  { name: "AWS Cloud Practitioner", issuer: "Amazon", year: "2023" },
-  { name: "Google UX Design", issuer: "Coursera", year: "2023" },
-];
-
-const skills = {
-  Technical: [
-    "React",
-    "TypeScript",
-    "Next.js",
-    "Tailwind CSS",
-    "Node.js",
-    "GraphQL",
-    "PostgreSQL",
-    "Vite",
-  ],
-  Tools: ["Figma", "Git", "Jira", "Storybook", "Vercel", "Docker"],
-  Soft: ["Communication", "Ownership", "Mentoring", "Problem solving"],
-};
-
-const languages = [
-  { name: "English", level: "Professional" },
-  { name: "Hindi", level: "Native" },
-  { name: "Spanish", level: "Conversational" },
-];
+import { ProfileHeaderSkeleton } from "@/components/candidate/skeletons/ProfileHeaderSkeleton";
 
 const checklist = [
   { label: "Basic information", done: true },
@@ -173,6 +97,7 @@ export default function CandidateProfile() {
   const [profile_pic, setProfile_pic] = useState();
   const [progress, setProgress] = useState();
   const [user, setUser] = useState();
+  const [profileLoading, setProfileLoading] = useState(true);
   const [kyc, setKyc] = useState();
   const [focusSection, setFocusSection] = useState(null);
   const [isModalOpenotp, setIsModalOpenotp] = useState(false);
@@ -236,6 +161,7 @@ export default function CandidateProfile() {
 
   const fetchProfilePic = async () => {
     try {
+      setProfileLoading(true);
       const response = await API.get(`/api/userdata/userdata`);
 
       if (response.data?.profilePicture) {
@@ -248,8 +174,11 @@ export default function CandidateProfile() {
       setUser(response.data);
     } catch (error) {
       console.error("Error fetching profile pic:", error);
+    } finally {
+      setProfileLoading(false);
     }
   };
+
 
   const FetchKyc = async () => {
     try {
@@ -454,116 +383,119 @@ export default function CandidateProfile() {
     <CandidateLayout>
       <div className="space-y-6">
         {/* Header / Hero */}
-        <Card className="overflow-hidden border-border/60">
-          {/* Cover */}
-          <div className="relative h-28 bg-gradient-to-r from-primary/80 via-primary to-primary/60">
-            <Button
-              size="sm"
-              variant="secondary"
-              className="absolute top-4 right-4"
-              onClick={() => openModalRH()}
-            >
-              <Pencil className="h-4 w-4 mr-1" />
-              Edit Profile
-            </Button>
-          </div>
+        {profileLoading ? (
+          <ProfileHeaderSkeleton />
+        ) : (
+          <Card className="overflow-hidden border-border/60">
+            {/* Cover */}
+            <div className="relative h-28 bg-gradient-to-r from-primary/80 via-primary to-primary/60">
+              <Button
+                size="sm"
+                variant="secondary"
+                className="absolute top-4 right-4"
+                onClick={() => openModalRH()}
+              >
+                <Pencil className="h-4 w-4 mr-1" />
+                Edit Profile
+              </Button>
+            </div>
 
-          <CardContent className="relative pt-0 pb-6">
-            {/* Profile Header */}
-            <div className="flex flex-col lg:flex-row lg:justify-between">
-              {/* Left Side */}
-              <div className="flex flex-col sm:flex-row gap-4 -mt-14">
-                <div className="relative w-28 h-28">
-                  <Avatar className="h-28 w-28 border-4 border-background shadow-lg">
-                    <AvatarFallback className="bg-primary text-primary-foreground text-2xl font-bold p-0">
-                      <img
-                        src={profile_pic ? profile_pic : noImage}
-                        alt="Profile"
-                        className="w-full h-full rounded-full object-cover"
-                      />
-                    </AvatarFallback>
-                  </Avatar>
+            <CardContent className="relative pt-0 pb-6">
+              {/* Profile Header */}
+              <div className="flex flex-col lg:flex-row lg:justify-between">
+                {/* Left Side */}
+                <div className="flex flex-col sm:flex-row gap-4 -mt-14">
+                  <div className="relative w-28 h-28">
+                    <Avatar className="h-28 w-28 border-4 border-background shadow-lg">
+                      <AvatarFallback className="bg-primary text-primary-foreground text-2xl font-bold p-0">
+                        <img
+                          src={profile_pic ? profile_pic : noImage}
+                          alt="Profile"
+                          className="w-full h-full rounded-full object-cover"
+                        />
+                      </AvatarFallback>
+                    </Avatar>
 
-                  <div
-                    className="absolute bottom-1 right-1 bg-primary text-white p-2 rounded-full cursor-pointer shadow-md"
-                    onClick={openModalImg}
-                  >
-                    <Camera size={18} />
+                    <div
+                      className="absolute bottom-1 right-1 bg-primary text-white p-2 rounded-full cursor-pointer shadow-md"
+                      onClick={openModalImg}
+                    >
+                      <Camera size={18} />
+                    </div>
                   </div>
-                </div>
 
-                <div className="pt-14 sm:pt-14">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h1 className="text-3xl font-bold">{user?.name || ""}</h1>
-                    {user?.gender_name && "(" + user?.gender_name + ")"}
-                    {user?.isVerified ? (
-                      <Badge className="bg-green-500/15 text-green-600 border-0">
-                        <CheckCircle2 className="h-3 w-3 mr-1" />
-                        Verified
-                      </Badge>
-                    ) : (
-                      <Badge className="bg-red-500/15 text-red-600 border-0">
-                        <CircleX className="h-3 w-3 mr-1" />
-                        Unverified
-                      </Badge>
-                    )}
+                  <div className="pt-14 mt-2 sm:pt-14">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h1 className="text-3xl  font-bold">{user?.name || ""}</h1>
+                      <div className="mt-1">{user?.gender_name && "(" + user?.gender_name + ")"}</div>
+                      {user?.isVerified ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-green-500/15 px-3 py-1 text-xs font-medium text-green-600">
+                          <CheckCircle2 className="h-3 w-3" />
+                          Verified
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-red-500/15 px-3 py-1 text-xs font-medium text-red-600">
+                          <CircleX className="h-3 w-3" />
+                          Unverified
+                        </span>
+                      )}
 
-                    {/*  <Badge variant="outline">
+                      {/*  <Badge variant="outline">
                       <Sparkles className="h-3 w-3 mr-1" />
                       Open to work
                     </Badge> */}
-                  </div>
+                    </div>
 
-                  <p className="mt-1 text-muted-foreground"></p>
+                    <p className="mt-1 text-muted-foreground"></p>
 
-                  <div className="flex flex-wrap gap-4 mt-3 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <MapPin className="h-4 w-4" />
-                      {user?.currentLocation}
-                    </span>
+                    <div className="flex flex-wrap gap-4 mt-3 text-sm text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <MapPin className="h-4 w-4" />
+                        {user?.currentLocation}
+                      </span>
 
-                    <span className="flex items-center gap-1">
-                      <Banknote className="h-4 w-4" />
-                      {user?.currency} {user?.salary}
-                    </span>
+                      <span className="flex items-center gap-1">
+                        <Banknote className="h-4 w-4" />
+                        {user?.currency} {user?.salary}
+                      </span>
 
-                    <span className="flex items-center gap-1">
-                      <Phone className="h-4 w-4" />
-                      {user?.phone_number}
-                      {!user?.numberVerified && (
-                        <>
-                          <CircleX className="ml-2 h-4 w-4 text-red-500" />
+                      <span className="flex items-center gap-1">
+                        <Phone className="h-4 w-4" />
+                        {user?.phone_number}
+                        {!user?.numberVerified && (
+                          <>
+                            <CircleX className="ml-2 h-4 w-4 text-red-500" />
 
-                          {user?.isIndianNumber ? (
-                            <button
-                              className="ml-2 rounded bg-blue-600 px-2 py-1 text-[10px] leading-none text-white hover:bg-blue-700"
-                              onClick={openModalRHotp}
-                            >
-                              Verify Now
-                            </button>
-                          ) : (
-                            <CircleX className=" h-4 w-4 text-red-500" />
-                          )}
-                        </>
-                      )}
-                      {user?.numberVerified && <CheckCircle2 className="h-4 w-4 mr-1 text-green-500" />}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Mail className="h-4 w-4" />
-                      {user?.email} {user?.email && <CheckCircle2 className="h-4 w-4 mr-1 text-green-500" />}
-                    </span>
+                            {user?.isIndianNumber ? (
+                              <button
+                                className="ml-2 rounded bg-blue-600 px-2 py-1 text-[10px] leading-none text-white hover:bg-blue-700"
+                                onClick={openModalRHotp}
+                              >
+                                Verify Now
+                              </button>
+                            ) : (
+                              <CircleX className=" h-4 w-4 text-red-500" />
+                            )}
+                          </>
+                        )}
+                        {user?.numberVerified && <CheckCircle2 className="h-4 w-4 mr-1 text-green-500" />}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Mail className="h-4 w-4" />
+                        {user?.email} {user?.email && <CheckCircle2 className="h-4 w-4 mr-1 text-green-500" />}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Right Side Buttons */}
-              <div className="flex flex-wrap gap-2 mt-4 lg:mt-6 lg:self-start">
-                {/* <Button variant="outline" size="sm">
+                {/* Right Side Buttons */}
+                <div className="flex flex-wrap gap-2 mt-4 lg:mt-6 lg:self-start">
+                  {/* <Button variant="outline" size="sm">
                   <Share2 className="h-4 w-4 mr-1" />
                   Share
                 </Button> */}
 
-                {/* <Button
+                  {/* <Button
                   variant="outline"
                   size="sm"
                   onClick={downloadResume}
@@ -582,36 +514,37 @@ export default function CandidateProfile() {
                   )}
                 </Button> */}
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={downloadResume}
-                  disabled={downloadLoading}
-                >
-                  {downloadLoading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                      Downloading...
-                    </>
-                  ) : (
-                    <>
-                      <Download className="h-4 w-4 mr-1" />
-                      Resume
-                    </>
-                  )}
-                </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={downloadResume}
+                    disabled={downloadLoading}
+                  >
+                    {downloadLoading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                        Downloading...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="h-4 w-4 mr-1" />
+                        Resume
+                      </>
+                    )}
+                  </Button>
 
-                {/*  <Button
+                  {/*  <Button
           size="sm"
           onClick={() => setEditing((v) => !v)}
         >
           <Pencil className="h-4 w-4 mr-1" />
           {editing ? "Done" : "Edit Profile"}
         </Button> */}
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left column */}
@@ -768,7 +701,6 @@ export default function CandidateProfile() {
                 <WorkProfileList />
                 <CareerProfile />
                 <WhitePaper />
-                {/* <WorkProfileList /> */}
               </TabsContent>
 
               <TabsContent value="education" className="space-y-4 mt-6">
@@ -810,46 +742,6 @@ export default function CandidateProfile() {
               </TabsContent>
 
               <TabsContent value="projects" className="space-y-4 mt-6">
-                {/* <div className="flex items-center justify-between">
-                  <h2 className="font-display text-lg font-semibold">
-                    Projects
-                  </h2>
-                  <Button size="sm" className="gap-1.5">
-                    <Plus className="h-4 w-4" /> Add project
-                  </Button>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {projects.map((p, i) => (
-                    <Card key={i}>
-                      <CardContent className="p-5 space-y-3">
-                        <div className="flex items-start justify-between">
-                          <p className="font-semibold">{p.name}</p>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          {p.desc}
-                        </p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {p.tags.map((t) => (
-                            <Badge
-                              key={t}
-                              variant="outline"
-                              className="font-normal text-xs"
-                            >
-                              {t}
-                            </Badge>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div> */}
                 <Project />
               </TabsContent>
 
@@ -865,11 +757,6 @@ export default function CandidateProfile() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {resumeLoading && (
-                      <div className="flex justify-center items-center py-6">
-                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                      </div>
-                    )}
                     <div className="border-2 border-dashed rounded-lg p-8 text-center bg-muted/20">
                       <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-3" />
                       <p className="font-medium text-sm">
@@ -895,7 +782,18 @@ export default function CandidateProfile() {
                     </div>
 
                     <div className="space-y-2">
-                      {resumeFile ? (
+                      {resumeLoading ? (
+                        <div className="flex items-center gap-3 rounded-md border bg-card px-3 py-2.5 animate-pulse">
+                          <Skeleton className="h-9 w-9 rounded bg-muted shrink-0" />
+                          <div className="flex-1 min-w-0 space-y-2">
+                            <Skeleton className="h-4 w-40 bg-muted" />
+                            <Skeleton className="h-3 w-24 bg-muted" />
+                          </div>
+                          <Skeleton className="h-8 w-8 rounded-full bg-muted shrink-0" />
+                          <Skeleton className="h-8 w-8 rounded-full bg-muted shrink-0" />
+                          <Skeleton className="h-8 w-8 rounded-full bg-muted shrink-0" />
+                        </div>
+                      ) : resumeFile ? (
                         <div className="flex items-center gap-3 rounded-md border bg-card px-3 py-2.5">
                           <div className="h-9 w-9 rounded bg-primary/10 text-primary flex items-center justify-center">
                             <FileText className="h-4 w-4" />

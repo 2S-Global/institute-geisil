@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import ResumeHeadline from "./ResumeHeadline";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ResumeHeadlineSection = ({
   setReload,
@@ -75,7 +76,10 @@ const ResumeHeadlineSection = ({
 
         <CardContent>
           {sectionloading ? (
-            <p className="text-sm text-muted-foreground">Loading...</p>
+            <div className="space-y-2 animate-pulse pt-2">
+              <Skeleton className="h-4 w-full bg-muted" />
+              <Skeleton className="h-4 w-5/6 bg-muted" />
+            </div>
           ) : hasData ? (
             <div className="pt-2">
               <p className="text-sm">{resumeHeadline.trim()}</p>

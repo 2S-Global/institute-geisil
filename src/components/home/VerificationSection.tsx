@@ -70,9 +70,12 @@ export default function VerificationSection() {
           <h2 className="text-3xl md:text-4xl font-bold text-foreground">
             Verification, simplified
           </h2>
-          <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">
-            A complete suite of identity and business checks — one API, one
-            dashboard.
+          <p className="text-muted-foreground mt-3  text-justify">
+            GEISIL (Global Employability Information Services India Limited)
+            streamlines user onboarding, background screening, and compliance
+            workflows by directly cross-referencing official government and
+            institutional databases. Here is a detailed breakdown of each
+            verification service provided by GEISIL:
           </p>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -82,13 +85,18 @@ export default function VerificationSection() {
               className="border-border/60 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition"
             >
               <CardContent className="p-6">
-                <div className="h-12 w-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4">
+                <div
+                  className="h-12 w-12 rounded-lg  text-white flex items-center justify-center mb-4"
+                  style={{ backgroundColor: s.color }}
+                >
                   <s.icon className="h-6 w-6" />
                 </div>
                 <h3 className="font-semibold text-foreground mb-1">
                   {s.title}
                 </h3>
-                <p className="text-sm text-muted-foreground">{s.desc}</p>
+                <p className="text-sm text-muted-foreground text-justify">
+                  {s.desc}
+                </p>
               </CardContent>
             </Card>
           ))}

@@ -13,6 +13,7 @@ import {
   Plus,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -182,33 +183,40 @@ const AcademicSection = () => {
 
     <CardContent> */}
       <div>
+        <div className="flex items-start justify-between mb-3">
+          <div>
+            <h2 className="font-display text-lg font-semibold">
+              Education
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Details about your academic qualifications and
+              schools/colleges.
+            </p>
+          </div>
+          <Button
+            size="sm"
+            className="gap-1.5"
+            onClick={() => openModalRH()}
+          >
+            <Plus className="h-4 w-4" /> Add education
+          </Button>
+        </div>
+
         {sectionloading ? (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-            <div
-              className="h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-transparent"
-              style={{ borderTopColor: "#223B6B" }}
-            ></div>
+          <div className="space-y-4 animate-pulse mt-4">
+            {[1, 2].map((i) => (
+              <div key={i} className="flex gap-4 items-start border border-gray-100 rounded-lg p-5">
+                <Skeleton className="h-10 w-10 rounded bg-muted shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-5 w-48 bg-muted" />
+                  <Skeleton className="h-4 w-36 bg-muted" />
+                  <Skeleton className="h-3.5 w-20 bg-muted mt-1" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
-          <>
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <h2 className="font-display text-lg font-semibold">
-                  Education
-                </h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Details about your academic qualifications and
-                  schools/colleges.
-                </p>
-              </div>
-              <Button
-                size="sm"
-                className="gap-1.5"
-                onClick={() => openModalRH()}
-              >
-                <Plus className="h-4 w-4" /> Add education
-              </Button>
-            </div>
+          <div>
             <div>
               {/* Existing Education List */}
               <div className="space-y-4">
@@ -256,7 +264,7 @@ const AcademicSection = () => {
                 </div>
               )}
             </div>
-          </>
+          </div>
         )}
       </div>
 

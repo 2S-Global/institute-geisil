@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Pencil, CircleX, CircleCheck, Plus } from "lucide-react";
@@ -11,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import FormModal from "./PersonalModal";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const PersonalSection = () => {
   const [modalType, setModalType] = useState(null);
@@ -52,7 +52,7 @@ const PersonalSection = () => {
       try {
         setSectionloading(true);
         const response = await API.get(
-          `/api/candidate/personal/get_personal_details_with_name`
+          `/api/candidate/personal/get_personal_details_with_name`,
         );
         if (response.status === 200) {
           const maindata = response.data.data;
@@ -109,7 +109,7 @@ const PersonalSection = () => {
             <CardTitle className="text-lg">Personal Details</CardTitle>
             <CardDescription></CardDescription>
           </div>
-          
+
           {hasPersonalData ? (
             <Button
               variant="ghost"
@@ -120,20 +120,23 @@ const PersonalSection = () => {
               <Pencil className="h-4 w-4" />
             </Button>
           ) : (
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-1"
-              onClick={() => openModalRH("editPersonal")}
-            >
-              Add Info
-              <Plus className="h-4 w-4" />
+            <Button size="sm" onClick={() => openModalRH("editPersonal")}>
+              <Plus className="h-4 w-4" /> Add Personal Details
             </Button>
           )}
         </CardHeader>
         <CardContent>
           {sectionloading ? (
-            "loading............"
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-pulse">
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24 bg-muted" />
+                <Skeleton className="h-4 w-40 bg-muted" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24 bg-muted" />
+                <Skeleton className="h-4 w-40 bg-muted" />
+              </div>
+            </div>
           ) : (
             <>
               <div>
@@ -149,7 +152,9 @@ const PersonalSection = () => {
                           personalDetails.moreinfo,
                         ]
                           .filter(Boolean)
-                          .join(", ") || <span className="text-gray-400 text-xs italic"></span>}
+                          .join(", ") || (
+                          <span className="text-gray-400 text-xs italic"></span>
+                        )}
 
                         {![
                           personalDetails.gender,
@@ -293,7 +298,8 @@ const PersonalSection = () => {
                     <strong>Differently Abled</strong>
                     <div className="mt-2">
                       {personalDetails.differentlyAbled ? (
-                        personalDetails.differentlyAbled.toLowerCase() === "yes" ? (
+                        personalDetails.differentlyAbled.toLowerCase() ===
+                        "yes" ? (
                           <>
                             {[
                               personalDetails.differentlyAbled,
@@ -338,21 +344,39 @@ const PersonalSection = () => {
                     <table className="min-w-full divide-y divide-gray-200 text-sm">
                       <thead className="bg-gray-50">
                         <tr>
-                          <th className="px-6 py-3 text-left font-semibold text-gray-700 w-1/3">Language</th>
-                          <th className="px-6 py-3 text-left font-semibold text-gray-700 w-1/4">Proficiency</th>
-                          <th className="px-4 py-3 text-center font-semibold text-gray-700 w-12">Read</th>
-                          <th className="px-4 py-3 text-center font-semibold text-gray-700 w-12">Write</th>
-                          <th className="px-4 py-3 text-center font-semibold text-gray-700 w-12">Speak</th>
-                          <th className="px-6 py-3 text-right font-semibold text-gray-700 w-16">Action</th>
+                          <th className="px-6 py-3 text-left font-semibold text-gray-700 w-1/3">
+                            Language
+                          </th>
+                          <th className="px-6 py-3 text-left font-semibold text-gray-700 w-1/4">
+                            Proficiency
+                          </th>
+                          <th className="px-4 py-3 text-center font-semibold text-gray-700 w-12">
+                            Read
+                          </th>
+                          <th className="px-4 py-3 text-center font-semibold text-gray-700 w-12">
+                            Write
+                          </th>
+                          <th className="px-4 py-3 text-center font-semibold text-gray-700 w-12">
+                            Speak
+                          </th>
+                          <th className="px-6 py-3 text-right font-semibold text-gray-700 w-16">
+                            Action
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
                         {personalDetails.languages.map((lang, index) => {
-                          const matchingDetailsObj = personalDetails.languagesDetails?.[index];
-                          const correctHexId = matchingDetailsObj ? matchingDetailsObj._id : null;
+                          const matchingDetailsObj =
+                            personalDetails.languagesDetails?.[index];
+                          const correctHexId = matchingDetailsObj
+                            ? matchingDetailsObj._id
+                            : null;
 
                           return (
-                            <tr key={index} className="hover:bg-gray-50/70 transition-colors">
+                            <tr
+                              key={index}
+                              className="hover:bg-gray-50/70 transition-colors"
+                            >
                               <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                                 {lang.language_name || lang.language}
                               </td>
@@ -390,7 +414,9 @@ const PersonalSection = () => {
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  onClick={() => openModalRH("languages", correctHexId)}
+                                  onClick={() =>
+                                    openModalRH("languages", correctHexId)
+                                  }
                                   className="h-8 w-8"
                                 >
                                   <Pencil className="h-4 w-4 " />
@@ -404,7 +430,8 @@ const PersonalSection = () => {
                   </div>
                 ) : (
                   <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-4 text-sm text-gray-600">
-                    No languages added yet. Use the button above to add your language proficiency.
+                    No languages added yet. Use the button above to add your
+                    language proficiency.
                   </div>
                 )}
               </div>

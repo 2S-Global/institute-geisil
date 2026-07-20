@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Pencil, Plus } from "lucide-react";
 import API from "../../../lib/axios";
 import KeySkillsModal from "./KeySkillsModal";
-
+import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -70,7 +70,11 @@ const KeySkills = () => {
 
         <CardContent className="pt-2">
           {sectionLoading ? (
-            <p className="text-sm text-muted-foreground">Loading...</p>
+            <div className="flex flex-wrap gap-2 animate-pulse pt-2">
+              {[1, 2, 3, 4].map((i) => (
+                <Skeleton key={i} className="h-9 w-20 rounded-lg bg-muted" />
+              ))}
+            </div>
           ) : keySkills.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {keySkills.map((skill, index) => (
