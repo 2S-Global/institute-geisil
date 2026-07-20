@@ -1,7 +1,1023 @@
+// import React, { useState, useEffect, useMemo } from "react";
+// import { useForm, Controller } from "react-hook-form";
+// import { zodResolver } from "@hookform/resolvers/zod";
+// import * as z from "zod";
+// import * as Dialog from "@radix-ui/react-dialog";
+// import * as RadioGroup from "@radix-ui/react-radio-group";
+// import * as Select from "@radix-ui/react-select";
+// import * as Label from "@radix-ui/react-label";
+// import {
+//   X,
+//   ChevronDown,
+//   Sparkles,
+//   Trash2,
+//   Loader2,
+//   Check,
+//   AlertCircle,
+//   Briefcase
+// } from "lucide-react";
+// import { clsx } from "clsx";
+// import { twMerge } from "tailwind-merge";
+// import API from "../../../lib/axios";
+// import { useDebounce } from "@/hooks/use-debounce";
+// import { Button } from "@/components/ui/button";
+// import { useToast } from "@/hooks/use-toast";
+// import ReactQuill from "react-quill";
+// import "react-quill/dist/quill.snow.css";
+// // Helper definitions for Month and Year select dropdowns
+// const months = [
+//   { value: "1", label: "January" },
+//   { value: "2", label: "February" },
+//   { value: "3", label: "March" },
+//   { value: "4", label: "April" },
+//   { value: "5", label: "May" },
+//   { value: "6", label: "June" },
+//   { value: "7", label: "July" },
+//   { value: "8", label: "August" },
+//   { value: "9", label: "September" },
+//   { value: "10", label: "October" },
+//   { value: "11", label: "November" },
+//   { value: "12", label: "December" },
+// ];
+
+// const years = Array.from({ length: 50 }, (_, i) => {
+//   const y = new Date().getFullYear() - i;
+//   return { value: String(y), label: String(y) };
+// });
+
+// // Utility for Tailwind class merging
+// function cn(...inputs) {
+//   return twMerge(clsx(inputs));
+// }
+
+// // -----------------------------------------------------------------------------
+// // SMART VALIDATION SCHEMA (ZOD)
+// // -----------------------------------------------------------------------------
+// export const employmentSchema = z
+//   .object({
+//     currentlyWorking: z.boolean(),
+//     employmentType: z.enum(["full-time", "part-time", "contract", "internship"]),
+//     companyName: z
+//       .string()
+//       .min(2, "Company name must be at least 2 characters")
+//       .max(100, "Company name is too long"),
+//     jobTitle: z
+//       .string()
+//       .min(2, "Job title must be at least 2 characters")
+//       .max(100, "Job title is too long"),
+//     joiningDate: z
+//       .date({
+//         required_error: "Joining date is required",
+//         invalid_type_error: "Please select a valid joining date",
+//       })
+//       .max(new Date(), "Joining date cannot be in the future"),
+//     leavingDate: z.date().nullable().optional(),
+//     noticePeriod: z.string().optional(),
+//     description: z
+//       .string()
+//       .max(3000, "Description cannot exceed 3000 characters")
+//       .optional(),
+//   })
+//   .superRefine((data, ctx) => {
+//     // Rule 1: Leaving date is required if NOT currently working
+//     if (!data.currentlyWorking && !data.leavingDate) {
+//       ctx.addIssue({
+//         code: z.ZodIssueCode.custom,
+//         message: "Leaving date is required when not currently working",
+//         path: ["leavingDate"],
+//       });
+//     }
+
+//     // Rule 2: Leaving date cannot be in the future
+//     if (!data.currentlyWorking && data.leavingDate && data.leavingDate > new Date()) {
+//       ctx.addIssue({
+//         code: z.ZodIssueCode.custom,
+//         message: "Leaving date cannot be in the future",
+//         path: ["leavingDate"],
+//       });
+//     }
+
+//     // Rule 3: Leaving date must be strictly after Joining date
+//     if (
+//       !data.currentlyWorking &&
+//       data.leavingDate &&
+//       data.joiningDate &&
+//       data.leavingDate < data.joiningDate
+//     ) {
+//       ctx.addIssue({
+//         code: z.ZodIssueCode.custom,
+//         message: "Leaving date cannot be earlier than your joining date",
+//         path: ["leavingDate"],
+//       });
+//     }
+
+//     // Rule 4: Notice period is required if currently working
+//     if (data.currentlyWorking && (!data.noticePeriod || data.noticePeriod.trim() === "")) {
+//       ctx.addIssue({
+//         code: z.ZodIssueCode.custom,
+//         message: "Please select your current notice period",
+//         path: ["noticePeriod"],
+//       });
+//     }
+//   });
+
+// // -----------------------------------------------------------------------------
+// // MAIN COMPONENT
+// // -----------------------------------------------------------------------------
+// export const EmploymentModal = ({
+//   isOpen,
+//   onClose,
+//   onRefresh,
+//   jobId = "",
+//   editData = null,
+// }) => {
+//   const { toast } = useToast();
+
+//   // Component local states for UI feedback and async operations
+//   const [noticePeriodOptions, setNoticePeriodOptions] = useState([]);
+//   const [loadingNoticePeriods, setLoadingNoticePeriods] = useState(false);
+//   const [submitting, setSubmitting] = useState(false);
+//   const [aiLoading, setAiLoading] = useState(false);
+
+//   // Autocomplete dynamic company state
+//   const [defaultOptions, setDefaultOptions] = useState([]);
+//   const [loadingCompanies, setLoadingCompanies] = useState(false);
+//   const [showDropdown, setShowDropdown] = useState(false);
+//   const [isDropdownSelect, setIsDropdownSelect] = useState(false);
+
+//   // React Hook Form setup with Zod validation
+//   const {
+//     control,
+//     handleSubmit,
+//     setValue,
+//     watch,
+//     reset,
+//     formState: { errors },
+//   } = useForm({
+//     resolver: zodResolver(employmentSchema),
+//     defaultValues: {
+//       currentlyWorking: true,
+//       employmentType: "full-time",
+//       companyName: "",
+//       jobTitle: "",
+//       joiningDate: null,
+//       leavingDate: null,
+//       noticePeriod: "",
+//       description: "",
+//     },
+//   });
+
+//   const watchCurrentlyWorking = watch("currentlyWorking");
+//   const watchCompanyName = watch("companyName");
+//   const watchJobTitle = watch("jobTitle");
+//   const watchJoiningDate = watch("joiningDate");
+//   const watchLeavingDate = watch("leavingDate");
+
+//   const debouncedCompanyName = useDebounce(watchCompanyName, 300);
+
+//   // 1. Fetch Notice Period Options on Modal Open
+//   useEffect(() => {
+//     const fetchNoticePeriods = async () => {
+//       setLoadingNoticePeriods(true);
+//       try {
+//         const response = await API.get(
+//           "https://api.geisil.com/api/candidate/employment/get_notice_period"
+//         );
+//         if (response.data.success) {
+//           setNoticePeriodOptions(response.data.data || []);
+//         }
+//       } catch (error) {
+//         console.error("Error fetching notice periods:", error);
+//       } finally {
+//         setLoadingNoticePeriods(false);
+//       }
+//     };
+
+//     if (isOpen) {
+//       fetchNoticePeriods();
+//     }
+//   }, [isOpen]);
+
+//   // 2. Populate / Reset Form Values
+//   useEffect(() => {
+//     if (isOpen && editData && jobId) {
+//       const joinDate =
+//         editData.joining_year && editData.joining_month
+//           ? new Date(
+//             parseInt(editData.joining_year, 10),
+//             parseInt(editData.joining_month, 10) - 1,
+//             1
+//           )
+//           : null;
+
+//       const leaveDate =
+//         editData.leaving_year && editData.leaving_month
+//           ? new Date(
+//             parseInt(editData.leaving_year, 10),
+//             parseInt(editData.leaving_month, 10) - 1,
+//             1
+//           )
+//           : null;
+
+//       setIsDropdownSelect(true);
+//       reset({
+//         currentlyWorking: editData.currentlyWorking ?? true,
+//         employmentType: editData.employmenttype || "full-time",
+//         companyName: editData.company_name || "",
+//         jobTitle: editData.job_title || "",
+//         joiningDate: joinDate,
+//         leavingDate: leaveDate,
+//         noticePeriod: editData.notice_period || "",
+//         description: editData.description || "",
+//       });
+//     } else if (isOpen && !jobId) {
+//       setIsDropdownSelect(false);
+//       reset({
+//         currentlyWorking: true,
+//         employmentType: "full-time",
+//         companyName: "",
+//         jobTitle: "",
+//         joiningDate: null,
+//         leavingDate: null,
+//         noticePeriod: "",
+//         description: "",
+//       });
+//     }
+//   }, [isOpen, editData, jobId, reset]);
+
+//   // 3. Handle Dynamic Company Matching
+//   useEffect(() => {
+//     const fetchMatchingCompanies = async () => {
+//       if (isDropdownSelect || !debouncedCompanyName?.trim()) {
+//         setDefaultOptions([]);
+//         return;
+//       }
+
+//       setLoadingCompanies(true);
+//       try {
+//         const response = await API.get(
+//           "/api/candidate/employment/matching_company",
+//           {
+//             params: { company_name: debouncedCompanyName },
+//           }
+//         );
+
+//         const companies = response.data?.data || [];
+//         setDefaultOptions(
+//           companies.map((name) => ({ value: name, label: name }))
+//         );
+//       } catch (error) {
+//         console.error("Error fetching company options:", error);
+//         setDefaultOptions([]);
+//       } finally {
+//         setLoadingCompanies(false);
+//       }
+//     };
+
+//     fetchMatchingCompanies();
+//   }, [debouncedCompanyName, isDropdownSelect]);
+
+//   // Rich Text Editor Configuration
+//   const quillModules = useMemo(
+//     () => ({
+//       toolbar: [
+//         ["bold", "italic", "underline", "strike"],
+//         [{ list: "ordered" }, { list: "bullet" }],
+//         ["clean"],
+//       ],
+//     }),
+//     []
+//   );
+
+//   const quillFormats = ["bold", "italic", "underline", "strike", "list", "bullet"];
+
+//   // AI Description Generator
+//   const handleAiGeneration = async () => {
+//     if (!watchJobTitle?.trim()) {
+//       toast({
+//         variant: "destructive",
+//         title: "Missing Information",
+//         description: "Please enter a Job Title first so the AI knows what to generate!",
+//       });
+//       return;
+//     }
+
+//     setAiLoading(true);
+//     try {
+//       const response = await API.post(
+//         "/api/candidate/employment/generate_description",
+//         {
+//           job_title: watchJobTitle,
+//           company_name: watchCompanyName || "",
+//         }
+//       );
+
+//       if (response.data.success && response.data.description) {
+//         setValue("description", response.data.description, { shouldValidate: true });
+//         toast({
+//           title: "AI Generation Complete",
+//           description: "Job description updated successfully!",
+//         });
+//       } else {
+//         throw new Error("Invalid response format");
+//       }
+//     } catch (error) {
+//       const fallbackText = `<ul><li>Managed daily operations and core responsibilities as a <strong>${watchJobTitle}</strong> at ${watchCompanyName || "the company"}.</li><li>Collaborated with cross-functional teams to identify strategic goals and optimize workflow production.</li><li>Solved complex technical problems and executed critical project deliveries under tight timelines.</li></ul>`;
+//       setValue("description", fallbackText, { shouldValidate: true });
+//       toast({
+//         title: "Template Generated",
+//         description: "We inserted a structured template to help you get started.",
+//       });
+//     } finally {
+//       setAiLoading(false);
+//     }
+//   };
+
+//   // Calculate experience in years and months automatically
+//   const calculateExperience = (startDate, endDate, isCurrent) => {
+//     if (!startDate) return { yr: "", mnth: "" };
+
+//     const startYear = startDate.getFullYear();
+//     const startMonth = startDate.getMonth() + 1;
+
+//     let endYear = new Date().getFullYear();
+//     let endMonth = new Date().getMonth() + 1;
+
+//     if (!isCurrent && endDate) {
+//       endYear = endDate.getFullYear();
+//       endMonth = endDate.getMonth() + 1;
+//     }
+
+//     const totalMonths = (endYear - startYear) * 12 + (endMonth - startMonth);
+//     if (totalMonths >= 0) {
+//       return {
+//         yr: String(Math.floor(totalMonths / 12)),
+//         mnth: String(totalMonths % 12),
+//       };
+//     }
+//     return { yr: "0", mnth: "0" };
+//   };
+
+//   // Form Submission Handler
+//   const onSubmit = async (data) => {
+//     setSubmitting(true);
+
+//     const { yr, mnth } = calculateExperience(
+//       data.joiningDate,
+//       data.leavingDate,
+//       data.currentlyWorking
+//     );
+
+//     const payload = {
+//       _id: jobId || "",
+//       company_name: data.companyName,
+//       currentlyWorking: data.currentlyWorking,
+//       employmenttype: data.employmentType,
+//       job_title: data.jobTitle,
+//       joining_month: data.joiningDate ? String(data.joiningDate.getMonth() + 1) : "",
+//       joining_year: data.joiningDate ? String(data.joiningDate.getFullYear()) : "",
+//       leaving_month: !data.currentlyWorking && data.leavingDate ? String(data.leavingDate.getMonth() + 1) : "",
+//       leaving_year: !data.currentlyWorking && data.leavingDate ? String(data.leavingDate.getFullYear()) : "",
+//       description: data.description || "",
+//       notice_period: data.currentlyWorking ? data.noticePeriod : "",
+//       experience_month: mnth,
+//       experience_yr: yr,
+//     };
+
+//     try {
+//       const response = jobId
+//         ? await API.put("/api/candidate/employment/edit_employment", payload)
+//         : await API.post("/api/candidate/employment/add_employment", payload);
+
+//       if (response.data.success) {
+//         toast({
+//           title: "Success",
+//           description: response.data.message || "Employment saved successfully!",
+//         });
+//         if (onRefresh) onRefresh();
+//         onClose();
+//       } else {
+//         toast({
+//           variant: "destructive",
+//           title: "Error",
+//           description: response.data.message || "Something went wrong.",
+//         });
+//       }
+//     } catch (error) {
+//       toast({
+//         variant: "destructive",
+//         title: "Submission Failed",
+//         description: error.response?.data?.message || "Failed to save employment record.",
+//       });
+//     } finally {
+//       setSubmitting(false);
+//     }
+//   };
+
+//   // Handle Record Deletion
+//   const handleDelete = async () => {
+//     try {
+//       const response = await API.delete(
+//         "/api/candidate/employment/delete_employment",
+//         { data: { _id: jobId } }
+//       );
+//       if (response.data.success) {
+//         toast({
+//           title: "Deleted",
+//           description: response.data.message || "Employment entry removed.",
+//         });
+//         if (onRefresh) onRefresh();
+//         onClose();
+//       } else {
+//         toast({
+//           variant: "destructive",
+//           title: "Error",
+//           description: response.data.message || "Failed to delete entry.",
+//         });
+//       }
+//     } catch (error) {
+//       toast({
+//         variant: "destructive",
+//         title: "Deletion Failed",
+//         description: error.response?.data?.message || "Error processing delete request.",
+//       });
+//     }
+//   };
+
+//   return (
+//     <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
+//       <Dialog.Portal>
+//         {/* Animated Backdrop Blur */}
+//         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+
+//         {/* Modal Container */}
+//         <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-xl translate-x-[-50%] translate-y-[-50%] rounded-xl bg-white p-0 shadow-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] overflow-hidden border border-slate-100 font-sans">
+
+//           {/* Header */}
+//           <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4.5 bg-slate-50/50">
+//             <div className="flex m-4 items-center space-x-2.5">
+//               <div className="p-2 bg-[#122B5F]/10 text-[#122B5F] rounded-lg">
+//                 <Briefcase className="w-5 h-5" />
+//               </div>
+//               <div>
+//                 <Dialog.Title className="text-base font-semibold text-slate-900">
+//                   {jobId ? "Edit Employment" : "Add Employment"}
+//                 </Dialog.Title>
+//                 <Dialog.Description className="text-xs text-slate-500">
+//                   Share your career journey and achievements with employers.
+//                 </Dialog.Description>
+//               </div>
+//             </div>
+
+//             <div className="flex items-center space-x-2">
+//               {jobId && (
+//                 <button
+//                   type="button"
+//                   onClick={() => {
+//                     if (window.confirm("Are you sure you want to delete this record?")) {
+//                       handleDelete();
+//                     }
+//                   }}
+//                   className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+//                   title="Delete Entry"
+//                 >
+//                   <Trash2 className="w-4 h-4" />
+//                 </button>
+//               )}
+//               <Dialog.Close asChild>
+//                 <button
+//                   type="button"
+//                   className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+//                 >
+//                   <X className="w-5 h-5" />
+//                 </button>
+//               </Dialog.Close>
+//             </div>
+//           </div>
+
+//           {/* Form Content */}
+//           <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-5 max-h-[calc(85vh-130px)] overflow-y-auto">
+
+//             {/* Row 1: Current Working Status */}
+//             <div className="space-y-2">
+//               <Label.Root className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+//                 Is this your current employment? <span className="text-red-500">*</span>
+//               </Label.Root>
+//               <Controller
+//                 name="currentlyWorking"
+//                 control={control}
+//                 render={({ field }) => (
+//                   <RadioGroup.Root
+//                     value={field.value ? "yes" : "no"}
+//                     onValueChange={(val) => {
+//                       const isCurrent = val === "yes";
+//                       field.onChange(isCurrent);
+//                       if (isCurrent) setValue("leavingDate", null);
+//                     }}
+//                     className="flex items-center space-x-4 pt-1"
+//                   >
+//                     <div className="flex items-center space-x-2">
+//                       <RadioGroup.Item
+//                         value="yes"
+//                         id="work-yes"
+//                         className="w-4 h-4 rounded-full border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#122B5F] focus:ring-offset-2 data-[state=checked]:border-[#122B5F] data-[state=checked]:bg-[#122B5F] flex items-center justify-center transition-all"
+//                       >
+//                         <RadioGroup.Indicator className="w-1.5 h-1.5 rounded-full bg-white" />
+//                       </RadioGroup.Item>
+//                       <Label.Root htmlFor="work-yes" className="text-sm font-medium text-slate-700 cursor-pointer">
+//                         Yes
+//                       </Label.Root>
+//                     </div>
+
+//                     <div className="flex items-center space-x-2">
+//                       <RadioGroup.Item
+//                         value="no"
+//                         id="work-no"
+//                         className="w-4 h-4 rounded-full border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#122B5F] focus:ring-offset-2 data-[state=checked]:border-[#122B5F] data-[state=checked]:bg-[#122B5F] flex items-center justify-center transition-all"
+//                       >
+//                         <RadioGroup.Indicator className="w-1.5 h-1.5 rounded-full bg-white" />
+//                       </RadioGroup.Item>
+//                       <Label.Root htmlFor="work-no" className="text-sm font-medium text-slate-700 cursor-pointer">
+//                         No
+//                       </Label.Root>
+//                     </div>
+//                   </RadioGroup.Root>
+//                 )}
+//               />
+//             </div>
+
+//             {/* Row 2: Employment Type */}
+//             <div className="space-y-2">
+//               <Label.Root className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+//                 Employment Type <span className="text-red-500">*</span>
+//               </Label.Root>
+//               <Controller
+//                 name="employmentType"
+//                 control={control}
+//                 render={({ field }) => (
+//                   <RadioGroup.Root
+//                     value={field.value}
+//                     onValueChange={field.onChange}
+//                     className="flex flex-wrap gap-4 pt-1"
+//                   >
+//                     {[
+//                       { id: "full-time", label: "Full Time" },
+//                       { id: "part-time", label: "Part Time" },
+//                       { id: "contract", label: "Contract" },
+//                       { id: "internship", label: "Internship" },
+//                     ].map((type) => (
+//                       <div key={type.id} className="flex items-center space-x-2">
+//                         <RadioGroup.Item
+//                           value={type.id}
+//                           id={type.id}
+//                           className="w-4 h-4 rounded-full border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#122B5F] focus:ring-offset-2 data-[state=checked]:border-[#122B5F] data-[state=checked]:bg-[#122B5F] flex items-center justify-center transition-all"
+//                         >
+//                           <RadioGroup.Indicator className="w-1.5 h-1.5 rounded-full bg-white" />
+//                         </RadioGroup.Item>
+//                         <Label.Root htmlFor={type.id} className="text-sm font-medium text-slate-700 cursor-pointer">
+//                           {type.label}
+//                         </Label.Root>
+//                       </div>
+//                     ))}
+//                   </RadioGroup.Root>
+//                 )}
+//               />
+//             </div>
+
+//             {/* Row 3: Company Name with Autocomplete */}
+//             <div className="space-y-1 relative">
+//               <Label.Root className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+//                 Company Name <span className="text-red-500">*</span>
+//               </Label.Root>
+//               <Controller
+//                 name="companyName"
+//                 control={control}
+//                 render={({ field }) => (
+//                   <div className="relative">
+//                     <input
+//                       {...field}
+//                       type="text"
+//                       placeholder="e.g. Google, Microsoft, Acme Corp"
+//                       autoComplete="off"
+//                       onChange={(e) => {
+//                         field.onChange(e);
+//                         setIsDropdownSelect(false);
+//                         setShowDropdown(e.target.value.trim() !== "");
+//                       }}
+//                       onFocus={() => {
+//                         if (field.value.trim() !== "") setShowDropdown(true);
+//                       }}
+//                       onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+//                       className={cn(
+//                         "w-full bg-slate-50 text-sm text-slate-800 placeholder-slate-400 rounded-lg px-3.5 py-2.5 pr-10 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 transition-all",
+//                         errors.companyName && "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+//                       )}
+//                     />
+//                     <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-400 space-x-1">
+//                       {loadingCompanies ? (
+//                         <Loader2 className="w-4 h-4 animate-spin text-[#122B5F]" />
+//                       ) : (
+//                         <ChevronDown className="w-4 h-4" />
+//                       )}
+//                     </div>
+//                   </div>
+//                 )}
+//               />
+//               {errors.companyName && (
+//                 <p className="flex items-center text-xs text-red-600 mt-1">
+//                   <AlertCircle className="w-3.5 h-3.5 mr-1 flex-shrink-0" />
+//                   {errors.companyName.message}
+//                 </p>
+//               )}
+
+//               {/* Dynamic Dropdown List */}
+//               {showDropdown && defaultOptions.length > 0 && (
+//                 <ul className="absolute left-0 right-0 top-full mt-1 max-h-52 overflow-y-auto bg-white border border-slate-200 rounded-lg shadow-xl z-50 divide-y divide-slate-100 py-1">
+//                   {defaultOptions.map((option, index) => (
+//                     <li
+//                       key={index}
+//                       onMouseDown={() => {
+//                         setValue("companyName", option.value, { shouldValidate: true });
+//                         setIsDropdownSelect(true);
+//                         setShowDropdown(false);
+//                       }}
+//                       className="px-3.5 py-2.5 text-sm text-slate-700 hover:bg-[#122B5F]/5 hover:text-[#122B5F] cursor-pointer flex items-center justify-between transition-colors"
+//                     >
+//                       <span>{option.label}</span>
+//                       {watchCompanyName === option.value && <Check className="w-4 h-4 text-[#122B5F]" />}
+//                     </li>
+//                   ))}
+//                 </ul>
+//               )}
+//             </div>
+
+//             {/* Row 4: Job Title */}
+//             <div className="space-y-1">
+//               <Label.Root className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+//                 Job Title <span className="text-red-500">*</span>
+//               </Label.Root>
+//               <Controller
+//                 name="jobTitle"
+//                 control={control}
+//                 render={({ field }) => (
+//                   <input
+//                     {...field}
+//                     type="text"
+//                     placeholder="e.g. Senior Frontend Developer"
+//                     className={cn(
+//                       "w-full bg-slate-50 text-sm text-slate-800 placeholder-slate-400 rounded-lg px-3.5 py-2.5 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 transition-all",
+//                       errors.jobTitle && "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+//                     )}
+//                   />
+//                 )}
+//               />
+//               {errors.jobTitle && (
+//                 <p className="flex items-center text-xs text-red-600 mt-1">
+//                   <AlertCircle className="w-3.5 h-3.5 mr-1 flex-shrink-0" />
+//                   {errors.jobTitle.message}
+//                 </p>
+//               )}
+//             </div>
+
+//             {/* Row 5: Dates and Notice Period Grid */}
+//             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+//               {/* Joining Date */}
+//               <div className="space-y-1">
+//                 <Label.Root className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+//                   Joining Date <span className="text-red-500">*</span>
+//                 </Label.Root>
+//                 <div className="grid grid-cols-2 gap-2">
+//                   {/* Joining Month Select */}
+//                   <Select.Root
+//                     value={watchJoiningDate ? String(watchJoiningDate.getMonth() + 1) : ""}
+//                     onValueChange={(monthStr) => {
+//                       const month = parseInt(monthStr, 10);
+//                       const currentYear = watchJoiningDate ? watchJoiningDate.getFullYear() : new Date().getFullYear();
+//                       setValue("joiningDate", new Date(currentYear, month - 1, 1), { shouldValidate: true });
+//                     }}
+//                   >
+//                     <Select.Trigger
+//                       className={cn(
+//                         "flex items-center justify-between w-full bg-slate-50 text-sm text-slate-800 rounded-lg px-3 py-2 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 transition-all h-[42px]",
+//                         errors.joiningDate && "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+//                         !watchJoiningDate && "text-slate-400"
+//                       )}
+//                     >
+//                       <Select.Value placeholder="Month" />
+//                       <Select.Icon>
+//                         <ChevronDown className="w-4 h-4 text-slate-400" />
+//                       </Select.Icon>
+//                     </Select.Trigger>
+//                     <Select.Portal>
+//                       <Select.Content position="popper" sideOffset={4} className="bg-white rounded-lg shadow-xl border border-slate-200 z-50 max-h-60 overflow-y-auto animate-in fade-in-80 w-[var(--radix-select-trigger-width)]">
+//                         <Select.Viewport className="p-1">
+//                           {months.map((m) => (
+//                             <Select.Item
+//                               key={m.value}
+//                               value={m.value}
+//                               className="relative flex items-center px-8 py-2 text-sm text-slate-700 rounded-md select-none hover:bg-[#122B5F]/5 hover:text-[#122B5F] focus:bg-[#122B5F]/5 focus:text-[#122B5F] focus:outline-none cursor-pointer"
+//                             >
+//                               <Select.ItemText>{m.label}</Select.ItemText>
+//                               <Select.ItemIndicator className="absolute left-2.5 inline-flex items-center justify-center">
+//                                 <Check className="w-4 h-4 text-[#122B5F]" />
+//                               </Select.ItemIndicator>
+//                             </Select.Item>
+//                           ))}
+//                         </Select.Viewport>
+//                       </Select.Content>
+//                     </Select.Portal>
+//                   </Select.Root>
+
+//                   {/* Joining Year Select */}
+//                   <Select.Root
+//                     value={watchJoiningDate ? String(watchJoiningDate.getFullYear()) : ""}
+//                     onValueChange={(yearStr) => {
+//                       const year = parseInt(yearStr, 10);
+//                       const currentMonth = watchJoiningDate ? watchJoiningDate.getMonth() : 0;
+//                       setValue("joiningDate", new Date(year, currentMonth, 1), { shouldValidate: true });
+//                     }}
+//                   >
+//                     <Select.Trigger
+//                       className={cn(
+//                         "flex items-center justify-between w-full bg-slate-50 text-sm text-slate-800 rounded-lg px-3 py-2 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 transition-all h-[42px]",
+//                         errors.joiningDate && "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+//                         !watchJoiningDate && "text-slate-400"
+//                       )}
+//                     >
+//                       <Select.Value placeholder="Year" />
+//                       <Select.Icon>
+//                         <ChevronDown className="w-4 h-4 text-slate-400" />
+//                       </Select.Icon>
+//                     </Select.Trigger>
+//                     <Select.Portal>
+//                       <Select.Content position="popper" sideOffset={4} className="bg-white rounded-lg shadow-xl border border-slate-200 z-50 max-h-60 overflow-y-auto animate-in fade-in-80 w-[var(--radix-select-trigger-width)]">
+//                         <Select.Viewport className="p-1">
+//                           {years.map((y) => (
+//                             <Select.Item
+//                               key={y.value}
+//                               value={y.value}
+//                               className="relative flex items-center px-8 py-2 text-sm text-slate-700 rounded-md select-none hover:bg-[#122B5F]/5 hover:text-[#122B5F] focus:bg-[#122B5F]/5 focus:text-[#122B5F] focus:outline-none cursor-pointer"
+//                             >
+//                               <Select.ItemText>{y.label}</Select.ItemText>
+//                               <Select.ItemIndicator className="absolute left-2.5 inline-flex items-center justify-center">
+//                                 <Check className="w-4 h-4 text-[#122B5F]" />
+//                               </Select.ItemIndicator>
+//                             </Select.Item>
+//                           ))}
+//                         </Select.Viewport>
+//                       </Select.Content>
+//                     </Select.Portal>
+//                   </Select.Root>
+//                 </div>
+//                 {errors.joiningDate && (
+//                   <p className="flex items-center text-xs text-red-600 mt-1">
+//                     <AlertCircle className="w-3.5 h-3.5 mr-1 flex-shrink-0" />
+//                     {errors.joiningDate.message}
+//                   </p>
+//                 )}
+//               </div>
+
+//               {/* Conditional Leaving Date vs Notice Period */}
+//               {!watchCurrentlyWorking ? (
+//                 <div className="space-y-1">
+//                   <Label.Root className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+//                     Leaving Date <span className="text-red-500">*</span>
+//                   </Label.Root>
+//                   <div className="grid grid-cols-2 gap-2">
+//                     {/* Leaving Month Select */}
+//                     <Select.Root
+//                       value={watchLeavingDate ? String(watchLeavingDate.getMonth() + 1) : ""}
+//                       onValueChange={(monthStr) => {
+//                         const month = parseInt(monthStr, 10);
+//                         const currentYear = watchLeavingDate ? watchLeavingDate.getFullYear() : new Date().getFullYear();
+//                         setValue("leavingDate", new Date(currentYear, month - 1, 1), { shouldValidate: true });
+//                       }}
+//                     >
+//                       <Select.Trigger
+//                         className={cn(
+//                           "flex items-center justify-between w-full bg-slate-50 text-sm text-slate-800 rounded-lg px-3 py-2 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 transition-all h-[42px]",
+//                           errors.leavingDate && "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+//                           !watchLeavingDate && "text-slate-400"
+//                         )}
+//                       >
+//                         <Select.Value placeholder="Month" />
+//                         <Select.Icon>
+//                           <ChevronDown className="w-4 h-4 text-slate-400" />
+//                         </Select.Icon>
+//                       </Select.Trigger>
+//                       <Select.Portal>
+//                         <Select.Content position="popper" sideOffset={4} className="bg-white rounded-lg shadow-xl border border-slate-200 z-50 max-h-60 overflow-y-auto animate-in fade-in-80 w-[var(--radix-select-trigger-width)]">
+//                           <Select.Viewport className="p-1">
+//                             {months.map((m) => (
+//                               <Select.Item
+//                                 key={m.value}
+//                                 value={m.value}
+//                                 className="relative flex items-center px-8 py-2 text-sm text-slate-700 rounded-md select-none hover:bg-[#122B5F]/5 hover:text-[#122B5F] focus:bg-[#122B5F]/5 focus:text-[#122B5F] focus:outline-none cursor-pointer"
+//                               >
+//                                 <Select.ItemText>{m.label}</Select.ItemText>
+//                                 <Select.ItemIndicator className="absolute left-2.5 inline-flex items-center justify-center">
+//                                   <Check className="w-4 h-4 text-[#122B5F]" />
+//                                 </Select.ItemIndicator>
+//                               </Select.Item>
+//                             ))}
+//                           </Select.Viewport>
+//                         </Select.Content>
+//                       </Select.Portal>
+//                     </Select.Root>
+
+//                     {/* Leaving Year Select */}
+//                     <Select.Root
+//                       value={watchLeavingDate ? String(watchLeavingDate.getFullYear()) : ""}
+//                       onValueChange={(yearStr) => {
+//                         const year = parseInt(yearStr, 10);
+//                         const currentMonth = watchLeavingDate ? watchLeavingDate.getMonth() : 0;
+//                         setValue("leavingDate", new Date(year, currentMonth, 1), { shouldValidate: true });
+//                       }}
+//                     >
+//                       <Select.Trigger
+//                         className={cn(
+//                           "flex items-center justify-between w-full bg-slate-50 text-sm text-slate-800 rounded-lg px-3 py-2 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 transition-all h-[42px]",
+//                           errors.leavingDate && "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+//                           !watchLeavingDate && "text-slate-400"
+//                         )}
+//                       >
+//                         <Select.Value placeholder="Year" />
+//                         <Select.Icon>
+//                           <ChevronDown className="w-4 h-4 text-slate-400" />
+//                         </Select.Icon>
+//                       </Select.Trigger>
+//                       <Select.Portal>
+//                         <Select.Content position="popper" sideOffset={4} className="bg-white rounded-lg shadow-xl border border-slate-200 z-50 max-h-60 overflow-y-auto animate-in fade-in-80 w-[var(--radix-select-trigger-width)]">
+//                           <Select.Viewport className="p-1">
+//                             {years.map((y) => (
+//                               <Select.Item
+//                                 key={y.value}
+//                                 value={y.value}
+//                                 className="relative flex items-center px-8 py-2 text-sm text-slate-700 rounded-md select-none hover:bg-[#122B5F]/5 hover:text-[#122B5F] focus:bg-[#122B5F]/5 focus:text-[#122B5F] focus:outline-none cursor-pointer"
+//                               >
+//                                 <Select.ItemText>{y.label}</Select.ItemText>
+//                                 <Select.ItemIndicator className="absolute left-2.5 inline-flex items-center justify-center">
+//                                   <Check className="w-4 h-4 text-[#122B5F]" />
+//                                 </Select.ItemIndicator>
+//                               </Select.Item>
+//                             ))}
+//                           </Select.Viewport>
+//                         </Select.Content>
+//                       </Select.Portal>
+//                     </Select.Root>
+//                   </div>
+//                   {errors.leavingDate && (
+//                     <p className="flex items-center text-xs text-red-600 mt-1">
+//                       <AlertCircle className="w-3.5 h-3.5 mr-1 flex-shrink-0" />
+//                       {errors.leavingDate.message}
+//                     </p>
+//                   )}
+//                 </div>
+//               ) : (
+//                 <div className="space-y-1">
+//                   <Label.Root className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+//                     Notice Period <span className="text-red-500">*</span>
+//                   </Label.Root>
+//                   <Controller
+//                     name="noticePeriod"
+//                     control={control}
+//                     render={({ field }) => (
+//                       <Select.Root
+//                         value={field.value}
+//                         onValueChange={field.onChange}
+//                         disabled={loadingNoticePeriods}
+//                       >
+//                         <Select.Trigger
+//                           className={cn(
+//                             "flex items-center justify-between w-full bg-slate-50 text-sm text-slate-800 rounded-lg px-3.5 py-2.5 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 disabled:opacity-60 transition-all h-[42px]",
+//                             errors.noticePeriod && "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+//                             !field.value && "text-slate-400"
+//                           )}
+//                         >
+//                           <Select.Value placeholder={loadingNoticePeriods ? "Loading..." : "Select notice period"} />
+//                           <Select.Icon>
+//                             {loadingNoticePeriods ? (
+//                               <Loader2 className="w-4 h-4 animate-spin text-[#122B5F]" />
+//                             ) : (
+//                               <ChevronDown className="w-4 h-4 text-slate-400" />
+//                             )}
+//                           </Select.Icon>
+//                         </Select.Trigger>
+
+//                         <Select.Portal>
+//                           <Select.Content className="overflow-hidden bg-white rounded-lg shadow-xl border border-slate-200 z-50 animate-in fade-in-80">
+//                             <Select.Viewport className="p-1">
+//                               {noticePeriodOptions.map((opt) => (
+//                                 <Select.Item
+//                                   key={opt._id || opt.id}
+//                                   value={String(opt.id || opt._id)}
+//                                   className="relative flex items-center px-8 py-2 text-sm text-slate-700 rounded-md select-none hover:bg-[#122B5F]/5 hover:text-[#122B5F] focus:bg-[#122B5F]/5 focus:text-[#122B5F] focus:outline-none cursor-pointer"
+//                                 >
+//                                   <Select.ItemText>{opt.name}</Select.ItemText>
+//                                   <Select.ItemIndicator className="absolute left-2.5 inline-flex items-center justify-center">
+//                                     <Check className="w-4 h-4 text-[#122B5F]" />
+//                                   </Select.ItemIndicator>
+//                                 </Select.Item>
+//                               ))}
+//                             </Select.Viewport>
+//                           </Select.Content>
+//                         </Select.Portal>
+//                       </Select.Root>
+//                     )}
+//                   />
+//                   {errors.noticePeriod && (
+//                     <p className="flex items-center text-xs text-red-600 mt-1">
+//                       <AlertCircle className="w-3.5 h-3.5 mr-1 flex-shrink-0" />
+//                       {errors.noticePeriod.message}
+//                     </p>
+//                   )}
+//                 </div>
+//               )}
+//             </div>
+
+//             {/* Row 6: Job Profile Rich Editor */}
+//             <div className="space-y-2">
+//               <div className="flex items-center justify-between">
+//                 <Label.Root className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+//                   Job Profile Description
+//                 </Label.Root>
+
+//                 {/* AI Shimmer Generator Button */}
+//                 <button
+//                   type="button"
+//                   onClick={handleAiGeneration}
+//                   disabled={aiLoading}
+//                   className="inline-flex items-center space-x-1.5 px-3 py-1 bg-gradient-to-r from-[#122B5F]/5 to-[#122B5F]/10 hover:from-[#122B5F]/10 hover:to-[#122B5F]/15 text-[#122B5F] border border-[#122B5F]/20 rounded-full text-xs font-semibold shadow-sm transition-all disabled:opacity-60 group"
+//                 >
+//                   {aiLoading ? (
+//                     <Loader2 className="w-3.5 h-3.5 animate-spin text-[#122B5F]" />
+//                   ) : (
+//                     <Sparkles className="w-3.5 h-3.5 text-[#122B5F] group-hover:scale-110 transition-transform" />
+//                   )}
+//                   <span>{aiLoading ? "Writing for you..." : "Help me write with AI"}</span>
+//                 </button>
+//               </div>
+
+//               <Controller
+//                 name="description"
+//                 control={control}
+//                 render={({ field }) => (
+//                   <div className={cn(
+//                     "border border-slate-200 rounded-lg overflow-hidden bg-white focus-within:border-[#122B5F] focus-within:ring-2 focus-within:ring-[#122B5F]/20 transition-all",
+//                     errors.description && "border-red-500"
+//                   )}>
+//                     <ReactQuill
+//                       theme="snow"
+//                       value={field.value}
+//                       onChange={field.onChange}
+//                       modules={quillModules}
+//                       formats={quillFormats}
+//                       placeholder="Outline your core responsibilities, key projects, and measurable achievements..."
+//                       className="[&_.ql-toolbar]:bg-slate-50/80 [&_.ql-toolbar]:border-none [&_.ql-toolbar]:border-b [&_.ql-toolbar]:border-slate-200 [&_.ql-container]:border-none [&_.ql-editor]:min-h-[140px] [&_.ql-editor]:text-sm [&_.ql-editor]:text-slate-700"
+//                     />
+//                   </div>
+//                 )}
+//               />
+//               {errors.description && (
+//                 <p className="flex items-center text-xs text-red-600 mt-1">
+//                   <AlertCircle className="w-3.5 h-3.5 mr-1 flex-shrink-0" />
+//                   {errors.description.message}
+//                 </p>
+//               )}
+//             </div>
+
+//             {/* Footer Actions */}
+//             <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100">
+//               <Button
+//                 type="button"
+//                 variant="outline"
+//                 onClick={onClose}
+//                 disabled={submitting}
+//                 className="px-5 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 rounded-lg transition-colors"
+//               >
+//                 Cancel
+//               </Button>
+//               <Button
+//                 type="submit"
+//                 disabled={submitting}
+//                 className="inline-flex items-center px-6 py-2 text-sm font-medium text-white bg-[#122B5F] hover:bg-[#122B5F]/90 active:bg-[#122B5F] rounded-lg shadow-sm shadow-[#122B5F]/20 disabled:opacity-60 transition-all"
+//               >
+//                 {submitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+//                 {submitting ? "Saving..." : jobId ? "Update Record" : "Save Employment"}
+//               </Button>
+//             </div>
+//           </form>
+//         </Dialog.Content>
+//       </Dialog.Portal>
+//     </Dialog.Root>
+//   );
+// };
+
+// export default EmploymentModal;
+
 import React, { useState, useEffect, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as RadioGroup from "@radix-ui/react-radio-group";
 import * as Select from "@radix-ui/react-select";
@@ -14,7 +1030,7 @@ import {
   Loader2,
   Check,
   AlertCircle,
-  Briefcase
+  Briefcase,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -24,102 +1040,32 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-// Helper definitions for Month and Year select dropdowns
-const months = [
-  { value: "1", label: "January" },
-  { value: "2", label: "February" },
-  { value: "3", label: "March" },
-  { value: "4", label: "April" },
-  { value: "5", label: "May" },
-  { value: "6", label: "June" },
-  { value: "7", label: "July" },
-  { value: "8", label: "August" },
-  { value: "9", label: "September" },
-  { value: "10", label: "October" },
-  { value: "11", label: "November" },
-  { value: "12", label: "December" },
+
+// Helper definitions for Month dropdown
+const monthNames = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
-const years = Array.from({ length: 50 }, (_, i) => {
-  const y = new Date().getFullYear() - i;
-  return { value: String(y), label: String(y) };
-});
+const months = monthNames.map((name, index) => ({
+  value: String(index + 1),
+  label: name,
+}));
 
 // Utility for Tailwind class merging
 function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
-
-// -----------------------------------------------------------------------------
-// SMART VALIDATION SCHEMA (ZOD)
-// -----------------------------------------------------------------------------
-export const employmentSchema = z
-  .object({
-    currentlyWorking: z.boolean(),
-    employmentType: z.enum(["full-time", "part-time", "contract", "internship"]),
-    companyName: z
-      .string()
-      .min(2, "Company name must be at least 2 characters")
-      .max(100, "Company name is too long"),
-    jobTitle: z
-      .string()
-      .min(2, "Job title must be at least 2 characters")
-      .max(100, "Job title is too long"),
-    joiningDate: z
-      .date({
-        required_error: "Joining date is required",
-        invalid_type_error: "Please select a valid joining date",
-      })
-      .max(new Date(), "Joining date cannot be in the future"),
-    leavingDate: z.date().nullable().optional(),
-    noticePeriod: z.string().optional(),
-    description: z
-      .string()
-      .max(3000, "Description cannot exceed 3000 characters")
-      .optional(),
-  })
-  .superRefine((data, ctx) => {
-    // Rule 1: Leaving date is required if NOT currently working
-    if (!data.currentlyWorking && !data.leavingDate) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Leaving date is required when not currently working",
-        path: ["leavingDate"],
-      });
-    }
-
-    // Rule 2: Leaving date cannot be in the future
-    if (!data.currentlyWorking && data.leavingDate && data.leavingDate > new Date()) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Leaving date cannot be in the future",
-        path: ["leavingDate"],
-      });
-    }
-
-    // Rule 3: Leaving date must be strictly after Joining date
-    if (
-      !data.currentlyWorking &&
-      data.leavingDate &&
-      data.joiningDate &&
-      data.leavingDate < data.joiningDate
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Leaving date cannot be earlier than your joining date",
-        path: ["leavingDate"],
-      });
-    }
-
-    // Rule 4: Notice period is required if currently working
-    if (data.currentlyWorking && (!data.noticePeriod || data.noticePeriod.trim() === "")) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Please select your current notice period",
-        path: ["noticePeriod"],
-      });
-    }
-  });
 
 // -----------------------------------------------------------------------------
 // MAIN COMPONENT
@@ -130,10 +1076,12 @@ export const EmploymentModal = ({
   onRefresh,
   jobId = "",
   editData = null,
+  profiles = [],
 }) => {
   const { toast } = useToast();
+  const currentYear = new Date().getFullYear();
 
-  // Component local states for UI feedback and async operations
+  // Local states
   const [noticePeriodOptions, setNoticePeriodOptions] = useState([]);
   const [loadingNoticePeriods, setLoadingNoticePeriods] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -145,7 +1093,7 @@ export const EmploymentModal = ({
   const [showDropdown, setShowDropdown] = useState(false);
   const [isDropdownSelect, setIsDropdownSelect] = useState(false);
 
-  // React Hook Form setup with Zod validation
+  // React Hook Form setup
   const {
     control,
     handleSubmit,
@@ -154,7 +1102,6 @@ export const EmploymentModal = ({
     reset,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(employmentSchema),
     defaultValues: {
       currentlyWorking: true,
       employmentType: "full-time",
@@ -175,13 +1122,123 @@ export const EmploymentModal = ({
 
   const debouncedCompanyName = useDebounce(watchCompanyName, 300);
 
-  // 1. Fetch Notice Period Options on Modal Open
+  // Sorting profiles array using custom priority logic
+  const sortedProfiles = useMemo(() => {
+    if (!profiles || !Array.isArray(profiles)) return [];
+    return [...profiles].sort((a, b) => {
+      const isPresentA = !!(
+        a.currentlyWorking ||
+        (!a.durationTo?.year && !a.toYear)
+      );
+      const isPresentB = !!(
+        b.currentlyWorking ||
+        (!b.durationTo?.year && !b.toYear)
+      );
+
+      if (isPresentA && !isPresentB) return -1;
+      if (!isPresentA && isPresentB) return 1;
+
+      const yearA = Number(
+        a.durationFrom?.year || a.year || a.joining_year || 0,
+      );
+      const yearB = Number(
+        b.durationFrom?.year || b.year || b.joining_year || 0,
+      );
+
+      if (yearB !== yearA) {
+        return yearB - yearA;
+      }
+
+      const monthIdA = Number(
+        a.durationFrom?.month_id || a.month_id || a.joining_month || 0,
+      );
+      const monthIdB = Number(
+        b.durationFrom?.month_id || b.month_id || b.joining_month || 0,
+      );
+
+      return monthIdB - monthIdA;
+    });
+  }, [profiles]);
+
+  // 1. Joining Years List (allows up to 50 years back)
+  const joiningYears = useMemo(() => {
+    return Array.from({ length: 50 }, (_, i) => {
+      const y = currentYear - i;
+      return { value: String(y), label: String(y) };
+    });
+  }, [currentYear]);
+
+  // 2. Leaving Years List (FILTERED to hide years earlier than Joining Year)
+  const leavingYears = useMemo(() => {
+    const fromYear = watchJoiningDate ? watchJoiningDate.getFullYear() : null;
+    return Array.from({ length: 50 }, (_, i) => currentYear - i)
+      .filter((yr) => !fromYear || yr >= fromYear)
+      .map((yr) => ({ value: String(yr), label: String(yr) }));
+  }, [watchJoiningDate, currentYear]);
+
+  // 3. Leaving Months List (FILTERED to hide months earlier than Joining Month if same year)
+  const leavingMonths = useMemo(() => {
+    if (!watchJoiningDate || !watchLeavingDate) return months;
+
+    const fromYear = watchJoiningDate.getFullYear();
+    const toYear = watchLeavingDate.getFullYear();
+
+    if (fromYear === toYear) {
+      const fromMonthIndex = watchJoiningDate.getMonth(); // 0-based
+      return months.filter((m) => parseInt(m.value, 10) - 1 >= fromMonthIndex);
+    }
+
+    return months;
+  }, [watchJoiningDate, watchLeavingDate]);
+
+  // Handle Joining Year Change & Reset invalid leaving date
+  const handleJoiningYearChange = (yearStr) => {
+    const selectedYear = parseInt(yearStr, 10);
+    const currentMonth = watchJoiningDate ? watchJoiningDate.getMonth() : 0;
+    const newJoiningDate = new Date(selectedYear, currentMonth, 1);
+
+    setValue("joiningDate", newJoiningDate, { shouldValidate: true });
+
+    if (watchLeavingDate) {
+      const leavingYear = watchLeavingDate.getFullYear();
+      if (selectedYear > leavingYear) {
+        setValue("leavingDate", null, { shouldValidate: true });
+      } else if (selectedYear === leavingYear) {
+        const leavingMonth = watchLeavingDate.getMonth();
+        if (currentMonth > leavingMonth) {
+          setValue("leavingDate", null, { shouldValidate: true });
+        }
+      }
+    }
+  };
+
+  // Handle Joining Month Change & Reset invalid leaving month
+  const handleJoiningMonthChange = (monthStr) => {
+    const selectedMonthIndex = parseInt(monthStr, 10) - 1;
+    const currentYearVal = watchJoiningDate
+      ? watchJoiningDate.getFullYear()
+      : currentYear;
+    const newJoiningDate = new Date(currentYearVal, selectedMonthIndex, 1);
+
+    setValue("joiningDate", newJoiningDate, { shouldValidate: true });
+
+    if (watchLeavingDate) {
+      const leavingYear = watchLeavingDate.getFullYear();
+      const leavingMonth = watchLeavingDate.getMonth();
+
+      if (currentYearVal === leavingYear && selectedMonthIndex > leavingMonth) {
+        setValue("leavingDate", null, { shouldValidate: true });
+      }
+    }
+  };
+
+  // Fetch Notice Period Options on Modal Open
   useEffect(() => {
     const fetchNoticePeriods = async () => {
       setLoadingNoticePeriods(true);
       try {
         const response = await API.get(
-          "https://api.geisil.com/api/candidate/employment/get_notice_period"
+          "https://api.geisil.com/api/candidate/employment/get_notice_period",
         );
         if (response.data.success) {
           setNoticePeriodOptions(response.data.data || []);
@@ -198,25 +1255,25 @@ export const EmploymentModal = ({
     }
   }, [isOpen]);
 
-  // 2. Populate / Reset Form Values
+  // Populate / Reset Form Values
   useEffect(() => {
     if (isOpen && editData && jobId) {
       const joinDate =
         editData.joining_year && editData.joining_month
           ? new Date(
-            parseInt(editData.joining_year, 10),
-            parseInt(editData.joining_month, 10) - 1,
-            1
-          )
+              parseInt(editData.joining_year, 10),
+              parseInt(editData.joining_month, 10) - 1,
+              1,
+            )
           : null;
 
       const leaveDate =
         editData.leaving_year && editData.leaving_month
           ? new Date(
-            parseInt(editData.leaving_year, 10),
-            parseInt(editData.leaving_month, 10) - 1,
-            1
-          )
+              parseInt(editData.leaving_year, 10),
+              parseInt(editData.leaving_month, 10) - 1,
+              1,
+            )
           : null;
 
       setIsDropdownSelect(true);
@@ -245,7 +1302,7 @@ export const EmploymentModal = ({
     }
   }, [isOpen, editData, jobId, reset]);
 
-  // 3. Handle Dynamic Company Matching
+  // Dynamic Company Matching
   useEffect(() => {
     const fetchMatchingCompanies = async () => {
       if (isDropdownSelect || !debouncedCompanyName?.trim()) {
@@ -259,12 +1316,12 @@ export const EmploymentModal = ({
           "/api/candidate/employment/matching_company",
           {
             params: { company_name: debouncedCompanyName },
-          }
+          },
         );
 
         const companies = response.data?.data || [];
         setDefaultOptions(
-          companies.map((name) => ({ value: name, label: name }))
+          companies.map((name) => ({ value: name, label: name })),
         );
       } catch (error) {
         console.error("Error fetching company options:", error);
@@ -286,10 +1343,17 @@ export const EmploymentModal = ({
         ["clean"],
       ],
     }),
-    []
+    [],
   );
 
-  const quillFormats = ["bold", "italic", "underline", "strike", "list", "bullet"];
+  const quillFormats = [
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "list",
+    "bullet",
+  ];
 
   // AI Description Generator
   const handleAiGeneration = async () => {
@@ -297,7 +1361,8 @@ export const EmploymentModal = ({
       toast({
         variant: "destructive",
         title: "Missing Information",
-        description: "Please enter a Job Title first so the AI knows what to generate!",
+        description:
+          "Please enter a Job Title first so the AI knows what to generate!",
       });
       return;
     }
@@ -309,11 +1374,11 @@ export const EmploymentModal = ({
         {
           job_title: watchJobTitle,
           company_name: watchCompanyName || "",
-        }
+        },
       );
 
       if (response.data.success && response.data.description) {
-        setValue("description", response.data.description, { shouldValidate: true });
+        setValue("description", response.data.description);
         toast({
           title: "AI Generation Complete",
           description: "Job description updated successfully!",
@@ -323,10 +1388,11 @@ export const EmploymentModal = ({
       }
     } catch (error) {
       const fallbackText = `<ul><li>Managed daily operations and core responsibilities as a <strong>${watchJobTitle}</strong> at ${watchCompanyName || "the company"}.</li><li>Collaborated with cross-functional teams to identify strategic goals and optimize workflow production.</li><li>Solved complex technical problems and executed critical project deliveries under tight timelines.</li></ul>`;
-      setValue("description", fallbackText, { shouldValidate: true });
+      setValue("description", fallbackText);
       toast({
         title: "Template Generated",
-        description: "We inserted a structured template to help you get started.",
+        description:
+          "We inserted a structured template to help you get started.",
       });
     } finally {
       setAiLoading(false);
@@ -337,62 +1403,44 @@ export const EmploymentModal = ({
   const calculateExperience = (startDate, endDate, isCurrent) => {
     if (!startDate) return { yr: "", mnth: "" };
 
-    const startYear = startDate.getFullYear();
-    const startMonth = startDate.getMonth() + 1;
+    const startYearVal = startDate.getFullYear();
+    const startMonthVal = startDate.getMonth() + 1;
 
-    let endYear = new Date().getFullYear();
-    let endMonth = new Date().getMonth() + 1;
+    let endYearVal = new Date().getFullYear();
+    let endMonthVal = new Date().getMonth() + 1;
 
     if (!isCurrent && endDate) {
-      endYear = endDate.getFullYear();
-      endMonth = endDate.getMonth() + 1;
+      endYearVal = endDate.getFullYear();
+      endMonthVal = endDate.getMonth() + 1;
     }
 
-    const totalMonths = (endYear - startYear) * 12 + (endMonth - startMonth);
+    const totalMonths =
+      (endYearVal - startYearVal) * 12 + (endMonthVal - startMonthVal);
     if (totalMonths >= 0) {
       return {
         yr: String(Math.floor(totalMonths / 12)),
         mnth: String(totalMonths % 12),
       };
     }
-    return { yr: "0", mnth: "0" };
+    return { yr: "", mnth: "" };
   };
 
-  // Form Submission Handler
-  const onSubmit = async (data) => {
-    setSubmitting(true);
+  // -----------------------------------------------------------------------------
+  // DEDICATED SINGLE API FUNCTIONS
+  // -----------------------------------------------------------------------------
 
-    const { yr, mnth } = calculateExperience(
-      data.joiningDate,
-      data.leavingDate,
-      data.currentlyWorking
-    );
-
-    const payload = {
-      _id: jobId || "",
-      company_name: data.companyName,
-      currentlyWorking: data.currentlyWorking,
-      employmenttype: data.employmentType,
-      job_title: data.jobTitle,
-      joining_month: data.joiningDate ? String(data.joiningDate.getMonth() + 1) : "",
-      joining_year: data.joiningDate ? String(data.joiningDate.getFullYear()) : "",
-      leaving_month: !data.currentlyWorking && data.leavingDate ? String(data.leavingDate.getMonth() + 1) : "",
-      leaving_year: !data.currentlyWorking && data.leavingDate ? String(data.leavingDate.getFullYear()) : "",
-      description: data.description || "",
-      notice_period: data.currentlyWorking ? data.noticePeriod : "",
-      experience_month: mnth,
-      experience_yr: yr,
-    };
-
+  // 1. ADD EMPLOYMENT API
+  const handleAddEmployment = async (payload) => {
     try {
-      const response = jobId
-        ? await API.put("/api/candidate/employment/edit_employment", payload)
-        : await API.post("/api/candidate/employment/add_employment", payload);
-
+      const response = await API.post(
+        "/api/candidate/employment/add_employment",
+        payload,
+      );
       if (response.data.success) {
         toast({
           title: "Success",
-          description: response.data.message || "Employment saved successfully!",
+          description:
+            response.data.message || "Employment saved successfully!",
         });
         if (onRefresh) onRefresh();
         onClose();
@@ -407,8 +1455,125 @@ export const EmploymentModal = ({
       toast({
         variant: "destructive",
         title: "Submission Failed",
-        description: error.response?.data?.message || "Failed to save employment record.",
+        description:
+          error.response?.data?.message || "Failed to save employment record.",
       });
+    }
+  };
+
+  // 2. EDIT EMPLOYMENT API
+  const handleEditEmployment = async (payload) => {
+    try {
+      const response = await API.put(
+        "/api/candidate/employment/edit_employment",
+        payload,
+      );
+      if (response.data.success) {
+        toast({
+          title: "Success",
+          description:
+            response.data.message || "Employment updated successfully!",
+        });
+        if (onRefresh) onRefresh();
+        onClose();
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: response.data.message || "Something went wrong.",
+        });
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Update Failed",
+        description:
+          error.response?.data?.message ||
+          "Failed to update employment record.",
+      });
+    }
+  };
+
+  // Form Submission Handler
+  const onSubmit = async (data) => {
+    // Basic field checks before triggering submit
+    if (!data.companyName?.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Validation Error",
+        description: "Please enter Company Name.",
+      });
+      return;
+    }
+
+    if (!data.jobTitle?.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Validation Error",
+        description: "Please enter Job Title.",
+      });
+      return;
+    }
+
+    if (!data.joiningDate) {
+      toast({
+        variant: "destructive",
+        title: "Validation Error",
+        description: "Please select Joining Date.",
+      });
+      return;
+    }
+
+    if (!data.currentlyWorking && !data.leavingDate) {
+      toast({
+        variant: "destructive",
+        title: "Validation Error",
+        description: "Please select Leaving Date.",
+      });
+      return;
+    }
+
+    setSubmitting(true);
+
+    const { yr, mnth } = calculateExperience(
+      data.joiningDate,
+      data.leavingDate,
+      data.currentlyWorking,
+    );
+
+    // EXACT SPECIFIED PAYLOAD STRUCTURE
+    const payload = {
+      _id: jobId || "",
+      company_name: data.companyName,
+      currentlyWorking: data.currentlyWorking,
+      description: data.description || "",
+      employmenttype: data.employmentType,
+      experience_month: mnth,
+      experience_yr: yr,
+      job_title: data.jobTitle,
+      joining_month: data.joiningDate
+        ? String(data.joiningDate.getMonth() + 1)
+        : "",
+      joining_year: data.joiningDate
+        ? String(data.joiningDate.getFullYear())
+        : "",
+      leaving_month:
+        !data.currentlyWorking && data.leavingDate
+          ? String(data.leavingDate.getMonth() + 1)
+          : "",
+      leaving_year:
+        !data.currentlyWorking && data.leavingDate
+          ? String(data.leavingDate.getFullYear())
+          : "",
+      notice_period: data.currentlyWorking ? data.noticePeriod : "",
+    };
+
+    try {
+      if (jobId) {
+        await handleEditEmployment(payload);
+      } else {
+        await handleAddEmployment(payload);
+      }
     } finally {
       setSubmitting(false);
     }
@@ -419,7 +1584,7 @@ export const EmploymentModal = ({
     try {
       const response = await API.delete(
         "/api/candidate/employment/delete_employment",
-        { data: { _id: jobId } }
+        { data: { _id: jobId } },
       );
       if (response.data.success) {
         toast({
@@ -439,7 +1604,8 @@ export const EmploymentModal = ({
       toast({
         variant: "destructive",
         title: "Deletion Failed",
-        description: error.response?.data?.message || "Error processing delete request.",
+        description:
+          error.response?.data?.message || "Error processing delete request.",
       });
     }
   };
@@ -451,14 +1617,14 @@ export const EmploymentModal = ({
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
 
         {/* Modal Container */}
-        <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-xl translate-x-[-50%] translate-y-[-50%] rounded-xl bg-white p-0 shadow-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] overflow-hidden border border-slate-100 font-sans">
-
+        <Dialog.Content
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onInteractOutside={(e) => e.preventDefault()}
+          className="fixed left-[50%] top-[50%] z-50 w-full max-w-xl translate-x-[-50%] translate-y-[-50%] rounded-xl bg-white p-0 shadow-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] overflow-hidden border border-slate-100 font-sans"
+        >
           {/* Header */}
           <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4.5 bg-slate-50/50">
             <div className="flex m-4 items-center space-x-2.5">
-              <div className="p-2 bg-[#122B5F]/10 text-[#122B5F] rounded-lg">
-                <Briefcase className="w-5 h-5" />
-              </div>
               <div>
                 <Dialog.Title className="text-base font-semibold text-slate-900">
                   {jobId ? "Edit Employment" : "Add Employment"}
@@ -474,7 +1640,11 @@ export const EmploymentModal = ({
                 <button
                   type="button"
                   onClick={() => {
-                    if (window.confirm("Are you sure you want to delete this record?")) {
+                    if (
+                      window.confirm(
+                        "Are you sure you want to delete this record?",
+                      )
+                    ) {
                       handleDelete();
                     }
                   }}
@@ -496,12 +1666,17 @@ export const EmploymentModal = ({
           </div>
 
           {/* Form Content */}
-          <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-5 max-h-[calc(85vh-130px)] overflow-y-auto">
-
+          <form
+            onSubmit={handleSubmit(onSubmit, (errs) =>
+              console.log("Validation Errors:", errs),
+            )}
+            className="p-6 space-y-5 max-h-[calc(85vh-130px)] overflow-y-auto"
+          >
             {/* Row 1: Current Working Status */}
             <div className="space-y-2">
               <Label.Root className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                Is this your current employment? <span className="text-red-500">*</span>
+                Is this your current employment?{" "}
+                <span className="text-red-500">*</span>
               </Label.Root>
               <Controller
                 name="currentlyWorking"
@@ -524,7 +1699,10 @@ export const EmploymentModal = ({
                       >
                         <RadioGroup.Indicator className="w-1.5 h-1.5 rounded-full bg-white" />
                       </RadioGroup.Item>
-                      <Label.Root htmlFor="work-yes" className="text-sm font-medium text-slate-700 cursor-pointer">
+                      <Label.Root
+                        htmlFor="work-yes"
+                        className="text-sm font-medium text-slate-700 cursor-pointer"
+                      >
                         Yes
                       </Label.Root>
                     </div>
@@ -537,7 +1715,10 @@ export const EmploymentModal = ({
                       >
                         <RadioGroup.Indicator className="w-1.5 h-1.5 rounded-full bg-white" />
                       </RadioGroup.Item>
-                      <Label.Root htmlFor="work-no" className="text-sm font-medium text-slate-700 cursor-pointer">
+                      <Label.Root
+                        htmlFor="work-no"
+                        className="text-sm font-medium text-slate-700 cursor-pointer"
+                      >
                         No
                       </Label.Root>
                     </div>
@@ -566,7 +1747,10 @@ export const EmploymentModal = ({
                       { id: "contract", label: "Contract" },
                       { id: "internship", label: "Internship" },
                     ].map((type) => (
-                      <div key={type.id} className="flex items-center space-x-2">
+                      <div
+                        key={type.id}
+                        className="flex items-center space-x-2"
+                      >
                         <RadioGroup.Item
                           value={type.id}
                           id={type.id}
@@ -574,7 +1758,10 @@ export const EmploymentModal = ({
                         >
                           <RadioGroup.Indicator className="w-1.5 h-1.5 rounded-full bg-white" />
                         </RadioGroup.Item>
-                        <Label.Root htmlFor={type.id} className="text-sm font-medium text-slate-700 cursor-pointer">
+                        <Label.Root
+                          htmlFor={type.id}
+                          className="text-sm font-medium text-slate-700 cursor-pointer"
+                        >
                           {type.label}
                         </Label.Root>
                       </div>
@@ -607,10 +1794,13 @@ export const EmploymentModal = ({
                       onFocus={() => {
                         if (field.value.trim() !== "") setShowDropdown(true);
                       }}
-                      onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+                      onBlur={() =>
+                        setTimeout(() => setShowDropdown(false), 200)
+                      }
                       className={cn(
                         "w-full bg-slate-50 text-sm text-slate-800 placeholder-slate-400 rounded-lg px-3.5 py-2.5 pr-10 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 transition-all",
-                        errors.companyName && "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                        errors.companyName &&
+                          "border-red-500 focus:border-red-500 focus:ring-red-500/20",
                       )}
                     />
                     <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-400 space-x-1">
@@ -637,14 +1827,16 @@ export const EmploymentModal = ({
                     <li
                       key={index}
                       onMouseDown={() => {
-                        setValue("companyName", option.value, { shouldValidate: true });
+                        setValue("companyName", option.value);
                         setIsDropdownSelect(true);
                         setShowDropdown(false);
                       }}
                       className="px-3.5 py-2.5 text-sm text-slate-700 hover:bg-[#122B5F]/5 hover:text-[#122B5F] cursor-pointer flex items-center justify-between transition-colors"
                     >
                       <span>{option.label}</span>
-                      {watchCompanyName === option.value && <Check className="w-4 h-4 text-[#122B5F]" />}
+                      {watchCompanyName === option.value && (
+                        <Check className="w-4 h-4 text-[#122B5F]" />
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -666,7 +1858,8 @@ export const EmploymentModal = ({
                     placeholder="e.g. Senior Frontend Developer"
                     className={cn(
                       "w-full bg-slate-50 text-sm text-slate-800 placeholder-slate-400 rounded-lg px-3.5 py-2.5 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 transition-all",
-                      errors.jobTitle && "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                      errors.jobTitle &&
+                        "border-red-500 focus:border-red-500 focus:ring-red-500/20",
                     )}
                   />
                 )}
@@ -681,7 +1874,6 @@ export const EmploymentModal = ({
 
             {/* Row 5: Dates and Notice Period Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
               {/* Joining Date */}
               <div className="space-y-1">
                 <Label.Root className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
@@ -690,18 +1882,19 @@ export const EmploymentModal = ({
                 <div className="grid grid-cols-2 gap-2">
                   {/* Joining Month Select */}
                   <Select.Root
-                    value={watchJoiningDate ? String(watchJoiningDate.getMonth() + 1) : ""}
-                    onValueChange={(monthStr) => {
-                      const month = parseInt(monthStr, 10);
-                      const currentYear = watchJoiningDate ? watchJoiningDate.getFullYear() : new Date().getFullYear();
-                      setValue("joiningDate", new Date(currentYear, month - 1, 1), { shouldValidate: true });
-                    }}
+                    value={
+                      watchJoiningDate
+                        ? String(watchJoiningDate.getMonth() + 1)
+                        : ""
+                    }
+                    onValueChange={handleJoiningMonthChange}
                   >
                     <Select.Trigger
                       className={cn(
                         "flex items-center justify-between w-full bg-slate-50 text-sm text-slate-800 rounded-lg px-3 py-2 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 transition-all h-[42px]",
-                        errors.joiningDate && "border-red-500 focus:border-red-500 focus:ring-red-500/20",
-                        !watchJoiningDate && "text-slate-400"
+                        errors.joiningDate &&
+                          "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+                        !watchJoiningDate && "text-slate-400",
                       )}
                     >
                       <Select.Value placeholder="Month" />
@@ -710,7 +1903,11 @@ export const EmploymentModal = ({
                       </Select.Icon>
                     </Select.Trigger>
                     <Select.Portal>
-                      <Select.Content position="popper" sideOffset={4} className="bg-white rounded-lg shadow-xl border border-slate-200 z-50 max-h-60 overflow-y-auto animate-in fade-in-80 w-[var(--radix-select-trigger-width)]">
+                      <Select.Content
+                        position="popper"
+                        sideOffset={4}
+                        className="bg-white rounded-lg shadow-xl border border-slate-200 z-50 max-h-60 overflow-y-auto animate-in fade-in-80 w-[var(--radix-select-trigger-width)]"
+                      >
                         <Select.Viewport className="p-1">
                           {months.map((m) => (
                             <Select.Item
@@ -731,18 +1928,19 @@ export const EmploymentModal = ({
 
                   {/* Joining Year Select */}
                   <Select.Root
-                    value={watchJoiningDate ? String(watchJoiningDate.getFullYear()) : ""}
-                    onValueChange={(yearStr) => {
-                      const year = parseInt(yearStr, 10);
-                      const currentMonth = watchJoiningDate ? watchJoiningDate.getMonth() : 0;
-                      setValue("joiningDate", new Date(year, currentMonth, 1), { shouldValidate: true });
-                    }}
+                    value={
+                      watchJoiningDate
+                        ? String(watchJoiningDate.getFullYear())
+                        : ""
+                    }
+                    onValueChange={handleJoiningYearChange}
                   >
                     <Select.Trigger
                       className={cn(
                         "flex items-center justify-between w-full bg-slate-50 text-sm text-slate-800 rounded-lg px-3 py-2 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 transition-all h-[42px]",
-                        errors.joiningDate && "border-red-500 focus:border-red-500 focus:ring-red-500/20",
-                        !watchJoiningDate && "text-slate-400"
+                        errors.joiningDate &&
+                          "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+                        !watchJoiningDate && "text-slate-400",
                       )}
                     >
                       <Select.Value placeholder="Year" />
@@ -751,9 +1949,13 @@ export const EmploymentModal = ({
                       </Select.Icon>
                     </Select.Trigger>
                     <Select.Portal>
-                      <Select.Content position="popper" sideOffset={4} className="bg-white rounded-lg shadow-xl border border-slate-200 z-50 max-h-60 overflow-y-auto animate-in fade-in-80 w-[var(--radix-select-trigger-width)]">
+                      <Select.Content
+                        position="popper"
+                        sideOffset={4}
+                        className="bg-white rounded-lg shadow-xl border border-slate-200 z-50 max-h-60 overflow-y-auto animate-in fade-in-80 w-[var(--radix-select-trigger-width)]"
+                      >
                         <Select.Viewport className="p-1">
-                          {years.map((y) => (
+                          {joiningYears.map((y) => (
                             <Select.Item
                               key={y.value}
                               value={y.value}
@@ -770,12 +1972,6 @@ export const EmploymentModal = ({
                     </Select.Portal>
                   </Select.Root>
                 </div>
-                {errors.joiningDate && (
-                  <p className="flex items-center text-xs text-red-600 mt-1">
-                    <AlertCircle className="w-3.5 h-3.5 mr-1 flex-shrink-0" />
-                    {errors.joiningDate.message}
-                  </p>
-                )}
               </div>
 
               {/* Conditional Leaving Date vs Notice Period */}
@@ -787,18 +1983,28 @@ export const EmploymentModal = ({
                   <div className="grid grid-cols-2 gap-2">
                     {/* Leaving Month Select */}
                     <Select.Root
-                      value={watchLeavingDate ? String(watchLeavingDate.getMonth() + 1) : ""}
+                      value={
+                        watchLeavingDate
+                          ? String(watchLeavingDate.getMonth() + 1)
+                          : ""
+                      }
                       onValueChange={(monthStr) => {
                         const month = parseInt(monthStr, 10);
-                        const currentYear = watchLeavingDate ? watchLeavingDate.getFullYear() : new Date().getFullYear();
-                        setValue("leavingDate", new Date(currentYear, month - 1, 1), { shouldValidate: true });
+                        const currentYearVal = watchLeavingDate
+                          ? watchLeavingDate.getFullYear()
+                          : currentYear;
+                        setValue(
+                          "leavingDate",
+                          new Date(currentYearVal, month - 1, 1),
+                        );
                       }}
                     >
                       <Select.Trigger
                         className={cn(
                           "flex items-center justify-between w-full bg-slate-50 text-sm text-slate-800 rounded-lg px-3 py-2 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 transition-all h-[42px]",
-                          errors.leavingDate && "border-red-500 focus:border-red-500 focus:ring-red-500/20",
-                          !watchLeavingDate && "text-slate-400"
+                          errors.leavingDate &&
+                            "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+                          !watchLeavingDate && "text-slate-400",
                         )}
                       >
                         <Select.Value placeholder="Month" />
@@ -807,9 +2013,13 @@ export const EmploymentModal = ({
                         </Select.Icon>
                       </Select.Trigger>
                       <Select.Portal>
-                        <Select.Content position="popper" sideOffset={4} className="bg-white rounded-lg shadow-xl border border-slate-200 z-50 max-h-60 overflow-y-auto animate-in fade-in-80 w-[var(--radix-select-trigger-width)]">
+                        <Select.Content
+                          position="popper"
+                          sideOffset={4}
+                          className="bg-white rounded-lg shadow-xl border border-slate-200 z-50 max-h-60 overflow-y-auto animate-in fade-in-80 w-[var(--radix-select-trigger-width)]"
+                        >
                           <Select.Viewport className="p-1">
-                            {months.map((m) => (
+                            {leavingMonths.map((m) => (
                               <Select.Item
                                 key={m.value}
                                 value={m.value}
@@ -828,18 +2038,28 @@ export const EmploymentModal = ({
 
                     {/* Leaving Year Select */}
                     <Select.Root
-                      value={watchLeavingDate ? String(watchLeavingDate.getFullYear()) : ""}
+                      value={
+                        watchLeavingDate
+                          ? String(watchLeavingDate.getFullYear())
+                          : ""
+                      }
                       onValueChange={(yearStr) => {
                         const year = parseInt(yearStr, 10);
-                        const currentMonth = watchLeavingDate ? watchLeavingDate.getMonth() : 0;
-                        setValue("leavingDate", new Date(year, currentMonth, 1), { shouldValidate: true });
+                        const currentMonthVal = watchLeavingDate
+                          ? watchLeavingDate.getMonth()
+                          : 0;
+                        setValue(
+                          "leavingDate",
+                          new Date(year, currentMonthVal, 1),
+                        );
                       }}
                     >
                       <Select.Trigger
                         className={cn(
                           "flex items-center justify-between w-full bg-slate-50 text-sm text-slate-800 rounded-lg px-3 py-2 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 transition-all h-[42px]",
-                          errors.leavingDate && "border-red-500 focus:border-red-500 focus:ring-red-500/20",
-                          !watchLeavingDate && "text-slate-400"
+                          errors.leavingDate &&
+                            "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+                          !watchLeavingDate && "text-slate-400",
                         )}
                       >
                         <Select.Value placeholder="Year" />
@@ -848,9 +2068,13 @@ export const EmploymentModal = ({
                         </Select.Icon>
                       </Select.Trigger>
                       <Select.Portal>
-                        <Select.Content position="popper" sideOffset={4} className="bg-white rounded-lg shadow-xl border border-slate-200 z-50 max-h-60 overflow-y-auto animate-in fade-in-80 w-[var(--radix-select-trigger-width)]">
+                        <Select.Content
+                          position="popper"
+                          sideOffset={4}
+                          className="bg-white rounded-lg shadow-xl border border-slate-200 z-50 max-h-60 overflow-y-auto animate-in fade-in-80 w-[var(--radix-select-trigger-width)]"
+                        >
                           <Select.Viewport className="p-1">
-                            {years.map((y) => (
+                            {leavingYears.map((y) => (
                               <Select.Item
                                 key={y.value}
                                 value={y.value}
@@ -867,12 +2091,6 @@ export const EmploymentModal = ({
                       </Select.Portal>
                     </Select.Root>
                   </div>
-                  {errors.leavingDate && (
-                    <p className="flex items-center text-xs text-red-600 mt-1">
-                      <AlertCircle className="w-3.5 h-3.5 mr-1 flex-shrink-0" />
-                      {errors.leavingDate.message}
-                    </p>
-                  )}
                 </div>
               ) : (
                 <div className="space-y-1">
@@ -891,11 +2109,18 @@ export const EmploymentModal = ({
                         <Select.Trigger
                           className={cn(
                             "flex items-center justify-between w-full bg-slate-50 text-sm text-slate-800 rounded-lg px-3.5 py-2.5 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 disabled:opacity-60 transition-all h-[42px]",
-                            errors.noticePeriod && "border-red-500 focus:border-red-500 focus:ring-red-500/20",
-                            !field.value && "text-slate-400"
+                            errors.noticePeriod &&
+                              "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+                            !field.value && "text-slate-400",
                           )}
                         >
-                          <Select.Value placeholder={loadingNoticePeriods ? "Loading..." : "Select notice period"} />
+                          <Select.Value
+                            placeholder={
+                              loadingNoticePeriods
+                                ? "Loading..."
+                                : "Select notice period"
+                            }
+                          />
                           <Select.Icon>
                             {loadingNoticePeriods ? (
                               <Loader2 className="w-4 h-4 animate-spin text-[#122B5F]" />
@@ -926,12 +2151,6 @@ export const EmploymentModal = ({
                       </Select.Root>
                     )}
                   />
-                  {errors.noticePeriod && (
-                    <p className="flex items-center text-xs text-red-600 mt-1">
-                      <AlertCircle className="w-3.5 h-3.5 mr-1 flex-shrink-0" />
-                      {errors.noticePeriod.message}
-                    </p>
-                  )}
                 </div>
               )}
             </div>
@@ -944,29 +2163,18 @@ export const EmploymentModal = ({
                 </Label.Root>
 
                 {/* AI Shimmer Generator Button */}
-                <button
-                  type="button"
-                  onClick={handleAiGeneration}
-                  disabled={aiLoading}
-                  className="inline-flex items-center space-x-1.5 px-3 py-1 bg-gradient-to-r from-[#122B5F]/5 to-[#122B5F]/10 hover:from-[#122B5F]/10 hover:to-[#122B5F]/15 text-[#122B5F] border border-[#122B5F]/20 rounded-full text-xs font-semibold shadow-sm transition-all disabled:opacity-60 group"
-                >
-                  {aiLoading ? (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin text-[#122B5F]" />
-                  ) : (
-                    <Sparkles className="w-3.5 h-3.5 text-[#122B5F] group-hover:scale-110 transition-transform" />
-                  )}
-                  <span>{aiLoading ? "Writing for you..." : "Help me write with AI"}</span>
-                </button>
               </div>
 
               <Controller
                 name="description"
                 control={control}
                 render={({ field }) => (
-                  <div className={cn(
-                    "border border-slate-200 rounded-lg overflow-hidden bg-white focus-within:border-[#122B5F] focus-within:ring-2 focus-within:ring-[#122B5F]/20 transition-all",
-                    errors.description && "border-red-500"
-                  )}>
+                  <div
+                    className={cn(
+                      "border border-slate-200 rounded-lg overflow-hidden bg-white focus-within:border-[#122B5F] focus-within:ring-2 focus-within:ring-[#122B5F]/20 transition-all",
+                      errors.description && "border-red-500",
+                    )}
+                  >
                     <ReactQuill
                       theme="snow"
                       value={field.value}
@@ -979,12 +2187,15 @@ export const EmploymentModal = ({
                   </div>
                 )}
               />
-              {errors.description && (
-                <p className="flex items-center text-xs text-red-600 mt-1">
-                  <AlertCircle className="w-3.5 h-3.5 mr-1 flex-shrink-0" />
-                  {errors.description.message}
-                </p>
-              )}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleAiGeneration}
+                className="rounded-full bg-[#EBF3FF] hover:bg-[#DCE9FF] border-none text-[#2563EB] text-xs h-8 px-4 gap-1.5 font-medium shadow-none"
+              >
+                <Sparkles className="h-3.5 w-3.5 fill-[#2563EB]" />
+                Help me write
+              </Button>
             </div>
 
             {/* Footer Actions */}
@@ -1003,8 +2214,14 @@ export const EmploymentModal = ({
                 disabled={submitting}
                 className="inline-flex items-center px-6 py-2 text-sm font-medium text-white bg-[#122B5F] hover:bg-[#122B5F]/90 active:bg-[#122B5F] rounded-lg shadow-sm shadow-[#122B5F]/20 disabled:opacity-60 transition-all"
               >
-                {submitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                {submitting ? "Saving..." : jobId ? "Update Record" : "Save Employment"}
+                {submitting && (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                )}
+                {submitting
+                  ? "Saving..."
+                  : jobId
+                    ? "Update Record"
+                    : "Save Employment"}
               </Button>
             </div>
           </form>
