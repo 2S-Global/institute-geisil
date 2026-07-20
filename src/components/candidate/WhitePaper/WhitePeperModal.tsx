@@ -1,7 +1,9 @@
 
+
 import React, { useState, useEffect } from "react";
 import API from "../../../lib/axios";
 import { useToast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
@@ -45,7 +47,6 @@ const WhitePaperModal = ({ open, onOpenChange, item, fetchWhitePaperData }) => {
   const [loading, setLoading] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
 
- 
   const getInitialFormState = (targetItem) => {
     if (!targetItem) {
       return {
@@ -57,7 +58,6 @@ const WhitePaperModal = ({ open, onOpenChange, item, fetchWhitePaperData }) => {
         description: "",
       };
     }
-
 
     const rawYear = targetItem.publishYear || targetItem.publishedOn?.year || targetItem.year;
     const rawMonth = targetItem.publishMonth || targetItem.publishedOn?.month || targetItem.month_id || targetItem.month;
@@ -71,12 +71,10 @@ const WhitePaperModal = ({ open, onOpenChange, item, fetchWhitePaperData }) => {
       if (monthMatch) {
         parsedMonthValue = monthMatch.value;
       } else {
-        
         const nameMatch = monthList.find(m => m.name.toLowerCase() === monthStr.toLowerCase());
         if (nameMatch) {
           parsedMonthValue = nameMatch.value;
         } else {
-         
           const numberIndex = Number(rawMonth);
           if (!isNaN(numberIndex) && numberIndex >= 1 && numberIndex <= 12) {
             parsedMonthValue = String(numberIndex);
@@ -95,10 +93,8 @@ const WhitePaperModal = ({ open, onOpenChange, item, fetchWhitePaperData }) => {
     };
   };
 
-  
   const [formData, setFormData] = useState(() => getInitialFormState(item));
 
-  
   useEffect(() => {
     if (item) {
       setFormData(getInitialFormState(item));
@@ -126,6 +122,8 @@ const WhitePaperModal = ({ open, onOpenChange, item, fetchWhitePaperData }) => {
       setFormData((p) => ({ ...p, description: generatedText }));
     } catch (err) {
       console.error(err);
+      const errorMessage = err.response?.data?.message || "Failed to generate description.";
+      toast({ title: "Error", description: errorMessage, variant: "destructive" });
     } finally {
       setAiLoading(false);
     }
@@ -167,6 +165,12 @@ const WhitePaperModal = ({ open, onOpenChange, item, fetchWhitePaperData }) => {
       onOpenChange(false);
     } catch (err) {
       console.error(err);
+      const errorMessage = err.response?.data?.message || "Something went wrong. Please try again.";
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -185,102 +189,112 @@ const WhitePaperModal = ({ open, onOpenChange, item, fetchWhitePaperData }) => {
       onOpenChange(false);
     } catch (err) {
       console.error(err);
+      const errorMessage = err.response?.data?.message || "Failed to delete publication.";
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
-        <div className="flex items-start justify-between mb-5 pr-6">
-          <DialogHeader className="text-left">
-            <DialogTitle>White paper / Research publication / Journal entry</DialogTitle>
-            <DialogDescription>Add links to your online publications</DialogDescription>
-          </DialogHeader>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
+          <div className="flex items-start justify-between mb-5 pr-6">
+            <DialogHeader className="text-left">
+              <DialogTitle>White paper / Research publication / Journal entry</DialogTitle>
+              <DialogDescription>Add links to your online publications</DialogDescription>
+            </DialogHeader>
 
-          {formData._id && (
-            <Button type="button" variant="ghost" size="icon" onClick={handleDelete} className="text-red-500">
-              <Trash2 className="w-5 h-5" />
+            {formData._id && (
+              <Button type="button" variant="ghost" size="icon" onClick={handleDelete} className="text-red-500">
+                <Trash2 className="w-5 h-5" />
+              </Button>
+            )}
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <Label>Title *</Label>
+              <Input value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} />
+            </div>
+
+            <div>
+              <Label>URL *</Label>
+              <Input value={formData.url} onChange={(e) => setFormData({ ...formData, url: e.target.value })} />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Published on</Label>
+              <div className="grid grid-cols-2 gap-3">
+                
+                {/* YEAR SELECT */}
+                <select
+                  value={formData.publishYear}
+                  onChange={(e) => setFormData({ ...formData, publishYear: e.target.value })}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-black"
+                >
+                  <option value="">Year</option>
+                  {Array.from({ length: 60 }, (_, i) => {
+                    const year = (currentYear ) - i;
+                    return <option key={year} value={String(year)}>{year}</option>;
+                  })}
+                </select>
+                   
+                {/* MONTH SELECT */}
+                <select
+                  value={formData.publishMonth}
+                  onChange={(e) => setFormData({ ...formData, publishMonth: e.target.value })}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-black"
+                >
+                  <option value="">Month</option>
+                  {monthList.map((m) => (
+                    <option key={m.value} value={m.value}>{m.name}</option>
+                  ))}
+                </select>
+
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Description</Label>
+              <div className="bg-white rounded-md border text-black">
+                <ReactQuill
+                  theme="snow"
+                  value={formData.description}
+                  onChange={(value) => setFormData((prev) => ({ ...prev, description: value }))}
+                  modules={quillModules}
+                  placeholder="Write your description here..."
+                  className="prose max-w-none [&>.ql-toolbar]:border-0 [&>.ql-toolbar]:border-b [&>.ql-container]:border-0 [&>.ql-container]:min-h-[160px]"
+                />
+              </div>
+            </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleHelpMeWrite}
+              disabled={aiLoading}
+              className="rounded-full bg-[#EBF3FF] hover:bg-[#DCE9FF] border-none text-[#2563EB] text-xs h-8 px-4 gap-1.5 font-medium shadow-none"
+            >
+              <Sparkles className="h-3.5 w-3.5 fill-[#2563EB]" />
+              {aiLoading ? "Generating..." : "Help me write"}
             </Button>
-          )}
-        </div>
-
-        <div className="space-y-4">
-          <div>
-            <Label>Title *</Label>
-            <Input value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} />
           </div>
 
-          <div>
-            <Label>URL *</Label>
-            <Input value={formData.url} onChange={(e) => setFormData({ ...formData, url: e.target.value })} />
+          <div className="flex justify-end gap-2 mt-6">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+            <Button onClick={handleSave} disabled={loading}>
+              {loading ? "Saving..." : formData._id ? "Update" : "Save"}
+            </Button>
           </div>
-
-          <div className="space-y-2">
-            <Label>Published on</Label>
-            <div className="grid grid-cols-2 gap-3">
-              
-              {/* YEAR SELECT */}
-              <select
-                value={formData.publishYear}
-                onChange={(e) => setFormData({ ...formData, publishYear: e.target.value })}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-black"
-              >
-                <option value="">Year</option>
-                {Array.from({ length: 35 }, (_, i) => {
-                  const year = (currentYear + 5) - i;
-                  return <option key={year} value={String(year)}>{year}</option>;
-                })}
-              </select>
-                 
-              {/* MONTH SELECT */}
-              <select
-                value={formData.publishMonth}
-                onChange={(e) => setFormData({ ...formData, publishMonth: e.target.value })}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-black"
-              >
-                <option value="">Month</option>
-                {monthList.map((m) => (
-                  <option key={m.value} value={m.value}>{m.name}</option>
-                ))}
-              </select>
-
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Description</Label>
-            <div className="bg-white rounded-md border text-black">
-              <ReactQuill
-                theme="snow"
-                value={formData.description}
-                onChange={(value) => setFormData((prev) => ({ ...prev, description: value }))}
-                modules={quillModules}
-                placeholder="Write your description here..."
-                className="prose max-w-none [&>.ql-toolbar]:border-0 [&>.ql-toolbar]:border-b [&>.ql-container]:border-0 [&>.ql-container]:min-h-[160px]"
-              />
-            </div>
-          </div>
-
-         
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleHelpMeWrite}
-            className="rounded-full bg-[#EBF3FF] hover:bg-[#DCE9FF] border-none text-[#2563EB] text-xs h-8 px-4 gap-1.5 font-medium shadow-none"
-          >
-            <Sparkles className="h-3.5 w-3.5 fill-[#2563EB]" />
-            Help me write
-          </Button>
-        </div>
-
-        <div className="flex justify-end gap-2 mt-6">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleSave} disabled={loading}>
-            {loading ? "Saving..." : formData._id ? "Update" : "Save"}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+      
+      <Toaster />
+    </>
   );
 };
 
