@@ -1032,7 +1032,7 @@ export default function CandidateProfile() {
           phone={user?.phone_number}
           show={isModalOpenotp}
           onClose={closeModalRHotp}
-          setReload=""
+          setReload={setRefresh}
           setError_main=""
           setSuccess_main=""
         />

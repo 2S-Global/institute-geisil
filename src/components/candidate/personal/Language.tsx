@@ -339,23 +339,25 @@
 
 // export default LanguageProficiency;
 
-
 import { Trash2 } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import API from "@/lib/axios";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 
 const LanguageProficiency = ({
   formData,
   setFormData,
   targetLanguageId,
   onClose,
-  setReload
+  setReload,
 }) => {
   const apiurl = import.meta.env.VITE_API_URL;
   const { toast } = useToast();
   const [languageOptions, setLanguageOptions] = useState([]);
-  const [languageproficiencyOptions, setLanguageproficiencyOptions] = useState([]);
+  const [languageproficiencyOptions, setLanguageproficiencyOptions] = useState(
+    [],
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -376,6 +378,36 @@ const LanguageProficiency = ({
     fetchOptions();
   }, [apiurl]);
 
+  // const deleteLanguage = async (index) => {
+  //   const languageId = masterDetails[index]?._id;
+
+  //   if (!languageId) {
+  //     toast({
+  //       title: "Error",
+  //       description: "No language ID found to delete.",
+  //       variant: "destructive",
+  //     });
+  //     return;
+  //   }
+
+  //   try {
+  //     await API.delete(`/api/candidate/personal/language/${languageId}`);
+  //     toast({
+  //       title: "Success",
+  //       description: "Language deleted successfully.",
+  //     });
+  //     onClose();
+  //     setReload(p => p + 1);
+  //   } catch (error) {
+  //     console.error("Error deleting language:", error);
+  //     toast({
+  //       title: "Deletion Failed",
+  //       description: "There was a problem deleting the language. Please try again.",
+  //       variant: "destructive",
+  //     });
+  //   }
+  // };
+
   const deleteLanguage = async (index) => {
     const languageId = masterDetails[index]?._id;
 
@@ -388,32 +420,50 @@ const LanguageProficiency = ({
       return;
     }
 
+    // Confirmation Alert
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this language entry?",
+    );
+    if (!confirmDelete) return;
+
     try {
       await API.delete(`/api/candidate/personal/language/${languageId}`);
       toast({
         title: "Success",
         description: "Language deleted successfully.",
       });
-      onClose();
-      setReload(p => p + 1);
+      if (onClose) onClose();
+      if (setReload) setReload((p) => p + 1);
     } catch (error) {
       console.error("Error deleting language:", error);
       toast({
         title: "Deletion Failed",
-        description: "There was a problem deleting the language. Please try again.",
+        description:
+          "There was a problem deleting the language. Please try again.",
         variant: "destructive",
       });
     }
   };
 
-  const masterDetails = Array.isArray(formData?.languagesDetails) ? formData.languagesDetails : [];
-  const masterTextList = Array.isArray(formData?.languages) ? formData.languages : [];
+  const masterDetails = Array.isArray(formData?.languagesDetails)
+    ? formData.languagesDetails
+    : [];
+  const masterTextList = Array.isArray(formData?.languages)
+    ? formData.languages
+    : [];
 
   let targetIndex = -1;
-  if (targetLanguageId !== undefined && targetLanguageId !== null && targetLanguageId !== "") {
+  if (
+    targetLanguageId !== undefined &&
+    targetLanguageId !== null &&
+    targetLanguageId !== ""
+  ) {
     const targetStr = String(targetLanguageId).trim().toLowerCase();
     targetIndex = masterDetails.findIndex(
-      (l) => String(l._id || "").trim().toLowerCase() === targetStr,
+      (l) =>
+        String(l._id || "")
+          .trim()
+          .toLowerCase() === targetStr,
     );
   } else {
     targetIndex = masterDetails.length - 1;
@@ -421,7 +471,9 @@ const LanguageProficiency = ({
 
   let displayRows = [];
   if (targetIndex !== -1 && masterDetails[targetIndex]) {
-    displayRows = [{ ...masterDetails[targetIndex], _absoluteIndex: targetIndex }];
+    displayRows = [
+      { ...masterDetails[targetIndex], _absoluteIndex: targetIndex },
+    ];
   } else {
     displayRows = [
       {
@@ -442,10 +494,22 @@ const LanguageProficiency = ({
     const updatedTextList = [...masterTextList];
 
     if (!updatedDetails[index]) {
-      updatedDetails[index] = { language: "", proficiency: "", read: false, write: false, speak: false };
+      updatedDetails[index] = {
+        language: "",
+        proficiency: "",
+        read: false,
+        write: false,
+        speak: false,
+      };
     }
     if (!updatedTextList[index]) {
-      updatedTextList[index] = { language: "", proficiency: "", read: false, write: false, speak: false };
+      updatedTextList[index] = {
+        language: "",
+        proficiency: "",
+        read: false,
+        write: false,
+        speak: false,
+      };
     }
 
     updatedDetails[index] = {
@@ -455,19 +519,27 @@ const LanguageProficiency = ({
 
     if (field === "language") {
       const selectedLangOption = languageOptions.find(
-        (o) => String(o.id).trim().toLowerCase() === String(value).trim().toLowerCase()
+        (o) =>
+          String(o.id).trim().toLowerCase() ===
+          String(value).trim().toLowerCase(),
       );
       // Keep string name mapping for interface display logic safety sync loops
-      updatedTextList[index]["language"] = value; 
-      updatedTextList[index]["language_name"] = selectedLangOption ? selectedLangOption.name : value;
+      updatedTextList[index]["language"] = value;
+      updatedTextList[index]["language_name"] = selectedLangOption
+        ? selectedLangOption.name
+        : value;
     }
 
     if (field === "proficiency") {
       const selectedProfOption = languageproficiencyOptions.find(
-        (p) => String(p.id).trim().toLowerCase() === String(value).trim().toLowerCase()
+        (p) =>
+          String(p.id).trim().toLowerCase() ===
+          String(value).trim().toLowerCase(),
       );
       updatedTextList[index]["proficiency"] = value;
-      updatedTextList[index]["proficiency_name"] = selectedProfOption ? selectedProfOption.name : value;
+      updatedTextList[index]["proficiency_name"] = selectedProfOption
+        ? selectedProfOption.name
+        : value;
 
       if (selectedProfOption) {
         const r = !!selectedProfOption.read;
@@ -499,7 +571,11 @@ const LanguageProficiency = ({
     }));
   };
 
-  if (loading || languageOptions.length === 0 || languageproficiencyOptions.length === 0) {
+  if (
+    loading ||
+    languageOptions.length === 0 ||
+    languageproficiencyOptions.length === 0
+  ) {
     return (
       <div className="text-sm text-gray-500 py-12 text-center flex flex-col items-center justify-center space-y-2">
         <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
@@ -512,22 +588,28 @@ const LanguageProficiency = ({
     <div>
       <div className="flex items-center justify-between mb-2">
         <label className="block text-xl font-semibold text-gray-900">
-          {targetLanguageId ? "Modify Language Details" : "Language Proficiency"}
+          {targetLanguageId
+            ? "Modify Language Details"
+            : "Language Proficiency"}
         </label>
 
         {targetLanguageId && targetIndex !== -1 && (
-          <button
+          <Button
             type="button"
+            variant="danger"
+            size="icon"
+            
             onClick={() => deleteLanguage(targetIndex)}
             className="text-red-500 hover:text-red-700 transition-colors pt-0.5"
           >
             <Trash2 className="w-4 h-4" />
-          </button>
+          </Button>
         )}
       </div>
 
       <p className="mt-1 text-sm text-gray-500 mb-4">
-        Strengthen your profile by letting recruiters know you can communicate in multiple languages.
+        Strengthen your profile by letting recruiters know you can communicate
+        in multiple languages.
       </p>
 
       {displayRows.map((lang) => {
@@ -535,27 +617,48 @@ const LanguageProficiency = ({
 
         const matchedLanguage = languageOptions.find(
           (o) =>
-            String(o.id).trim().toLowerCase() === String(lang.language || "").trim().toLowerCase() ||
-            String(o.name).trim().toLowerCase() === String(lang.language || "").trim().toLowerCase(),
+            String(o.id).trim().toLowerCase() ===
+              String(lang.language || "")
+                .trim()
+                .toLowerCase() ||
+            String(o.name).trim().toLowerCase() ===
+              String(lang.language || "")
+                .trim()
+                .toLowerCase(),
         );
         const languageValue = matchedLanguage ? String(matchedLanguage.id) : "";
 
         const matchedProficiency = languageproficiencyOptions.find(
           (p) =>
-            String(p.id).trim().toLowerCase() === String(lang.proficiency || "").trim().toLowerCase() ||
-            String(p.name).trim().toLowerCase() === String(lang.proficiency || "").trim().toLowerCase(),
+            String(p.id).trim().toLowerCase() ===
+              String(lang.proficiency || "")
+                .trim()
+                .toLowerCase() ||
+            String(p.name).trim().toLowerCase() ===
+              String(lang.proficiency || "")
+                .trim()
+                .toLowerCase(),
         );
-        const proficiencyValue = matchedProficiency ? String(matchedProficiency.id) : "";
+        const proficiencyValue = matchedProficiency
+          ? String(matchedProficiency.id)
+          : "";
 
         return (
-          <div key={index} className="mb-5 border border-indigo-100 bg-indigo-50/20 p-4 rounded-xl shadow-sm">
+          <div
+            key={index}
+            className="mb-5 border border-indigo-100 bg-indigo-50/20 p-4 rounded-xl shadow-sm"
+          >
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 mb-4">
               <div>
-                <label className="block text-sm font-semibold mb-2">Language *</label>
+                <label className="block text-sm font-semibold mb-2">
+                  Language *
+                </label>
                 <select
                   className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                   value={languageValue}
-                  onChange={(e) => handleChange(index, "language", e.target.value)}
+                  onChange={(e) =>
+                    handleChange(index, "language", e.target.value)
+                  }
                 >
                   <option value="">Select language</option>
                   {languageOptions.map((option) => (
@@ -567,11 +670,15 @@ const LanguageProficiency = ({
               </div>
 
               <div>
-                <label className="block text-sm font-semibold mb-2">Proficiency *</label>
+                <label className="block text-sm font-semibold mb-2">
+                  Proficiency *
+                </label>
                 <select
                   className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                   value={proficiencyValue}
-                  onChange={(e) => handleChange(index, "proficiency", e.target.value)}
+                  onChange={(e) =>
+                    handleChange(index, "proficiency", e.target.value)
+                  }
                 >
                   <option value="">Select proficiency</option>
                   {languageproficiencyOptions.map((option) => (
