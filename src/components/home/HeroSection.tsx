@@ -203,9 +203,10 @@ export default function HeroSection() {
                 {homeBanner?.[slide]?.banner_title}
               </h1>
 
-              {/*  <p
+              <p
                 className="
                   text-muted-foreground
+                  text-justify
                   text-base
                   sm:text-lg
                   max-w-xl
@@ -214,9 +215,9 @@ export default function HeroSection() {
                   mb-8
                 "
               >
-                {homeBanner?.[slide]?.desc}
+                {homeBanner?.[slide]?.description}
               </p>
- */}
+
               <div
                 className="
                   flex
