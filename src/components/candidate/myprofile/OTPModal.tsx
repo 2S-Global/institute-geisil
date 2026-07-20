@@ -122,15 +122,21 @@ const { toast } = useToast();
         { otp: formData.otp },
       );
 
-      if (response.data.success) {
+      if (response?.data?.success) {
         //setSuccess("OTP verified successfully!");
         //setSuccess_main("OTP verified successfully!");
-             toast({
-        title: "Success",
-        description: "OTP verified successfully!",
-      });
-        setReload(true);
-        setTimeout(() => onClose(), 1500);
+        toast({
+          title: "Success",
+          description: "OTP verified successfully!",
+        });
+
+        if (typeof setReload === "function") {
+          setReload((prev) => (typeof prev === "number" ? prev + 1 : 1));
+        }
+
+        if (typeof onClose === "function") {
+          setTimeout(() => onClose(), 1500);
+        }
       } else {
         //setError(response.data.message || "OTP verification failed.");
         //setError_main(response.data.message || "OTP verification failed.");
