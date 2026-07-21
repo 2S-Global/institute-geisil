@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import API from "../../../lib/axios";
@@ -12,7 +11,7 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle
+  CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -78,23 +77,48 @@ const KycSection = ({ show, onClose, data = {}, setRefresh }) => {
       });
 
       if (res.data.success) {
-        setSuccess(res.data.verificationResult?.message || res.data.message);
-        setReload(true);
-        toast({ title: "Success", description: res.data.verificationResult?.message || res.data.message });
+        if (res.data.verificationResult?.success) {
+          setSuccess(res.data.verificationResult?.message || res.data.message);
+          setReload(true);
+          toast({
+            title: "Success",
+            description:
+              res.data.verificationResult?.message || res.data.message,
+          });
+        } else {
+          toast({
+            title: "Error",
+            variant: "destructive",
+            description:
+              res.data.verificationResult?.message || res.data.message,
+          });
+        }
       } else {
         setError(res.data.message);
-        toast({ title: "Error", variant: "destructive", description: res.data.message });
+        toast({
+          title: "Error",
+          variant: "destructive",
+          description: res.data.message,
+        });
       }
     } catch (error) {
       setError("Failed to update KYC. Try again later.");
-      toast({ title: "Error", variant: "destructive", description: "Failed to update KYC." });
+      toast({
+        title: "Error",
+        variant: "destructive",
+        description: "Failed to update KYC.",
+      });
     } finally {
       setSectionloading(false);
     }
   };
 
   // Determine if any KYC data has been added
-  const hasKycData = userdata?.pan_number || userdata?.dl_number || userdata?.epic_number || userdata?.aadhaar_number;
+  const hasKycData =
+    userdata?.pan_number ||
+    userdata?.dl_number ||
+    userdata?.epic_number ||
+    userdata?.aadhaar_number;
 
   return (
     <>
@@ -102,20 +126,25 @@ const KycSection = ({ show, onClose, data = {}, setRefresh }) => {
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <div>
             <CardTitle className="text-lg">KYC</CardTitle>
-            <CardDescription>Verify your identity and official documents.</CardDescription>
+            <CardDescription>
+              Verify your identity and official documents.
+            </CardDescription>
           </div>
 
-          {!sectionloading && (
-            hasKycData ? (
-              <Button variant="ghost" size="icon" onClick={() => openModalRH("all")}>
+          {!sectionloading &&
+            (hasKycData ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => openModalRH("all")}
+              >
                 <Pencil className="h-4 w-4" />
               </Button>
             ) : (
               <Button size="sm" onClick={() => openModalRH("all")}>
                 <Plus className="mr-2 h-4 w-4" /> Add KYC
               </Button>
-            )
-          )}
+            ))}
         </CardHeader>
 
         <CardContent className="pt-2">
@@ -133,23 +162,43 @@ const KycSection = ({ show, onClose, data = {}, setRefresh }) => {
               {/* PAN CARD */}
               <div className="space-y-1">
                 <div className="flex items-center">
-                  <span className="text-base font-semibold text-slate-900">PAN Number</span>
-                  {userdata?.pan_number && (
-                    userdata?.pan_verified ? <CheckCircle className="ml-2 text-green-600 h-4 w-4" /> :
+                  <span className="text-base font-semibold text-slate-900">
+                    PAN Number
+                  </span>
+                  {userdata?.pan_number &&
+                    (userdata?.pan_verified ? (
+                      <CheckCircle className="ml-2 text-green-600 h-4 w-4" />
+                    ) : (
                       <>
                         <CircleX className="ml-2 text-red-600 h-4 w-4" />
-                        <RazorpayPayment onSuccess={handelpaymentsuccess} documentType="pan" />
+                        <RazorpayPayment
+                          onSuccess={handelpaymentsuccess}
+                          documentType="pan"
+                        />
                       </>
-                  )}
+                    ))}
                 </div>
                 <div className="text-sm">
                   {userdata?.pan_number ? (
                     <div className="text-slate-600 space-y-0.5">
-                      <div><span className="font-medium text-slate-700">Name:</span> {userdata.pan_name}</div>
-                      <div><span className="font-medium text-slate-700">PAN:</span> {userdata.pan_number}</div>
+                      <div>
+                        <span className="font-medium text-slate-700">
+                          Name:
+                        </span>{" "}
+                        {userdata.pan_name}
+                      </div>
+                      <div>
+                        <span className="font-medium text-slate-700">PAN:</span>{" "}
+                        {userdata.pan_number}
+                      </div>
                     </div>
                   ) : (
-                    <span className="font-medium text-blue-600 cursor-pointer hover:underline" onClick={() => openModalRH("pan")}>Add PAN info</span>
+                    <span
+                      className="font-medium text-blue-600 cursor-pointer hover:underline"
+                      onClick={() => openModalRH("pan")}
+                    >
+                      Add PAN info
+                    </span>
                   )}
                 </div>
               </div>
@@ -157,23 +206,45 @@ const KycSection = ({ show, onClose, data = {}, setRefresh }) => {
               {/* Driving License */}
               <div className="space-y-1">
                 <div className="flex items-center">
-                  <span className="text-base font-semibold text-slate-900">Driving License</span>
-                  {userdata?.dl_number && (
-                    userdata?.dl_verified ? <CheckCircle className="ml-2 text-green-600 h-4 w-4" /> :
+                  <span className="text-base font-semibold text-slate-900">
+                    Driving License
+                  </span>
+                  {userdata?.dl_number &&
+                    (userdata?.dl_verified ? (
+                      <CheckCircle className="ml-2 text-green-600 h-4 w-4" />
+                    ) : (
                       <>
                         <CircleX className="ml-2 text-red-600 h-4 w-4" />
-                        <RazorpayPayment onSuccess={handelpaymentsuccess} documentType="dl" />
+                        <RazorpayPayment
+                          onSuccess={handelpaymentsuccess}
+                          documentType="dl"
+                        />
                       </>
-                  )}
+                    ))}
                 </div>
                 <div className="text-sm">
                   {userdata?.dl_number ? (
                     <div className="text-slate-600 space-y-0.5">
-                      <div><span className="font-medium text-slate-700">Name:</span> {userdata.dl_name}</div>
-                      <div><span className="font-medium text-slate-700">DL Number:</span> {userdata.dl_number}</div>
+                      <div>
+                        <span className="font-medium text-slate-700">
+                          Name:
+                        </span>{" "}
+                        {userdata.dl_name}
+                      </div>
+                      <div>
+                        <span className="font-medium text-slate-700">
+                          DL Number:
+                        </span>{" "}
+                        {userdata.dl_number}
+                      </div>
                     </div>
                   ) : (
-                    <span className="font-medium text-blue-600 cursor-pointer hover:underline" onClick={() => openModalRH("dl")}>Add Driving License Info</span>
+                    <span
+                      className="font-medium text-blue-600 cursor-pointer hover:underline"
+                      onClick={() => openModalRH("dl")}
+                    >
+                      Add Driving License Info
+                    </span>
                   )}
                 </div>
               </div>
@@ -181,34 +252,59 @@ const KycSection = ({ show, onClose, data = {}, setRefresh }) => {
               {/* EPIC */}
               <div className="space-y-1">
                 <div className="flex items-center">
-                  <span className="text-base font-semibold text-slate-900">EPIC Number</span>
-                  {userdata?.epic_number && (
-                    userdata?.epic_verified ? <CheckCircle className="ml-2 text-green-600 h-4 w-4" /> :
+                  <span className="text-base font-semibold text-slate-900">
+                    EPIC Number
+                  </span>
+                  {userdata?.epic_number &&
+                    (userdata?.epic_verified ? (
+                      <CheckCircle className="ml-2 text-green-600 h-4 w-4" />
+                    ) : (
                       <>
                         <CircleX className="ml-2 text-red-600 h-4 w-4" />
-                        <RazorpayPayment onSuccess={handelpaymentsuccess} documentType="epic" />
+                        <RazorpayPayment
+                          onSuccess={handelpaymentsuccess}
+                          documentType="epic"
+                        />
                       </>
-                  )}
+                    ))}
                 </div>
                 <div className="text-sm">
                   {userdata?.epic_number ? (
                     <div className="text-slate-600 space-y-0.5">
-                      <div><span className="font-medium text-slate-700">Name:</span> {userdata.epic_name}</div>
-                      <div><span className="font-medium text-slate-700">EPIC Number:</span> {userdata.epic_number}</div>
+                      <div>
+                        <span className="font-medium text-slate-700">
+                          Name:
+                        </span>{" "}
+                        {userdata.epic_name}
+                      </div>
+                      <div>
+                        <span className="font-medium text-slate-700">
+                          EPIC Number:
+                        </span>{" "}
+                        {userdata.epic_number}
+                      </div>
                     </div>
                   ) : (
-                    <span className="font-medium text-blue-600 cursor-pointer hover:underline" onClick={() => openModalRH("epic")}>Add EPIC Details</span>
+                    <span
+                      className="font-medium text-blue-600 cursor-pointer hover:underline"
+                      onClick={() => openModalRH("epic")}
+                    >
+                      Add EPIC Details
+                    </span>
                   )}
                 </div>
               </div>
 
               {/* Aadhaar (Handled by your existing child component) */}
-              <AadharCardInfo 
-                 userdata={userdata} 
-                 openModalRH={openModalRH} 
-                 setSectionloading={setSectionloading}
-                 setError={setError} setErrorId={setErrorId} setSuccess={setSuccess}
-                 setMessageId={setMessageId} setReload={setReload}
+              <AadharCardInfo
+                userdata={userdata}
+                openModalRH={openModalRH}
+                setSectionloading={setSectionloading}
+                setError={setError}
+                setErrorId={setErrorId}
+                setSuccess={setSuccess}
+                setMessageId={setMessageId}
+                setReload={setReload}
               />
             </div>
           )}
