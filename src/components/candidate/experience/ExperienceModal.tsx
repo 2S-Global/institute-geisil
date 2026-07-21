@@ -448,7 +448,7 @@ const WorkProfileModal = ({ show, onClose, item, setReload, onDelete }) => {
 
         <DialogFooter className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex items-center justify-end sm:justify-end gap-2 w-full">
           <div className="flex items-end gap-2">
-            <Button type="button" variant="ghost" onClick={onClose}>
+            <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
             <Button type="button" onClick={handleSave} disabled={saving}>

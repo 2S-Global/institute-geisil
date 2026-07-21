@@ -212,7 +212,7 @@ const FormModal = ({ show, onClose, data = {}, mainprofilesummary,
   <Button
     type="button"
     onClick={onClose}
-    variant="ghost"
+    variant="outline"
   >
     Cancel
   </Button>

@@ -1234,7 +1234,7 @@ const CareerProfileModal = ({
           <Button
             type="button"
             onClick={onClose}
-            variant="ghost"
+            variant="outline"
           >
             Cancel
           </Button>

@@ -1076,7 +1076,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
         </form>
 
         <DialogFooter className="flex items-center gap-2 sm:justify-end border-t pt-4 mt-2">
-          <Button type="button" variant="ghost" onClick={onClose}>
+          <Button type="button" variant="outline" onClick={onClose}>
             Cancel
           </Button>
           

@@ -239,7 +239,7 @@ const ITSkillModal = ({ isOpen, onClose, initialData, apiurl, setReload }) => {
         {/* Header Container */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
           <DialogTitle className="text-xl font-bold text-[#2d3748]">
-            {initialData?._id ? "Edit IT Skill" : "Add IT Skill"}
+            {initialData?._id ? "Edit IT Skill" : " IT Skill"}
           </DialogTitle>
           
           <div className="flex items-center gap-2">
@@ -410,7 +410,7 @@ const ITSkillModal = ({ isOpen, onClose, initialData, apiurl, setReload }) => {
 
           {/* Footer Action Buttons */}
           <div className="flex items-center justify-end px-6 py-4 border-t border-slate-100 bg-white relative z-10 gap-3">
-            <Button type="button" onClick={onClose} variant="ghost" disabled={isSaving || isDeleting}>
+            <Button type="button" onClick={onClose} variant="outline" disabled={isSaving || isDeleting}>
               Cancel
             </Button>
             <Button type="submit" disabled={isSaving || isDeleting}>

@@ -207,20 +207,12 @@ const KycModal = ({
             </div> */}
 
             <div className="flex justify-end gap-3 pt-6">
-              <Button
-                type="button"
-                onClick={onClose}
-               variant="ghost" 
-                >
+              <Button type="button" onClick={onClose} variant="outline">
                 Cancel
               </Button>
 
               <div className="relative inline-flex group">
-                <Button
-                  type="submit"
-                  disabled={!isFormValid || saving}
-                  
-                >
+                <Button type="submit" disabled={!isFormValid || saving}>
                   {saving ? "Saving..." : "Save"}
                 </Button>
 
