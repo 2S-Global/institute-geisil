@@ -285,18 +285,16 @@ const { toast } = useToast();
           {!showOTPField && (
             <div className="flex items-center gap-2">
 
-              <input
-                type="text"
-                className="w-full rounded-md border px-3 py-2 text-sm"
-                value={maskPhone(phone)}
-                readOnly
-              />
+              <div className="flex w-full items-center rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">
+                {maskPhone(phone)}
+              </div>
 
               <Button
                 type="button"
-                variant="success"
+                size="sm"
+                variant="secondary"
                 onClick={handleVerifyNumber}
-                className="whitespace-nowrap"
+                className="whitespace-nowrap rounded-md border border-primary/20 bg-primary/10 px-3 py-2 text-sm font-medium text-primary shadow-sm transition hover:bg-primary hover:text-primary-foreground"
               >
                 Send OTP
               </Button>
