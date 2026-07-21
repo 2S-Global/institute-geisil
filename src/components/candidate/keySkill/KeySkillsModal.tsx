@@ -198,7 +198,7 @@ const KeySkillsModal = ({
           )}
         </div>
         <DialogFooter className="mt-6">
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
 

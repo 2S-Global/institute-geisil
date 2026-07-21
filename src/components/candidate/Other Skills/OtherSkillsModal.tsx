@@ -197,7 +197,7 @@ const OtherSkillsModal = ({ isOpen, onClose, editData = null, onSuccess }) => {
         <div className="flex items-center justify-between px-6 pt-5 pb-3">
           {/* Dynamic title matches action mode context */}
           <DialogTitle className="text-xl font-bold text-gray-800">
-            {isEditMode ? "Edit skill" : "Add Other Skills"}
+            {isEditMode ? "Edit skill" : " Other Skills"}
           </DialogTitle>
 
           {/* Action Buttons: Top Right Corner Group */}
@@ -340,7 +340,7 @@ const OtherSkillsModal = ({ isOpen, onClose, editData = null, onSuccess }) => {
 
           
           <div className="flex justify-end space-x-3">
-            <Button type="button" disabled={isSubmitting} onClick={onClose} variant="ghost">
+            <Button type="button" disabled={isSubmitting} onClick={onClose} variant="outline">
               Cancel
             </Button>
             <Button

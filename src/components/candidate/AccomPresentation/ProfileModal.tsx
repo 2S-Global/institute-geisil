@@ -392,7 +392,7 @@ const ProfileModal = ({
       <div className="flex justify-end gap-3 pt-6">
 
         <Button
-          variant="ghost"
+          variant="outline"
           type="button"
           onClick={() => {
             setFormData(null);
