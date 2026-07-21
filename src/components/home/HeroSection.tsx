@@ -1,6 +1,4 @@
 
-
-
 import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Sparkles, ShieldCheck, Zap } from "lucide-react";
@@ -13,11 +11,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import api from "@/lib/axios";
 
 interface BannerItem {
-  id?: string | number;
+  _id?: string | number;
   subtitle?: string;
   banner_title?: string;
   description?: string;
   banner_image?: string;
+  is_del?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 const SWIPE_THRESHOLD = 50;
@@ -108,7 +109,7 @@ export default function HeroSection() {
 
   if (loading) {
     return (
-      <section className="w-full min-h-[calc(100vh-4rem)] flex items-center justify-center bg-gradient-to-br from-background via-primary/10 to-background border-b border-border/40 px-6 py-12">
+      <section className="w-full min-h-[calc(100vh-4rem)] flex items-center justify-center bg-gradient-to-br from-background via-primary/18 to-background border-b border-border/40 px-6 py-12">
         <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-6 space-y-6">
             <Skeleton className="h-8 w-44 rounded-full" />
@@ -132,14 +133,14 @@ export default function HeroSection() {
   return (
     <section
       id="home"
-      className="relative w-full min-h-[calc(100vh-4rem)] flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-primary/10 via-30% to-background border-b border-border/50 py-10 lg:py-0 select-none"
+      className="relative w-full min-h-[calc(100vh-4rem)] flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-primary/18 via-30% to-background border-b border-border/50 py-10 lg:py-0 select-none"
     >
-      {/* RICH GRADIENT MESH & GLOW BACKDROP */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(99,102,241,0.15),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(168,85,247,0.15),transparent_40%),radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1),transparent_50%)] pointer-events-none" />
+      {/* BALANCED GRADIENT MESH & GLOW BACKDROP */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(99,102,241,0.22),transparent_45%),radial-gradient(circle_at_80%_80%,rgba(168,85,247,0.22),transparent_45%),radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.15),transparent_55%)] pointer-events-none" />
 
-      {/* Animated Glowing Gradient Orbs */}
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-gradient-to-tr from-primary/30 to-purple-500/20 rounded-full blur-[120px] pointer-events-none animate-pulse" />
-      <div className="absolute bottom-10 -right-20 w-[500px] h-[500px] bg-gradient-to-bl from-blue-600/20 via-primary/20 to-transparent rounded-full blur-[150px] pointer-events-none" />
+      {/* Soft Animated Glowing Gradient Orbs */}
+      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-gradient-to-tr from-primary/35 to-purple-500/25 rounded-full blur-[110px] pointer-events-none animate-pulse" />
+      <div className="absolute bottom-10 -right-20 w-[500px] h-[500px] bg-gradient-to-bl from-blue-600/25 via-primary/25 to-transparent rounded-full blur-[130px] pointer-events-none" />
 
       {/* Subtle Dot Grid Mask Overlay */}
       <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#1f2937_1px,transparent_1px)] [background-size:16px_16px] opacity-30 pointer-events-none" />
@@ -162,30 +163,29 @@ export default function HeroSection() {
           >
             {/* LEFT COLUMN: TYPOGRAPHY (55%) */}
             <div className="lg:col-span-7 xl:col-span-6 order-2 lg:order-1 text-center lg:text-left space-y-6 lg:pr-4">
-              {currentBanner?.subtitle && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="inline-block"
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="inline-block"
+              >
+                <Badge
+                  variant="outline"
+                  className="inline-flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-primary/20 to-purple-500/10 text-primary border-primary/30 backdrop-blur-md rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase shadow-sm"
                 >
-                  <Badge
-                    variant="outline"
-                    className="inline-flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-primary/20 to-purple-500/10 text-primary border-primary/30 backdrop-blur-md rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase shadow-sm"
-                  >
-                    <Sparkles className="w-4 h-4 text-primary animate-pulse" />
-                    {currentBanner.subtitle}
-                  </Badge>
-                </motion.div>
-              )}
+                  <Sparkles className="w-4 h-4 text-primary animate-pulse" />
+                  {currentBanner?.subtitle || "Verified Service"}
+                </Badge>
+              </motion.div>
 
               <motion.h1
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.15 }}
-                className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black leading-[1.08] tracking-tight text-foreground"
+                className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight text-foreground"
+                style={{ lineHeight: 1.15 }}
               >
-                <span className="bg-gradient-to-r from-foreground via-foreground/90 via-50% to-primary bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-foreground via-foreground/95 to-primary bg-clip-text text-transparent drop-shadow-sm">
                   {currentBanner?.banner_title}
                 </span>
               </motion.h1>
@@ -194,7 +194,7 @@ export default function HeroSection() {
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="text-muted-foreground text-justify text-base sm:text-lg xl:text-xl max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal"
+                className="text-muted-foreground text-left text-base sm:text-lg xl:text-xl max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal tracking-wide"
               >
                 {currentBanner?.description}
               </motion.p>
@@ -241,7 +241,7 @@ export default function HeroSection() {
                       className={`h-2.5 rounded-full transition-all duration-500 focus:outline-none ${
                         slide === index
                           ? "w-12 bg-gradient-to-r from-primary to-purple-500 shadow-md shadow-primary/40"
-                          : "w-3 bg-muted-foreground/30 hover:bg-muted-foreground/60"
+                          : "w-3 bg-muted-foreground/30 hover:bg-muted-foreground/65"
                       }`}
                     />
                   ))}
@@ -258,8 +258,8 @@ export default function HeroSection() {
                 onDragEnd={handleDragEnd}
                 className="relative mx-auto max-w-lg lg:max-w-none cursor-grab active:cursor-grabbing touch-pan-y"
               >
-                {/* Gradient Outer Border Frame */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-primary via-purple-500 to-blue-500 rounded-[2.5rem] blur-xl opacity-60 transition duration-1000" />
+                {/* Gradient Outer Border Frame Glow */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-primary via-purple-500 to-blue-500 rounded-[2.5rem] blur-xl opacity-70 transition duration-1000" />
 
                 <Card className="relative overflow-hidden border border-white/20 dark:border-white/10 shadow-2xl bg-card/30 backdrop-blur-2xl rounded-[2rem]">
                   <CardContent className="p-0 pointer-events-none">
@@ -273,7 +273,7 @@ export default function HeroSection() {
 
                       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent opacity-90" />
 
-                      {/* Floating Badge Overlay */}
+                      {/* DYNAMIC FLOATING BADGE OVERLAY BASED ON API */}
                       <div className="absolute bottom-6 left-6 right-6 p-4 rounded-2xl bg-background/50 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-xl flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/30 to-purple-500/20 text-primary">
@@ -281,17 +281,17 @@ export default function HeroSection() {
                           </div>
                           <div>
                             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                              Performance
+                              System Feature
                             </p>
                             <p className="text-sm font-bold text-foreground">
-                              Optimized Workflow
+                              {currentBanner?.banner_title}
                             </p>
                           </div>
                         </div>
 
                         <div className="flex items-center gap-2 text-emerald-500 text-xs font-bold bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20">
                           <ShieldCheck className="w-4 h-4" />
-                          Verified
+                          {!currentBanner?.is_del ? "Active" : "Archived"}
                         </div>
                       </div>
                     </div>
