@@ -93,7 +93,7 @@ const CertificateMain = ({ setReload, list = [], setError, setSuccess }) => {
           
           onClick={openModal}
         >
-          <Plus className="h-4 w-4" /> Add certifications
+          <Plus className="h-4 w-4" /> Add Certifications
         </Button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

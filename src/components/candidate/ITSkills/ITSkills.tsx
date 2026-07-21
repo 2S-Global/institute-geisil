@@ -66,7 +66,7 @@ const ITSkills = () => {
             </CardDescription>
           </div>
           <Button type="button" onClick={handleOpenCreate} size="sm">
-            <Plus className="h-4 w-4" /> Add Skill
+            <Plus className="h-4 w-4" /> Add Skills
           </Button>
         </CardHeader>
 

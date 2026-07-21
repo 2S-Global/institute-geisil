@@ -198,7 +198,7 @@ const AcademicSection = () => {
             className="gap-1.5"
             onClick={() => openModalRH()}
           >
-            <Plus className="h-4 w-4" /> Add education
+            <Plus className="h-4 w-4" /> Add Education
           </Button>
         </div>
 
