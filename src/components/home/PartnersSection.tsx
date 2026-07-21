@@ -66,7 +66,7 @@ export default function PartnersSection() {
             </Badge>
 
             <h2 className="text-2xl md:text-3xl font-bold text-foreground">
-              Powering verification with trusted networks
+              Powering Verification With Trusted Networks
             </h2>
           </div>
 

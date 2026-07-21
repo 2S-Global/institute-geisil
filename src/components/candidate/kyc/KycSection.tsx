@@ -78,7 +78,7 @@ const KycSection = ({ show, onClose, data = {}, setRefresh }) => {
 
       if (res.data.success) {
         if (res.data.verificationResult?.success) {
-          setSuccess(res.data.verificationResult?.message || res.data.message);
+          //setSuccess(res.data.verificationResult?.message || res.data.message);
           setReload(true);
           toast({
             title: "Success",
@@ -94,7 +94,7 @@ const KycSection = ({ show, onClose, data = {}, setRefresh }) => {
           });
         }
       } else {
-        setError(res.data.message);
+        //setError(res.data.message);
         toast({
           title: "Error",
           variant: "destructive",
@@ -102,7 +102,7 @@ const KycSection = ({ show, onClose, data = {}, setRefresh }) => {
         });
       }
     } catch (error) {
-      setError("Failed to update KYC. Try again later.");
+      //setError("Failed to update KYC. Try again later.");
       toast({
         title: "Error",
         variant: "destructive",

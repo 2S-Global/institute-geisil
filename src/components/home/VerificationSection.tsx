@@ -68,7 +68,7 @@ export default function VerificationSection() {
             Our Services
           </Badge> */}
           <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-            Verification, simplified
+            Verification, Simplified
           </h2>
           <p className="text-muted-foreground mt-3  text-justify">
             GEISIL (Global Employability Information Services India Limited)

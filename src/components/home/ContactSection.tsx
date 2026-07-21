@@ -122,7 +122,7 @@ export default function ContactSection() {
             Contact
           </Badge>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Let's talk verification
+            Let's Talk Verification
           </h2>
           <p className="text-muted-foreground mb-8">
             Have a question, want a demo, or ready to integrate? Our team
