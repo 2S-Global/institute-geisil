@@ -81,7 +81,7 @@ export default function Register() {
         title: "Account created",
         description: `Welcome to GEISIL as a ${role}.`,
       });
-      navigate("/");
+      navigate("/login");
     } catch (err: any) {
       const msg =
         err?.response?.data?.message || err.message || "Registration failed";

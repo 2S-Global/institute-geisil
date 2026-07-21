@@ -452,7 +452,7 @@ const WorkProfileModal = ({ show, onClose, item, setReload, onDelete }) => {
               Cancel
             </Button>
             <Button type="button" onClick={handleSave} disabled={saving}>
-              {saving ? "Saving..." : "Save Changes"}
+              {saving ? "Saving..." : "Save "}
             </Button>
           </div>
         </DialogFooter>

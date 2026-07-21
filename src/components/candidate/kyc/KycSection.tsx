@@ -142,7 +142,7 @@ const KycSection = ({ show, onClose, data = {}, setRefresh }) => {
               </Button>
             ) : (
               <Button size="sm" onClick={() => openModalRH("all")}>
-                <Plus className="mr-2 h-4 w-4" /> Add KYC
+                <Plus className=" h-4 w-4" /> Add KYC
               </Button>
             ))}
         </CardHeader>

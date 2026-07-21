@@ -107,6 +107,7 @@ export default function CandidateProfile() {
   const [uploadDate, setUploadDate] = useState("");
   const [resumeLoading, setResumeLoading] = useState(false);
   const [downloadLoading, setDownloadLoading] = useState(false);
+  const [downloadReportLoading, setDownloadReportLoading] = useState(false);
   const [geisilScore, setGeisilScore] = useState();
   const [scoreLoading, setScoreLoading] = useState(false);
 
@@ -334,6 +335,43 @@ export default function CandidateProfile() {
       toast.error("Failed to download resume. Please try again.");
     } finally {
       setDownloadLoading(false);
+    }
+  };
+
+  const downloadReport = async () => {
+    try {
+      setDownloadReportLoading(true);
+
+      const response = await API.get("/api/candidate/resume/get_resume", {
+        responseType: "blob",
+      });
+      console.log("response---", response)
+      const contentDisposition =
+        response.headers["content-disposition"] ||
+        response.headers["Content-Disposition"] ||
+        "";
+      const filenameMatch = contentDisposition.match(/filename\*?=([^;]+)/i);
+      const filename = filenameMatch
+        ? filenameMatch[1].trim().replace(/^(?:UTF-8'')?/, "")
+        : response.headers["filename"] || "Report.pdf";
+
+      const blob = new Blob([response.data], {
+        type: response.headers["content-type"] || "application/pdf",
+      });
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename.replace(/"/g, "") || "Report.pdf";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Report download failed:", error);
+      toast.error("Failed to download report. Please try again.");
+    } finally {
+      setDownloadReportLoading(false);
     }
   };
 
@@ -878,10 +916,10 @@ export default function CandidateProfile() {
                         variant="outline"
                         size="sm"
                         className="gap-2 hover:bg-primary hover:text-white transition"
-                        onClick={downloadResume}
-                        disabled={downloadLoading}
+                        onClick={downloadReport}
+                        disabled={downloadReportLoading}
                       >
-                        {downloadLoading ? (
+                        {downloadReportLoading ? (
                           <>
                             <Loader2 className="h-4 w-4 animate-spin" />
                             Downloading
