@@ -1182,7 +1182,7 @@ export const EmploymentModal = ({
                 variant="outline"
                 onClick={onClose}
                 disabled={submitting}
-                className="px-5 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 hover:text-slate-900 rounded-lg transition-colors"
+               
               >
                 Cancel
               </Button>
@@ -1197,8 +1197,8 @@ export const EmploymentModal = ({
                 {submitting
                   ? "Saving..."
                   : jobId
-                    ? "Update Record"
-                    : "Save Employment"}
+                    ? "Update "
+                    : "Save "}
               </Button>
             </div>
           </form>

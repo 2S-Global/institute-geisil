@@ -68,7 +68,7 @@ const ResumeHeadlineSection = ({
               </Button>
             ) : (
               <Button  size="sm" onClick={openModalRH}>
-                <Plus className="mr-2 h-4 w-4" /> Add Headline
+                <Plus className=" h-4 w-4" /> Add Headline
               </Button>
             )
           )}

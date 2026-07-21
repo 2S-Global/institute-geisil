@@ -110,7 +110,7 @@ const CareerProfile = () => {
                 size="sm"
                 onClick={() => openModalWithHighlight(null)}
               >
-                <Plus className="w-4 h-4 mr-2" /> Add Career Profile
+                <Plus className="w-4 h-4" /> Add Career Profile
               </Button>
             )}
           </div>

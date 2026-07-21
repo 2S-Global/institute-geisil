@@ -43,7 +43,7 @@ const PatentMain = ({ setReload, list = [], setError, setSuccess }) => {
         {/* Show 'Add' button only if list is empty */}
         {(!Array.isArray(list) || list.length === 0) && (
           <Button size="sm" onClick={() => openModal()} >
-            <Plus className="mr-2 h-4 w-4" /> Add Patent
+            <Plus className=" h-4 w-4" /> Add Patent
           </Button>
         )}
       </div>

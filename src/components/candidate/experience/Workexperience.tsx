@@ -591,7 +591,7 @@ const WorkProfileList = () => {
         </div>
         
         <Button size="sm" onClick={handleAdd}>
-          <Plus className="h-4 w-4 mr-1" /> Add Experience
+          <Plus className="h-4 w-4 " /> Add Experience
         </Button>
       </CardHeader>
 
