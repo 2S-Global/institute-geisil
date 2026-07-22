@@ -230,7 +230,7 @@ const FormModal = ({
             <div className="text-center py-4 text-sm text-gray-500">loading details...</div>
           ) : (
             <>
-              {error && <div className="text-sm text-red-500 bg-red-50 p-2 rounded">{error}</div>}
+              {/* {error && <div className="text-sm text-red-500 bg-red-50 p-2 rounded">{error}</div>} */}
               <PersonalInfoForm
                 formData={formData}
                 setFormData={setFormData}
