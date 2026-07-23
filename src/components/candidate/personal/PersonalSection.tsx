@@ -12,7 +12,7 @@ import {
 import FormModal from "./PersonalModal";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const PersonalSection = () => {
+const PersonalSection = ({setRefresh}) => {
   const [modalType, setModalType] = useState(null);
   const [focusSection, setFocusSection] = useState(null);
   const [targetLanguageId, setTargetLanguageId] = useState(null);
@@ -450,6 +450,7 @@ const PersonalSection = () => {
           setReload={setReload}
           setError={setError}
           setSuccess={setSuccess}
+          setRefresh = {setRefresh}
           error={error}
         />
       )}

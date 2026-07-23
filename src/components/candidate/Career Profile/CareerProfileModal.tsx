@@ -20,6 +20,7 @@ const CareerProfileModal = ({
   currentData,
   highlightField,
   onSaveSuccess,
+  setRefresh
 }) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -287,6 +288,9 @@ const CareerProfileModal = ({
         description: "Career profile updated successfully.",
       });
       if (onSaveSuccess) onSaveSuccess();
+      if (setRefresh) {
+        setRefresh((prev) => prev + 1);
+      }
       onClose();
     } catch (error) {
       console.error(error);

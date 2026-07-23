@@ -45,7 +45,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
+import { Switch } from "@/components/ui/switch";  
 import AboutFormModal from "@/components/candidate/myprofile/FormModal";
 import Profilepic from "@/components/candidate/profileImg/FormModal";
 import PersonalSection from "@/components/candidate/personal/PersonalSection";
@@ -71,7 +71,7 @@ import JobPreferences from "@/components/candidate/jobPreferences/JobPreferences
 import ITSkills from "@/components/candidate/ITSkills/ITSkills";
 import OtherSkills from "@/components/candidate/Other Skills/OtherSkills";
 import ProfileStrength from "./components/ProfileStrength";
-// import ProfileStrength from "../candidate/components/pro"
+
 import OTPModel from "@/components/candidate/myprofile/OTPModal";
 import { ProfileHeaderSkeleton } from "@/components/candidate/skeletons/ProfileHeaderSkeleton";
 
@@ -129,7 +129,7 @@ export default function CandidateProfile() {
 
   useEffect(() => {
     fetchScore();
-  }, []);
+  }, [refresh]);
 
   const openModalRH = () => {
     setIsModalOpen(true);
@@ -615,12 +615,12 @@ export default function CandidateProfile() {
 
               <TabsContent value="about" className="space-y-6 mt-6">
                 <KycSection />
-                <ResumeHeadlineSection />
-                <ProfileSummarySection />
-                <KeySkills />
+                <ResumeHeadlineSection  setRefresh={setRefresh}/>
+                <ProfileSummarySection setRefresh={setRefresh} /> 
+                <KeySkills setRefresh={setRefresh}/>
                 <ITSkills />
                 <OtherSkills />
-                <PersonalSection />
+                <PersonalSection setRefresh={setRefresh}/>
                 <OnlineProfileSection />
                 <AccomOnlinePresentationSection />
                 <PatentSection />
@@ -752,9 +752,9 @@ export default function CandidateProfile() {
                     </Card>
                   ))}
                 </div> */}
-                <Employment />
+                <Employment setRefresh ={setRefresh} />
                 <WorkProfileList />
-                <CareerProfile />
+                <CareerProfile setRefresh={setRefresh}  />
                 <WhitePaper />
               </TabsContent>
 
@@ -978,7 +978,7 @@ export default function CandidateProfile() {
                 </div> */}
 
           <div className="space-y-6">
-            <ProfileStrength />
+            <ProfileStrength refresh={refresh}/>
             <JobPreferences />
 
             <Card>

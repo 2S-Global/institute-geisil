@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import API from "../../../lib/axios";
 import PersonalInfoForm from "./PersonalInfoForm";
@@ -22,6 +21,7 @@ const FormModal = ({
   focusSection,
   targetLanguageId,
   setSuccess,
+  setRefresh,
 }) => {
   const { toast } = useToast();
   const [formData, setFormData] = useState({
@@ -71,7 +71,9 @@ const FormModal = ({
     return {
       gender: String(data.gender || ""),
       dob: data.dob ? new Date(data.dob) : null,
-      more_info: Array.isArray(data.more_info) ? data.more_info.map(String) : [],
+      more_info: Array.isArray(data.more_info)
+        ? data.more_info.map(String)
+        : [],
       have_usa_visa: !!data.have_usa_visa,
       partner_name: data.partner_name || "",
       marital_status: String(data.marital_status || ""),
@@ -99,7 +101,7 @@ const FormModal = ({
         read: !!lang.read,
         write: !!lang.write,
         speak: !!lang.speak,
-        _id: lang._id || undefined
+        _id: lang._id || undefined,
       })),
     };
   };
@@ -108,15 +110,28 @@ const FormModal = ({
     const fetchPersonalDetails = async () => {
       try {
         setLoading(true);
-        const response = await API.get(`/api/candidate/personal/get_personal_details`);
+        const response = await API.get(
+          `/api/candidate/personal/get_personal_details`,
+        );
         if (response.status === 200) {
           // FIXED: Checks structural object layer variance dynamically
-          const actualData = response.data?.data ? response.data.data : response.data;
+          const actualData = response.data?.data
+            ? response.data.data
+            : response.data;
           const formatted = formatPersonalDetailsResponse(actualData);
 
           if (focusSection === "languages" && !targetLanguageId) {
-            const blankRow = { language: "", proficiency: "", read: false, write: false, speak: false };
-            formatted.languagesDetails = [...formatted.languagesDetails, blankRow];
+            const blankRow = {
+              language: "",
+              proficiency: "",
+              read: false,
+              write: false,
+              speak: false,
+            };
+            formatted.languagesDetails = [
+              ...formatted.languagesDetails,
+              blankRow,
+            ];
             formatted.languages = [...formatted.languages, blankRow];
           }
 
@@ -136,37 +151,84 @@ const FormModal = ({
       let targetIndex = -1;
       if (targetLanguageId) {
         const targetStr = String(targetLanguageId).trim().toLowerCase();
-        targetIndex = formData.languagesDetails.findIndex((l) => String(l._id || "").trim().toLowerCase() === targetStr);
+        targetIndex = formData.languagesDetails.findIndex(
+          (l) =>
+            String(l._id || "")
+              .trim()
+              .toLowerCase() === targetStr,
+        );
       } else {
         targetIndex = formData.languagesDetails.length - 1;
       }
 
-      if (targetIndex === -1 || !formData.languagesDetails[targetIndex]) return false;
+      if (targetIndex === -1 || !formData.languagesDetails[targetIndex])
+        return false;
 
       const currentLangRow = formData.languagesDetails[targetIndex];
 
-      if (!currentLangRow.language || currentLangRow.language.toString().trim() === "") return false;
-      if (!currentLangRow.proficiency || currentLangRow.proficiency.toString().trim() === "") return false;
-      if (!(currentLangRow.read || currentLangRow.write || currentLangRow.speak)) return false;
+      if (
+        !currentLangRow.language ||
+        currentLangRow.language.toString().trim() === ""
+      )
+        return false;
+      if (
+        !currentLangRow.proficiency ||
+        currentLangRow.proficiency.toString().trim() === ""
+      )
+        return false;
+      if (
+        !(currentLangRow.read || currentLangRow.write || currentLangRow.speak)
+      )
+        return false;
 
       return true;
     }
 
-    if (!formData.gender || formData.gender.toString().trim() === "") return false;
+    if (!formData.gender || formData.gender.toString().trim() === "")
+      return false;
     if (!formData.dob) return false;
 
     if (formData.differently_abled === "Yes") {
-      if (!formData.disability_type || formData.disability_type.toString().trim() === "") return false;
-      if (formData.disability_type === "999" && (!formData.disability_description || formData.disability_description.toString().trim() === "")) return false;
+      if (
+        !formData.disability_type ||
+        formData.disability_type.toString().trim() === ""
+      )
+        return false;
+      if (
+        formData.disability_type === "999" &&
+        (!formData.disability_description ||
+          formData.disability_description.toString().trim() === "")
+      )
+        return false;
     }
 
     if (formData.career_break === "Yes") {
-      if (!formData.career_break_reason || formData.career_break_reason.toString().trim() === "") return false;
-      if (!formData.career_break_start_year || formData.career_break_start_year.toString().trim() === "") return false;
-      if (!formData.career_break_start_month || formData.career_break_start_month.toString().trim() === "") return false;
+      if (
+        !formData.career_break_reason ||
+        formData.career_break_reason.toString().trim() === ""
+      )
+        return false;
+      if (
+        !formData.career_break_start_year ||
+        formData.career_break_start_year.toString().trim() === ""
+      )
+        return false;
+      if (
+        !formData.career_break_start_month ||
+        formData.career_break_start_month.toString().trim() === ""
+      )
+        return false;
       if (!formData.currently_on_career_break) {
-        if (!formData.career_break_end_year || formData.career_break_end_year.toString().trim() === "") return false;
-        if (!formData.career_break_end_month || formData.career_break_end_month.toString().trim() === "") return false;
+        if (
+          !formData.career_break_end_year ||
+          formData.career_break_end_year.toString().trim() === ""
+        )
+          return false;
+        if (
+          !formData.career_break_end_month ||
+          formData.career_break_end_month.toString().trim() === ""
+        )
+          return false;
       }
     }
 
@@ -181,6 +243,40 @@ const FormModal = ({
     setWrongDate2(formData.currently_on_career_break ? false : wrongdate);
   }, [formData.currently_on_career_break, wrongdate]);
 
+  // const handleSave = async () => {
+  //   if (!validateForm()) return;
+  //   setSaving(true);
+  //   try {
+  //     let finalFormData = { ...formData };
+
+  //     if (focusSection === "languages") {
+  //       finalFormData.languagesDetails = formData.languagesDetails.filter(
+  //         (lang) => lang.language && lang.proficiency
+  //       );
+  //     }
+
+  //     const response = await API.post(`/api/candidate/personal/submit_personal_details`, finalFormData);
+  //     console.log("response is", response);
+  //     setSaving(false);
+  //     setReload(!reload);
+  //     toast({
+  //       title: "Success",
+  //       description: "Personal details updated successfully",
+  //     });
+  //     onClose();
+  //   } catch (error: any) {
+  //     console.error("Error saving personal details:", error);
+  //     setSaving(false);
+  //     const errMsg = error.response?.data?.message || "Error saving personal details. Please try again.";
+  //     setError(errMsg);
+  //     toast({
+  //       title: "Error",
+  //       variant: "destructive",
+  //       description: errMsg,
+  //     });
+  //   }
+  // };
+
   const handleSave = async () => {
     if (!validateForm()) return;
     setSaving(true);
@@ -189,14 +285,23 @@ const FormModal = ({
 
       if (focusSection === "languages") {
         finalFormData.languagesDetails = formData.languagesDetails.filter(
-          (lang) => lang.language && lang.proficiency
+          (lang) => lang.language && lang.proficiency,
         );
       }
 
-      const response = await API.post(`/api/candidate/personal/submit_personal_details`, finalFormData);
+      const response = await API.post(
+        `/api/candidate/personal/submit_personal_details`,
+        finalFormData,
+      );
       console.log("response is", response);
       setSaving(false);
       setReload(!reload);
+
+      // ➕ ADD THIS LINE: Trigger auto-refresh for profile strength
+      if (setRefresh) {
+        setRefresh((prev) => prev + 1);
+      }
+
       toast({
         title: "Success",
         description: "Personal details updated successfully",
@@ -205,7 +310,9 @@ const FormModal = ({
     } catch (error: any) {
       console.error("Error saving personal details:", error);
       setSaving(false);
-      const errMsg = error.response?.data?.message || "Error saving personal details. Please try again.";
+      const errMsg =
+        error.response?.data?.message ||
+        "Error saving personal details. Please try again.";
       setError(errMsg);
       toast({
         title: "Error",
@@ -221,13 +328,19 @@ const FormModal = ({
     <Dialog open={show} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[750px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-display text-xl">Personal Details</DialogTitle>
-          <DialogDescription>This information helps employers know you better.</DialogDescription>
+          <DialogTitle className="font-display text-xl">
+            Personal Details
+          </DialogTitle>
+          <DialogDescription>
+            This information helps employers know you better.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 pt-2">
           {loading ? (
-            <div className="text-center py-4 text-sm text-gray-500">loading details...</div>
+            <div className="text-center py-4 text-sm text-gray-500">
+              loading details...
+            </div>
           ) : (
             <>
               {/* {error && <div className="text-sm text-red-500 bg-red-50 p-2 rounded">{error}</div>} */}
@@ -240,17 +353,14 @@ const FormModal = ({
                 onClose={onClose}
                 setReload={setReload}
                 setWrongDate={setWrongDate}
+                setRefresh={setRefresh}
               />
             </>
           )}
         </div>
 
         <div className="flex justify-end gap-3 pt-6">
-          <Button
-            type="button"
-            onClick={onClose}
-            variant="outline"
-          >
+          <Button type="button" onClick={onClose} variant="outline">
             Cancel
           </Button>
           <div className="relative inline-flex group">

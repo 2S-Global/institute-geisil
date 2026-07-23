@@ -29,6 +29,7 @@ const ResumeHeadline = ({
   mainsetResumeHeadline,
   setError,
   setSuccess,
+  setRefresh
 }) => {
   const apiurl = import.meta.env.VITE_API_URL;
   console.log("show", show);
@@ -69,6 +70,9 @@ const ResumeHeadline = ({
       if (response.status === 201) {
         mainsetResumeHeadline(resumeHeadline);
         setSuccess("Resume Headline updated successfully");
+        if (setRefresh) {
+          setRefresh((prev) => prev + 1);
+        }
         toast({
           title: "Success",
           description: "Resume Headline updated successfully",

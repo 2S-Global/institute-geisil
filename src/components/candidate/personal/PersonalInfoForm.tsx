@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import API from "../../../lib/axios";
@@ -19,6 +18,7 @@ const PersonalInfoForm = ({
   focusSection,
   setWrongDate,
   targetLanguageId,
+  setRefresh,
 }) => {
   const apiurl = import.meta.env.VITE_API_URL;
 
@@ -117,7 +117,9 @@ const PersonalInfoForm = ({
 
     const fetchMoreInfoList = async () => {
       try {
-        const response = await fetch(`${apiurl}/api/sql/dropdown/more_information`);
+        const response = await fetch(
+          `${apiurl}/api/sql/dropdown/more_information`,
+        );
         const data = await response.json();
         setMore_info_list(data.data || []);
       } catch (error) {
@@ -127,7 +129,9 @@ const PersonalInfoForm = ({
 
     const fetchMarriageStatusList = async () => {
       try {
-        const response = await fetch(`${apiurl}/api/sql/dropdown/marital_status`);
+        const response = await fetch(
+          `${apiurl}/api/sql/dropdown/marital_status`,
+        );
         const data = await response.json();
         setMarriageStatusList(data.data || []);
         setWithpartnername(data.hasPartner || []);
@@ -138,7 +142,9 @@ const PersonalInfoForm = ({
 
     const fetchCategories = async () => {
       try {
-        const response = await fetch(`${apiurl}/api/sql/dropdown/category_details`);
+        const response = await fetch(
+          `${apiurl}/api/sql/dropdown/category_details`,
+        );
         const data = await response.json();
         setCategories(data.data || []);
       } catch (error) {
@@ -164,7 +170,7 @@ const PersonalInfoForm = ({
           (data.data || []).map((country) => ({
             label: country.name,
             value: country.id,
-          }))
+          })),
         );
       } catch (error) {
         console.error("Error fetching countries:", error);
@@ -207,7 +213,9 @@ const PersonalInfoForm = ({
   const handleChange = (selectedOptions) => {
     setFormData({
       ...formData,
-      work_permit_other_countries: selectedOptions ? selectedOptions.map((opt) => opt.value) : [],
+      work_permit_other_countries: selectedOptions
+        ? selectedOptions.map((opt) => opt.value)
+        : [],
     });
   };
 
@@ -222,17 +230,27 @@ const PersonalInfoForm = ({
 
   // Helper to append dynamic classes without needing any external CSS layout targets
   const getHighlightClass = (sectionId) => {
-    const baseClass = "p-3 border rounded-lg transition-all duration-500 ease-in-out ";
+    const baseClass =
+      "p-3 border rounded-lg transition-all duration-500 ease-in-out ";
     if (activeHighlight === sectionId) {
-      return baseClass + "border-[#223B6B] bg-[#223B6B]/[0.02] shadow-[0_0_0_3px_rgba(34,59,107,0.15)]";
+      return (
+        baseClass +
+        "border-[#223B6B] bg-[#223B6B]/[0.02] shadow-[0_0_0_3px_rgba(34,59,107,0.15)]"
+      );
     }
     return baseClass + "border-transparent bg-transparent";
   };
 
   if (!show) return null;
 
-  const safeMoreInfo = Array.isArray(formData?.more_info) ? formData.more_info : [];
-  const safeWorkPermitCountries = Array.isArray(formData?.work_permit_other_countries) ? formData.work_permit_other_countries : [];
+  const safeMoreInfo = Array.isArray(formData?.more_info)
+    ? formData.more_info
+    : [];
+  const safeWorkPermitCountries = Array.isArray(
+    formData?.work_permit_other_countries,
+  )
+    ? formData.work_permit_other_countries
+    : [];
   const safePartnerList = Array.isArray(withpartnername) ? withpartnername : [];
 
   return (
@@ -244,7 +262,11 @@ const PersonalInfoForm = ({
           {!renderLanguages && (
             <>
               {/* Personal Info Section Container */}
-              <div ref={personalInfo} id="personalInfo" className={`${getHighlightClass("personalInfo")} space-y-6`}>
+              <div
+                ref={personalInfo}
+                id="personalInfo"
+                className={`${getHighlightClass("personalInfo")} space-y-6`}
+              >
                 {/* Gender */}
                 <div>
                   <label className="block text-sm font-semibold mb-2">
@@ -278,7 +300,9 @@ const PersonalInfoForm = ({
                       <button
                         type="button"
                         key={info.id}
-                        onClick={(e) => handleMultiSelect("more_info", info.id, e)}
+                        onClick={(e) =>
+                          handleMultiSelect("more_info", info.id, e)
+                        }
                         className={`px-4 py-1.5 rounded-full border text-sm transition-all ${
                           safeMoreInfo.includes(info.id)
                             ? "bg-indigo-100 border-indigo-500 font-semibold"
@@ -301,7 +325,9 @@ const PersonalInfoForm = ({
                       <button
                         type="button"
                         key={status.id}
-                        onClick={(e) => handleSelect("marital_status", status.id, e)}
+                        onClick={(e) =>
+                          handleSelect("marital_status", status.id, e)
+                        }
                         className={`px-4 py-1.5 rounded-full border text-sm transition-all ${
                           formData?.marital_status == status.id
                             ? "bg-indigo-100 border-indigo-500 font-semibold"
@@ -315,7 +341,8 @@ const PersonalInfoForm = ({
                 </div>
 
                 {/* Partner Name */}
-                {(safePartnerList.includes(formData?.marital_status) || Boolean(formData?.partner_name)) && (
+                {(safePartnerList.includes(formData?.marital_status) ||
+                  Boolean(formData?.partner_name)) && (
                   <div>
                     <label className="block text-sm font-semibold mb-2">
                       Spouse Name
@@ -363,12 +390,17 @@ const PersonalInfoForm = ({
               </div>
 
               {/* Category Section Container */}
-              <div ref={category} id="category" className={getHighlightClass("category")}>
+              <div
+                ref={category}
+                id="category"
+                className={getHighlightClass("category")}
+              >
                 <label className="block text-sm font-semibold mb-2">
                   Category
                 </label>
                 <p className="text-gray-500 text-sm mb-2">
-                  Companies welcome people from various categories to bring equality among all citizens.
+                  Companies welcome people from various categories to bring
+                  equality among all citizens.
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {categories.map((cat) => (
@@ -389,7 +421,11 @@ const PersonalInfoForm = ({
               </div>
 
               {/* Differently Abled Section Container */}
-              <div ref={differentlyAbled} id="differentlyAbled" className={getHighlightClass("differentlyAbled")}>
+              <div
+                ref={differentlyAbled}
+                id="differentlyAbled"
+                className={getHighlightClass("differentlyAbled")}
+              >
                 <label className="block text-sm font-semibold mb-2">
                   Are you differently abled?
                 </label>
@@ -424,7 +460,11 @@ const PersonalInfoForm = ({
               </div>
 
               {/* Career Break Section Container */}
-              <div ref={careerBreak} id="careerBreak" className={getHighlightClass("careerBreak")}>
+              <div
+                ref={careerBreak}
+                id="careerBreak"
+                className={getHighlightClass("careerBreak")}
+              >
                 <label className="block text-sm font-semibold mb-2">
                   Have you taken a career break?
                 </label>
@@ -460,7 +500,11 @@ const PersonalInfoForm = ({
               </div>
 
               {/* Work Permit Section Container */}
-              <div ref={workPermit} id="workPermit" className={getHighlightClass("workPermit")}>
+              <div
+                ref={workPermit}
+                id="workPermit"
+                className={getHighlightClass("workPermit")}
+              >
                 <div>
                   <label className="block text-sm font-semibold mb-2">
                     Do you have a Work permit for USA
@@ -514,7 +558,7 @@ const PersonalInfoForm = ({
                     isMulti
                     options={countries}
                     value={countries.filter((option) =>
-                      safeWorkPermitCountries.includes(option.value)
+                      safeWorkPermitCountries.includes(option.value),
                     )}
                     onChange={handleChange}
                     className="text-sm"
@@ -523,7 +567,11 @@ const PersonalInfoForm = ({
               </div>
 
               {/* Address Section Container */}
-              <div ref={address} id="address" className={`${getHighlightClass("address")} space-y-3`}>
+              <div
+                ref={address}
+                id="address"
+                className={`${getHighlightClass("address")} space-y-3`}
+              >
                 <div>
                   <label className="block text-sm font-semibold mb-2">
                     Permanent address
@@ -586,13 +634,18 @@ const PersonalInfoForm = ({
 
           {/* Languages Section Container */}
           {renderLanguages && (
-            <div ref={languages} id="languages" className={getHighlightClass("languages")}>
+            <div
+              ref={languages}
+              id="languages"
+              className={getHighlightClass("languages")}
+            >
               <LanguageProficiency
                 formData={formData}
                 setFormData={setFormData}
                 targetLanguageId={targetLanguageId}
                 onClose={onClose}
                 setReload={setReload}
+                setRefresh={setRefresh}
               />
             </div>
           )}

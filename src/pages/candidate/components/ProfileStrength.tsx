@@ -99,8 +99,8 @@
 //   const cibilTheme = useMemo(() => getStatusTheme(cibilPercentage), [cibilPercentage]);
 
 //   return (
-//     <Card className="border border-slate-200/80 dark:border-slate-800 shadow-sm max-w-sm rounded-xl bg-white dark:bg-slate-950">
-//       <CardHeader className="pb-5">
+//     <Card className="border border-slate-200/80 dark:border-slate-800 shadow-sm w-full md:max-w-sm mx-auto rounded-xl bg-white dark:bg-slate-950">
+//       <CardHeader className="pb-5 px-4 md:px-6 pt-4 md:pt-6">
 //         <CardTitle className="text-sm font-semibold tracking-tight text-slate-900 dark:text-slate-100">
 //           Account Status
 //         </CardTitle>
@@ -109,7 +109,7 @@
 //         </CardDescription>
 //       </CardHeader>
 
-//       <CardContent className="space-y-6">
+//       <CardContent className="space-y-6 px-4 md:px-6 pb-6">
 //         {/* Metric Segment: Profile Completeness */}
 //         <div className="space-y-2">
 //           <div className="flex items-center justify-between w-full">
@@ -200,9 +200,8 @@
 // export default ProfileMetrics;
 
 
-import React, { useEffect, useMemo, useState } from "react";
-import API from "@/lib/axios";
 
+import React, { useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -211,11 +210,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { User } from "lucide-react"; 
+import { User } from "lucide-react";
+
 
 // Imported variables
 import CibilLogo from "../../../../public/images/resource/Cibil Logo.png";
 import EisilScoreLogo from "../../../../public/images/resource/Eisil Score Logo.png";
+import { useProfileMetrics } from "../hooks/useProfileMetrics";
 
 const getStatusTheme = (value = 0) => {
   if (value >= 85) {
@@ -246,47 +247,14 @@ const getStatusTheme = (value = 0) => {
   };
 };
 
-const ProfileMetrics = () => {
-  const [profileProgress, setProfileProgress] = useState(0);
-  const [geisilScore, setGeisilScore] = useState(0);
-  const [cibilScore, setCibilScore] = useState(0);
-  
-  const [profileLoading, setProfileLoading] = useState(true);
-  const [scoresLoading, setScoresLoading] = useState(true);
-
-  const fetchUserData = async () => {
-    try {
-      setProfileLoading(true);
-      const userDataRes = await API.get("api/userdata/userdata");
-      const progressValue = userDataRes.data?.progress ?? userDataRes.data?.data?.progress ?? 0;
-      setProfileProgress(Number(progressValue) || 0);
-    } catch (error) {
-      console.error("Error fetching single user data:", error);
-    } finally {
-      setProfileLoading(false);
-    }
-  };
-
-  const fetchScoresData = async () => {
-    try {
-      setScoresLoading(true);
-      const scoreRes = await API.get("api/userdata/getscore");
-      const scoreValue = scoreRes.data?.GeisilScore ?? scoreRes.data?.data?.GeisilScore ?? scoreRes.data?.score ?? scoreRes.data?.data?.score ?? 0;
-      const cibilValue = scoreRes.data?.CibilScore ?? scoreRes.data?.data?.CibilScore ?? 0;
-
-      setGeisilScore(Number(scoreValue) || 0);
-      setCibilScore(Number(cibilValue) || 0);
-    } catch (error) {
-      console.error("Error fetching single scores data:", error);
-    } finally {
-      setScoresLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchUserData();
-    fetchScoresData();
-  }, []);
+const ProfileMetrics = ({ refresh = 0 }: { refresh?: number }) => {
+  const {
+    profileProgress,
+    geisilScore,
+    cibilScore,
+    profileLoading,
+    scoresLoading,
+  } = useProfileMetrics(refresh);
 
   const profileTheme = useMemo(() => getStatusTheme(profileProgress), [profileProgress]);
   const geisilTheme = useMemo(() => getStatusTheme(geisilScore), [geisilScore]);

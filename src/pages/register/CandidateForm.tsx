@@ -386,7 +386,12 @@ export default function CandidateForm({
           id="name"
           placeholder="Name"
           className="h-11"
-          {...register("name")}
+          {...register("name", {
+            onChange: (e) => {
+              // Strip numbers and special characters dynamically
+              e.target.value = e.target.value.replace(/[^a-zA-Z\s]/g, "");
+            },
+          })}
         />
         {errors.name && (touchedFields.name || isSubmitted) && (
           <p className="text-xs text-destructive mt-1">{errors.name.message}</p>
@@ -422,7 +427,12 @@ export default function CandidateForm({
             id="father"
             placeholder="Father name"
             className="h-11"
-            {...register("father_name")}
+            {...register("father_name", {
+              onChange: (e) => {
+                // Strip numbers and special characters dynamically
+                e.target.value = e.target.value.replace(/[^a-zA-Z\s]/g, "");
+              },
+            })}
           />
           {errors.father_name && (touchedFields.father_name || isSubmitted) && (
             <p className="text-xs text-destructive mt-1">

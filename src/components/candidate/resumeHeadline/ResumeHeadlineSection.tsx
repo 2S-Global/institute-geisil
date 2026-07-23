@@ -16,6 +16,7 @@ const ResumeHeadlineSection = ({
   setReload,
   setError_main,
   setSuccess_main,
+  setRefresh
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [resumeHeadline, setResumeHeadline] = useState("");
@@ -105,6 +106,7 @@ const ResumeHeadlineSection = ({
           mainsetResumeHeadline={setResumeHeadline}
           setError={setError}
           setSuccess={setSuccess}
+          setRefresh={setRefresh}
         />
       )}
     </>

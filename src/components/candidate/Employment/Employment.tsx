@@ -60,7 +60,7 @@ const StatusIcon = ({ status, inlineBadge = false }) => {
 
 
 
-export const EmploymentCard = () => {
+export const EmploymentCard = ({setRefresh}) => {
   const [employments, setEmployments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -360,6 +360,7 @@ export const EmploymentCard = () => {
         onRefresh={fetchEmployments}
         jobId={selectedEmployment?._id || ""}
         editData={selectedEmployment}
+        setRefresh ={setRefresh}
       />
     </>
   );

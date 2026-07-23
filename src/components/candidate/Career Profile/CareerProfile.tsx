@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Pencil, Plus } from "lucide-react"; // Added Plus icon
 import API from "../../../lib/axios";
@@ -7,7 +6,7 @@ import CareerProfileModal from "./CareerProfileModal";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-const CareerProfile = () => {
+const CareerProfile = ({ setRefresh }) => {
   const [profileData, setProfileData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -21,6 +20,9 @@ const CareerProfile = () => {
 
       if (response.data && response.data.success === true) {
         setProfileData(response.data.data);
+        // if (setRefresh) {
+        //   setRefresh((prev) => prev + 1);
+        // }
       } else {
         setProfileData({});
       }
@@ -45,7 +47,10 @@ const CareerProfile = () => {
 
   // Helper to check if data exists
   const data = profileData || {};
-  const hasData = data && Object.keys(data).length > 0 && (data.job_role_name || data.industry_name);
+  const hasData =
+    data &&
+    Object.keys(data).length > 0 &&
+    (data.job_role_name || data.industry_name);
 
   if (isLoading) {
     return (
@@ -105,11 +110,7 @@ const CareerProfile = () => {
                 <Pencil className="w-4 h-4" />
               </Button>
             ) : (
-              <Button
-                
-                size="sm"
-                onClick={() => openModalWithHighlight(null)}
-              >
+              <Button size="sm" onClick={() => openModalWithHighlight(null)}>
                 <Plus className="w-4 h-4" /> Add Career Profile
               </Button>
             )}
@@ -123,7 +124,11 @@ const CareerProfile = () => {
                 <label className="block text-sm font-semibold text-slate-900 mb-1">
                   Current Industry
                 </label>
-                {renderField(data.industry_name, "Current Industry", "industry")}
+                {renderField(
+                  data.industry_name,
+                  "Current Industry",
+                  "industry",
+                )}
               </div>
               <div>
                 <label className="block text-sm font-semibold text-slate-900 mb-1">
@@ -135,13 +140,21 @@ const CareerProfile = () => {
                 <label className="block text-sm font-semibold text-slate-900 mb-1">
                   Desired Employment Type
                 </label>
-                {renderField(data.employment_type, "Employment Type", "employment_type")}
+                {renderField(
+                  data.employment_type,
+                  "Employment Type",
+                  "employment_type",
+                )}
               </div>
               <div>
                 <label className="block text-sm font-semibold text-slate-900 mb-1">
                   Preferred Work Location
                 </label>
-                {renderField(data.work_location_name, "Work Location", "work_location")}
+                {renderField(
+                  data.work_location_name,
+                  "Work Location",
+                  "work_location",
+                )}
               </div>
             </div>
 
@@ -169,7 +182,11 @@ const CareerProfile = () => {
                 <label className="block text-sm font-semibold text-slate-900 mb-1">
                   Expected Salary
                 </label>
-                {renderField(formatSalary(data.expected_salary), "Expected Salary", "expected_salary")}
+                {renderField(
+                  formatSalary(data.expected_salary),
+                  "Expected Salary",
+                  "expected_salary",
+                )}
               </div>
             </div>
           </div>
@@ -179,6 +196,7 @@ const CareerProfile = () => {
       {isModalOpen && (
         <CareerProfileModal
           isOpen={isModalOpen}
+           setRefresh ={ setRefresh }
           onClose={() => {
             setIsModalOpen(false);
             setActiveHighlightField(null);
@@ -193,7 +211,7 @@ const CareerProfile = () => {
             shift: data.shift || "",
             work_location: data.work_location || [],
             expected_salary: data.expected_salary || "",
-            currency_type: data.currency_type || "INR"
+            currency_type: data.currency_type || "INR",
           }}
           highlightField={activeHighlightField}
           onSaveSuccess={fetchCareerProfile}

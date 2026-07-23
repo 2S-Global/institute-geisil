@@ -23,9 +23,10 @@ interface Props {
   onClose: () => void;
   selectedSkills: string[];
   refetchKeySkills: () => Promise<void>;
+  
 }
 
-// Helper function to format strings to "Title Case" (e.g., "web development" -> "Web Development")
+// Helper function to format strings to "Title Case"
 const toTitleCase = (str: string): string => {
   if (!str) return "";
   return str
@@ -40,6 +41,7 @@ const KeySkillsModal = ({
   onClose,
   selectedSkills,
   refetchKeySkills,
+  setRefresh,
 }: Props) => {
   const [skills, setSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState("");
@@ -70,14 +72,16 @@ const KeySkillsModal = ({
 
       try {
         const response = await API.get(
-          `/api/sql/dropdown/matching_Skill?skill_name=${value}`,
+          `/api/sql/dropdown/matching_Skill?skill_name=${value}`
         );
 
         const rawData = response.data.data || [];
-        
+
         // Formats dropdown suggestions to match Title Case layout
-        const formattedSuggestions = rawData.map((item: string) => toTitleCase(item));
-        
+        const formattedSuggestions = rawData.map((item: string) =>
+          toTitleCase(item)
+        );
+
         setSuggestions(formattedSuggestions);
       } catch (err) {
         console.error(err);
@@ -101,7 +105,7 @@ const KeySkillsModal = ({
 
     setSkills((prev) => [...prev, formattedSkill]);
     setNewSkill("");
-    setSuggestions([]);
+    setSuggestions([]); // Removed the broken 'if()' here
   };
 
   const removeSkill = (skill: string) => {
@@ -128,6 +132,9 @@ const KeySkillsModal = ({
 
         // 1. CLOSE MODAL FIRST
         onClose();
+        if (setRefresh) {
+          setRefresh((prev) => prev + 1);
+        }
         toast({
           title: "Success",
           description: "Key Skills updated successfully.",
