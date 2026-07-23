@@ -165,9 +165,7 @@ export default function CandidateProfile() {
       setProfileLoading(true);
       const response = await API.get(`/api/userdata/userdata`);
 
-      if (response.data?.profilePicture) {
-        setProfile_pic(response.data.profilePicture);
-      }
+      setProfile_pic(response.data?.profilePicture || null);
 
       if (response.data?.progress) {
         setProgress(response.data.progress);
