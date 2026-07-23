@@ -318,7 +318,7 @@ const PersonalInfoForm = ({
                 {(safePartnerList.includes(formData?.marital_status) || Boolean(formData?.partner_name)) && (
                   <div>
                     <label className="block text-sm font-semibold mb-2">
-                      Partner Name
+                      Spouse Name
                     </label>
                     <input
                       type="text"

@@ -67,16 +67,18 @@ const formatNoticePeriod = (value?: string | null) => {
 
   const text = value.toString().trim();
 
+  // Show months as-is
   const monthMatch = text.match(/^(\d+)\s*(month|months)$/i);
   if (monthMatch) {
     const months = Number(monthMatch[1]);
-    const days = months * 30;
-    return `${days} days`;
+    return `${months} ${months === 1 ? "month" : "months"}`;
   }
 
+  // Show days as-is
   const dayMatch = text.match(/^(\d+)\s*(day|days)$/i);
   if (dayMatch) {
-    return `${dayMatch[1]} days`;
+    const days = Number(dayMatch[1]);
+    return `${days} ${days === 1 ? "day" : "days"}`;
   }
 
   return text;
@@ -94,32 +96,38 @@ const JobPreferences = () => {
       try {
         setIsLoading(true);
 
-        const [careerResponse, employmentResponse] = await Promise.all([
-          API.get("/api/useraction/get_career_profile"),
-          API.get("api/candidate/employment/get_employment"),
-        ]);
+        // Career Profile API
+        const careerResponse = await API.get(
+          "/api/useraction/get_career_profile"
+        );
 
-        if (!isMounted) {
-          return;
-        }
+        if (!isMounted) return;
 
         const careerData =
           careerResponse?.data?.success === true
             ? careerResponse.data.data || {}
             : {};
 
+        setCareerProfile(careerData);
+
+        // Employment API
+        const employmentResponse = await API.get(
+          "/api/candidate/employment/get_employment"
+        );
+
+        if (!isMounted) return;
+
         const employmentData =
-          employmentResponse?.data?.success === true
-            ? Array.isArray(employmentResponse.data.data)
-              ? employmentResponse.data.data
-              : []
+          employmentResponse?.data?.success === true &&
+          Array.isArray(employmentResponse.data.data)
+            ? employmentResponse.data.data
             : [];
 
         const preferredNoticePeriod = employmentData.find(
-          (item: EmploymentItem) => item.notice_period_name || item.notice_period
+          (item: EmploymentItem) =>
+            item.notice_period_name || item.notice_period
         );
 
-        setCareerProfile(careerData);
         setNoticePeriod(
           preferredNoticePeriod?.notice_period_name ||
             preferredNoticePeriod?.notice_period ||
@@ -127,6 +135,7 @@ const JobPreferences = () => {
         );
       } catch (error) {
         console.error("Error fetching job preferences data:", error);
+
         if (isMounted) {
           setCareerProfile({});
           setNoticePeriod("Not added");
@@ -176,12 +185,18 @@ const JobPreferences = () => {
           Used to match you to the right roles.
         </CardDescription>
       </CardHeader>
+
       <CardContent className="space-y-4 text-sm">
         {isLoading ? (
-          <div className="text-sm text-muted-foreground">Loading job preferences...</div>
+          <div className="text-sm text-muted-foreground">
+            Loading job preferences...
+          </div>
         ) : (
           preferences.map((item) => (
-            <div key={item.label} className="flex items-start justify-between gap-3">
+            <div
+              key={item.label}
+              className="flex items-start justify-between gap-3"
+            >
               <span className="text-muted-foreground">{item.label}</span>
               <span className="font-medium text-right">{item.value}</span>
             </div>

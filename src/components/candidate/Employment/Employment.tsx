@@ -1,7 +1,14 @@
 
-
 import React, { useEffect, useState } from "react";
-import { Pencil, Plus, CheckCircle2, XCircle, Clock } from "lucide-react";
+import {
+  Pencil,
+  Plus,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  Briefcase,
+  Calendar,
+} from "lucide-react";
 import API from "../../../lib/axios";
 import EmploymentModal from "./EmploymentModal";
 import { Button } from "@/components/ui/button";
@@ -14,7 +21,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Shared dynamic verification icon component matching API state fields
@@ -44,15 +57,8 @@ const StatusIcon = ({ status, inlineBadge = false }) => {
   }
 };
 
-// Convert COMPANY NAME to Camel Case
-const toCamelCase = (text = "") => {
-  return text
-    .toLowerCase()
-    .split(" ")
-    .filter(Boolean)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-};
+
+
 
 export const EmploymentCard = () => {
   const [employments, setEmployments] = useState([]);
@@ -135,18 +141,41 @@ export const EmploymentCard = () => {
     }
   };
 
-
   const resolveFieldStatus = (flag) => {
     if (flag === true) return "verified";
     if (flag === false) return "rejected";
     return "pending";
   };
 
+  const sortedEmployments = [...employments].sort((a, b) => {
+    // Current job first
+    if (a.currentlyWorking !== b.currentlyWorking) {
+      return Number(b.currentlyWorking) - Number(a.currentlyWorking);
+    }
+
+    // For previous jobs, latest leaving date first
+    if (!a.currentlyWorking && !b.currentlyWorking) {
+      if ((a.leaving_year || 0) !== (b.leaving_year || 0)) {
+        return (b.leaving_year || 0) - (a.leaving_year || 0);
+      }
+
+      if ((a.leaving_month || 0) !== (b.leaving_month || 0)) {
+        return (b.leaving_month || 0) - (a.leaving_month || 0);
+      }
+    }
+
+    // Finally sort by joining date
+    if ((a.joining_year || 0) !== (b.joining_year || 0)) {
+      return (b.joining_year || 0) - (a.joining_year || 0);
+    }
+
+    return (b.joining_month || 0) - (a.joining_month || 0);
+  });
+
   return (
     <>
       <Card className="max-w-4xl mx-auto my-8 shadow-sm">
         <CardHeader className="flex flex-row justify-between items-center space-y-0 pb-4">
-          {/* Modified CardTitle to make the headline smaller and more elegant */}
           <div>
             <CardTitle className="text-lg font-semibold tracking-tight">
               Employment
@@ -157,16 +186,16 @@ export const EmploymentCard = () => {
           </div>
 
           <Button size="sm" onClick={handleAdd}>
-            <Plus className="h-4 w-4 " />
+            <Plus className="h-4 w-4 mr-1" />
             Add Employment
           </Button>
         </CardHeader>
 
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4">
           {loading ? (
-            <div className="space-y-6 animate-pulse">
+            <div className="space-y-4 animate-pulse">
               {[1, 2].map((i) => (
-                <div key={i} className="border rounded-xl p-6 space-y-4">
+                <div key={i} className="border rounded-2xl p-6 space-y-4">
                   <div className="flex justify-between items-start">
                     <div className="space-y-2">
                       <Skeleton className="h-5 w-48 bg-muted" />
@@ -177,94 +206,127 @@ export const EmploymentCard = () => {
                 </div>
               ))}
             </div>
-          ) : error ? (
-            <div className="text-center p-8 text-red-500 bg-red-50 rounded-xl border border-red-100">
-              {error}
-            </div>
-          ) : employments.length === 0 ? (
+          )  : employments.length === 0 ? (
             <div className="flex flex-1 items-center justify-center w-full shadow-sm">
               <div className="w-full border-dashed border border-gray-200 rounded-xl p-8 text-center text-muted-foreground flex flex-col items-center justify-center">
-                <p className="text-sm">No work experiences added yet.</p>
+                <p className="text-sm">No work employment added yet.</p>
               </div>
             </div>
           ) : (
-            employments.map((job) => {
+            sortedEmployments.map((job) => {
               const durationStr = job.currentlyWorking
-                ? `${job.joining_month_name} ${job.joining_year} to Present`
-                : `${job.joining_month_name} ${job.joining_year} to ${job.leaving_month_name} ${job.leaving_year}`;
+                ? `${job.joining_month_name} ${job.joining_year} — Present`
+                : `${job.joining_month_name} ${job.joining_year} — ${job.leaving_month_name} ${job.leaving_year}`;
 
               const companyStatus = resolveFieldStatus(job.workedInCompany);
 
+              const designationStatus =
+                companyStatus === "pending"
+                  ? "pending"
+                  : job.designationVerified !== undefined
+                    ? resolveFieldStatus(job.designationVerified)
+                    : companyStatus;
 
-              const designationStatus = companyStatus === "pending"
-                ? "pending"
-                : (job.designationVerified !== undefined ? resolveFieldStatus(job.designationVerified) : companyStatus);
+              const typeStatus =
+                companyStatus === "pending"
+                  ? "pending"
+                  : job.jobTypeVerified !== undefined
+                    ? resolveFieldStatus(job.jobTypeVerified)
+                    : companyStatus;
 
-              const typeStatus = companyStatus === "pending"
-                ? "pending"
-                : (job.jobTypeVerified !== undefined ? resolveFieldStatus(job.jobTypeVerified) : companyStatus);
+              const durationStatus =
+                companyStatus === "pending"
+                  ? "pending"
+                  : job.jobDurationVerified !== undefined
+                    ? resolveFieldStatus(job.jobDurationVerified)
+                    : companyStatus;
 
-              const durationStatus = companyStatus === "pending"
-                ? "pending"
-                : (job.jobDurationVerified !== undefined ? resolveFieldStatus(job.jobDurationVerified) : companyStatus);
+              // Fallback description matching the sample style if API description is empty
+              const jobDescription =
+                job.description ||
+                job.job_description ||
+                `Responsible for managing core assignments, designing execution layouts for ${
+                  job.job_title || "this role"
+                }, scaling analytics tracking workflows, and pushing higher delivery standards.`;
 
               return (
-                <div key={job._id} className="border-b pb-4 last:border-b-0">
-                  <div className="flex justify-between items-start">
-                    <div className="space-y-2 w-full architecture-fields">
-                      {/* 1. Job Title Section */}
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-gray-900 text-base">
-                          {toCamelCase(job.job_title)}
-                        </span>
-                        <StatusIcon status={designationStatus} />
+                <div
+                  key={job._id}
+                  className="border border-slate-200 rounded-2xl p-5 bg-white shadow-sm transition-all hover:shadow-md"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-4 w-full">
+                      {/* Left Icon */}
+                      <div className="p-3 bg-blue-50 text-blue-900 rounded-xl shrink-0">
+                        <Briefcase className="w-5 h-5" />
                       </div>
 
-                      {/* 2. Company Name & Global Status Badge */}
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-bold text-gray-800">
-                          {toCamelCase(job.company_name)}
-                        </span>
-
-                        <span
-                          onClick={() => handleOpenInfo(job)}
-                          className={`inline-flex items-center gap-1 text-xs px-2.5 py-0.5 rounded-full font-semibold border shadow-sm cursor-pointer hover:opacity-90 transition-opacity ${getBadgeStyles(
-                            companyStatus
-                          )}`}
-                        >
-                          <StatusIcon
-                            status={companyStatus}
-                            inlineBadge={true}
-                          />
-                          {getBadgeLabel(companyStatus)}
-                        </span>
-                      </div>
-
-                      {/* 3. Employment Type Field Row */}
-                      <div className="text-sm text-gray-600 capitalize flex items-center gap-2">
-                        <span className="text-gray-500 font-medium">Type:</span>
-                        <span>{job.employmenttype || "N/A"}</span>
-                        <StatusIcon status={typeStatus} />
-                      </div>
-
-                      {/* 4. Duration Field Row */}
-                      <div className="text-sm text-gray-600 flex items-center gap-2">
-                        <span className="text-gray-500 font-medium">
-                          Duration:
-                        </span>
-                        <span>{durationStr}</span>
-                        <StatusIcon status={durationStatus} />
-                      </div>
-
-                      {/* 5. Notice Period Field Row */}
-                      {job.notice_period_name && (
-                        <div className="text-sm text-gray-600 flex items-center gap-2">
-                          <span className="text-gray-500 font-medium">
-                            Notice Period:
-                          </span>
-                          <span>{job.notice_period_name}</span>
+                      <div className="space-y-2 w-full">
+                        {/* 1. Job Title */}
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-bold text-slate-900 text-lg leading-snug">
+                            {job.job_title}
+                          </h3>
+                          <StatusIcon status={designationStatus} />
                         </div>
-                      )}
+
+                        {/* 2. Company Name & Global Status Badge */}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-semibold text-blue-600 hover:underline cursor-pointer">
+                            {job.company_name}
+                          </span>
+
+                          <span
+                            onClick={() => handleOpenInfo(job)}
+                            className={`inline-flex items-center gap-1 text-[11px] px-2.5 py-0.5 rounded-full font-semibold border shadow-sm cursor-pointer hover:opacity-90 transition-opacity ${getBadgeStyles(
+                              companyStatus,
+                            )}`}
+                          >
+                            <StatusIcon
+                              status={companyStatus}
+                              inlineBadge={true}
+                            />
+                            {getBadgeLabel(companyStatus)}
+                          </span>
+                        </div>
+
+                        {/* 3. Duration Badge */}
+                        <div className="flex items-center gap-2 pt-1">
+                          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 text-slate-600 rounded-md text-xs font-medium">
+                            <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                            <span>{durationStr}</span>
+                          </div>
+                          <StatusIcon status={durationStatus} />
+                        </div>
+
+                        {/* 4. Description Paragraph (Matches Image Layout) */}
+                        <div
+                          className="text-sm text-slate-500 pt-1 leading-relaxed [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:space-y-1"
+                          dangerouslySetInnerHTML={{ __html: jobDescription }}
+                        />
+
+                        {/* 5. Additional Metadata */}
+                        <div className="pt-1 text-xs text-slate-500 space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-slate-700">
+                              Type:
+                            </span>
+                            <span className="capitalize">
+                              {job.employmenttype || "N/A"}
+                            </span>
+                            <StatusIcon status={typeStatus} />
+                          </div>
+
+                          {job.notice_period_name && (
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-slate-700">
+                                Notice Period:
+                              </span>
+                              <span>{job.notice_period_name}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
 
                     {/* Edit Action Button */}
@@ -274,7 +336,7 @@ export const EmploymentCard = () => {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleEdit(job)}
-
+                          className="text-slate-500 hover:text-slate-800 hover:bg-slate-100 shrink-0"
                         >
                           <Pencil className="w-4 h-4" />
                         </Button>
@@ -288,86 +350,6 @@ export const EmploymentCard = () => {
       </Card>
 
       {/* Verification Details Shadcn Dialog component layout */}
-      <Dialog open={infoDialogOpen} onOpenChange={setInfoDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Verification Breakdown</DialogTitle>
-            <DialogDescription>
-              Detailed status checklist breakdown for tracking your experience verification records.
-            </DialogDescription>
-          </DialogHeader>
-          {activeJobInfo && (
-            <div className="space-y-4 py-2 text-sm">
-              {/* Company Record */}
-              <div className="flex items-center justify-between border-b pb-2">
-                <span className="font-medium text-gray-500">Company Record</span>
-                {(() => {
-                  const status = resolveFieldStatus(activeJobInfo.workedInCompany);
-                  return (
-                    <div className="flex items-center gap-2 capitalize">
-                      {status}
-                      <StatusIcon status={status} />
-                    </div>
-                  );
-                })()}
-              </div>
-
-              {/* Designation / Role */}
-              <div className="flex items-center justify-between border-b pb-2">
-                <span className="font-medium text-gray-500">Designation / Role</span>
-                {(() => {
-                  const status = resolveFieldStatus(activeJobInfo.workedInCompany) === "pending"
-                    ? "pending"
-                    : resolveFieldStatus(activeJobInfo.designationVerified);
-                  return (
-                    <div className="flex items-center gap-2 capitalize">
-                      {status}
-                      <StatusIcon status={status} />
-                    </div>
-                  );
-                })()}
-              </div>
-
-              {/* Job Type */}
-              <div className="flex items-center justify-between border-b pb-2">
-                <span className="font-medium text-gray-500">Job Type</span>
-                {(() => {
-                  const status = resolveFieldStatus(activeJobInfo.workedInCompany) === "pending"
-                    ? "pending"
-                    : resolveFieldStatus(activeJobInfo.jobTypeVerified);
-                  return (
-                    <div className="flex items-center gap-2 capitalize">
-                      {status}
-                      <StatusIcon status={status} />
-                    </div>
-                  );
-                })()}
-              </div>
-
-              {/* Timeline / Duration */}
-              <div className="flex items-center justify-between pb-2">
-                <span className="font-medium text-gray-500">Timeline / Duration</span>
-                {(() => {
-                  const status = resolveFieldStatus(activeJobInfo.workedInCompany) === "pending"
-                    ? "pending"
-                    : resolveFieldStatus(activeJobInfo.jobDurationVerified);
-                  return (
-                    <div className="flex items-center gap-2 capitalize">
-                      {status}
-                      <StatusIcon status={status} />
-                    </div>
-                  );
-                })()}
-              </div>
-            </div>
-          )}
-          <DialogFooter className="sm:justify-start">
-            <Button type="button" variant="secondary" onClick={() => setInfoDialogOpen(false)}>
-              Close View
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       <EmploymentModal
         isOpen={isModalOpen}

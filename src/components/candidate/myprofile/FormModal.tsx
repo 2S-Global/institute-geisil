@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import API from "../../../lib/axios";
@@ -23,9 +24,9 @@ import {
 import { useToast } from "@/hooks/use-toast";
 
 const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
-  const apiurl =  import.meta.env.VITE_API_URL;
-  console.log("show",show)
-   const [countries, setCountries] = useState([]);
+  const apiurl = import.meta.env.VITE_API_URL;
+  console.log("show", show);
+  const [countries, setCountries] = useState([]);
   const [Genders, setGenders] = useState([]);
   const [isResidingInIndia, setIsResidingInIndia] = useState(false);
   const [error, setError] = useState(null);
@@ -98,14 +99,11 @@ const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
       setLoading(true);
       try {
         const token = localStorage.getItem("candidate_token");
-        const response = await API.get(
-          `${apiurl}/api/userdata/user_details`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await API.get(`${apiurl}/api/userdata/user_details`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         if (response.status === 200) {
           setFormData({
             full_name: response.data.name || "",
@@ -142,7 +140,7 @@ const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
   const eighteenYearsAgo = new Date(
     today.getFullYear() - 18,
     today.getMonth(),
-    today.getDate()
+    today.getDate(),
   );
   const handleCheckboxChange = (e) => {
     setIsResidingInIndia(e.target.checked);
@@ -159,7 +157,7 @@ const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
         gender: value,
       }));
 
-   /*  if (type === "marital") setSelectedMaritalStatus(value);
+    /*  if (type === "marital") setSelectedMaritalStatus(value);
     if (type === "info") {
       setSelectedInfo((prev) =>
         prev.includes(value)
@@ -177,25 +175,27 @@ const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    if (name === "full_name") {
+    if (
+      name === "full_name" ||
+      name === "father_name" ||
+      name === "mother_name"
+    ) {
       const onlyLetters = /^[A-Za-z\s]*$/; // Allow letters and spaces only
 
       if (!onlyLetters.test(value)) {
-        return; // Don't update state if invalid character
+        return;
       }
     }
 
     if (name === "phone") {
-      const onlyNumbers = /^[0-9]*$/; // Only numbers allowed
+      const onlyNumbers = /^[0-9]*$/;
 
-      // If value contains any non-numeric characters, prevent update
       if (!onlyNumbers.test(value)) {
-        return; // Don't update state if invalid character
+        return;
       }
 
-      // Check for exact 10 characters
       if (value.length > 10) {
-        return; // Prevent more than 10 characters
+        return;
       }
     }
 
@@ -230,19 +230,19 @@ const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
 
       console.log("Upload successful:", response.data);
       if (!response.data.success) {
-         toast({
+        toast({
           title: "Error",
           variant: "destructive",
           description: response.data.message || "An error occurred",
-        })
+        });
         throw new Error(response.data.message || "An error occurred");
-         
-      }else{
+      } else {
+        onClose();
         toast({
           title: "Success",
           description: "Details updated successfully!",
@@ -251,8 +251,8 @@ const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
       setSuccess("Details updated successfully!");
 
       //setSuccess_main("Details updated successfully!");
-      setRefresh(v=>v+1);
-      setTimeout(() => onClose(), 1500); // Close modal after success
+      setRefresh((v) => v + 1);
+      //setTimeout(() => onClose(), 1500); // Close modal after success
     } catch (error) {
       console.error("Upload failed:", error);
       setError("Failed to update Details. Please try again.");
@@ -270,222 +270,209 @@ const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
   if (!show) return null;
 
   return (
-<Dialog open={show} onOpenChange={onClose}>
-  <DialogContent className="sm:max-w-[750px] max-h-[90vh] overflow-y-auto">
+    <Dialog open={show} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[750px] max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <DialogHeader>
+          <DialogTitle className="font-display text-xl">
+            All About You
+          </DialogTitle>
 
-    {/* Header */}
-    <DialogHeader>
-      <DialogTitle className="font-display text-xl">
-        All About You
-      </DialogTitle>
+          <DialogDescription>
+            Update your personal and professional details.
+          </DialogDescription>
+        </DialogHeader>
 
-      <DialogDescription>
-        Update your personal and professional details.
-      </DialogDescription>
-    </DialogHeader>
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-5 pt-2">
+          {/* Loader */}
 
-    {/* Form */}
-    <form onSubmit={handleSubmit} className="space-y-5 pt-2">
+          {/* <CustomizedProgressBars />  */}
 
-      {/* Loader */}
-      {loading ? (
-       /*  <CustomizedProgressBars /> */
-       "loading..."
-      ) : (
-        <>
-          {error && (
-            <div className="text-sm text-red-500 bg-red-50 p-2 rounded">
-              {error}
+          <>
+            {/* Full Name */}
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">
+                Full Name <span className="text-red-500">*</span>
+              </label>
+
+              <input
+                name="full_name"
+                type="text"
+                className="w-full border rounded-md px-3 py-2 text-sm"
+                value={formData.full_name}
+                onChange={handleChange}
+                placeholder="Enter your full name"
+              />
             </div>
-          )}
 
-          {/* Full Name */}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium">
-              Full Name <span className="text-red-500">*</span>
-            </label>
+            {/* Father Name */}
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">Father's Full Name</label>
 
-            <input
-              name="full_name"
-              type="text"
-              className="w-full border rounded-md px-3 py-2 text-sm"
-              value={formData.full_name}
-              onChange={handleChange}
-              placeholder="Enter your full name"
-            />
-          </div>
-
-          {/* Father Name */}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium">
-              Father's Full Name
-            </label>
-
-            <input
-              name="father_name"
-              type="text"
-              className="w-full border rounded-md px-3 py-2 text-sm"
-              value={formData.father_name}
-              onChange={handleChange}
-              placeholder="Enter father's full name"
-            />
-          </div>
-
-          {/* Mother Name */}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium">
-              Mother's Full Name
-            </label>
-
-            <input
-              name="mother_name"
-              type="text"
-              className="w-full border rounded-md px-3 py-2 text-sm"
-              value={formData.mother_name}
-              onChange={handleChange}
-              placeholder="Enter mother's full name"
-            />
-          </div>
-
-          {/* Gender */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">
-              Gender <span className="text-red-500">*</span>
-            </label>
-
-            <div className="flex flex-wrap gap-2">
-              {Genders.map((gender) => (
-                <button
-                  key={gender.id}
-                  type="button"
-                  onClick={(e) => handleSelect("gender", gender.id, e)}
-                  className={`px-3 py-1 rounded-full border text-sm ${
-                    formData.gender == gender.id
-                      ? "bg-primary text-white"
-                      : "bg-white"
-                  }`}
-                >
-                  {gender.name}
-                </button>
-              ))}
+              <input
+                name="father_name"
+                type="text"
+                className="w-full border rounded-md px-3 py-2 text-sm"
+                value={formData.father_name}
+                onChange={handleChange}
+                placeholder="Enter father's full name"
+              />
             </div>
-          </div>
 
-          {/* Experience */}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium">
-              Total Experience
-            </label>
+            {/* Mother Name */}
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">Mother's Full Name</label>
 
-            <div className="flex gap-2">
-              <select
-                className="w-full border rounded-md px-2 py-2 text-sm"
-                value={formData.experience_years || ""}
-                onChange={(e) => {
-                  const yearValue = e.target.value;
-                  setFormData({
-                    ...formData,
-                    experience_years: yearValue,
-                    experience_months:
-                      yearValue === "30+"
-                        ? ""
-                        : formData.experience_months,
-                  });
-                }}
-              >
-                <option value="">Years</option>
-                {[...Array(31).keys()].map((year) => (
-                  <option key={year} value={year}>
-                    {year} Year{year !== 1 ? "s" : ""}
-                  </option>
+              <input
+                name="mother_name"
+                type="text"
+                className="w-full border rounded-md px-3 py-2 text-sm"
+                value={formData.mother_name}
+                onChange={handleChange}
+                placeholder="Enter mother's full name"
+              />
+            </div>
+
+            {/* Gender */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                Gender <span className="text-red-500">*</span>
+              </label>
+
+              <div className="flex flex-wrap gap-2">
+                {Genders.map((gender) => (
+                  <button
+                    key={gender.id}
+                    type="button"
+                    onClick={(e) => handleSelect("gender", gender.id, e)}
+                    className={`px-3 py-1 rounded-full border text-sm ${
+                      formData.gender == gender.id
+                        ? "bg-primary text-white"
+                        : "bg-white"
+                    }`}
+                  >
+                    {gender.name}
+                  </button>
                 ))}
-                <option value="30+">30+ Years</option>
-              </select>
+              </div>
+            </div>
 
-              {formData.experience_years !== "30+" && (
+            {/* Experience */}
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">Total Experience</label>
+
+              <div className="flex gap-2">
                 <select
                   className="w-full border rounded-md px-2 py-2 text-sm"
-                  value={formData.experience_months || ""}
+                  value={formData.experience_years || ""}
+                  onChange={(e) => {
+                    const yearValue = e.target.value;
+                    setFormData({
+                      ...formData,
+                      experience_years: yearValue,
+                      experience_months:
+                        yearValue === "30+" ? "" : formData.experience_months,
+                    });
+                  }}
+                >
+                  <option value="">Years</option>
+                  {[...Array(31).keys()].map((year) => (
+                    <option key={year} value={year}>
+                      {year} Year{year !== 1 ? "s" : ""}
+                    </option>
+                  ))}
+                  <option value="30+">30+ Years</option>
+                </select>
+
+                {formData.experience_years !== "30+" && (
+                  <select
+                    className="w-full border rounded-md px-2 py-2 text-sm"
+                    value={formData.experience_months || ""}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        experience_months: e.target.value,
+                      })
+                    }
+                  >
+                    <option value="">Months</option>
+                    {[...Array(12).keys()].map((month) => (
+                      <option key={month} value={month}>
+                        {month} Month{month !== 1 ? "s" : ""}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+            </div>
+
+            {/* Salary */}
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">
+                Current Monthly Salary
+              </label>
+
+              <div className="flex gap-2">
+                <select
+                  className="border rounded-md px-2 py-2 text-sm w-20"
+                  value={formData.currency}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      experience_months: e.target.value,
+                      currency: e.target.value,
                     })
                   }
                 >
-                  <option value="">Months</option>
-                  {[...Array(12).keys()].map((month) => (
-                    <option key={month} value={month}>
-                      {month} Month{month !== 1 ? "s" : ""}
+                  {salaryCurrencies.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
                     </option>
                   ))}
                 </select>
-              )}
+
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  className="w-full border rounded-md px-3 py-2 text-sm"
+                  value={Number(formData.salary || "").toLocaleString("en-IN")}
+                  placeholder="Enter salary"
+                  onChange={(e) => {
+                    const raw = e.target.value.replace(/,/g, "");
+                    if (/^\d*$/.test(raw)) {
+                      setFormData({
+                        ...formData,
+                        salary: raw,
+                      });
+                    }
+                  }}
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Salary */}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium">
-              Current Monthly Salary
-            </label>
-
-            <div className="flex gap-2">
-              <select
-                className="border rounded-md px-2 py-2 text-sm w-20"
-                value={formData.currency}
+            {/* DOB */}
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">
+                Date of Birth <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                className="w-full border rounded-md px-3 py-2 text-sm relative"
+                value={
+                  formData?.dob
+                    ? new Date(formData.dob).toISOString().split("T")[0]
+                    : ""
+                }
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    currency: e.target.value,
+                    dob: e.target.value,
                   })
                 }
-              >
-                {salaryCurrencies.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-
-              <input
-                type="text"
-                inputMode="numeric"
-                className="w-full border rounded-md px-3 py-2 text-sm"
-                value={Number(formData.salary || "").toLocaleString("en-IN")}
-                placeholder="Enter salary"
-                onChange={(e) => {
-                  const raw = e.target.value.replace(/,/g, "");
-                  if (/^\d*$/.test(raw)) {
-                    setFormData({
-                      ...formData,
-                      salary: raw,
-                    });
-                  }
-                }}
+                max={eighteenYearsAgo.toISOString().split("T")[0]}
               />
-            </div>
-          </div>
 
-          {/* DOB */}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium">
-              Date of Birth <span className="text-red-500">*</span>
-            </label>
-             <input
-    type="date"
-    className="w-full border rounded-md px-3 py-2 text-sm relative"
-    value={formData?.dob? new Date(formData.dob).toISOString().split("T")[0]:""}
-     onChange={(e) =>
-      setFormData({
-        ...formData,
-        dob: e.target.value,
-      })
-    }
-    max={eighteenYearsAgo.toISOString().split("T")[0]}
-  />
-
-          {/*   <LocalizationProvider dateAdapter={AdapterDateFns}>
+              {/*   <LocalizationProvider dateAdapter={AdapterDateFns}>
               <DatePicker
                 value={formData.dob ? new Date(formData.dob) : null}
                 onChange={handleDateChange}
@@ -499,88 +486,77 @@ const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
                 }}
               />
             </LocalizationProvider> */}
-          </div>
-
-          {/* Checkbox */}
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={isResidingInIndia}
-              onChange={handleCheckboxChange}
-            />
-            <label className="text-sm">
-              Currently residing in India
-            </label>
-          </div>
-
-          {/* Country */}
-          {!isResidingInIndia && (
-            <div className="space-y-1.5">
-              <label className="text-sm font-medium">Country</label>
-
-              <select
-                className="w-full border rounded-md px-3 py-2 text-sm"
-                value={formData.country}
-                onChange={handleCountryChange}
-              >
-                {countries.map((country) => (
-                  <option key={country.id} value={country.id}>
-                    {country.name}
-                  </option>
-                ))}
-              </select>
             </div>
-          )}
 
-          {/* Location */}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium">
-              Current Location
-            </label>
+            {/* Checkbox */}
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={isResidingInIndia}
+                onChange={handleCheckboxChange}
+              />
+              <label className="text-sm">Currently residing in India</label>
+            </div>
 
-            <input
-              name="currentLocation"
-              className="w-full border rounded-md px-3 py-2 text-sm"
-              value={formData.currentLocation}
-              onChange={handleChange}
-              placeholder="Enter location"
-            />
-          </div>
+            {/* Country */}
+            {!isResidingInIndia && (
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium">Country</label>
 
-          {/* Hometown */}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium">
-              Hometown
-            </label>
+                <select
+                  className="w-full border rounded-md px-3 py-2 text-sm"
+                  value={formData.country}
+                  onChange={handleCountryChange}
+                >
+                  {countries.map((country) => (
+                    <option key={country.id} value={country.id}>
+                      {country.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
-            <input
-              name="hometown"
-              className="w-full border rounded-md px-3 py-2 text-sm"
-              value={formData.hometown}
-              onChange={handleChange}
-              placeholder="Enter hometown"
-            />
-          </div>
-        </>
-      )}
+            {/* Location */}
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">Current Location</label>
 
-      {/* Footer */}
-      <DialogFooter className="gap-2 pt-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onClose}
-        >
-          Cancel
-        </Button>
+              <input
+                name="currentLocation"
+                className="w-full border rounded-md px-3 py-2 text-sm"
+                value={formData.currentLocation}
+                onChange={handleChange}
+                placeholder="Enter location"
+              />
+            </div>
 
-        <Button type="submit" disabled={loading}>
-          Save
-        </Button>
-      </DialogFooter>
-    </form>
-  </DialogContent>
-</Dialog>
+            {/* Hometown */}
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">Hometown</label>
+
+              <input
+                name="hometown"
+                className="w-full border rounded-md px-3 py-2 text-sm"
+                value={formData.hometown}
+                onChange={handleChange}
+                placeholder="Enter hometown"
+              />
+            </div>
+          </>
+
+          {/* Footer */}
+          <DialogFooter className="gap-2 pt-2">
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+
+            <Button type="submit" disabled={loading}>
+              {loading ? "Saving..." : "Save"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };
 
