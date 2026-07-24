@@ -28,6 +28,9 @@ const SchoolForm = ({
   schools,
   minimumAllowedYear,
 }) => {
+  const currentYear = new Date().getFullYear();
+  const firstAllowedYear = minimumAllowedYear ?? currentYear;
+
   return (
   <>
   {!stateselected && (
@@ -79,10 +82,9 @@ const SchoolForm = ({
           <option value="">Select Year</option>
 
           {Array.from(
-            { length: 51 },
-            (_, i) => new Date().getFullYear() - 50 + i
+            { length: Math.max(0, currentYear - firstAllowedYear + 1) },
+            (_, i) => firstAllowedYear + i
           )
-            .filter((year) => year <= new Date().getFullYear())
             .filter((year) => isYearAllowed(year, minimumAllowedYear))
             .map((year) => (
               <option key={year} value={year}>

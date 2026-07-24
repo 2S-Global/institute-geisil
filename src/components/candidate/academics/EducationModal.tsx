@@ -121,14 +121,14 @@ const EducationModal = ({ show,
   useEffect(() => {
     if (selectedLevel) {
       console.log("selectedLevel from useEffect", selectedLevel);
-      setFormData({ ...formData, level: selectedLevel });
+      setFormData((prev) => ({ ...prev, level: selectedLevel }));
     }
   }, [selectedLevel]);
 
   useEffect(() => {
     if (edit_id) {
       console.log("edit_id from useEffect", edit_id);
-      setFormData({ ...formData, _id: edit_id });
+      setFormData((prev) => ({ ...prev, _id: edit_id }));
       /* http://localhost:8080/api/userdata/get_edit_user_data?dataId=6839499e3bbfe3574bccef83 */
       const fetchuserdata = async () => {
         setLoading(true);
@@ -139,9 +139,17 @@ const EducationModal = ({ show,
 
           if (response.status == 200) {
             const responseData = response.data.data;
+            let duration = responseData.duration || {};
+            if (typeof duration === "string") {
+              try {
+                duration = JSON.parse(duration);
+              } catch {
+                duration = {};
+              }
+            }
 
-            setFormData({
-              ...formData,
+            setFormData((prev) => ({
+              ...prev,
               _id: responseData._id || "",
               school_name: responseData.school_name || "",
               level: responseData.level || "",
@@ -156,8 +164,18 @@ const EducationModal = ({ show,
               institute_name: responseData.instituteName || "",
               course_name: responseData.courseName || "",
               course_type: responseData.courseType || "",
-              start_year: responseData.duration.from || "",
-              end_year: responseData.duration.to || "",
+              start_year:
+                duration.from ||
+                duration.start ||
+                responseData.start_year ||
+                responseData.startYear ||
+                "",
+              end_year:
+                duration.to ||
+                duration.end ||
+                responseData.end_year ||
+                responseData.endYear ||
+                "",
               grading_system: responseData.gradingSystem || "",
               is_primary: responseData.isPrimary || false,
               transcript: null,
@@ -165,7 +183,7 @@ const EducationModal = ({ show,
               certificate: null,
               certificatePreview: responseData.certificate_data || "",
               level_type: responseData.levelType || "",
-            });
+            }));
           }
         } catch (error) {
           console.error("Error fetching user data:", error);
