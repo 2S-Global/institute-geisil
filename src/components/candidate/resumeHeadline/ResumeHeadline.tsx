@@ -21,7 +21,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Sparkles, X, Pencil } from "lucide-react";
+import { Sparkles, X, Pencil, Loader2 } from "lucide-react";
+
 const ResumeHeadline = ({
   show,
   onClose,
@@ -38,11 +39,19 @@ const ResumeHeadline = ({
     mainresumeHeadline || "",
   );
   const [isGenerated, setIsGenerated] = useState(false); // Track button presses
+  const [loading, setLoading] = useState(false); // State for button loading
+
   const token = localStorage.getItem("token");
   if (!token) {
     console.log("No token");
   }
-  //if (!show) return null;
+
+  // Sync prop changes when component opens
+  useEffect(() => {
+    if (show) {
+      setResumeHeadline(mainresumeHeadline || "");
+    }
+  }, [show, mainresumeHeadline]);
 
   const handleGenerateHeadline = () => {
     if (isGenerated) {
@@ -63,6 +72,9 @@ const ResumeHeadline = ({
       setError("Authorization token is missing. Please log in.");
       return;
     }
+
+    setLoading(true); // Start loading state
+
     try {
       const response = await API.post(`/api/useraction/resumeheadline`, {
         resumeHeadline: resumeHeadline,
@@ -77,6 +89,7 @@ const ResumeHeadline = ({
           title: "Success",
           description: "Resume Headline updated successfully",
         });
+        onClose();
       }
     } catch (error) {
       toast({
@@ -85,10 +98,14 @@ const ResumeHeadline = ({
         description: "Error updating data:",
       });
       console.error("Error updating data:", error);
+    } finally {
+      setLoading(false); // End loading state
     }
-    onClose();
   };
+
   if (!show) return null;
+
+  const wordCount = resumeHeadline.trim() ? resumeHeadline.trim().split(/\s+/).length : 0;
 
   return (
     <>
@@ -104,7 +121,8 @@ const ResumeHeadline = ({
 
             <button
               onClick={onClose}
-              className="rounded-full p-1 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700"
+              disabled={loading}
+              className="rounded-full p-1 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50"
             >
               <X className="h-5 w-5" />
             </button>
@@ -121,30 +139,31 @@ const ResumeHeadline = ({
             <div className="relative">
               <textarea
                 value={resumeHeadline}
+                disabled={loading}
                 onChange={(e) => {
                   setResumeHeadline(e.target.value);
                   setIsGenerated(false);
                 }}
                 maxLength={250}
                 placeholder="Minimum 5 words. Sample headlines: Sales Manager well versed in Excel and Dynamics CRM. Senior-level Interior Designer with expertise in 3D modeling."
-                className="h-28 w-full rounded-lg border border-gray-300 px-4 py-3 pb-12 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="h-28 w-full rounded-lg border border-gray-300 px-4 py-3 pb-12 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-500"
               />
-              <div className="mt-1 flex justify-between">
+              <div className="mt-1 flex justify-between items-center">
                 {/* AI Button */}
-                
-                  <button
-                    onClick={handleGenerateHeadline}
-                    className="bottom-3 left-3 flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-600 transition hover:bg-blue-100"
-                  >
-                    <Sparkles className="h-4 w-4" />
-                    {isGenerated ? "Clear" : "Help me write"}
-                  </button>
-              
-                  {/* Character Count */}
-                  <span className="text-right text-xs text-gray-500">
-                    {250 - resumeHeadline.length} character(s) left
-                  </span>
-              
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={handleGenerateHeadline}
+                  className="bottom-3 left-3 flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-600 transition hover:bg-blue-100 disabled:opacity-50"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  {isGenerated ? "Clear" : "Help me write"}
+                </button>
+
+                {/* Character Count */}
+                <span className="text-right text-xs text-gray-500">
+                  {250 - resumeHeadline.length} character(s) left
+                </span>
               </div>
             </div>
           </div>
@@ -154,17 +173,24 @@ const ResumeHeadline = ({
             <Button
               variant="outline"
               onClick={onClose}
-             
+              disabled={loading}
             >
               Cancel
             </Button>
 
             <Button
               onClick={handelSubmit}
-              disabled={resumeHeadline.trim().split(/\s+/).length < 5}
-              
+              disabled={wordCount < 5 || loading}
+              className="min-w-[80px]"
             >
-              Save
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save"
+              )}
             </Button>
           </div>
         </div>
@@ -174,5 +200,3 @@ const ResumeHeadline = ({
 };
 
 export default ResumeHeadline;
-
-

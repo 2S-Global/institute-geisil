@@ -45,7 +45,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";  
+import { Switch } from "@/components/ui/switch";
 import AboutFormModal from "@/components/candidate/myprofile/FormModal";
 import Profilepic from "@/components/candidate/profileImg/FormModal";
 import PersonalSection from "@/components/candidate/personal/PersonalSection";
@@ -613,12 +613,12 @@ export default function CandidateProfile() {
 
               <TabsContent value="about" className="space-y-6 mt-6">
                 <KycSection />
-                <ResumeHeadlineSection  setRefresh={setRefresh}/>
-                <ProfileSummarySection setRefresh={setRefresh} /> 
-                <KeySkills setRefresh={setRefresh}/>
+                <ResumeHeadlineSection setRefresh={setRefresh} />
+                <ProfileSummarySection setRefresh={setRefresh} />
+                <KeySkills setRefresh={setRefresh} />
                 <ITSkills />
                 <OtherSkills />
-                <PersonalSection setRefresh={setRefresh}/>
+                <PersonalSection setRefresh={setRefresh} />
                 <OnlineProfileSection />
                 <AccomOnlinePresentationSection />
                 <PatentSection />
@@ -750,9 +750,9 @@ export default function CandidateProfile() {
                     </Card>
                   ))}
                 </div> */}
-                <Employment setRefresh ={setRefresh} />
+                <Employment setRefresh={setRefresh} />
                 <WorkProfileList />
-                <CareerProfile setRefresh={setRefresh}  />
+                <CareerProfile setRefresh={setRefresh} />
                 <WhitePaper />
               </TabsContent>
 
@@ -976,7 +976,7 @@ export default function CandidateProfile() {
                 </div> */}
 
           <div className="space-y-6">
-            <ProfileStrength refresh={refresh}/>
+            <ProfileStrength refresh={refresh} />
             <JobPreferences />
 
             <Card>

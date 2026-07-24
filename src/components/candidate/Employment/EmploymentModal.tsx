@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import * as Dialog from "@radix-ui/react-dialog";
@@ -662,22 +661,10 @@ export const EmploymentModal = ({
 
             <div className="flex items-center space-x-2">
               {jobId && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (
-                      window.confirm(
-                        "Are you sure you want to delete this record?",
-                      )
-                    ) {
-                      handleDelete();
-                    }
-                  }}
-                  className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                  title="Delete Entry"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                <Trash2
+                  className="w-4 h-4 cursor-pointer text-red-500 hover:text-red-600"
+                  onClick={() => handleDelete()}
+                />
               )}
               <Dialog.Close asChild>
                 <button
@@ -804,6 +791,37 @@ export const EmploymentModal = ({
                 name="companyName"
                 control={control}
                 render={({ field }) => (
+                  // <div className="relative">
+                  //   <input
+                  //     {...field}
+                  //     type="text"
+                  //     placeholder="e.g. Google, Microsoft, Acme Corp"
+                  //     autoComplete="off"
+                  //     onChange={(e) => {
+                  //       field.onChange(e);
+                  //       setIsDropdownSelect(false);
+                  //       setShowDropdown(e.target.value.trim() !== "");
+                  //     }}
+                  //     onFocus={() => {
+                  //       if (field.value.trim() !== "") setShowDropdown(true);
+                  //     }}
+                  //     onBlur={() =>
+                  //       setTimeout(() => setShowDropdown(false), 200)
+                  //     }
+                  //     className={cn(
+                  //       "w-full bg-slate-50 text-sm text-slate-800 placeholder-slate-400 rounded-lg px-3.5 py-2.5 pr-10 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 transition-all",
+                  //       errors.companyName &&
+                  //         "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+                  //     )}
+                  //   />
+                  //   <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-400 space-x-1">
+                  //     {loadingCompanies ? (
+                  //       <Loader2 className="w-4 h-4 animate-spin text-[#122B5F]" />
+                  //     ) : (
+                  //       <ChevronDown className="w-4 h-4" />
+                  //     )}
+                  //   </div>
+                  // </div>
                   <div className="relative">
                     <input
                       {...field}
@@ -811,12 +829,26 @@ export const EmploymentModal = ({
                       placeholder="e.g. Google, Microsoft, Acme Corp"
                       autoComplete="off"
                       onChange={(e) => {
-                        field.onChange(e);
+                        // Convert typed value to Title Case
+                        const rawValue = e.target.value;
+                        const titleCasedValue = rawValue.replace(
+                          /\w\S*/g,
+                          (txt) =>
+                            txt.charAt(0).toUpperCase() +
+                            txt.slice(1),
+                        );
+
+                        // Mutate current input element value so cursor position stays synced
+                        e.target.value = titleCasedValue;
+
+                        // Notify React Hook Form
+                        field.onChange(titleCasedValue);
+
                         setIsDropdownSelect(false);
-                        setShowDropdown(e.target.value.trim() !== "");
+                        setShowDropdown(titleCasedValue.trim() !== "");
                       }}
                       onFocus={() => {
-                        if (field.value.trim() !== "") setShowDropdown(true);
+                        if (field.value?.trim() !== "") setShowDropdown(true);
                       }}
                       onBlur={() =>
                         setTimeout(() => setShowDropdown(false), 200)
@@ -1234,11 +1266,7 @@ export const EmploymentModal = ({
                 {submitting && (
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
                 )}
-                {submitting
-                  ? "Saving..."
-                  : jobId
-                    ? "Update "
-                    : "Save "}
+                {submitting ? "Saving..." : jobId ? "Update " : "Save "}
               </Button>
             </div>
           </form>
