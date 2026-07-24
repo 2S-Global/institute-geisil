@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import UploadButton from "./UploadButton";
 import SearchableInput from "./SearchableInput";
+import { isYearAllowed } from "./educationYearValidation";
 const SchoolForm = ({
   formData,
   setFormData,
@@ -25,6 +26,7 @@ const SchoolForm = ({
   filteredSchools,
   setFilteredSchools,
   schools,
+  minimumAllowedYear,
 }) => {
   return (
   <>
@@ -74,17 +76,25 @@ const SchoolForm = ({
           onChange={handleChange}
           value={formData.year_of_passing}
         >
-          <option>Select Year</option>
+          <option value="">Select Year</option>
 
           {Array.from(
-            { length: 61 },
+            { length: 51 },
             (_, i) => new Date().getFullYear() - 50 + i
-          ).map((year) => (
-            <option key={year} value={year}>
-              {year}
-            </option>
-          ))}
+          )
+            .filter((year) => year <= new Date().getFullYear())
+            .filter((year) => isYearAllowed(year, minimumAllowedYear))
+            .map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
         </select>
+        {minimumAllowedYear && (
+          <p className="mt-2 text-xs text-gray-500">
+            Year of passing cannot be earlier than {minimumAllowedYear}.
+          </p>
+        )}
       </div>
 
       <div>
