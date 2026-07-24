@@ -76,8 +76,10 @@ const AcademicSection = () => {
   };
 
   const getRecordLevelLabel = (record) => {
-    const explicitLabel = record.level || record.level_name || record.levelName;
-    if (explicitLabel) return normalizeLevelText(explicitLabel);
+    const explicitLabel = record.level_name || record.levelName || record.level;
+    if (typeof explicitLabel === "string" && Number.isNaN(Number(explicitLabel))) {
+      return normalizeLevelText(explicitLabel);
+    }
 
     const id = record.level_id || record.level;
     if (!id) return "";
@@ -94,23 +96,38 @@ const AcademicSection = () => {
     const has10th = existingLabels.includes("10th standard");
     const has12th = existingLabels.includes("12th standard");
     const hasDiploma = existingLabels.includes("diploma");
-    const hasGraduation = existingLabels.includes("graduation") || existingLabels.includes("undergraduate");
-    const hasPostGraduation = existingLabels.includes("post graduation") || existingLabels.includes("postgraduate");
+    const hasUndergraduate = existingLabels.some((label) => ["graduation", "undergraduate", "under graduate"].includes(label));
+    const hasPostgraduate = existingLabels.some((label) => ["post graduation", "postgraduate", "post graduate"].includes(label));
+    const hasDoctorate = existingLabels.some((label) => ["doctorate/phd", "doctorate", "phd"].includes(label));
 
     if (!existingLabels.length) {
       return ["10th standard"];
     }
 
-    if (hasGraduation && !hasPostGraduation) {
-      return ["post graduation", "postgraduate"];
+    if (hasUndergraduate && !hasPostgraduate) {
+      return ["post graduation", "postgraduate", "post graduate"];
     }
+
+    if (hasPostgraduate && !hasDoctorate) {
+      return ["doctorate/phd", "doctorate", "phd"];
+    }
+
+    if (hasDoctorate) return [];
 
     if (has10th && !has12th && !hasDiploma) {
       return ["12th standard", "diploma"];
     }
 
-    if ((has10th && hasDiploma && !hasGraduation) || (has12th && !hasGraduation)) {
-      return ["graduation", "undergraduate"];
+    if (has12th && hasDiploma && !hasUndergraduate) {
+      return ["graduation", "undergraduate", "under graduate"];
+    }
+
+    if (hasDiploma && !hasUndergraduate) {
+      return ["12th standard", "graduation", "undergraduate", "under graduate"];
+    }
+
+    if (has12th && !hasUndergraduate) {
+      return ["graduation", "undergraduate", "diploma"];
     }
 
     return [];
@@ -160,6 +177,15 @@ const AcademicSection = () => {
     } finally {
       setSectionloading(false);
     }
+  };
+
+  const handleEducationChanged = async (deletedId = "") => {
+    if (deletedId) {
+      setUserdata((current) => current.filter((record) => String(record._id) !== String(deletedId)));
+      return;
+    }
+
+    await fetchuserdata();
   };
   const fetchLevels = async () => {
     try {
@@ -341,6 +367,7 @@ const AcademicSection = () => {
           edit_id={edit_id}
           setError={setError}
           setSuccess={setSuccess}
+          onEducationChanged={handleEducationChanged}
         />
       )}
     </>

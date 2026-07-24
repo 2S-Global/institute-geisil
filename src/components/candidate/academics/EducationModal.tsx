@@ -35,7 +35,8 @@ const EducationModal = ({ show,
   selectedLevel,
   edit_id,
   setError,
-  setSuccess}) => {
+  setSuccess,
+  onEducationChanged}) => {
   const apiurl =  import.meta.env.VITE_API_URL;
  // console.log("show",show)
   const token = localStorage.getItem("token");
@@ -185,8 +186,13 @@ const EducationModal = ({ show,
   };
 
   const getLevelLabelFromRecord = (record) => {
-    const levelId = record?.level_id ?? record?.level ?? "";
-    if (!levelId) return "";
+    const recordLevel = record?.level_name ?? record?.levelName ?? record?.level;
+    if (typeof recordLevel === "string" && Number.isNaN(Number(recordLevel))) {
+      return normalizeLevelName(recordLevel);
+    }
+
+    const levelId = record?.level_id ?? recordLevel ?? "";
+    if (levelId === "") return "";
 
     const matchedLevel = levels.find((level) => String(level.id) === String(levelId));
     return getLevelLabel(matchedLevel);
@@ -201,24 +207,31 @@ const EducationModal = ({ show,
 
     const has10th = existingLabels.includes("10th standard");
     const has12th = existingLabels.includes("12th standard");
-    const hasGraduation = existingLabels.includes("graduation");
+    const hasDiploma = existingLabels.includes("diploma");
+    const hasUndergraduate = existingLabels.some((label) => label === "undergraduate" || label === "under graduate" || label === "graduation");
+    const hasPostgraduate = existingLabels.some((label) => label === "postgraduate" || label === "post graduate");
+    const hasDoctorate = existingLabels.some((label) => label === "doctorate/phd" || label === "doctorate" || label === "phd");
+    const onlyLevels = (...labels) => allLevels.filter((level) => labels.includes(getLevelLabel(level)));
 
     if (!has10th) {
-      return allLevels.filter((level) => getLevelLabel(level) === "10th standard");
+      return onlyLevels("10th standard");
     }
 
-    if (hasGraduation) {
-      return allLevels.filter((level) => getLevelLabel(level) === "post graduation");
+    if (hasUndergraduate && !hasPostgraduate) {
+      return onlyLevels("postgraduate", "post graduate", "post graduation");
     }
 
-    if (has12th) {
-      return allLevels.filter((level) => getLevelLabel(level) === "graduation");
+    if (hasPostgraduate && !hasDoctorate) {
+      return onlyLevels("doctorate/phd", "doctorate", "phd");
     }
 
-    return allLevels.filter((level) => {
-      const label = getLevelLabel(level);
-      return label === "12th standard" || label === "diploma";
-    });
+    if (hasDoctorate) return [];
+
+    if (has12th && hasDiploma) return onlyLevels("undergraduate", "under graduate", "graduation");
+    if (hasDiploma) return onlyLevels("12th standard", "undergraduate", "under graduate", "graduation");
+    if (has12th) return onlyLevels("diploma", "undergraduate", "under graduate", "graduation");
+
+    return onlyLevels("12th standard", "diploma");
   };
 
   const getMinimumAllowedYearForLevel = (levelId, dobValue, records) => {
@@ -230,6 +243,14 @@ const EducationModal = ({ show,
 
     const tenthRecord = records.find((record) => getLevelLabelFromRecord(record) === "10th standard");
     const twelfthRecord = records.find((record) => getLevelLabelFromRecord(record) === "12th standard");
+    const getCourseEndYear = (record) =>
+      Number(record?.duration?.to || record?.end_year || record?.year_of_passing || 0) || null;
+    const latestRecord = records.reduce((latest, record) => {
+      if (!latest) return record;
+      const latestDate = new Date(latest.createdAt || latest.created_at || 0).getTime();
+      const recordDate = new Date(record.createdAt || record.created_at || 0).getTime();
+      return recordDate >= latestDate ? record : latest;
+    }, null);
 
     if (levelLabel === "10th standard") return birthYear + 14;
 
@@ -240,7 +261,11 @@ const EducationModal = ({ show,
 
     if (levelLabel === "diploma") {
       const baseYear = Number(twelfthRecord?.year_of_passing || tenthRecord?.year_of_passing || birthYear + 14);
-      return baseYear + 1;
+      return baseYear;
+    }
+
+    if (["undergraduate", "under graduate", "graduation", "postgraduate", "post graduate", "post graduation", "doctorate/phd", "doctorate", "phd"].includes(levelLabel)) {
+      return getCourseEndYear(latestRecord) || birthYear;
     }
 
     return birthYear;
@@ -368,7 +393,7 @@ const EducationModal = ({ show,
           description: "Education data saved successfully",
         });
       setSuccess("Education data saved successfully");
-      setReload(true);
+      await onEducationChanged?.();
       onClose();
     } catch (error: any) {
       const serverMessage =
@@ -409,7 +434,7 @@ const EducationModal = ({ show,
       if (response.status !== 200) {
         throw new Error("Failed to delete education record");
       }
-      setReload(true);
+      await onEducationChanged?.(edit_id);
       onClose();
     } catch (error) {
       console.error("Error deleting education record:", error);

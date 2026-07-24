@@ -65,7 +65,6 @@ const EducationForm = ({ formData,
   const [universitySearch, setUniversitySearch] = useState(formData.university);
   const [collegeSearch, setCollegeSearch] = useState(formData.institute_name);
   const [schoolSearch, setSchoolSearch] = useState(formData.school_name);
-  const [minimumAllowedYearState, setMinimumAllowedYearState] = useState<string | Date | null>(null);
 
   //use Effect
   useEffect(() => {
@@ -74,22 +73,6 @@ const EducationForm = ({ formData,
     setUniversitySearch(formData.university);
     setCollegeSearch(formData.institute_name);
   }, [formData]);
-
-  useEffect(() => {
-    const fetchCandidateDob = async () => {
-      try {
-        const response = await API.get(`/api/candidate/personal/get_personal_details_with_name`);
-        if (response.status === 200) {
-          const dateOfBirth = response.data?.data?.dob;
-          setMinimumAllowedYearState(dateOfBirth || null);
-        }
-      } catch (error) {
-        console.error("Error fetching candidate DOB:", error);
-      }
-    };
-
-    fetchCandidateDob();
-  }, []);
 
   useEffect(() => {
     const fetchLevels = async () => {
@@ -302,7 +285,7 @@ const EducationForm = ({ formData,
   //chanage level
   const handleLevelChange = (e) => {
     const selectedLevel = e.target.value;
-    const levelData = (allowedLevels && allowedLevels.length ? allowedLevels : levels).find((lvl) => String(lvl.id) === String(selectedLevel));
+    const levelData = (allowedLevels ?? levels).find((lvl) => String(lvl.id) === String(selectedLevel));
     if (levelData) {
       setCoursetype(levelData.type);
     }
@@ -367,7 +350,7 @@ const EducationForm = ({ formData,
   };
 
   const formatLevelName = (id) => {
-    const resolvedLevels = allowedLevels && allowedLevels.length ? allowedLevels : levels;
+    const resolvedLevels = allowedLevels ?? levels;
     const levelObj = resolvedLevels.find((lvl) => String(lvl.id) === String(id));
     return levelObj ? (levelObj.level || levelObj.name || "Unknown Level") : "Unknown Level";
   };
@@ -470,7 +453,7 @@ const EducationForm = ({ formData,
     >
       <option value="">Select Level</option>
 
-      {(allowedLevels && allowedLevels.length ? allowedLevels : levels).map((level) => (
+      {(allowedLevels ?? levels).map((level) => (
         <option key={level.id} value={level.id}>
           {formatLevelName(level.id)}
         </option>
@@ -513,7 +496,7 @@ const EducationForm = ({ formData,
             setFormData={setFormData}
             handleChange={handleChange}
             listboard={listboard}
-            minimumAllowedYear={minimumAllowedYear ?? minimumAllowedYearState}
+            minimumAllowedYear={minimumAllowedYear}
             listmedium={listmedium}
             stateselected={stateselected}
             handleTranscriptChange={handleTranscriptChange}
@@ -567,6 +550,7 @@ const EducationForm = ({ formData,
             setUniversitySearch={setUniversitySearch}
             filteredUniversity={filteredUniversity}
             setFilteredUniversity={setFilteredUniversity}
+            minimumAllowedYear={minimumAllowedYear}
           />
         )}
       </div>
