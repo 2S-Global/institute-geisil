@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Pencil, CircleX, CircleCheck, Plus } from "lucide-react";
@@ -12,7 +13,7 @@ import {
 import FormModal from "./PersonalModal";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const PersonalSection = ({setRefresh}) => {
+const PersonalSection = ({ setRefresh }) => {
   const [modalType, setModalType] = useState(null);
   const [focusSection, setFocusSection] = useState(null);
   const [targetLanguageId, setTargetLanguageId] = useState(null);
@@ -52,7 +53,7 @@ const PersonalSection = ({setRefresh}) => {
       try {
         setSectionloading(true);
         const response = await API.get(
-          `/api/candidate/personal/get_personal_details_with_name`,
+          `/api/candidate/personal/get_personal_details_with_name`
         );
         if (response.status === 200) {
           const maindata = response.data.data;
@@ -103,10 +104,10 @@ const PersonalSection = ({setRefresh}) => {
 
   return (
     <>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+      <Card className="w-full">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 sm:p-6">
           <div>
-            <CardTitle className="text-lg">Personal Details</CardTitle>
+            <CardTitle className="text-base sm:text-lg">Personal Details</CardTitle>
             <CardDescription></CardDescription>
           </div>
 
@@ -116,18 +117,23 @@ const PersonalSection = ({setRefresh}) => {
               size="icon"
               onClick={() => openModalRH("editPersonal")}
               title="Edit Personal Details"
+              className="self-end sm:self-auto"
             >
               <Pencil className="h-4 w-4" />
             </Button>
           ) : (
-            <Button size="sm" onClick={() => openModalRH("editPersonal")}>
-              <Plus className="h-4 w-4" /> Add Personal Details
+            <Button
+              size="sm"
+              onClick={() => openModalRH("editPersonal")}
+              className="w-full sm:w-auto text-xs sm:text-sm"
+            >
+              <Plus className="h-4 w-4 mr-1" /> Add Personal Details
             </Button>
           )}
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
           {sectionloading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-pulse">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 animate-pulse">
               <div className="space-y-2">
                 <Skeleton className="h-4 w-24 bg-muted" />
                 <Skeleton className="h-4 w-40 bg-muted" />
@@ -140,11 +146,11 @@ const PersonalSection = ({setRefresh}) => {
           ) : (
             <>
               <div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   {/* Personal */}
                   <div>
-                    <strong>Personal</strong>
-                    <div className="mt-2">
+                    <strong className="text-sm font-semibold text-gray-900">Personal</strong>
+                    <div className="mt-1 text-xs sm:text-sm">
                       <div>
                         {[
                           personalDetails.gender,
@@ -162,7 +168,7 @@ const PersonalSection = ({setRefresh}) => {
                           personalDetails.moreinfo,
                         ].every(Boolean) && (
                           <span
-                            className="ml-2 cursor-pointer font-semibold text-blue-600"
+                            className="ml-2 inline-block cursor-pointer font-semibold text-blue-600 hover:underline"
                             onClick={() => openModalRH("personalInfo")}
                           >
                             Add more info
@@ -175,9 +181,9 @@ const PersonalSection = ({setRefresh}) => {
                   {/* Partner Name */}
                   {personalDetails.partner_name && (
                     <div>
-                      <strong>Partner Name</strong>
+                      <strong className="text-sm font-semibold text-gray-900">Partner Name</strong>
                       <div
-                        className="mt-2 truncate"
+                        className="mt-1 text-xs sm:text-sm truncate"
                         title={personalDetails.partner_name || ""}
                       >
                         {personalDetails.partner_name || "N/A"}
@@ -187,8 +193,8 @@ const PersonalSection = ({setRefresh}) => {
 
                   {/* Career Break */}
                   <div>
-                    <strong>Career Break</strong>
-                    <div className="mt-2">
+                    <strong className="text-sm font-semibold text-gray-900">Career Break</strong>
+                    <div className="mt-1 text-xs sm:text-sm">
                       {personalDetails.careerBreak ? (
                         personalDetails.careerBreak.toLowerCase() === "yes" ? (
                           <div>
@@ -198,7 +204,7 @@ const PersonalSection = ({setRefresh}) => {
                                 <> – {personalDetails.careerBreakReason}</>
                               )}
                             </div>
-                            <div className="flex flex-wrap gap-3 mt-1">
+                            <div className="flex flex-wrap gap-2 sm:gap-3 mt-1 text-xs">
                               <div>
                                 <strong>From:</strong>{" "}
                                 {personalDetails.careerBreakStartMonth}{" "}
@@ -217,7 +223,7 @@ const PersonalSection = ({setRefresh}) => {
                         )
                       ) : (
                         <span
-                          className="cursor-pointer font-semibold text-blue-600"
+                          className="cursor-pointer font-semibold text-blue-600 hover:underline"
                           onClick={() => openModalRH("careerBreak")}
                         >
                           Add Career Break
@@ -228,11 +234,11 @@ const PersonalSection = ({setRefresh}) => {
 
                   {/* DOB */}
                   <div>
-                    <strong>Date of Birth</strong>
-                    <div className="mt-2">
+                    <strong className="text-sm font-semibold text-gray-900">Date of Birth</strong>
+                    <div className="mt-1 text-xs sm:text-sm">
                       {getFormattedDOB(personalDetails.dob) || (
                         <span
-                          className="cursor-pointer font-semibold text-blue-600"
+                          className="cursor-pointer font-semibold text-blue-600 hover:underline"
                           onClick={() => openModalRH("dob")}
                         >
                           Add Date of Birth
@@ -243,11 +249,11 @@ const PersonalSection = ({setRefresh}) => {
 
                   {/* Category */}
                   <div>
-                    <strong>Category</strong>
-                    <div className="mt-2">
+                    <strong className="text-sm font-semibold text-gray-900">Category</strong>
+                    <div className="mt-1 text-xs sm:text-sm">
                       {personalDetails.category || (
                         <span
-                          className="cursor-pointer font-semibold text-blue-600"
+                          className="cursor-pointer font-semibold text-blue-600 hover:underline"
                           onClick={() => openModalRH("category")}
                         >
                           Add Category
@@ -258,8 +264,8 @@ const PersonalSection = ({setRefresh}) => {
 
                   {/* Work Permit */}
                   <div>
-                    <strong>Work Permit</strong>
-                    <div className="mt-2 space-y-1">
+                    <strong className="text-sm font-semibold text-gray-900">Work Permit</strong>
+                    <div className="mt-1 text-xs sm:text-sm space-y-1">
                       {personalDetails.usa_visa_type && (
                         <div>{personalDetails.usa_visa_type}</div>
                       )}
@@ -269,7 +275,7 @@ const PersonalSection = ({setRefresh}) => {
                       {!personalDetails.usa_visa_type &&
                         !personalDetails.workPermit && (
                           <div
-                            className="cursor-pointer font-semibold text-blue-600"
+                            className="cursor-pointer font-semibold text-blue-600 hover:underline"
                             onClick={() => openModalRH("workPermit")}
                           >
                             Add Work Permit
@@ -280,11 +286,13 @@ const PersonalSection = ({setRefresh}) => {
 
                   {/* Address */}
                   <div>
-                    <strong>Hometown & Permanent address </strong>
-                    <div className="mt-2">
+                    <strong className="text-sm font-semibold text-gray-900">
+                      Hometown & Permanent address
+                    </strong>
+                    <div className="mt-1 text-xs sm:text-sm break-words">
                       {personalDetails.address || (
                         <span
-                          className="cursor-pointer font-semibold text-blue-600"
+                          className="cursor-pointer font-semibold text-blue-600 hover:underline"
                           onClick={() => openModalRH("address")}
                         >
                           Add Address
@@ -295,8 +303,8 @@ const PersonalSection = ({setRefresh}) => {
 
                   {/* Differently Abled */}
                   <div>
-                    <strong>Differently Abled</strong>
-                    <div className="mt-2">
+                    <strong className="text-sm font-semibold text-gray-900">Differently Abled</strong>
+                    <div className="mt-1 text-xs sm:text-sm">
                       {personalDetails.differentlyAbled ? (
                         personalDetails.differentlyAbled.toLowerCase() ===
                         "yes" ? (
@@ -315,7 +323,7 @@ const PersonalSection = ({setRefresh}) => {
                         )
                       ) : (
                         <span
-                          className="cursor-pointer font-semibold text-blue-600"
+                          className="cursor-pointer font-semibold text-blue-600 hover:underline"
                           onClick={() => openModalRH("differentlyAbled")}
                         >
                           Add Differently Abled Status
@@ -325,15 +333,16 @@ const PersonalSection = ({setRefresh}) => {
                   </div>
                 </div>
 
-                <hr className="my-8" />
+                <hr className="my-6 sm:my-8" />
 
-                <div className="mb-4 flex items-center justify-between">
-                  <h5 className="text-lg font-bold">Languages</h5>
+                <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <h5 className="text-base sm:text-lg font-bold">Languages</h5>
                   <Button
                     size="sm"
                     onClick={() => openModalRH("languages", null)}
+                    className="w-full sm:w-auto text-xs sm:text-sm"
                   >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="h-4 w-4 mr-1" />
                     Add Languages
                   </Button>
                 </div>
@@ -341,25 +350,25 @@ const PersonalSection = ({setRefresh}) => {
                 {personalDetails.languages &&
                 personalDetails.languages.length > 0 ? (
                   <div className="overflow-x-auto rounded-lg border border-gray-200">
-                    <table className="min-w-full divide-y divide-gray-200 text-sm">
+                    <table className="min-w-[600px] w-full divide-y divide-gray-200 text-xs sm:text-sm">
                       <thead className="bg-gray-50">
                         <tr>
-                          <th className="px-6 py-3 text-left font-semibold text-gray-700 w-1/3">
+                          <th className="px-4 sm:px-6 py-3 text-left font-semibold text-gray-700 w-1/3">
                             Language
                           </th>
-                          <th className="px-6 py-3 text-left font-semibold text-gray-700 w-1/4">
+                          <th className="px-4 sm:px-6 py-3 text-left font-semibold text-gray-700 w-1/4">
                             Proficiency
                           </th>
-                          <th className="px-4 py-3 text-center font-semibold text-gray-700 w-12">
+                          <th className="px-3 sm:px-4 py-3 text-center font-semibold text-gray-700 w-12">
                             Read
                           </th>
-                          <th className="px-4 py-3 text-center font-semibold text-gray-700 w-12">
+                          <th className="px-3 sm:px-4 py-3 text-center font-semibold text-gray-700 w-12">
                             Write
                           </th>
-                          <th className="px-4 py-3 text-center font-semibold text-gray-700 w-12">
+                          <th className="px-3 sm:px-4 py-3 text-center font-semibold text-gray-700 w-12">
                             Speak
                           </th>
-                          <th className="px-6 py-3 text-right font-semibold text-gray-700 w-16">
+                          <th className="px-4 sm:px-6 py-3 text-right font-semibold text-gray-700 w-16">
                             Action
                           </th>
                         </tr>
@@ -377,13 +386,13 @@ const PersonalSection = ({setRefresh}) => {
                               key={index}
                               className="hover:bg-gray-50/70 transition-colors"
                             >
-                              <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                              <td className="px-4 sm:px-6 py-3 sm:py-4 font-medium text-gray-900 whitespace-nowrap">
                                 {lang.language_name || lang.language}
                               </td>
-                              <td className="px-6 py-4 text-gray-600 whitespace-nowrap">
+                              <td className="px-4 sm:px-6 py-3 sm:py-4 text-gray-600 whitespace-nowrap">
                                 {lang.proficiency_name || lang.proficiency}
                               </td>
-                              <td className="px-4 py-4 whitespace-nowrap">
+                              <td className="px-3 sm:px-4 py-3 sm:py-4 whitespace-nowrap">
                                 <div className="flex justify-center">
                                   {lang.read ? (
                                     <CircleCheck color="#00A85A" size={18} />
@@ -392,7 +401,7 @@ const PersonalSection = ({setRefresh}) => {
                                   )}
                                 </div>
                               </td>
-                              <td className="px-4 py-4 whitespace-nowrap">
+                              <td className="px-3 sm:px-4 py-3 sm:py-4 whitespace-nowrap">
                                 <div className="flex justify-center">
                                   {lang.write ? (
                                     <CircleCheck color="#00A85A" size={18} />
@@ -401,7 +410,7 @@ const PersonalSection = ({setRefresh}) => {
                                   )}
                                 </div>
                               </td>
-                              <td className="px-4 py-4 whitespace-nowrap">
+                              <td className="px-3 sm:px-4 py-3 sm:py-4 whitespace-nowrap">
                                 <div className="flex justify-center">
                                   {lang.speak ? (
                                     <CircleCheck color="#00A85A" size={18} />
@@ -410,7 +419,7 @@ const PersonalSection = ({setRefresh}) => {
                                   )}
                                 </div>
                               </td>
-                              <td className="px-6 py-4 text-right whitespace-nowrap">
+                              <td className="px-4 sm:px-6 py-3 sm:py-4 text-right whitespace-nowrap">
                                 <Button
                                   variant="ghost"
                                   size="icon"
@@ -419,7 +428,7 @@ const PersonalSection = ({setRefresh}) => {
                                   }
                                   className="h-8 w-8"
                                 >
-                                  <Pencil className="h-4 w-4 " />
+                                  <Pencil className="h-4 w-4" />
                                 </Button>
                               </td>
                             </tr>
@@ -429,7 +438,7 @@ const PersonalSection = ({setRefresh}) => {
                     </table>
                   </div>
                 ) : (
-                  <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-4 text-sm text-gray-600">
+                  <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-4 text-xs sm:text-sm text-gray-600 text-center sm:text-left">
                     No languages added yet. Use the button above to add your
                     language proficiency.
                   </div>
@@ -450,7 +459,7 @@ const PersonalSection = ({setRefresh}) => {
           setReload={setReload}
           setError={setError}
           setSuccess={setSuccess}
-          setRefresh = {setRefresh}
+          setRefresh={setRefresh}
           error={error}
         />
       )}

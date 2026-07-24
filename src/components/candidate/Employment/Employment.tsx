@@ -57,10 +57,7 @@ const StatusIcon = ({ status, inlineBadge = false }) => {
   }
 };
 
-
-
-
-export const EmploymentCard = ({setRefresh}) => {
+export const EmploymentCard = ({ setRefresh }) => {
   const [employments, setEmployments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -206,7 +203,7 @@ export const EmploymentCard = ({setRefresh}) => {
                 </div>
               ))}
             </div>
-          )  : employments.length === 0 ? (
+          ) : employments.length === 0 ? (
             <div className="flex flex-1 items-center justify-center w-full shadow-sm">
               <div className="w-full border-dashed border border-gray-200 rounded-xl p-8 text-center text-muted-foreground flex flex-col items-center justify-center">
                 <p className="text-sm">No work employment added yet.</p>
@@ -279,7 +276,7 @@ export const EmploymentCard = ({setRefresh}) => {
                           <span
                             onClick={() => handleOpenInfo(job)}
                             className={`inline-flex items-center gap-1 text-[11px] px-2.5 py-0.5 rounded-full font-semibold border shadow-sm cursor-pointer hover:opacity-90 transition-opacity ${getBadgeStyles(
-                              companyStatus,
+                              companyStatus
                             )}`}
                           >
                             <StatusIcon
@@ -299,9 +296,9 @@ export const EmploymentCard = ({setRefresh}) => {
                           <StatusIcon status={durationStatus} />
                         </div>
 
-                        {/* 4. Description Paragraph (Matches Image Layout) */}
+                        {/* 4. Description Paragraph (Justified Text) */}
                         <div
-                          className="text-sm text-slate-500 pt-1 leading-relaxed [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:space-y-1"
+                          className="text-sm text-slate-500 pt-1 leading-relaxed text-justify hyphens-auto break-words [&>ul]:list-disc [&>ul]:pl-5 [&>ul]:space-y-1"
                           dangerouslySetInnerHTML={{ __html: jobDescription }}
                         />
 
@@ -360,7 +357,7 @@ export const EmploymentCard = ({setRefresh}) => {
         onRefresh={fetchEmployments}
         jobId={selectedEmployment?._id || ""}
         editData={selectedEmployment}
-        setRefresh ={setRefresh}
+        setRefresh={setRefresh}
       />
     </>
   );
