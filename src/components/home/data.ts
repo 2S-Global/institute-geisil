@@ -150,5 +150,5 @@ export const stats = [
   { value: "2.4M+", label: "Corporates" },
   { value: "130K+", label: "Institutes" },
   { value: "26M+", label: "Employees" },
-  { value: "40k+", label: "Verifications" },
+  { value: "40K+", label: "Verifications" },
 ];
