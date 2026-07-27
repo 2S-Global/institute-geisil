@@ -1,9 +1,8 @@
-
 import { useEffect, useState } from "react";
 import api from "@/lib/axios";
 import { ShieldCheck, Lightbulb } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-
+import aboutImg from "../../assets/img/aboutImg.png";
 export default function AboutSection() {
   const [about, setAbout] = useState(null);
 
@@ -23,9 +22,8 @@ export default function AboutSection() {
   return (
     <section id="about" className="py-16 md:py-20">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-10 items-stretch">
-
         {/* Left Column */}
-        <div className="h-full relative rounded-xl overflow-hidden border border-border/60 shadow-lg bg-gradient-to-br from-primary/10 to-primary-soft aspect-[4/3] md:aspect-auto flex items-center justify-center">
+        {/*         <div className="h-full relative rounded-xl overflow-hidden border border-border/60 shadow-lg bg-gradient-to-br from-primary/10 to-primary-soft aspect-[4/3] md:aspect-auto flex items-center justify-center">
           <div className="text-center p-8">
             <div className="mx-auto h-20 w-20 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center mb-4 shadow-brand">
               <ShieldCheck className="h-10 w-10" />
@@ -37,6 +35,13 @@ export default function AboutSection() {
               Built for India's digital economy
             </p>
           </div>
+        </div> */}
+        <div className="h-full relative rounded-xl overflow-hidden border border-border/60 shadow-lg bg-gradient-to-br from-primary/10 to-primary-soft aspect-[4/3] md:aspect-auto">
+          <img
+            src={aboutImg}
+            alt="Trusted verification infrastructure"
+            className="w-full h-full object-cover"
+          />
         </div>
 
         {/* Right Column */}
@@ -61,9 +66,8 @@ export default function AboutSection() {
             dangerouslySetInnerHTML={{ __html: about?.description || "" }}
           />
         </div>
-
-      </div> {/* <-- Added missing closing tag for the grid container */}
+      </div>{" "}
+      {/* <-- Added missing closing tag for the grid container */}
     </section>
   );
 }
-
