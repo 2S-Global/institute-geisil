@@ -71,6 +71,7 @@ import JobPreferences from "@/components/candidate/jobPreferences/JobPreferences
 import ITSkills from "@/components/candidate/ITSkills/ITSkills";
 import OtherSkills from "@/components/candidate/Other Skills/OtherSkills";
 import ProfileStrength from "./components/ProfileStrength";
+import { useUpdateJobVisibility } from "./hooks/useUpdateJobVisibility";
 
 import OTPModel from "@/components/candidate/myprofile/OTPModal";
 import { ProfileHeaderSkeleton } from "@/components/candidate/skeletons/ProfileHeaderSkeleton";
@@ -93,6 +94,12 @@ export default function CandidateProfile() {
   const [refresh, setRefresh] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalImg, setIsModalImg] = useState(false);
+
+
+
+  //custom hook for job visibilty
+
+  const { visibility, updateVisibility } = useUpdateJobVisibility();
 
   const [profile_pic, setProfile_pic] = useState();
   const [progress, setProgress] = useState();
@@ -990,17 +997,21 @@ export default function CandidateProfile() {
                 <Toggle
                   label="Open to opportunities"
                   desc="Recruiters can reach out to you"
-                  defaultChecked
+                  checked={visibility.openToWork}
+                  onChange={(checked) => updateVisibility("openToWork", checked)}
                 />
                 <Toggle
                   label="Show profile in search"
                   desc="Appear in candidate searches"
-                  defaultChecked
+                  checked={visibility.showProfileInSearch}
+                  onChange={(checked) => updateVisibility("showProfileInSearch", checked)}
                 />
-                <Toggle
+                {/* <Toggle
                   label="Hide from current employer"
                   desc="Lumen Labs won't see your profile"
-                />
+                  checked={visibility.hideFromCureentEmployers}
+                  onChange={(checked) => updateVisibility("hideFromCureentEmployers", checked)}
+                /> */}
               </CardContent>
             </Card>
           </div>
@@ -1096,11 +1107,13 @@ function Pref({ label, value }: { label: string; value: string }) {
 function Toggle({
   label,
   desc,
-  defaultChecked,
+  checked,
+  onChange
 }: {
   label: string;
   desc: string;
-  defaultChecked?: boolean;
+  checked?: boolean;
+  onChange: (checked: boolean) => void
 }) {
   return (
     <div className="flex items-start justify-between gap-3">
@@ -1108,7 +1121,7 @@ function Toggle({
         <p className="text-sm font-medium">{label}</p>
         <p className="text-xs text-muted-foreground">{desc}</p>
       </div>
-      <Switch defaultChecked={defaultChecked} />
+      <Switch onCheckedChange={onChange} checked={checked} />
     </div>
   );
 }
