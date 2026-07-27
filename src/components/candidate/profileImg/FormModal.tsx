@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { useHandleProfilePictureRemove } from "./hooks/useHandleProfilePitcureRemove";
 const FormModal = ({ show, onClose, setRefresh, imageSrc }) => {
   const apiurl = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
@@ -19,6 +20,10 @@ const FormModal = ({ show, onClose, setRefresh, imageSrc }) => {
   const [selectedImage, setSelectedImage] = useState(
     imageSrc || "/images/resource/no_user.png",
   );
+
+
+
+  const { removeImage, isLoading: isLoadingRemove, error: errorRemove, data: dataRemove } = useHandleProfilePictureRemove()
 
   const [image, setImage] = useState(null);
 
@@ -203,7 +208,8 @@ const FormModal = ({ show, onClose, setRefresh, imageSrc }) => {
           <div className="border rounded-lg p-4 text-center bg-muted/30">
             <label
               htmlFor="file-upload"
-              className="inline-flex items-center px-4 py-2 bg-primary text-white rounded-md cursor-pointer"
+              className={`inline-flex items-center px-4 py-2 bg-primary text-white rounded-md cursor-pointer ${loading || isLoadingRemove ? "opacity-50 pointer-events-none" : ""
+                }`}
             >
               Change Photo
             </label>
@@ -213,15 +219,16 @@ const FormModal = ({ show, onClose, setRefresh, imageSrc }) => {
               type="file"
               accept="image/png,image/jpeg,image/gif"
               hidden
+              disabled={loading || isLoadingRemove}
               onChange={handleFileChange}
             />
 
             {image && (
               <button
                 type="button"
-                className="ml-2 px-4 py-2 bg-primary text-white rounded-md"
+                className="ml-2 px-4 py-2 bg-primary text-white rounded-md disabled:opacity-50"
                 onClick={uploadImage}
-                disabled={loading}
+                disabled={loading || isLoadingRemove}
               >
                 {loading ? "Uploading..." : "Save Photo"}
               </button>
@@ -229,18 +236,31 @@ const FormModal = ({ show, onClose, setRefresh, imageSrc }) => {
 
             <button
               type="button"
-              className="ml-2 px-4 py-2 border border-red-500 text-red-500 rounded-md"
-              onClick={() => {
-                setSelectedImage("/images/resource/no_user.png");
-
-                setImage(null);
-
-                setPreview(null);
-
-                setFile(null);
+              className="ml-2 px-4 py-2 border border-red-500 text-red-500 rounded-md disabled:opacity-50"
+              disabled={loading || isLoadingRemove}
+              onClick={async () => {
+                const result = await removeImage();
+                if (result && result.success) {
+                  setSelectedImage("/images/resource/no_user.png");
+                  toast({
+                    title: "Success",
+                    description: result.message || "Profile picture removed successfully",
+                  });
+                  setRefresh((v: any) => v + 1);
+                  setImage(null);
+                  setPreview(null);
+                  setFile(null);
+                  onClose();
+                } else {
+                  toast({
+                    title: "Error",
+                    variant: "destructive",
+                    description: result?.error || "Failed to remove profile picture",
+                  });
+                }
               }}
             >
-              Delete Photo
+              {isLoadingRemove ? "Deleting..." : "Delete Photo"}
             </button>
 
             <p className="text-xs text-muted-foreground mt-3">
@@ -284,7 +304,7 @@ const FormModal = ({ show, onClose, setRefresh, imageSrc }) => {
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} disabled={loading || isLoadingRemove}>
             Cancel
           </Button>
         </DialogFooter>

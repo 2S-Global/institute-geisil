@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-const KeySkills = () => {
+const KeySkills = ({setRefresh}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [keySkills, setKeySkills] = useState([]);
   const [sectionLoading, setSectionLoading] = useState(true);
@@ -103,6 +103,7 @@ const KeySkills = () => {
           onClose={closeModal}
           selectedSkills={keySkills}
           refetchKeySkills={fetchKeySkills}
+          setRefresh={setRefresh}
         />
       )}
     </>

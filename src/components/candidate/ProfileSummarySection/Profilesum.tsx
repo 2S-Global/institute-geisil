@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Trash2, Sparkles } from "lucide-react";
@@ -23,23 +24,30 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 
-const FormModal = ({ show, onClose, data = {}, mainprofilesummary,
+const FormModal = ({
+  show,
+  onClose,
+  data = {},
+  mainprofilesummary,
   mainsetProfilesummary,
   setError,
-  setSuccess}) => {
-  const apiurl =  import.meta.env.VITE_API_URL;
-  console.log("show",show)
-    const { toast } = useToast();
- const [profilesummary, setProfilesummary] = useState(
+  setRefresh,
+  setSuccess,
+}) => {
+  const apiurl = import.meta.env.VITE_API_URL;
+  console.log("show", show);
+  const { toast } = useToast();
+  const [profilesummary, setProfilesummary] = useState(
     mainprofilesummary || ""
   );
 
+  const [loading, setLoading] = useState(false);
   const [isGenerated, setIsGenerated] = useState(false); // Track button presses
   const token = localStorage.getItem("token");
   if (!token) {
     console.log("No token");
   }
-  
+
   const handleGenerateHeadline = () => {
     if (isGenerated) {
       setProfilesummary(""); // Clear text if pressed again
@@ -62,30 +70,35 @@ const FormModal = ({ show, onClose, data = {}, mainprofilesummary,
       return;
     }
     try {
-      const response = await API.post(
-        `/api/useraction/profilesummary`,
-        { profileSummary: profilesummary }
-       
-      );
+      setLoading(true);
+      const response = await API.post(`/api/useraction/profilesummary`, {
+        profileSummary: profilesummary,
+      });
       if (response.status === 201) {
         mainsetProfilesummary(profilesummary);
       }
       setSuccess("Profile Summary updated successfully");
-         toast({
-          title: "Success",
-          description: "Profile Summary updated successfully",
-        });
+      toast({
+        title: "Success",
+        description: "Profile Summary updated successfully",
+      });
+      if (setRefresh) {
+        setRefresh((prev) => prev + 1);
+      }
+      onClose();
     } catch (error) {
       console.error("Error uploading data:", error);
-        toast({
-          title: "Error",
-          variant: "destructive",
-          description:"Error updating data:",
-        })
+      toast({
+        title: "Error",
+        variant: "destructive",
+        description: "Error updating data:",
+      });
       setError("Error uploading data");
+    } finally {
+      setLoading(false);
     }
-    onClose();
   };
+
   const handleDelete = async () => {
     if (!token) {
       console.error("Authorization token is missing. Please log in.");
@@ -99,23 +112,28 @@ const FormModal = ({ show, onClose, data = {}, mainprofilesummary,
         throw new Error("Failed to delete education record");
       }
       mainsetProfilesummary("");
+      if (setRefresh) {
+        setRefresh((prev) => prev + 1);
+      }
       onClose();
       setError("Profile Summary deleted successfully");
     } catch (error) {
       console.error("Error deleting education record:", error);
     }
   };
+
   const handleConfirmDelete = () => {
     if (window.confirm("Are you sure you want to delete this record?")) {
       handleDelete();
     }
   };
+
   if (!show) return null;
 
   return (
- <>
-  <style>
-    {`
+    <>
+      <style>
+        {`
       .custom-textarea::placeholder {
         color: #c7c5c5 !important;
         font-size: 15px !important;
@@ -144,92 +162,85 @@ const FormModal = ({ show, onClose, data = {}, mainprofilesummary,
         height: 16px;
       }
     `}
-  </style>
+      </style>
 
-  <Dialog open={show} onOpenChange={onClose}>
-    <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+      <Dialog open={show} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+          {/* Header */}
+          <DialogHeader>
+            <DialogTitle className="font-display text-xl flex items-center justify-between">
+              <span>Profile Summary</span>
+              <span className="pr-5">
+                {mainprofilesummary && (
+                  <Trash2
+                    size={18}
+                    className="cursor-pointer text-red-500 hover:text-red-600"
+                    onClick={handleConfirmDelete}
+                  />
+                )}
+              </span>
+            </DialogTitle>
 
-      {/* Header */}
-      <DialogHeader>
-        <DialogTitle className="font-display text-xl flex items-center justify-between">
-          <span>Profile Summary</span>
-        <span className="pr-5">
-          {mainprofilesummary && (
-            <Trash2
-              size={18}
-              className="cursor-pointer text-red-500 hover:text-red-600"
-              onClick={handleConfirmDelete}
+            <DialogDescription>
+              Give recruiters a brief overview of the highlights of your career,
+              key achievements, and career goals to help recruiters know your
+              profile better.
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* Body */}
+          <div className="space-y-4 pt-2">
+            <textarea
+              className="w-full rounded-md border p-3 custom-textarea focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+              placeholder="Type here..."
+              value={profilesummary}
+              onChange={(e) => {
+                setProfilesummary(e.target.value);
+                setIsGenerated(false);
+              }}
+              maxLength={1000}
+              rows={6}
             />
-          )}
-          </span>
-        </DialogTitle>
 
-        <DialogDescription>
-          Give recruiters a brief overview of the highlights of your career,
-          key achievements, and career goals to help recruiters know your
-          profile better.
-        </DialogDescription>
-      </DialogHeader>
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <button
+                type="button"
+                className="suggestion-btn"
+                onClick={handleGenerateHeadline}
+              >
+                <Sparkles size={16} />
+                {isGenerated ? "Clear" : "Help me write"}
+              </button>
 
-      {/* Body */}
-      <div className="space-y-4 pt-2">
+              <small className="text-right text-xs text-gray-500">
+                {1000 - profilesummary.length} character(s) left
+              </small>
+            </div>
+          </div>
 
-        <textarea
-          className="w-full rounded-md border p-3 custom-textarea focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-          placeholder="Type here..."
-          value={profilesummary}
-          onChange={(e) => {
-            setProfilesummary(e.target.value);
-            setIsGenerated(false);
-          }}
-          maxLength={1000}
-          rows={6}
-        />
+          {/* Footer */}
+          <div className="flex justify-end gap-3 pt-4">
+            <Button type="button" onClick={onClose} variant="outline" disabled={loading}>
+              Cancel
+            </Button>
 
-        <div className="flex items-center justify-between flex-wrap gap-3">
-
-          <button
-            type="button"
-            className="suggestion-btn"
-            onClick={handleGenerateHeadline}
-          >
-            <Sparkles size={16} />
-            {isGenerated ? "Clear" : "Help me write"}
-          </button>
-
-          <small className="text-right text-xs text-gray-500">
-            {1000 - profilesummary.length} character(s) left
-          </small>
-
-        </div>
-
-      </div>
-
-      {/* Footer */}
-      <div className="flex justify-end gap-3 pt-4">
-
-       
-  <Button
-    type="button"
-    onClick={onClose}
-    variant="outline"
-  >
-    Cancel
-  </Button>
-
-  <Button
-    type="button"
-    onClick={handelSubmit}
-    disabled={profilesummary.trim().length < 1}
-    
-  >
-    Save
-  </Button>
-</div>
-
-    </DialogContent>
-  </Dialog>
-</>
+            <Button
+              type="button"
+              onClick={handelSubmit}
+              disabled={profilesummary.trim().length < 1 || loading}
+            >
+              {loading
+                ? mainprofilesummary
+                  ? "Updating..."
+                  : "Saving..."
+                : mainprofilesummary
+                ? "Update"
+                : "Save"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

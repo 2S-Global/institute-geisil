@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/select";
 
 import EducationForm from "./EducationForm"
+import { getMinimumAllowedYear } from "./educationYearValidation";
 const EducationModal = ({ show,
   onClose,
   reload,
@@ -34,12 +35,14 @@ const EducationModal = ({ show,
   selectedLevel,
   edit_id,
   setError,
-  setSuccess}) => {
+  setSuccess,
+  onEducationChanged}) => {
   const apiurl =  import.meta.env.VITE_API_URL;
  // console.log("show",show)
   const token = localStorage.getItem("token");
   const [formData, setFormData] = useState({
     _id: "",
+    dob: "",
     level: "",
     state: "",
     board: "",
@@ -67,18 +70,65 @@ const EducationModal = ({ show,
   const [isFormValid, setIsFormValid] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [levels, setLevels] = useState([]);
+  const [existingEducationData, setExistingEducationData] = useState([]);
+  const [allowedLevels, setAllowedLevels] = useState([]);
+  const [minimumAllowedYear, setMinimumAllowedYear] = useState<number | null>(null);
   const { toast } = useToast();
+  useEffect(() => {
+    const fetchCandidateDob = async () => {
+      try {
+        const response = await API.get(
+          `/api/candidate/personal/get_personal_details_with_name`
+        );
+
+        if (response.status === 200) {
+          const dob = response.data?.data?.dob || "";
+          setFormData((prev) => ({ ...prev, dob }));
+        }
+      } catch (error) {
+        console.error("Error fetching candidate DOB:", error);
+      }
+    };
+
+    const fetchLevels = async () => {
+      try {
+        const response = await API.get(`/api/sql/dropdown/education_level`);
+        if (response.status === 200) {
+          setLevels(response.data?.data || []);
+        }
+      } catch (error) {
+        console.error("Error fetching education levels:", error);
+      }
+    };
+
+    const fetchExistingEducation = async () => {
+      try {
+        const response = await API.get(`/api/userdata/get_user_education`);
+        if (response.status === 200) {
+          setExistingEducationData(response.data?.data || []);
+        }
+      } catch (error) {
+        console.error("Error fetching user education data:", error);
+      }
+    };
+
+    fetchCandidateDob();
+    fetchLevels();
+    fetchExistingEducation();
+  }, []);
+
   useEffect(() => {
     if (selectedLevel) {
       console.log("selectedLevel from useEffect", selectedLevel);
-      setFormData({ ...formData, level: selectedLevel });
+      setFormData((prev) => ({ ...prev, level: selectedLevel }));
     }
   }, [selectedLevel]);
 
   useEffect(() => {
     if (edit_id) {
       console.log("edit_id from useEffect", edit_id);
-      setFormData({ ...formData, _id: edit_id });
+      setFormData((prev) => ({ ...prev, _id: edit_id }));
       /* http://localhost:8080/api/userdata/get_edit_user_data?dataId=6839499e3bbfe3574bccef83 */
       const fetchuserdata = async () => {
         setLoading(true);
@@ -89,9 +139,17 @@ const EducationModal = ({ show,
 
           if (response.status == 200) {
             const responseData = response.data.data;
+            let duration = responseData.duration || {};
+            if (typeof duration === "string") {
+              try {
+                duration = JSON.parse(duration);
+              } catch {
+                duration = {};
+              }
+            }
 
-            setFormData({
-              ...formData,
+            setFormData((prev) => ({
+              ...prev,
               _id: responseData._id || "",
               school_name: responseData.school_name || "",
               level: responseData.level || "",
@@ -106,8 +164,18 @@ const EducationModal = ({ show,
               institute_name: responseData.instituteName || "",
               course_name: responseData.courseName || "",
               course_type: responseData.courseType || "",
-              start_year: responseData.duration.from || "",
-              end_year: responseData.duration.to || "",
+              start_year:
+                duration.from ||
+                duration.start ||
+                responseData.start_year ||
+                responseData.startYear ||
+                "",
+              end_year:
+                duration.to ||
+                duration.end ||
+                responseData.end_year ||
+                responseData.endYear ||
+                "",
               grading_system: responseData.gradingSystem || "",
               is_primary: responseData.isPrimary || false,
               transcript: null,
@@ -115,7 +183,7 @@ const EducationModal = ({ show,
               certificate: null,
               certificatePreview: responseData.certificate_data || "",
               level_type: responseData.levelType || "",
-            });
+            }));
           }
         } catch (error) {
           console.error("Error fetching user data:", error);
@@ -128,6 +196,119 @@ const EducationModal = ({ show,
     }
   }, [edit_id]);
 
+  const normalizeLevelName = (value) => String(value ?? "").trim().toLowerCase();
+
+  const getLevelLabel = (levelItem) => {
+    if (!levelItem) return "";
+    return normalizeLevelName(levelItem.level || levelItem.name || levelItem.label);
+  };
+
+  const getLevelLabelFromRecord = (record) => {
+    const recordLevel = record?.level_name ?? record?.levelName ?? record?.level;
+    if (typeof recordLevel === "string" && Number.isNaN(Number(recordLevel))) {
+      return normalizeLevelName(recordLevel);
+    }
+
+    const levelId = record?.level_id ?? recordLevel ?? "";
+    if (levelId === "") return "";
+
+    const matchedLevel = levels.find((level) => String(level.id) === String(levelId));
+    return getLevelLabel(matchedLevel);
+  };
+
+  const getAllowedLevelsForAdd = (allLevels, records) => {
+    if (!allLevels.length) return [];
+
+    const existingLabels = records
+      .map((record) => getLevelLabelFromRecord(record))
+      .filter(Boolean);
+
+    const has10th = existingLabels.includes("10th standard");
+    const has12th = existingLabels.includes("12th standard");
+    const hasDiploma = existingLabels.includes("diploma");
+    const hasUndergraduate = existingLabels.some((label) => label === "undergraduate" || label === "under graduate" || label === "graduation");
+    const hasPostgraduate = existingLabels.some((label) => label === "postgraduate" || label === "post graduate");
+    const hasDoctorate = existingLabels.some((label) => label === "doctorate/phd" || label === "doctorate" || label === "phd");
+    const onlyLevels = (...labels) => allLevels.filter((level) => labels.includes(getLevelLabel(level)));
+
+    if (!has10th) {
+      return onlyLevels("10th standard");
+    }
+
+    if (hasUndergraduate && !hasPostgraduate) {
+      return onlyLevels("postgraduate", "post graduate", "post graduation");
+    }
+
+    if (hasPostgraduate && !hasDoctorate) {
+      return onlyLevels("doctorate/phd", "doctorate", "phd");
+    }
+
+    if (hasDoctorate) return [];
+
+    if (has12th && hasDiploma) return onlyLevels("undergraduate", "under graduate", "graduation");
+    if (hasDiploma) return onlyLevels("12th standard", "undergraduate", "under graduate", "graduation");
+    if (has12th) return onlyLevels("diploma", "undergraduate", "under graduate", "graduation");
+
+    return onlyLevels("12th standard", "diploma");
+  };
+
+  const getMinimumAllowedYearForLevel = (levelId, dobValue, records) => {
+    const matchedLevel = levels.find((level) => String(level.id) === String(levelId));
+    const levelLabel = getLevelLabel(matchedLevel);
+    const birthYear = dobValue ? new Date(dobValue).getFullYear() : null;
+
+    if (!birthYear) return null;
+
+    const tenthRecord = records.find((record) => getLevelLabelFromRecord(record) === "10th standard");
+    const twelfthRecord = records.find((record) => getLevelLabelFromRecord(record) === "12th standard");
+    const getCourseEndYear = (record) =>
+      Number(record?.duration?.to || record?.end_year || record?.year_of_passing || 0) || null;
+    const latestRecord = records.reduce((latest, record) => {
+      if (!latest) return record;
+      const latestDate = new Date(latest.createdAt || latest.created_at || 0).getTime();
+      const recordDate = new Date(record.createdAt || record.created_at || 0).getTime();
+      return recordDate >= latestDate ? record : latest;
+    }, null);
+
+    if (levelLabel === "10th standard") return birthYear + 14;
+
+    if (levelLabel === "12th standard") {
+      const baseYear = Number(tenthRecord?.year_of_passing || birthYear + 14);
+      return baseYear + 2;
+    }
+
+    if (levelLabel === "diploma") {
+      const baseYear = Number(twelfthRecord?.year_of_passing || tenthRecord?.year_of_passing || birthYear + 14);
+      return baseYear;
+    }
+
+    if (["undergraduate", "under graduate", "graduation", "postgraduate", "post graduate", "post graduation", "doctorate/phd", "doctorate", "phd"].includes(levelLabel)) {
+      return getCourseEndYear(latestRecord) || birthYear;
+    }
+
+    return birthYear;
+  };
+
+  useEffect(() => {
+    if (!levels.length) {
+      setAllowedLevels([]);
+      setMinimumAllowedYear(null);
+      return;
+    }
+
+    const relevantRecords = existingEducationData.filter((record) => !edit_id || String(record._id) !== String(edit_id));
+    const nextAllowedLevels = edit_id ? levels : getAllowedLevelsForAdd(levels, relevantRecords);
+    setAllowedLevels(nextAllowedLevels);
+
+    if (!formData.level) {
+      setMinimumAllowedYear(null);
+      return;
+    }
+
+    const computedMinimumYear = getMinimumAllowedYearForLevel(formData.level, formData.dob, relevantRecords);
+    setMinimumAllowedYear(computedMinimumYear);
+  }, [levels, existingEducationData, formData.level, formData.dob, edit_id]);
+
   const validateForm = () => {
     // 'level' is always required
     if (!formData.level || formData.level.toString().trim() === "") {
@@ -135,6 +316,10 @@ const EducationModal = ({ show,
     }
 
     if (formData.level == 1 || formData.level == 2) {
+      const yearOfPassing = formData.year_of_passing;
+      if (yearOfPassing && minimumAllowedYear !== null && Number(yearOfPassing) < minimumAllowedYear) {
+        return false;
+      }
       const requiredFields = [
         "level",
         "state",
@@ -187,7 +372,7 @@ const EducationModal = ({ show,
 
   useEffect(() => {
     setIsFormValid(validateForm());
-  }, [formData]);
+  }, [formData, minimumAllowedYear, levels, existingEducationData]);
 
   const handleSave = async () => {
     if (!token) {
@@ -226,16 +411,22 @@ const EducationModal = ({ show,
           description: "Education data saved successfully",
         });
       setSuccess("Education data saved successfully");
-      setReload(true);
+      await onEducationChanged?.();
       onClose();
-    } catch (error) {
+    } catch (error: any) {
+      const serverMessage =
+        error?.response?.data?.error ||
+        error?.response?.data?.message ||
+        error?.message ||
+        "Error saving education data";
+
       console.error("Error saving education data:", error);
-      setError("Error saving education data");
+      setError(serverMessage);
       toast({
-          title: "Error",
-          variant: "destructive",
-          description: "Error saving education data",
-        })
+        title: "Error",
+        variant: "destructive",
+        description: serverMessage,
+      });
     } finally {
       setSaving(false);
     }
@@ -261,7 +452,7 @@ const EducationModal = ({ show,
       if (response.status !== 200) {
         throw new Error("Failed to delete education record");
       }
-      setReload(true);
+      await onEducationChanged?.(edit_id);
       onClose();
     } catch (error) {
       console.error("Error deleting education record:", error);
@@ -317,6 +508,8 @@ const EducationModal = ({ show,
         edit_id_main={edit_id}
         loading={loading}
         setLoading={setLoading}
+        allowedLevels={allowedLevels}
+        minimumAllowedYear={minimumAllowedYear}
       />
     </div>
 

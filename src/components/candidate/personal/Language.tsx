@@ -351,6 +351,7 @@ const LanguageProficiency = ({
   targetLanguageId,
   onClose,
   setReload,
+    setRefresh
 }) => {
   const apiurl = import.meta.env.VITE_API_URL;
   const { toast } = useToast();
@@ -378,36 +379,7 @@ const LanguageProficiency = ({
     fetchOptions();
   }, [apiurl]);
 
-  // const deleteLanguage = async (index) => {
-  //   const languageId = masterDetails[index]?._id;
-
-  //   if (!languageId) {
-  //     toast({
-  //       title: "Error",
-  //       description: "No language ID found to delete.",
-  //       variant: "destructive",
-  //     });
-  //     return;
-  //   }
-
-  //   try {
-  //     await API.delete(`/api/candidate/personal/language/${languageId}`);
-  //     toast({
-  //       title: "Success",
-  //       description: "Language deleted successfully.",
-  //     });
-  //     onClose();
-  //     setReload(p => p + 1);
-  //   } catch (error) {
-  //     console.error("Error deleting language:", error);
-  //     toast({
-  //       title: "Deletion Failed",
-  //       description: "There was a problem deleting the language. Please try again.",
-  //       variant: "destructive",
-  //     });
-  //   }
-  // };
-
+ 
   const deleteLanguage = async (index) => {
     const languageId = masterDetails[index]?._id;
 
@@ -434,6 +406,9 @@ const LanguageProficiency = ({
       });
       if (onClose) onClose();
       if (setReload) setReload((p) => p + 1);
+     if (setRefresh) {
+        setRefresh((prev) => prev + 1);
+      }
     } catch (error) {
       console.error("Error deleting language:", error);
       toast({

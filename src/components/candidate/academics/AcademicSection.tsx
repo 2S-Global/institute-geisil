@@ -64,6 +64,87 @@ const AcademicSection = () => {
   const [selectedLevel, setSelectedLevel] = useState("");
   const [edit_id, setEdit_id] = useState("");
 
+  const normalizeLevelText = (text) =>
+    String(text || "")
+      .toLowerCase()
+      .replace(/\s+/g, " ")
+      .trim();
+
+  const getLevelLabel = (levelItem) => {
+    if (!levelItem) return "";
+    return normalizeLevelText(levelItem.level || levelItem.name || levelItem.label || "");
+  };
+
+  const getRecordLevelLabel = (record) => {
+    const explicitLabel = record.level_name || record.levelName || record.level;
+    if (typeof explicitLabel === "string" && Number.isNaN(Number(explicitLabel))) {
+      return normalizeLevelText(explicitLabel);
+    }
+
+    const id = record.level_id || record.level;
+    if (!id) return "";
+
+    const mapped = listlevel.find((level) => String(level.id) === String(id));
+    return getLevelLabel(mapped);
+  };
+
+  const getAllowedAddLevelLabels = () => {
+    const existingLabels = userdata
+      .map(getRecordLevelLabel)
+      .filter(Boolean);
+
+    const has10th = existingLabels.includes("10th standard");
+    const has12th = existingLabels.includes("12th standard");
+    const hasDiploma = existingLabels.includes("diploma");
+    const hasUndergraduate = existingLabels.some((label) => ["graduation", "undergraduate", "under graduate"].includes(label));
+    const hasPostgraduate = existingLabels.some((label) => ["post graduation", "postgraduate", "post graduate"].includes(label));
+    const hasDoctorate = existingLabels.some((label) => ["doctorate/phd", "doctorate", "phd"].includes(label));
+
+    if (!existingLabels.length) {
+      return ["10th standard"];
+    }
+
+    if (hasUndergraduate && !hasPostgraduate) {
+      return ["post graduation", "postgraduate", "post graduate"];
+    }
+
+    if (hasPostgraduate && !hasDoctorate) {
+      return ["doctorate/phd", "doctorate", "phd"];
+    }
+
+    if (hasDoctorate) return [];
+
+    if (has10th && !has12th && !hasDiploma) {
+      return ["12th standard", "diploma"];
+    }
+
+    if (has12th && hasDiploma && !hasUndergraduate) {
+      return ["graduation", "undergraduate", "under graduate"];
+    }
+
+    if (hasDiploma && !hasUndergraduate) {
+      return ["12th standard", "graduation", "undergraduate", "under graduate"];
+    }
+
+    if (has12th && !hasUndergraduate) {
+      return ["graduation", "undergraduate", "diploma"];
+    }
+
+    return [];
+  };
+
+  const getAllowedAddLevels = () => {
+    const allowedLabels = getAllowedAddLevelLabels();
+    return listlevel.filter((level) => allowedLabels.includes(getLevelLabel(level)));
+  };
+
+  const getAllowedAddLevelIds = () => {
+    const allowedLabels = getAllowedAddLevelLabels();
+    return listlevel
+      .filter((level) => allowedLabels.includes(getLevelLabel(level)))
+      .map((level) => String(level.id));
+  };
+
   const [sectionloading, setSectionloading] = useState(false);
   const { toast } = useToast();
   useEffect(() => {
@@ -96,6 +177,15 @@ const AcademicSection = () => {
     } finally {
       setSectionloading(false);
     }
+  };
+
+  const handleEducationChanged = async (deletedId = "") => {
+    if (deletedId) {
+      setUserdata((current) => current.filter((record) => String(record._id) !== String(deletedId)));
+      return;
+    }
+
+    await fetchuserdata();
   };
   const fetchLevels = async () => {
     try {
@@ -137,21 +227,10 @@ const AcademicSection = () => {
     compareLevels();
   }, [userdata, listlevel]);
 
-  const openModalRH = (level, edit_id) => {
+  const openModalRH = (level = "", edit_id = "") => {
     setIsModalOpen(true);
-    if (level) {
-      console.log("Selected Level:", level);
-      setSelectedLevel(level);
-    } else {
-      setSelectedLevel("");
-    }
-
-    if (edit_id) {
-      setEdit_id(edit_id);
-    } else {
-      setEdit_id("");
-    }
-
+    setSelectedLevel(level || "");
+    setEdit_id(edit_id || "");
     document.body.style.overflow = "hidden"; // Disable background scrolling
   };
 
@@ -252,15 +331,22 @@ const AcademicSection = () => {
               {/* Missing Levels */}
               {missingLevels.length > 0 && (
                 <div className="space-y-2">
-                  {missingLevels.map((level) => (
-                    <span
-                      key={level.id}
-                      className="block font-bold text-blue-600 cursor-pointer hover:underline mt-3"
-                      onClick={() => openModalRH(level.id)}
-                    >
-                      Add {level.level}
-                    </span>
-                  ))}
+                  {missingLevels.map((level) => {
+                    const allowedLevelIds = getAllowedAddLevelIds();
+                    const isEnabled = allowedLevelIds.includes(String(level.id));
+
+                    return (
+                      <button
+                        key={level.id}
+                        type="button"
+                        onClick={() => isEnabled && openModalRH(level.id)}
+                        disabled={!isEnabled}
+                        className={`block w-full text-left font-bold mt-3 rounded px-3 py-2 transition ${isEnabled ? "text-blue-600 hover:underline bg-blue-50" : "text-gray-400 bg-gray-100 cursor-not-allowed"}`}
+                      >
+                        Add {level.level}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -281,6 +367,7 @@ const AcademicSection = () => {
           edit_id={edit_id}
           setError={setError}
           setSuccess={setSuccess}
+          onEducationChanged={handleEducationChanged}
         />
       )}
     </>

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import logo from "../../assets/img/Logo.webp";
 export default function Footer() {
   return (
     <footer className="bg-primary text-primary-foreground">
@@ -6,7 +7,11 @@ export default function Footer() {
         <div>
           <div className="flex items-center gap-2 mb-3">
             <div className="h-9 w-9 rounded-lg bg-primary-foreground text-primary flex items-center justify-center font-bold">
-              G
+              <img
+                src={logo}
+                alt="GEISIL Logo"
+                className="h-12 w-auto object-contain"
+              />
             </div>
             <span className="font-bold">GEISIL</span>
           </div>

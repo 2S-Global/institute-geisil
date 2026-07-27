@@ -31,7 +31,9 @@ const EducationForm = ({ formData,
   selectedLevel_main,
   edit_id_main,
   loading,
-  setLoading,}) => {
+  setLoading,
+  allowedLevels,
+  minimumAllowedYear,}) => {
   const apiurl =  import.meta.env.VITE_API_URL;
  // console.log("show",show)
   const token = localStorage.getItem("token");
@@ -283,12 +285,13 @@ const EducationForm = ({ formData,
   //chanage level
   const handleLevelChange = (e) => {
     const selectedLevel = e.target.value;
-    const levelData = levels.find((lvl) => lvl.id == selectedLevel);
+    const levelData = (allowedLevels ?? levels).find((lvl) => String(lvl.id) === String(selectedLevel));
     if (levelData) {
       setCoursetype(levelData.type);
     }
 
-    setFormData({
+    setFormData((prev) => ({
+      ...prev,
       level: selectedLevel,
       state: "",
       board: "",
@@ -307,7 +310,7 @@ const EducationForm = ({ formData,
       is_primary: false,
       transcript: null,
       certificate: null,
-    });
+    }));
   };
   //handel changes
   const handleChange = (e) => {
@@ -347,8 +350,9 @@ const EducationForm = ({ formData,
   };
 
   const formatLevelName = (id) => {
-    const levelObj = levels.find((lvl) => lvl.id == id);
-    return levelObj ? levelObj.level : "Unknown Level";
+    const resolvedLevels = allowedLevels ?? levels;
+    const levelObj = resolvedLevels.find((lvl) => String(lvl.id) === String(id));
+    return levelObj ? (levelObj.level || levelObj.name || "Unknown Level") : "Unknown Level";
   };
 
   const handleSearchChange = (e, setSearch, setFiltered, list, key = "") => {
@@ -449,7 +453,7 @@ const EducationForm = ({ formData,
     >
       <option value="">Select Level</option>
 
-      {levels.map((level) => (
+      {(allowedLevels ?? levels).map((level) => (
         <option key={level.id} value={level.id}>
           {formatLevelName(level.id)}
         </option>
@@ -492,6 +496,7 @@ const EducationForm = ({ formData,
             setFormData={setFormData}
             handleChange={handleChange}
             listboard={listboard}
+            minimumAllowedYear={minimumAllowedYear}
             listmedium={listmedium}
             stateselected={stateselected}
             handleTranscriptChange={handleTranscriptChange}
@@ -545,8 +550,7 @@ const EducationForm = ({ formData,
             setUniversitySearch={setUniversitySearch}
             filteredUniversity={filteredUniversity}
             setFilteredUniversity={setFilteredUniversity}
-            boardSearch={boardSearch}
-            setBoardSearch={setBoardSearch}
+            minimumAllowedYear={minimumAllowedYear}
           />
         )}
       </div>

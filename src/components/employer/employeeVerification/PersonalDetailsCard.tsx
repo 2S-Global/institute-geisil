@@ -59,11 +59,9 @@ const PersonalInfoCard = ({ user }) => {
           Date of Birth
         </span>
         <span className="text-sm fon-s text-gray-900">
-          {user.dob
-            ? new Date(user.dob).toLocaleDateString("en-IN", {
-                timeZone: "Asia/Kolkata",
-              })
-            : "N/A"}
+          {user?.dob?.split("-").reverse().join("-") 
+           
+        || "N/A"}
         </span>
       </div>
 

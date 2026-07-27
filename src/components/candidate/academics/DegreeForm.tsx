@@ -34,7 +34,16 @@ const DegreeForm = ({
   setUniversitySearch,
   filteredUniversity,
   setFilteredUniversity,
+  minimumAllowedYear,
 }) => {
+  const currentYear = new Date().getFullYear();
+  const savedYears = [formData.start_year, formData.end_year]
+    .map(Number)
+    .filter((year) => Number.isInteger(year) && year > 0);
+  const firstAllowedYear = Math.min(
+    minimumAllowedYear ?? currentYear,
+    ...savedYears
+  );
   return (
    <>
   {!stateselected && (
@@ -182,8 +191,8 @@ const DegreeForm = ({
         >
           <option value="">Select Start Year</option>
 
-          {Array.from({ length: 50 }, (_, i) => {
-            const year = new Date().getFullYear() - i;
+          {Array.from({ length: currentYear - firstAllowedYear + 1 }, (_, i) => {
+            const year = currentYear - i;
             const isDisabled =
               formData.end_year &&
               parseInt(year) > parseInt(formData.end_year);
@@ -208,8 +217,8 @@ const DegreeForm = ({
         >
           <option value="">Select End Year</option>
 
-          {Array.from({ length: 46 }, (_, i) => {
-            const year = new Date().getFullYear() + 5 - i;
+          {Array.from({ length: currentYear + 5 - firstAllowedYear + 1 }, (_, i) => {
+            const year = currentYear + 5 - i;
             const isDisabled =
               formData.start_year &&
               parseInt(year) < parseInt(formData.start_year);

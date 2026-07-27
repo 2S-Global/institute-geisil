@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import * as Dialog from "@radix-ui/react-dialog";
@@ -13,7 +12,6 @@ import {
   Loader2,
   Check,
   AlertCircle,
-  Briefcase,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -23,7 +21,6 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-
 
 const monthNames = [
   "January",
@@ -45,11 +42,9 @@ const months = monthNames.map((name, index) => ({
   label: name,
 }));
 
-
 function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
-
 
 export const EmploymentModal = ({
   isOpen,
@@ -58,6 +53,7 @@ export const EmploymentModal = ({
   jobId = "",
   editData = null,
   profiles = [],
+  setRefresh,
 }) => {
   const { toast } = useToast();
   const currentYear = new Date().getFullYear();
@@ -74,7 +70,6 @@ export const EmploymentModal = ({
   const [showDropdown, setShowDropdown] = useState(false);
   const [isDropdownSelect, setIsDropdownSelect] = useState(false);
 
-  
   const {
     control,
     handleSubmit,
@@ -141,7 +136,7 @@ export const EmploymentModal = ({
     });
   }, [profiles]);
 
-  // 1. Joining Years List (allows up to 50 years back)
+  // 1. Joining Years List
   const joiningYears = useMemo(() => {
     return Array.from({ length: 50 }, (_, i) => {
       const y = currentYear - i;
@@ -149,7 +144,7 @@ export const EmploymentModal = ({
     });
   }, [currentYear]);
 
-  // 2. Leaving Years List (FILTERED to hide years earlier than Joining Year)
+  // 2. Leaving Years List
   const leavingYears = useMemo(() => {
     const fromYear = watchJoiningDate ? watchJoiningDate.getFullYear() : null;
     return Array.from({ length: 50 }, (_, i) => currentYear - i)
@@ -157,7 +152,7 @@ export const EmploymentModal = ({
       .map((yr) => ({ value: String(yr), label: String(yr) }));
   }, [watchJoiningDate, currentYear]);
 
-  // 3. Leaving Months List (FILTERED to hide months earlier than Joining Month if same year)
+  // 3. Leaving Months List
   const leavingMonths = useMemo(() => {
     if (!watchJoiningDate || !watchLeavingDate) return months;
 
@@ -165,14 +160,13 @@ export const EmploymentModal = ({
     const toYear = watchLeavingDate.getFullYear();
 
     if (fromYear === toYear) {
-      const fromMonthIndex = watchJoiningDate.getMonth(); // 0-based
+      const fromMonthIndex = watchJoiningDate.getMonth();
       return months.filter((m) => parseInt(m.value, 10) - 1 >= fromMonthIndex);
     }
 
     return months;
   }, [watchJoiningDate, watchLeavingDate]);
 
-  // Handle Joining Year Change & Reset invalid leaving date
   const handleJoiningYearChange = (yearStr) => {
     const selectedYear = parseInt(yearStr, 10);
     const currentMonth = watchJoiningDate ? watchJoiningDate.getMonth() : 0;
@@ -193,7 +187,6 @@ export const EmploymentModal = ({
     }
   };
 
-  // Handle Joining Month Change & Reset invalid leaving month
   const handleJoiningMonthChange = (monthStr) => {
     const selectedMonthIndex = parseInt(monthStr, 10) - 1;
     const currentYearVal = watchJoiningDate
@@ -221,7 +214,7 @@ export const EmploymentModal = ({
         const response = await API.get(
           "https://api.geisil.com/api/candidate/employment/get_notice_period",
         );
-        if (response.data.success) {
+        if (response.data?.success) {
           setNoticePeriodOptions(response.data.data || []);
         }
       } catch (error) {
@@ -315,7 +308,6 @@ export const EmploymentModal = ({
     fetchMatchingCompanies();
   }, [debouncedCompanyName, isDropdownSelect]);
 
-  // Rich Text Editor Configuration
   const quillModules = useMemo(
     () => ({
       toolbar: [
@@ -336,7 +328,6 @@ export const EmploymentModal = ({
     "bullet",
   ];
 
-  // AI Description Generator
   const handleAiGeneration = async () => {
     if (!watchJobTitle?.trim()) {
       toast({
@@ -358,7 +349,7 @@ export const EmploymentModal = ({
         },
       );
 
-      if (response.data.success && response.data.description) {
+      if (response.data?.success && response.data?.description) {
         setValue("description", response.data.description);
         toast({
           title: "AI Generation Complete",
@@ -380,7 +371,6 @@ export const EmploymentModal = ({
     }
   };
 
-  // Calculate experience in years and months automatically
   const calculateExperience = (startDate, endDate, isCurrent) => {
     if (!startDate) return { yr: "", mnth: "" };
 
@@ -406,35 +396,52 @@ export const EmploymentModal = ({
     return { yr: "", mnth: "" };
   };
 
-  
+  // 1. ADD EMPLOYMENT API
   const handleAddEmployment = async (payload) => {
     try {
       const response = await API.post(
         "/api/candidate/employment/add_employment",
         payload,
       );
-      if (response.data.success) {
+
+      const backendMsg =
+        response.data?.message ||
+        response.data?.msg ||
+        "Employment saved successfully!";
+
+      if (
+        response.data?.success ||
+        response.status === 200 ||
+        response.status === 201
+      ) {
         toast({
           title: "Success",
-          description:
-            response.data.message || "Employment saved successfully!",
+          description: backendMsg,
         });
         if (onRefresh) onRefresh();
-        onClose();
+        return true;
       } else {
         toast({
           variant: "destructive",
           title: "Error",
-          description: response.data.message || "Something went wrong.",
+          description: backendMsg,
         });
+        return false;
       }
     } catch (error) {
+      const errorMsg =
+        error.response?.data?.message ||
+        error.response?.data?.msg ||
+        error.response?.data?.error ||
+        error.message ||
+        "Failed to save employment record.";
+
       toast({
         variant: "destructive",
         title: "Submission Failed",
-        description:
-          error.response?.data?.message || "Failed to save employment record.",
+        description: errorMsg,
       });
+      return false;
     }
   };
 
@@ -445,35 +452,46 @@ export const EmploymentModal = ({
         "/api/candidate/employment/edit_employment",
         payload,
       );
-      if (response.data.success) {
+
+      const backendMsg =
+        response.data?.message ||
+        response.data?.msg ||
+        "Employment updated successfully!";
+
+      if (response.data?.success || response.status === 200) {
         toast({
           title: "Success",
-          description:
-            response.data.message || "Employment updated successfully!",
+          description: backendMsg,
         });
         if (onRefresh) onRefresh();
-        onClose();
+        return true;
       } else {
         toast({
           variant: "destructive",
           title: "Error",
-          description: response.data.message || "Something went wrong.",
+          description: backendMsg,
         });
+        return false;
       }
     } catch (error) {
+      const errorMsg =
+        error.response?.data?.message ||
+        error.response?.data?.msg ||
+        error.response?.data?.error ||
+        error.message ||
+        "Failed to update employment record.";
+
       toast({
         variant: "destructive",
         title: "Update Failed",
-        description:
-          error.response?.data?.message ||
-          "Failed to update employment record.",
+        description: errorMsg,
       });
+      return false;
     }
   };
 
   // Form Submission Handler
   const onSubmit = async (data) => {
-    // Basic field checks before triggering submit
     if (!data.companyName?.trim()) {
       toast({
         variant: "destructive",
@@ -518,7 +536,6 @@ export const EmploymentModal = ({
       data.currentlyWorking,
     );
 
-    // EXACT SPECIFIED PAYLOAD STRUCTURE
     const payload = {
       _id: jobId || "",
       company_name: data.companyName,
@@ -546,43 +563,75 @@ export const EmploymentModal = ({
     };
 
     try {
+      let isSuccess = false;
       if (jobId) {
-        await handleEditEmployment(payload);
+        isSuccess = await handleEditEmployment(payload);
       } else {
-        await handleAddEmployment(payload);
+        isSuccess = await handleAddEmployment(payload);
+      }
+
+      if (isSuccess) {
+        onClose(); // Close modal first
+
+        // 💡 SINGLE trigger with brief delay ensures score recalculates accurately without double-firing
+        setTimeout(() => {
+          if (typeof setRefresh === "function") {
+            setRefresh((prev) => prev + 1);
+          }
+        }, 300);
       }
     } finally {
       setSubmitting(false);
     }
   };
 
-  // Handle Record Deletion
+  // 3. DELETE EMPLOYMENT API
   const handleDelete = async () => {
     try {
       const response = await API.delete(
         "/api/candidate/employment/delete_employment",
         { data: { _id: jobId } },
       );
-      if (response.data.success) {
+
+      const backendMsg =
+        response.data?.message ||
+        response.data?.msg ||
+        "Employment entry removed.";
+
+      if (response.data?.success || response.status === 200) {
         toast({
           title: "Deleted",
-          description: response.data.message || "Employment entry removed.",
+          description: backendMsg,
         });
+
         if (onRefresh) onRefresh();
-        onClose();
+        onClose(); // Close modal first
+
+        // 💡 SINGLE trigger with brief delay
+        setTimeout(() => {
+          if (typeof setRefresh === "function") {
+            setRefresh((prev) => prev + 1);
+          }
+        }, 300);
       } else {
         toast({
           variant: "destructive",
           title: "Error",
-          description: response.data.message || "Failed to delete entry.",
+          description: backendMsg,
         });
       }
     } catch (error) {
+      const errorMsg =
+        error.response?.data?.message ||
+        error.response?.data?.msg ||
+        error.response?.data?.error ||
+        error.message ||
+        "Error processing delete request.";
+
       toast({
         variant: "destructive",
         title: "Deletion Failed",
-        description:
-          error.response?.data?.message || "Error processing delete request.",
+        description: errorMsg,
       });
     }
   };
@@ -590,10 +639,8 @@ export const EmploymentModal = ({
   return (
     <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <Dialog.Portal>
-        
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
 
-        
         <Dialog.Content
           onPointerDownOutside={(e) => e.preventDefault()}
           onInteractOutside={(e) => e.preventDefault()}
@@ -614,22 +661,10 @@ export const EmploymentModal = ({
 
             <div className="flex items-center space-x-2">
               {jobId && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (
-                      window.confirm(
-                        "Are you sure you want to delete this record?",
-                      )
-                    ) {
-                      handleDelete();
-                    }
-                  }}
-                  className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                  title="Delete Entry"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                <Trash2
+                  className="w-4 h-4 cursor-pointer text-red-500 hover:text-red-600"
+                  onClick={() => handleDelete()}
+                />
               )}
               <Dialog.Close asChild>
                 <button
@@ -642,7 +677,6 @@ export const EmploymentModal = ({
             </div>
           </div>
 
-          
           <form
             onSubmit={handleSubmit(onSubmit, (errs) =>
               console.log("Validation Errors:", errs),
@@ -757,6 +791,37 @@ export const EmploymentModal = ({
                 name="companyName"
                 control={control}
                 render={({ field }) => (
+                  // <div className="relative">
+                  //   <input
+                  //     {...field}
+                  //     type="text"
+                  //     placeholder="e.g. Google, Microsoft, Acme Corp"
+                  //     autoComplete="off"
+                  //     onChange={(e) => {
+                  //       field.onChange(e);
+                  //       setIsDropdownSelect(false);
+                  //       setShowDropdown(e.target.value.trim() !== "");
+                  //     }}
+                  //     onFocus={() => {
+                  //       if (field.value.trim() !== "") setShowDropdown(true);
+                  //     }}
+                  //     onBlur={() =>
+                  //       setTimeout(() => setShowDropdown(false), 200)
+                  //     }
+                  //     className={cn(
+                  //       "w-full bg-slate-50 text-sm text-slate-800 placeholder-slate-400 rounded-lg px-3.5 py-2.5 pr-10 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 transition-all",
+                  //       errors.companyName &&
+                  //         "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+                  //     )}
+                  //   />
+                  //   <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-400 space-x-1">
+                  //     {loadingCompanies ? (
+                  //       <Loader2 className="w-4 h-4 animate-spin text-[#122B5F]" />
+                  //     ) : (
+                  //       <ChevronDown className="w-4 h-4" />
+                  //     )}
+                  //   </div>
+                  // </div>
                   <div className="relative">
                     <input
                       {...field}
@@ -764,12 +829,26 @@ export const EmploymentModal = ({
                       placeholder="e.g. Google, Microsoft, Acme Corp"
                       autoComplete="off"
                       onChange={(e) => {
-                        field.onChange(e);
+                        // Convert typed value to Title Case
+                        const rawValue = e.target.value;
+                        const titleCasedValue = rawValue.replace(
+                          /\w\S*/g,
+                          (txt) =>
+                            txt.charAt(0).toUpperCase() +
+                            txt.slice(1),
+                        );
+
+                        // Mutate current input element value so cursor position stays synced
+                        e.target.value = titleCasedValue;
+
+                        // Notify React Hook Form
+                        field.onChange(titleCasedValue);
+
                         setIsDropdownSelect(false);
-                        setShowDropdown(e.target.value.trim() !== "");
+                        setShowDropdown(titleCasedValue.trim() !== "");
                       }}
                       onFocus={() => {
-                        if (field.value.trim() !== "") setShowDropdown(true);
+                        if (field.value?.trim() !== "") setShowDropdown(true);
                       }}
                       onBlur={() =>
                         setTimeout(() => setShowDropdown(false), 200)
@@ -857,7 +936,6 @@ export const EmploymentModal = ({
                   Joining Date <span className="text-red-500">*</span>
                 </Label.Root>
                 <div className="grid grid-cols-2 gap-2">
-                  {/* Joining Month Select */}
                   <Select.Root
                     value={
                       watchJoiningDate
@@ -903,7 +981,6 @@ export const EmploymentModal = ({
                     </Select.Portal>
                   </Select.Root>
 
-                  {/* Joining Year Select */}
                   <Select.Root
                     value={
                       watchJoiningDate
@@ -958,7 +1035,6 @@ export const EmploymentModal = ({
                     Leaving Date <span className="text-red-500">*</span>
                   </Label.Root>
                   <div className="grid grid-cols-2 gap-2">
-                    {/* Leaving Month Select */}
                     <Select.Root
                       value={
                         watchLeavingDate
@@ -1013,7 +1089,6 @@ export const EmploymentModal = ({
                       </Select.Portal>
                     </Select.Root>
 
-                    {/* Leaving Year Select */}
                     <Select.Root
                       value={
                         watchLeavingDate
@@ -1138,8 +1213,6 @@ export const EmploymentModal = ({
                 <Label.Root className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
                   Job Profile Description
                 </Label.Root>
-
-                {/* AI Shimmer Generator Button */}
               </div>
 
               <Controller
@@ -1182,7 +1255,6 @@ export const EmploymentModal = ({
                 variant="outline"
                 onClick={onClose}
                 disabled={submitting}
-               
               >
                 Cancel
               </Button>
@@ -1194,11 +1266,7 @@ export const EmploymentModal = ({
                 {submitting && (
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
                 )}
-                {submitting
-                  ? "Saving..."
-                  : jobId
-                    ? "Update "
-                    : "Save "}
+                {submitting ? "Saving..." : jobId ? "Update " : "Save "}
               </Button>
             </div>
           </form>

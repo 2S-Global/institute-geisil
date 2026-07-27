@@ -71,7 +71,7 @@ import JobPreferences from "@/components/candidate/jobPreferences/JobPreferences
 import ITSkills from "@/components/candidate/ITSkills/ITSkills";
 import OtherSkills from "@/components/candidate/Other Skills/OtherSkills";
 import ProfileStrength from "./components/ProfileStrength";
-// import ProfileStrength from "../candidate/components/pro"
+
 import OTPModel from "@/components/candidate/myprofile/OTPModal";
 import { ProfileHeaderSkeleton } from "@/components/candidate/skeletons/ProfileHeaderSkeleton";
 
@@ -129,7 +129,7 @@ export default function CandidateProfile() {
 
   useEffect(() => {
     fetchScore();
-  }, []);
+  }, [refresh]);
 
   const openModalRH = () => {
     setIsModalOpen(true);
@@ -165,9 +165,7 @@ export default function CandidateProfile() {
       setProfileLoading(true);
       const response = await API.get(`/api/userdata/userdata`);
 
-      if (response.data?.profilePicture) {
-        setProfile_pic(response.data.profilePicture);
-      }
+      setProfile_pic(response.data?.profilePicture || null);
 
       if (response.data?.progress) {
         setProgress(response.data.progress);
@@ -179,7 +177,6 @@ export default function CandidateProfile() {
       setProfileLoading(false);
     }
   };
-
 
   const FetchKyc = async () => {
     try {
@@ -308,7 +305,7 @@ export default function CandidateProfile() {
       const response = await API.get("/api/candidate/resume/get_resume", {
         responseType: "blob",
       });
-      console.log("response---", response)
+      console.log("response---", response);
       const contentDisposition =
         response.headers["content-disposition"] ||
         response.headers["Content-Disposition"] ||
@@ -345,7 +342,7 @@ export default function CandidateProfile() {
       const response = await API.get("/api/candidate/resume/get_resume", {
         responseType: "blob",
       });
-      console.log("response---", response)
+      console.log("response---", response);
       const contentDisposition =
         response.headers["content-disposition"] ||
         response.headers["Content-Disposition"] ||
@@ -464,8 +461,21 @@ export default function CandidateProfile() {
 
                   <div className="pt-14 mt-2 sm:pt-14">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h1 className="text-3xl  font-bold">{user?.name || ""}</h1>
-                      <div className="mt-1">{user?.gender_name && "(" + user?.gender_name + ")"}</div>
+                      <h1 className="text-3xl  font-bold">
+                        {user?.name || ""}
+                      </h1>
+                      <div className="mt-1">
+                        {(user?.gender_name || user?.dob) && (
+                          <span>
+                            ({user?.gender_name}
+                            {user?.gender_name && user?.dob ? " / " : ""}
+                            {user?.dob
+                              ? `${new Date().getFullYear() - new Date(user.dob).getFullYear()}`
+                              : ""}
+                            )
+                          </span>
+                        )}
+                      </div>
                       {user?.isVerified ? (
                         <span className="inline-flex items-center gap-1 rounded-full bg-green-500/15 px-3 py-1 text-xs font-medium text-green-600">
                           <CheckCircle2 className="h-3 w-3" />
@@ -516,11 +526,16 @@ export default function CandidateProfile() {
                             )}
                           </>
                         )}
-                        {user?.numberVerified && <CheckCircle2 className="h-4 w-4 mr-1 text-green-500" />}
+                        {user?.numberVerified && (
+                          <CheckCircle2 className="h-4 w-4 mr-1 text-green-500" />
+                        )}
                       </span>
                       <span className="flex items-center gap-1">
                         <Mail className="h-4 w-4" />
-                        {user?.email} {user?.email && <CheckCircle2 className="h-4 w-4 mr-1 text-green-500" />}
+                        {user?.email}{" "}
+                        {user?.email && (
+                          <CheckCircle2 className="h-4 w-4 mr-1 text-green-500" />
+                        )}
                       </span>
                     </div>
                   </div>
@@ -598,12 +613,12 @@ export default function CandidateProfile() {
 
               <TabsContent value="about" className="space-y-6 mt-6">
                 <KycSection />
-                <ResumeHeadlineSection />
-                <ProfileSummarySection />
-                <KeySkills />
+                <ResumeHeadlineSection setRefresh={setRefresh} />
+                <ProfileSummarySection setRefresh={setRefresh} />
+                <KeySkills setRefresh={setRefresh} />
                 <ITSkills />
                 <OtherSkills />
-                <PersonalSection />
+                <PersonalSection setRefresh={setRefresh} />
                 <OnlineProfileSection />
                 <AccomOnlinePresentationSection />
                 <PatentSection />
@@ -735,9 +750,9 @@ export default function CandidateProfile() {
                     </Card>
                   ))}
                 </div> */}
-                <Employment />
+                <Employment setRefresh={setRefresh} />
                 <WorkProfileList />
-                <CareerProfile />
+                <CareerProfile setRefresh={setRefresh} />
                 <WhitePaper />
               </TabsContent>
 
@@ -961,7 +976,7 @@ export default function CandidateProfile() {
                 </div> */}
 
           <div className="space-y-6">
-            <ProfileStrength />
+            <ProfileStrength refresh={refresh} />
             <JobPreferences />
 
             <Card>

@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-const ProfileSummarySection = () => {
+const ProfileSummarySection = ({ setRefresh }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [profilesummary, setProfilesummary] = useState("");
   const [sectionloading, setSectionloading] = useState(true);
@@ -107,6 +107,7 @@ const ProfileSummarySection = () => {
           mainsetProfilesummary={setProfilesummary}
           setError={setError}
           setSuccess={setSuccess}
+          setRefresh={setRefresh}
         />
       )}
     </>
