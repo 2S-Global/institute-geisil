@@ -265,18 +265,13 @@ const AcademicSection = () => {
         <div className="flex items-start justify-between mb-3">
           <div>
             <h2 className="font-display text-lg font-semibold">
-              Education
+              Academic Achievements
             </h2>
             <p className="text-sm text-muted-foreground mt-1">
-              Details about your academic qualifications and
-              schools/colleges.
+              Details about your academic qualifications and schools/colleges.
             </p>
           </div>
-          <Button
-            size="sm"
-            className="gap-1.5"
-            onClick={() => openModalRH()}
-          >
+          <Button size="sm" className="gap-1.5" onClick={() => openModalRH()}>
             <Plus className="h-4 w-4" /> Add Education
           </Button>
         </div>
@@ -284,7 +279,10 @@ const AcademicSection = () => {
         {sectionloading ? (
           <div className="space-y-4 animate-pulse mt-4">
             {[1, 2].map((i) => (
-              <div key={i} className="flex gap-4 items-start border border-gray-100 rounded-lg p-5">
+              <div
+                key={i}
+                className="flex gap-4 items-start border border-gray-100 rounded-lg p-5"
+              >
                 <Skeleton className="h-10 w-10 rounded bg-muted shrink-0" />
                 <div className="flex-1 space-y-2">
                   <Skeleton className="h-5 w-48 bg-muted" />
@@ -333,7 +331,9 @@ const AcademicSection = () => {
                 <div className="space-y-2">
                   {missingLevels.map((level) => {
                     const allowedLevelIds = getAllowedAddLevelIds();
-                    const isEnabled = allowedLevelIds.includes(String(level.id));
+                    const isEnabled = allowedLevelIds.includes(
+                      String(level.id),
+                    );
 
                     return (
                       <button

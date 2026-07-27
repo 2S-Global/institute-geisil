@@ -27,7 +27,10 @@ import {
 } from "@/components/ui/select";
 
 import EducationForm from "./EducationForm"
-import { getMinimumAllowedYear } from "./educationYearValidation";
+import {
+  getMinimumAllowedYearForEducationLevel,
+  getMinimumCourseDuration,
+} from "./educationYearValidation";
 const EducationModal = ({ show,
   onClose,
   reload,
@@ -74,6 +77,7 @@ const EducationModal = ({ show,
   const [existingEducationData, setExistingEducationData] = useState([]);
   const [allowedLevels, setAllowedLevels] = useState([]);
   const [minimumAllowedYear, setMinimumAllowedYear] = useState<number | null>(null);
+  const [minimumCourseDuration, setMinimumCourseDuration] = useState(0);
   const { toast } = useToast();
   useEffect(() => {
     const fetchCandidateDob = async () => {
@@ -273,8 +277,12 @@ const EducationModal = ({ show,
     if (levelLabel === "10th standard") return birthYear + 14;
 
     if (levelLabel === "12th standard") {
-      const baseYear = Number(tenthRecord?.year_of_passing || birthYear + 14);
-      return baseYear + 2;
+      return getMinimumAllowedYearForEducationLevel(
+        levelLabel,
+        dobValue,
+        records,
+        getLevelLabelFromRecord
+      );
     }
 
     if (levelLabel === "diploma") {
@@ -293,6 +301,7 @@ const EducationModal = ({ show,
     if (!levels.length) {
       setAllowedLevels([]);
       setMinimumAllowedYear(null);
+      setMinimumCourseDuration(0);
       return;
     }
 
@@ -302,9 +311,12 @@ const EducationModal = ({ show,
 
     if (!formData.level) {
       setMinimumAllowedYear(null);
+      setMinimumCourseDuration(0);
       return;
     }
 
+    const matchedLevel = levels.find((level) => String(level.id) === String(formData.level));
+    setMinimumCourseDuration(getMinimumCourseDuration(getLevelLabel(matchedLevel)));
     const computedMinimumYear = getMinimumAllowedYearForLevel(formData.level, formData.dob, relevantRecords);
     setMinimumAllowedYear(computedMinimumYear);
   }, [levels, existingEducationData, formData.level, formData.dob, edit_id]);
@@ -342,6 +354,12 @@ const EducationModal = ({ show,
 
       if (isAnyFieldEmpty) return false;
     } else {
+      if (
+        minimumCourseDuration > 0 &&
+        Number(formData.end_year) < Number(formData.start_year) + minimumCourseDuration
+      ) {
+        return false;
+      }
       const requiredFields = [
         "level",
         "state",
@@ -372,7 +390,7 @@ const EducationModal = ({ show,
 
   useEffect(() => {
     setIsFormValid(validateForm());
-  }, [formData, minimumAllowedYear, levels, existingEducationData]);
+  }, [formData, minimumAllowedYear, minimumCourseDuration, levels, existingEducationData]);
 
   const handleSave = async () => {
     if (!token) {
@@ -510,6 +528,7 @@ const EducationModal = ({ show,
         setLoading={setLoading}
         allowedLevels={allowedLevels}
         minimumAllowedYear={minimumAllowedYear}
+        minimumCourseDuration={minimumCourseDuration}
       />
     </div>
 

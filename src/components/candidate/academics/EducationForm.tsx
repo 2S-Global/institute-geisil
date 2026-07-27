@@ -33,7 +33,8 @@ const EducationForm = ({ formData,
   loading,
   setLoading,
   allowedLevels,
-  minimumAllowedYear,}) => {
+  minimumAllowedYear,
+  minimumCourseDuration,}) => {
   const apiurl =  import.meta.env.VITE_API_URL;
  // console.log("show",show)
   const token = localStorage.getItem("token");
@@ -551,6 +552,7 @@ const EducationForm = ({ formData,
             filteredUniversity={filteredUniversity}
             setFilteredUniversity={setFilteredUniversity}
             minimumAllowedYear={minimumAllowedYear}
+            minimumCourseDuration={minimumCourseDuration}
           />
         )}
       </div>
