@@ -188,7 +188,7 @@ const KycSection = ({ show, onClose, data = {}, setRefresh }) => {
                         {userdata.pan_name}
                       </div>
                       <div>
-                        <span className="font-medium text-slate-700">PAN:</span>{" "}
+                        <span className="font-medium text-slate-700">PAN Number:</span>{" "}
                         {userdata.pan_number}
                       </div>
                     </div>
