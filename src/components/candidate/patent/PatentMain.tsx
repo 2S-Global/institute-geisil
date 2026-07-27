@@ -26,8 +26,18 @@ const PatentMain = ({ setReload, list = [], setError, setSuccess }) => {
   };
 
   const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December",
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
 
   return (
@@ -42,7 +52,7 @@ const PatentMain = ({ setReload, list = [], setError, setSuccess }) => {
 
         {/* Show 'Add' button only if list is empty */}
         {(!Array.isArray(list) || list.length === 0) && (
-          <Button size="sm" onClick={() => openModal()} >
+          <Button size="sm" onClick={() => openModal()}>
             <Plus className=" h-4 w-4" /> Add Patent
           </Button>
         )}
@@ -55,26 +65,39 @@ const PatentMain = ({ setReload, list = [], setError, setSuccess }) => {
               <div>
                 <CardTitle>{item.title}</CardTitle>
                 <CardDescription>
-                  <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                  >
                     {item.url}
                   </a>
                 </CardDescription>
               </div>
-              <Button variant="ghost" size="icon" onClick={() => openModal(item)}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => openModal(item)}
+              >
                 <Pencil className="h-4 w-4" />
               </Button>
             </CardHeader>
             <CardContent className="text-sm space-y-1">
-              <p><strong>Patent office:</strong> {item.patent_office}</p>
-              <p><strong>Application number:</strong> {item.application_number}</p>
+              <p>
+                <strong>Patent office:</strong> {item.patent_office}
+              </p>
+              <p>
+                <strong>Application number:</strong> {item.application_number}
+              </p>
               <p>
                 <strong>Issued on:</strong>{" "}
-                {item.status === "Patent pending"
+                {item?.status === "Patent pending"
                   ? "Patent pending"
-                  : `${monthNames[item.issue_month - 1]} ${item.issue_year}`}
+                  : `${item?.issue_month ? monthNames[item.issue_month - 1] : ""} ${item.issue_year ? item.issue_year : ""}`}
               </p>
               <div
-                className="mt-2 pt-2 border-t"
+                className="mt-2 pt-2 border-t text-justify"
                 dangerouslySetInnerHTML={{ __html: item.description }}
               />
             </CardContent>

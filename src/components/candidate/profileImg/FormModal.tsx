@@ -21,9 +21,12 @@ const FormModal = ({ show, onClose, setRefresh, imageSrc }) => {
     imageSrc || "/images/resource/no_user.png",
   );
 
-
-
-  const { removeImage, isLoading: isLoadingRemove, error: errorRemove, data: dataRemove } = useHandleProfilePictureRemove()
+  const {
+    removeImage,
+    isLoading: isLoadingRemove,
+    error: errorRemove,
+    data: dataRemove,
+  } = useHandleProfilePictureRemove();
 
   const [image, setImage] = useState(null);
 
@@ -102,20 +105,19 @@ const FormModal = ({ show, onClose, setRefresh, imageSrc }) => {
       setPreview(imageUrl);
 
       setSelectedImage(imageUrl);
-
+      onClose();
       setSuccess(response.data.message || "Image uploaded successfully");
-      toast({
-        title: "Success",
-        description: response.data.message || "Image uploaded successfully",
-      });
 
       setRefresh((v) => v + 1);
 
       setImage(null);
 
       setTimeout(() => {
-        onClose();
-      }, 1500);
+        toast({
+          title: "Success",
+          description: response.data.message || "Image uploaded successfully",
+        });
+      }, 500);
     } catch (err) {
       console.log(err);
 
@@ -208,8 +210,11 @@ const FormModal = ({ show, onClose, setRefresh, imageSrc }) => {
           <div className="border rounded-lg p-4 text-center bg-muted/30">
             <label
               htmlFor="file-upload"
-              className={`inline-flex items-center px-4 py-2 bg-primary text-white rounded-md cursor-pointer ${loading || isLoadingRemove ? "opacity-50 pointer-events-none" : ""
-                }`}
+              className={`inline-flex items-center px-4 py-2 bg-primary text-white rounded-md cursor-pointer ${
+                loading || isLoadingRemove
+                  ? "opacity-50 pointer-events-none"
+                  : ""
+              }`}
             >
               Change Photo
             </label>
@@ -244,7 +249,8 @@ const FormModal = ({ show, onClose, setRefresh, imageSrc }) => {
                   setSelectedImage("/images/resource/no_user.png");
                   toast({
                     title: "Success",
-                    description: result.message || "Profile picture removed successfully",
+                    description:
+                      result.message || "Profile picture removed successfully",
                   });
                   setRefresh((v: any) => v + 1);
                   setImage(null);
@@ -255,7 +261,8 @@ const FormModal = ({ show, onClose, setRefresh, imageSrc }) => {
                   toast({
                     title: "Error",
                     variant: "destructive",
-                    description: result?.error || "Failed to remove profile picture",
+                    description:
+                      result?.error || "Failed to remove profile picture",
                   });
                 }
               }}
@@ -304,7 +311,11 @@ const FormModal = ({ show, onClose, setRefresh, imageSrc }) => {
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={loading || isLoadingRemove}>
+          <Button
+            variant="outline"
+            onClick={onClose}
+            disabled={loading || isLoadingRemove}
+          >
             Cancel
           </Button>
         </DialogFooter>

@@ -2,6 +2,13 @@ import React, { useState, useEffect } from "react";
 import ProfileModal from "./ProfileModal";
 import { Pencil, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 const ProfileMain = ({ setReload, list = [], setError, setSuccess }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [item, setItem] = useState([]);
@@ -47,39 +54,43 @@ const ProfileMain = ({ setReload, list = [], setError, setSuccess }) => {
         {Array.isArray(list) &&
           list.length > 0 &&
           list.map((item) => (
-            <div key={item._id} className="mt-5 border-b pb-4 last:border-b-0">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h6 className="font-semibold text-gray-900">
-                    {item.socialProfileName}
-                  </h6>
+            <Card key={item._id} className="mt-2">
+              <CardContent className="text-sm space-y-1">
+                <div className="mt-5 border-b pb-4 last:border-b-0">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h6 className="font-semibold text-gray-900">
+                        {item.socialProfileName}
+                      </h6>
 
-                  <a
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-1 block break-all text-sm text-blue-600 hover:underline"
-                  >
-                    {item.url}
-                  </a>
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-1 block break-all text-sm text-blue-600 hover:underline"
+                      >
+                        {item.url}
+                      </a>
+                    </div>
+
+                    <Button
+                      onClick={() => openModal(item)}
+                      variant="ghost"
+                      size="icon"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  <div
+                    className="mt-2 text-justify"
+                    dangerouslySetInnerHTML={{
+                      __html: item.description,
+                    }}
+                  />
                 </div>
-
-                <Button
-                  onClick={() => openModal(item)}
-                  variant="ghost"
-                  size="icon"
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-              </div>
-
-              <div
-                className="mt-2"
-                dangerouslySetInnerHTML={{
-                  __html: item.description,
-                }}
-              />
-            </div>
+              </CardContent>
+            </Card>
           ))}
       </div>
 

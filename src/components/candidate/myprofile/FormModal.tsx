@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import API from "../../../lib/axios";
@@ -31,6 +30,7 @@ const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
   const [isResidingInIndia, setIsResidingInIndia] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [isFormValid, setIsFormValid] = useState(false);
   const { toast } = useToast();
   const salaryCurrencies = [
     { label: "₹", value: "INR" },
@@ -205,16 +205,29 @@ const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
     }));
   };
 
+  const ValidateForm = () => {
+    setIsFormValid(false);
+
+    if (!formData.full_name.trim() || !formData.gender || !formData.dob) {
+      setIsFormValid(false);
+      setError("Please fill in all required fields.");
+      console.log("formData.dob", formData);
+      return;
+    }
+
+    setIsFormValid(true);
+  };
+
+  useEffect(() => {
+    ValidateForm();
+  }, [formData]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log(formData);
 
     setError(null);
     setSuccess(null);
-    if (!formData.full_name.trim() || !formData.gender || !formData.dob) {
-      setError("Please fill in all required fields.");
-      return;
-    }
 
     setLoading(true);
 
@@ -546,13 +559,23 @@ const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
 
           {/* Footer */}
           <DialogFooter className="gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
+            <div className="flex justify-end gap-3 pt-6">
+              <Button type="button" onClick={onClose} variant="outline">
+                Cancel
+              </Button>
 
-            <Button type="submit" disabled={loading}>
-              {loading ? "Saving..." : "Save"}
-            </Button>
+              <div className="relative inline-flex group">
+                <Button type="submit" disabled={!isFormValid || loading}>
+                  {loading ? "Saving..." : "Save"}
+                </Button>
+
+                {!isFormValid && (
+                  <div className="pointer-events-none absolute bottom-full right-0 mb-2 hidden w-52 rounded-md border border-red-300 bg-white p-2 text-center text-sm text-red-600 shadow-lg group-hover:block">
+                    Please fill all required fields.
+                  </div>
+                )}
+              </div>
+            </div>
           </DialogFooter>
         </form>
       </DialogContent>

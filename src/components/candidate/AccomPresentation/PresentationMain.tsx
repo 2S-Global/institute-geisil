@@ -1,14 +1,8 @@
-
 import React, { useState } from "react";
 import ProfileModal from "./ProfileModal";
 import { Pencil, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const ProfileMain = ({ setReload, list = [], setError, setSuccess }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -37,7 +31,7 @@ const ProfileMain = ({ setReload, list = [], setError, setSuccess }) => {
 
         {/* Show 'Add' button only if list is empty */}
         {(!Array.isArray(list) || list.length === 0) && (
-          <Button size="sm" onClick={() => openModal()} >
+          <Button size="sm" onClick={() => openModal()}>
             <Plus className="h-4 w-4" /> Add Presentation
           </Button>
         )}
@@ -67,7 +61,7 @@ const ProfileMain = ({ setReload, list = [], setError, setSuccess }) => {
                 {item.url}
               </a>
               <div
-                className="mt-2 text-sm text-muted-foreground"
+                className="mt-2 text-sm text-muted-foreground text-justify"
                 dangerouslySetInnerHTML={{ __html: item.description }}
               />
             </CardContent>

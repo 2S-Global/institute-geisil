@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Trash2, Sparkles } from "lucide-react";
@@ -38,7 +37,7 @@ const FormModal = ({
   console.log("show", show);
   const { toast } = useToast();
   const [profilesummary, setProfilesummary] = useState(
-    mainprofilesummary || ""
+    mainprofilesummary || "",
   );
 
   const [loading, setLoading] = useState(false);
@@ -54,7 +53,7 @@ const FormModal = ({
       setIsGenerated(false);
     } else {
       setProfilesummary(
-        "Developed and deployed a scalable web application using React.js and Node.js, ensuring high performance and seamless user experience. Designed and implemented RESTful APIs, optimized database queries, and integrated third-party services for enhanced functionality. Focused on system architecture, security, and responsive UI/UX to deliver a robust and efficient solution."
+        "Developed and deployed a scalable web application using React.js and Node.js, ensuring high performance and seamless user experience. Designed and implemented RESTful APIs, optimized database queries, and integrated third-party services for enhanced functionality. Focused on system architecture, security, and responsive UI/UX to deliver a robust and efficient solution.",
       );
       setIsGenerated(true);
     }
@@ -106,7 +105,7 @@ const FormModal = ({
     }
     try {
       const response = await API.delete(
-        `/api/useraction/delete_profile_summary`
+        `/api/useraction/delete_profile_summary`,
       );
       if (response.status !== 200) {
         throw new Error("Failed to delete education record");
@@ -220,7 +219,12 @@ const FormModal = ({
 
           {/* Footer */}
           <div className="flex justify-end gap-3 pt-4">
-            <Button type="button" onClick={onClose} variant="outline" disabled={loading}>
+            <Button
+              type="button"
+              onClick={onClose}
+              variant="outline"
+              disabled={loading}
+            >
               Cancel
             </Button>
 
@@ -231,11 +235,11 @@ const FormModal = ({
             >
               {loading
                 ? mainprofilesummary
-                  ? "Updating..."
+                  ? "Saving..."
                   : "Saving..."
                 : mainprofilesummary
-                ? "Update"
-                : "Save"}
+                  ? "Save"
+                  : "Save"}
             </Button>
           </div>
         </DialogContent>

@@ -217,7 +217,7 @@ const ProfileModal = ({
     }
   };
   const handleDelete = async () => {
-    setLoading(true);
+    //setLoading(true);
     if (!formData._id) {
       console.error("No education record selected for deletion.");
       return;
@@ -245,9 +245,19 @@ const ProfileModal = ({
         setReload(true);
         setLoading(false);
         setSuccess(response.data.message);
+        toast({
+          title: "Success",
+          description: response.data.message,
+        });
       }
     } catch (error) {
       console.error("Error deleting education record:", error);
+      toast({
+        title: "Error",
+        variant: "destructive",
+        description:
+          "An error occurred while deleting the record.Please try again.",
+      });
       setError("An error occurred while deleting the record.Please try again.");
     } finally {
       setLoading(false);
@@ -435,7 +445,6 @@ const ProfileModal = ({
                 type="submit"
                 onClick={handleSave}
                 disabled={!isFormValid || saving}
-                
               >
                 {item._id
                   ? saving
