@@ -764,7 +764,7 @@ export default function CandidateProfile() {
               </TabsContent>
 
               <TabsContent value="education" className="space-y-4 mt-6">
-                <AcademicSection />
+                <AcademicSection  setRefresh={setRefresh} />
                 {/* <div className="space-y-4">
                 <AcademicSection />
                 <div className="space-y-4">
@@ -984,8 +984,8 @@ export default function CandidateProfile() {
 
           <div className="space-y-6">
             <ProfileStrength refresh={refresh} />
-            <JobPreferences />
-
+            {/* <JobPreferences /> */}
+            <JobPreferences refreshKey="{refresh}"/>
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">Visibility</CardTitle>
