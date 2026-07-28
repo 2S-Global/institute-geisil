@@ -50,6 +50,7 @@ describe("education year validation", () => {
   });
 
   it("returns the requested minimum durations for degree levels", () => {
+    expect(getMinimumCourseDuration("Diploma")).toBe(2);
     expect(getMinimumCourseDuration("Undergraduate")).toBe(3);
     expect(getMinimumCourseDuration("Post Graduate")).toBe(2);
     expect(getMinimumCourseDuration("Doctorate/PhD")).toBe(3);

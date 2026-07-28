@@ -70,6 +70,8 @@ export const getMinimumAllowedYearForEducationLevel = (
 
 export const getMinimumCourseDuration = (levelName: string): number => {
   switch (String(levelName ?? "").trim().toLowerCase()) {
+    case "diploma":
+      return 2;
     case "undergraduate":
     case "under graduate":
     case "graduation":

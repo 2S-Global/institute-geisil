@@ -331,33 +331,22 @@ const EducationModal = ({
     const levelLabel = getLevelLabel(matchedLevel);
     const birthYear = dobValue ? new Date(dobValue).getFullYear() : null;
 
-    if (!birthYear) return null;
-
     const tenthRecord = records.find(
       (record) => getLevelLabelFromRecord(record) === "10th standard",
     );
     const twelfthRecord = records.find(
       (record) => getLevelLabelFromRecord(record) === "12th standard",
     );
-    const getCourseEndYear = (record) =>
-      Number(
-        record?.duration?.to ||
-          record?.end_year ||
-          record?.year_of_passing ||
-          0,
-      ) || null;
-    const latestRecord = records.reduce((latest, record) => {
-      if (!latest) return record;
-      const latestDate = new Date(
-        latest.createdAt || latest.created_at || 0,
-      ).getTime();
-      const recordDate = new Date(
-        record.createdAt || record.created_at || 0,
-      ).getTime();
-      return recordDate >= latestDate ? record : latest;
-    }, null);
+    const getPassingYear = (record) =>
+      Number(record?.year_of_passing || 0) || null;
+    const baseCourseYear =
+      getPassingYear(twelfthRecord) ??
+      getPassingYear(tenthRecord) ??
+      (birthYear ? birthYear + 14 : null);
 
-    if (levelLabel === "10th standard") return birthYear + 14;
+    if (levelLabel === "10th standard") {
+      return birthYear ? birthYear + 14 : null;
+    }
 
     if (levelLabel === "12th standard") {
       return getMinimumAllowedYearForEducationLevel(
@@ -368,17 +357,9 @@ const EducationModal = ({
       );
     }
 
-    if (levelLabel === "diploma") {
-      const baseYear = Number(
-        twelfthRecord?.year_of_passing ||
-          tenthRecord?.year_of_passing ||
-          birthYear + 14,
-      );
-      return baseYear;
-    }
-
     if (
       [
+        "diploma",
         "undergraduate",
         "under graduate",
         "graduation",
@@ -390,10 +371,10 @@ const EducationModal = ({
         "phd",
       ].includes(levelLabel)
     ) {
-      return getCourseEndYear(latestRecord) || birthYear;
+      return baseCourseYear;
     }
 
-    return birthYear;
+    return birthYear || null;
   };
 
   useEffect(() => {

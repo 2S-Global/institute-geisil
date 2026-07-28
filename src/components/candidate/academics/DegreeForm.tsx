@@ -38,13 +38,7 @@ const DegreeForm = ({
   minimumCourseDuration,
 }) => {
   const currentYear = new Date().getFullYear();
-  const savedYears = [formData.start_year, formData.end_year]
-    .map(Number)
-    .filter((year) => Number.isInteger(year) && year > 0);
-  const firstAllowedYear = Math.min(
-    minimumAllowedYear ?? currentYear,
-    ...savedYears
-  );
+  const firstAllowedYear = minimumAllowedYear ?? currentYear;
 
   return (
    <>
