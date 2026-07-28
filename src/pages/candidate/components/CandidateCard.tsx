@@ -30,6 +30,9 @@ export const CandidateCard = ({
     isSaving: boolean;
 }) => {
 
+
+
+
     const { profilePicture, email, phone_number } = candidate
     const [isContactOpen, setIsContactOpen] = useState(false);
 
@@ -82,11 +85,19 @@ export const CandidateCard = ({
                                         <p className="text-sm text-muted-foreground truncate">{candidate.title}</p>
                                     )}
                                 </div>
-                                {candidate.featured && (
-                                    <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 gap-1 shrink-0">
-                                        <Star className="h-3 w-3 fill-current" /> Featured
-                                    </Badge>
-                                )}
+                                <div className="flex flex-col sm:flex-row items-end sm:items-center gap-1.5 shrink-0">
+                                    {candidate.featured && (
+                                        <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 gap-1 shrink-0">
+                                            <Star className="h-3 w-3 fill-current" /> Featured
+                                        </Badge>
+                                    )}
+                                    {candidate.isOpenToWork && (
+                                        <Badge variant="outline" className="bg-success/10 text-success border-success/20 gap-1.5 shrink-0">
+                                            <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
+                                            Open to Work
+                                        </Badge>
+                                    )}
+                                </div>
                             </div>
 
                             {(candidate.location || candidate.experienceDisplay) && (

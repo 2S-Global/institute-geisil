@@ -235,19 +235,19 @@ export const EmploymentModal = ({
       const joinDate =
         editData.joining_year && editData.joining_month
           ? new Date(
-              parseInt(editData.joining_year, 10),
-              parseInt(editData.joining_month, 10) - 1,
-              1,
-            )
+            parseInt(editData.joining_year, 10),
+            parseInt(editData.joining_month, 10) - 1,
+            1,
+          )
           : null;
 
       const leaveDate =
         editData.leaving_year && editData.leaving_month
           ? new Date(
-              parseInt(editData.leaving_year, 10),
-              parseInt(editData.leaving_month, 10) - 1,
-              1,
-            )
+            parseInt(editData.leaving_year, 10),
+            parseInt(editData.leaving_month, 10) - 1,
+            1,
+          )
           : null;
 
       setIsDropdownSelect(true);
@@ -856,7 +856,7 @@ export const EmploymentModal = ({
                       className={cn(
                         "w-full bg-slate-50 text-sm text-slate-800 placeholder-slate-400 rounded-lg px-3.5 py-2.5 pr-10 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 transition-all",
                         errors.companyName &&
-                          "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+                        "border-red-500 focus:border-red-500 focus:ring-red-500/20",
                       )}
                     />
                     <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-400 space-x-1">
@@ -915,7 +915,7 @@ export const EmploymentModal = ({
                     className={cn(
                       "w-full bg-slate-50 text-sm text-slate-800 placeholder-slate-400 rounded-lg px-3.5 py-2.5 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 transition-all",
                       errors.jobTitle &&
-                        "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+                      "border-red-500 focus:border-red-500 focus:ring-red-500/20",
                     )}
                   />
                 )}
@@ -948,7 +948,7 @@ export const EmploymentModal = ({
                       className={cn(
                         "flex items-center justify-between w-full bg-slate-50 text-sm text-slate-800 rounded-lg px-3 py-2 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 transition-all h-[42px]",
                         errors.joiningDate &&
-                          "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+                        "border-red-500 focus:border-red-500 focus:ring-red-500/20",
                         !watchJoiningDate && "text-slate-400",
                       )}
                     >
@@ -993,7 +993,7 @@ export const EmploymentModal = ({
                       className={cn(
                         "flex items-center justify-between w-full bg-slate-50 text-sm text-slate-800 rounded-lg px-3 py-2 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 transition-all h-[42px]",
                         errors.joiningDate &&
-                          "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+                        "border-red-500 focus:border-red-500 focus:ring-red-500/20",
                         !watchJoiningDate && "text-slate-400",
                       )}
                     >
@@ -1056,7 +1056,7 @@ export const EmploymentModal = ({
                         className={cn(
                           "flex items-center justify-between w-full bg-slate-50 text-sm text-slate-800 rounded-lg px-3 py-2 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 transition-all h-[42px]",
                           errors.leavingDate &&
-                            "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+                          "border-red-500 focus:border-red-500 focus:ring-red-500/20",
                           !watchLeavingDate && "text-slate-400",
                         )}
                       >
@@ -1110,7 +1110,7 @@ export const EmploymentModal = ({
                         className={cn(
                           "flex items-center justify-between w-full bg-slate-50 text-sm text-slate-800 rounded-lg px-3 py-2 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 transition-all h-[42px]",
                           errors.leavingDate &&
-                            "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+                          "border-red-500 focus:border-red-500 focus:ring-red-500/20",
                           !watchLeavingDate && "text-slate-400",
                         )}
                       >
@@ -1162,7 +1162,7 @@ export const EmploymentModal = ({
                           className={cn(
                             "flex items-center justify-between w-full bg-slate-50 text-sm text-slate-800 rounded-lg px-3.5 py-2.5 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 disabled:opacity-60 transition-all h-[42px]",
                             errors.noticePeriod &&
-                              "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+                            "border-red-500 focus:border-red-500 focus:ring-red-500/20",
                             !field.value && "text-slate-400",
                           )}
                         >
