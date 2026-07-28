@@ -58,7 +58,7 @@ const ResumeHeadlineSection = ({
           <div>
             <CardTitle className="text-lg">Resume Headline</CardTitle>
             <CardDescription>
-              A short summary recruiters see first.
+              This headline appears first to recruiters.
             </CardDescription>
           </div>
 
@@ -68,7 +68,7 @@ const ResumeHeadlineSection = ({
                 <Pencil className="h-4 w-4" />
               </Button>
             ) : (
-              <Button  size="sm" onClick={openModalRH}>
+              <Button size="sm" onClick={openModalRH}>
                 <Plus className=" h-4 w-4" /> Add Headline
               </Button>
             )

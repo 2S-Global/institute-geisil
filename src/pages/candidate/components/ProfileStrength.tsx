@@ -58,7 +58,7 @@
 
 //   const profileTheme = useMemo(() => getStatusTheme(profileProgress), [profileProgress]);
 //   const geisilTheme = useMemo(() => getStatusTheme(geisilScore), [geisilScore]);
-  
+
 //   const cibilPercentage = useMemo(() => {
 //     if (!cibilScore) return 0;
 //     const percentage = ((cibilScore - 300) / 600) * 100;
@@ -94,7 +94,7 @@
 //               {profileLoading ? "—" : `${profileProgress}%`}
 //             </span>
 //           </div>
-          
+
 //           <div className="flex justify-between items-center text-[10px] font-medium uppercase tracking-wider">
 //             {!profileLoading && <p className={profileTheme.textClass}>{profileTheme.label}</p>}
 //           </div>
@@ -245,12 +245,12 @@ const ProfileMetrics = ({ refresh = 0 }: { refresh?: number }) => {
   );
 
   return (
-    <Card className="border border-slate-200/80 dark:border-slate-800 shadow-sm w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl mx-auto rounded-xl bg-white dark:bg-slate-950 transition-all">
+    <Card className="border border-slate-200/80 dark:border-slate-800 shadow-sm w-full rounded-xl bg-white dark:bg-slate-950 transition-all">
       <CardHeader className="pb-4 sm:pb-5 px-4 sm:px-6 pt-4 sm:pt-6">
         <CardTitle className="text-sm sm:text-base font-semibold tracking-tight text-slate-900 dark:text-slate-100">
           Account Status
         </CardTitle>
-        <CardDescription className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+        <CardDescription className="text-xs sm:text-sm sm: text-slate-500 dark:text-slate-400">
           Overview of platform matching index and profile verification.
         </CardDescription>
       </CardHeader>
