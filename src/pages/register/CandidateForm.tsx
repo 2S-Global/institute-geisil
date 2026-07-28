@@ -392,7 +392,7 @@ export default function CandidateForm({
           {...register("name", {
             onChange: (e) => {
               // Strip numbers and special characters dynamically
-              e.target.value = e.target.value.replace(/[^a-zA-Z\s]/g, "");
+              e.target.value = e.target.value.replace(/[^a-zA-Z\.\s]/g, "");
             },
           })}
         />
