@@ -60,7 +60,7 @@
 //   };
 
 //   const handleFormSubmit = (data: CandidateRegisterInput) => {
-    
+
 
 //     onSubmit({
 //       name: data.name,
@@ -329,7 +329,10 @@ export default function CandidateForm({
   const [showConfirm, setShowConfirm] = useState(false);
 
   // Calculates today's date and the date exactly 60 years ago
-  const today = new Date().toISOString().split("T")[0];
+  const maxDate = new Date();
+  maxDate.setFullYear(maxDate.getFullYear() - 14);
+
+  const max = maxDate.toISOString().split("T")[0];
   const sixtyYearsAgoDate = new Date();
   sixtyYearsAgoDate.setFullYear(sixtyYearsAgoDate.getFullYear() - 60);
   const minDate = sixtyYearsAgoDate.toISOString().split("T")[0];
@@ -408,7 +411,7 @@ export default function CandidateForm({
             id="dob"
             type="date"
             min={minDate}
-            max={today}
+            max={max}
             className="h-11"
             {...register("dob")}
           />
