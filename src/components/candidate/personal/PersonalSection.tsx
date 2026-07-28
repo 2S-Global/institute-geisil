@@ -437,7 +437,7 @@ const PersonalSection = ({ setRefresh }) => {
                     </table>
                   </div>
                 ) : (
-                  <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-4 text-xs sm:text-sm text-gray-600 text-center sm:text-left">
+                  <div className="rounded-lg border border-dashed border-gray-300  p-4 text-xs sm:text-sm text-gray-600 text-center sm:text-left">
                     No languages added yet. Use the button above to add your
                     language proficiency.
                   </div>
