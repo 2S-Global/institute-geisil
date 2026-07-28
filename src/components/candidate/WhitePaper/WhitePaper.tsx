@@ -63,7 +63,7 @@ const WhitePaper = () => {
     try {
       setSectionLoading(true);
       const response = await API.get(
-        "/api/candidate/accomplishments/get_research_publication",
+        "/api/candidate/accomplishments/get_research_publication"
       );
       if (response.status === 200) {
         setWhitePapers(response.data.data || []);
@@ -122,7 +122,6 @@ const WhitePaper = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      
                       onClick={() => {
                         setSelectedItem(item);
                         setOpen(true);
@@ -148,10 +147,10 @@ const WhitePaper = () => {
                       Published On: {formatPublishedDate(item)}
                     </CardDescription>
                   </div>
+
                   {item.description && (
                     <CardDescription
-                      className="text-justify"
-                      // className="text-[#4B5563] mt-4 leading-relaxed text-left break-words prose max-w-none"
+                      className="mt-3 text-justify text-gray-600 leading-relaxed break-words prose max-w-none"
                       dangerouslySetInnerHTML={{ __html: item.description }}
                     />
                   )}
@@ -162,7 +161,6 @@ const WhitePaper = () => {
             <div className="flex flex-1 items-center justify-center w-full shadow-sm">
               <div className="w-full border-dashed border border-gray-200 rounded-xl p-8 text-center text-muted-foreground flex flex-col items-center justify-center">
                 <p className="text-sm">
-                  {" "}
                   No White Paper / Research Publication added yet.
                 </p>
               </div>
