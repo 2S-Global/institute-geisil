@@ -52,7 +52,7 @@ const PersonalSection = ({ setRefresh }) => {
       try {
         setSectionloading(true);
         const response = await API.get(
-          `/api/candidate/personal/get_personal_details_with_name`
+          `/api/candidate/personal/get_personal_details_with_name`,
         );
         if (response.status === 200) {
           const maindata = response.data.data;
@@ -106,7 +106,9 @@ const PersonalSection = ({ setRefresh }) => {
       <Card className="w-full">
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 sm:p-6">
           <div>
-            <CardTitle className="text-base sm:text-lg">Personal Details</CardTitle>
+            <CardTitle className="text-base sm:text-lg">
+              Personal Details
+            </CardTitle>
             <CardDescription></CardDescription>
           </div>
 
@@ -148,7 +150,9 @@ const PersonalSection = ({ setRefresh }) => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   {/* Personal */}
                   <div>
-                    <strong className="text-sm font-semibold text-gray-900">Personal</strong>
+                    <strong className="text-sm font-semibold text-gray-900">
+                      Personal
+                    </strong>
                     <div className="mt-1 text-xs sm:text-sm">
                       <div>
                         {[
@@ -180,7 +184,9 @@ const PersonalSection = ({ setRefresh }) => {
                   {/* Partner Name */}
                   {personalDetails.partner_name && (
                     <div>
-                      <strong className="text-sm font-semibold text-gray-900">Partner Name</strong>
+                      <strong className="text-sm font-semibold text-gray-900">
+                        Partner Name
+                      </strong>
                       <div
                         className="mt-1 text-xs sm:text-sm truncate"
                         title={personalDetails.partner_name || ""}
@@ -192,7 +198,9 @@ const PersonalSection = ({ setRefresh }) => {
 
                   {/* Career Break */}
                   <div>
-                    <strong className="text-sm font-semibold text-gray-900">Career Break</strong>
+                    <strong className="text-sm font-semibold text-gray-900">
+                      Career Break
+                    </strong>
                     <div className="mt-1 text-xs sm:text-sm">
                       {personalDetails.careerBreak ? (
                         personalDetails.careerBreak.toLowerCase() === "yes" ? (
@@ -233,7 +241,9 @@ const PersonalSection = ({ setRefresh }) => {
 
                   {/* DOB */}
                   <div>
-                    <strong className="text-sm font-semibold text-gray-900">Date of Birth</strong>
+                    <strong className="text-sm font-semibold text-gray-900">
+                      Date of Birth
+                    </strong>
                     <div className="mt-1 text-xs sm:text-sm">
                       {getFormattedDOB(personalDetails.dob) || (
                         <span
@@ -248,7 +258,9 @@ const PersonalSection = ({ setRefresh }) => {
 
                   {/* Category */}
                   <div>
-                    <strong className="text-sm font-semibold text-gray-900">Category</strong>
+                    <strong className="text-sm font-semibold text-gray-900">
+                      Category
+                    </strong>
                     <div className="mt-1 text-xs sm:text-sm">
                       {personalDetails.category || (
                         <span
@@ -263,7 +275,9 @@ const PersonalSection = ({ setRefresh }) => {
 
                   {/* Work Permit */}
                   <div>
-                    <strong className="text-sm font-semibold text-gray-900">Work Permit</strong>
+                    <strong className="text-sm font-semibold text-gray-900">
+                      Work Permit
+                    </strong>
                     <div className="mt-1 text-xs sm:text-sm space-y-1">
                       {personalDetails.usa_visa_type && (
                         <div>{personalDetails.usa_visa_type}</div>
@@ -302,7 +316,9 @@ const PersonalSection = ({ setRefresh }) => {
 
                   {/* Differently Abled */}
                   <div>
-                    <strong className="text-sm font-semibold text-gray-900">Differently Abled</strong>
+                    <strong className="text-sm font-semibold text-gray-900">
+                      Differently Abled
+                    </strong>
                     <div className="mt-1 text-xs sm:text-sm">
                       {personalDetails.differentlyAbled ? (
                         personalDetails.differentlyAbled.toLowerCase() ===
@@ -437,9 +453,10 @@ const PersonalSection = ({ setRefresh }) => {
                     </table>
                   </div>
                 ) : (
-                  <div className="rounded-lg border border-dashed border-gray-300  p-4 text-xs sm:text-sm text-gray-600 text-center sm:text-left">
-                    No languages added yet. Use the button above to add your
-                    language proficiency.
+                  <div className="mt-4 flex flex-1 items-center justify-center w-full shadow-sm">
+                    <div className="w-full border-dashed border border-gray-200 rounded-xl p-8 text-center text-muted-foreground flex flex-col items-center justify-center">
+                      <p className="text-sm"> No languages added yet</p>
+                    </div>
                   </div>
                 )}
               </div>
