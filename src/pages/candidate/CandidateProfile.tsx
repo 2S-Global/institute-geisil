@@ -985,7 +985,7 @@ export default function CandidateProfile() {
           <div className="space-y-6">
             <ProfileStrength refresh={refresh} />
             {/* <JobPreferences /> */}
-            <JobPreferences refreshKey="{refresh}"/>
+            <JobPreferences refreshKey={refresh} />
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">Visibility</CardTitle>

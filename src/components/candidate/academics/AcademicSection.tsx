@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import API from "../../../lib/axios";
@@ -70,17 +72,12 @@ const AcademicSection = (setRefresh) => {
 
   const getLevelLabel = (levelItem) => {
     if (!levelItem) return "";
-    return normalizeLevelText(
-      levelItem.level || levelItem.name || levelItem.label || "",
-    );
+    return normalizeLevelText(levelItem.level || levelItem.name || levelItem.label || "");
   };
 
   const getRecordLevelLabel = (record) => {
     const explicitLabel = record.level_name || record.levelName || record.level;
-    if (
-      typeof explicitLabel === "string" &&
-      Number.isNaN(Number(explicitLabel))
-    ) {
+    if (typeof explicitLabel === "string" && Number.isNaN(Number(explicitLabel))) {
       return normalizeLevelText(explicitLabel);
     }
 
@@ -92,20 +89,16 @@ const AcademicSection = (setRefresh) => {
   };
 
   const getAllowedAddLevelLabels = () => {
-    const existingLabels = userdata.map(getRecordLevelLabel).filter(Boolean);
+    const existingLabels = userdata
+      .map(getRecordLevelLabel)
+      .filter(Boolean);
 
     const has10th = existingLabels.includes("10th standard");
     const has12th = existingLabels.includes("12th standard");
     const hasDiploma = existingLabels.includes("diploma");
-    const hasUndergraduate = existingLabels.some((label) =>
-      ["graduation", "undergraduate", "under graduate"].includes(label),
-    );
-    const hasPostgraduate = existingLabels.some((label) =>
-      ["post graduation", "postgraduate", "post graduate"].includes(label),
-    );
-    const hasDoctorate = existingLabels.some((label) =>
-      ["doctorate/phd", "doctorate", "phd"].includes(label),
-    );
+    const hasUndergraduate = existingLabels.some((label) => ["graduation", "undergraduate", "under graduate"].includes(label));
+    const hasPostgraduate = existingLabels.some((label) => ["post graduation", "postgraduate", "post graduate"].includes(label));
+    const hasDoctorate = existingLabels.some((label) => ["doctorate/phd", "doctorate", "phd"].includes(label));
 
     if (!existingLabels.length) {
       return ["10th standard"];
@@ -142,11 +135,9 @@ const AcademicSection = (setRefresh) => {
 
   const getAllowedAddLevels = () => {
     const allowedLabels = getAllowedAddLevelLabels();
-    return listlevel.filter((level) =>
-      allowedLabels.includes(getLevelLabel(level)),
-    );
+    return listlevel.filter((level) => allowedLabels.includes(getLevelLabel(level)));
   };
-
+  
   const getAllowedAddLevelIds = () => {
     const allowedLabels = getAllowedAddLevelLabels();
     return listlevel
@@ -190,9 +181,7 @@ const AcademicSection = (setRefresh) => {
 
   const handleEducationChanged = async (deletedId = "") => {
     if (deletedId) {
-      setUserdata((current) =>
-        current.filter((record) => String(record._id) !== String(deletedId)),
-      );
+      setUserdata((current) => current.filter((record) => String(record._id) !== String(deletedId)));
       return;
     }
 
@@ -370,7 +359,7 @@ const AcademicSection = (setRefresh) => {
       {/* Modal */}
       {isModalOpen && (
         <EducationModal
-          setRefresh={setRefresh}
+        setRefresh={setRefresh}
           show={isModalOpen}
           onClose={closeModalRH}
           reload={reload}

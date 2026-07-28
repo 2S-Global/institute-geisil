@@ -257,40 +257,71 @@ const EducationModal = ({
         label === "doctorate/phd" || label === "doctorate" || label === "phd",
     );
     const onlyLevels = (...labels) =>
-      allLevels.filter((level) => labels.includes(getLevelLabel(level)));
+      allLevels.filter((level) => !labels.includes(getLevelLabel(level)));
 
-    if (!has10th) {
+    if (has10th && has12th) {
+    if (!hasUndergraduate
+    ){
+      return onlyLevels( "10th standard", "12th standard","postgraduate",
+        "post graduate",
+        "post graduation","doctorate/phd",
+        "doctorate",
+        "phd");
+    }else if (!hasPostgraduate
+    ){
+      return onlyLevels( "10th standard", "12th standard","doctorate/phd",
+        "doctorate",
+        "phd");
+    }
+      return onlyLevels("10th standard", "12th standard");
+    } else if (has10th) {
       return onlyLevels("10th standard");
+    } else if (has12th) {
+      return onlyLevels("12th standard");
     }
-
-    if (hasUndergraduate && !hasPostgraduate) {
-      return onlyLevels("postgraduate", "post graduate", "post graduation");
-    }
-
-    if (hasPostgraduate && !hasDoctorate) {
-      return onlyLevels("doctorate/phd", "doctorate", "phd");
-    }
-
-    if (hasDoctorate) return [];
-
-    if (has12th && hasDiploma)
-      return onlyLevels("undergraduate", "under graduate", "graduation");
-    if (hasDiploma)
+     else {
       return onlyLevels(
         "12th standard",
-        "undergraduate",
+        "postgraduate",
+        "post graduate",
+        "post graduation",
         "under graduate",
         "graduation",
-      );
-    if (has12th)
-      return onlyLevels(
+        "undergraduate",
         "diploma",
-        "undergraduate",
-        "under graduate",
-        "graduation",
+        "doctorate/phd",
+        "doctorate",
+        "phd",
       );
+    }
+    // if (hasUndergraduate && !hasPostgraduate) {
+    //   return onlyLevels("postgraduate", "post graduate", "post graduation");
+    // }
 
-    return onlyLevels("12th standard", "diploma");
+    // if (hasPostgraduate && !hasDoctorate) {
+    //   return onlyLevels("doctorate/phd", "doctorate", "phd");
+    // }
+
+    // if (hasDoctorate) return [];
+
+    // if (has12th && hasDiploma)
+    //   return onlyLevels("undergraduate", "under graduate", "graduation");
+    // if (hasDiploma)
+    //   return onlyLevels(
+    //     "12th standard",
+    //     "undergraduate",
+    //     "under graduate",
+    //     "graduation",
+    //   );
+    // if (has12th)
+    //   return onlyLevels(
+    //     "diploma",
+    //     "undergraduate",
+    //     "under graduate",
+    //     "graduation",
+    //   );
+
+    // return onlyLevels("12th standard", "diploma");
   };
 
   const getMinimumAllowedYearForLevel = (levelId, dobValue, records) => {
@@ -521,7 +552,7 @@ const EducationModal = ({
         description: "Education data saved successfully",
       });
       setSuccess("Education data saved successfully");
-    
+
       await onEducationChanged?.();
       onClose();
     } catch (error: any) {
@@ -538,9 +569,8 @@ const EducationModal = ({
         variant: "destructive",
         description: serverMessage,
       });
-       
     } finally {
-       setRefresh((prev) => prev + 1);
+      setRefresh((prev) => prev + 1);
 
       setSaving(false);
     }
@@ -577,9 +607,8 @@ const EducationModal = ({
   const handleConfirmDelete = () => {
     if (window.confirm("Are you sure you want to delete this record?")) {
       handleDelete();
-        setRefresh((prev) => prev + 1);
+      setRefresh((prev) => prev + 1);
     }
-         
   };
 
   if (!show) return null;

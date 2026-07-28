@@ -231,9 +231,9 @@ type EmploymentItem = {
   notice_period?: string;
 };
 
-type JobPreferencesProps = {
+interface JobPreferencesProps {
   refreshKey?: number;
-};
+}
 
 const formatDisplayText = (value?: string | null) => {
   if (!value || value.toString().trim() === "") {
@@ -313,7 +313,7 @@ const JobPreferences = ({ refreshKey }: JobPreferencesProps) => {
 
         // Career Profile API
         const careerResponse = await API.get(
-          "/api/useraction/get_career_profile"
+          "/api/useraction/get_career_profile",
         );
 
         if (!isMounted) return;
@@ -327,7 +327,7 @@ const JobPreferences = ({ refreshKey }: JobPreferencesProps) => {
 
         // Employment API
         const employmentResponse = await API.get(
-          "/api/candidate/employment/get_employment"
+          "/api/candidate/employment/get_employment",
         );
 
         if (!isMounted) return;
@@ -340,13 +340,13 @@ const JobPreferences = ({ refreshKey }: JobPreferencesProps) => {
 
         const preferredNoticePeriod = employmentData.find(
           (item: EmploymentItem) =>
-            item.notice_period_name || item.notice_period
+            item.notice_period_name || item.notice_period,
         );
 
         setNoticePeriod(
           preferredNoticePeriod?.notice_period_name ||
             preferredNoticePeriod?.notice_period ||
-            "Not added"
+            "Not added",
         );
       } catch (error) {
         console.error("Error fetching job preferences data:", error);
@@ -396,9 +396,7 @@ const JobPreferences = ({ refreshKey }: JobPreferencesProps) => {
     <Card>
       <CardHeader>
         <CardTitle className="text-base">Job preferences</CardTitle>
-        <CardDescription>
-          Used to match you to the right roles.
-        </CardDescription>
+        <CardDescription>Used to match you to the right roles.</CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-4 text-sm">
