@@ -497,7 +497,7 @@ export default function HeroSection() {
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="text-muted-foreground text-center lg:text-left text-sm sm:text-lg xl:text-xl max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal tracking-wide"
+                className="text-muted-foreground text-justify text-sm sm:text-lg xl:text-xl max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal tracking-wide"
               >
                 {currentBanner?.description}
               </motion.p>
@@ -514,7 +514,10 @@ export default function HeroSection() {
                   size="lg"
                   className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base font-semibold rounded-xl sm:rounded-2xl bg-gradient-to-r from-primary via-primary to-purple-600 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all border-none text-white"
                 >
-                  <Link to="/register" className="flex items-center justify-center">
+                  <Link
+                    to="/register"
+                    className="flex items-center justify-center"
+                  >
                     Get Started Free
                     <ArrowRight className="ml-2 h-4 h-4 sm:w-5 sm:h-5" />
                   </Link>
@@ -526,7 +529,10 @@ export default function HeroSection() {
                   variant="outline"
                   className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base font-semibold rounded-xl sm:rounded-2xl bg-background/40 text-foreground backdrop-blur-xl border-border/80 hover:bg-foreground hover:text-background hover:border-foreground hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
                 >
-                  <a href="#services" className="flex items-center justify-center">
+                  <a
+                    href="#services"
+                    className="flex items-center justify-center"
+                  >
                     Explore Services
                   </a>
                 </Button>
