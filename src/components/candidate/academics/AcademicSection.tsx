@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import API from "../../../lib/axios";
@@ -271,105 +272,97 @@ const AcademicSection = ({ setRefresh = () => {} }) => {
 
   return (
     <>
-      {/*   <Card>
-    <CardHeader className="flex flex-row items-center justify-between">
-      <div>
-        <CardTitle className="text-lg">Academics</CardTitle>
-        <CardDescription></CardDescription>
-      </div>
-
-      <Button variant="ghost" size="icon" onClick={() => openModalRH()}>
-        <Pencil className="h-4 w-4" />
-      </Button>
-    </CardHeader>
-
-    <CardContent> */}
-      <div>
-        <div className="flex items-start justify-between mb-3">
+      <Card>
+        <CardHeader className="flex flex-row items-start justify-between">
           <div>
-            <h2 className="font-display text-lg font-semibold">
+            <CardTitle className="font-display text-lg font-semibold">
               Academic Achievements
-            </h2>
-            <p className="text-sm text-muted-foreground mt-1">
+            </CardTitle>
+            <CardDescription className="text-sm text-muted-foreground mt-1">
               Details about your academic qualifications and schools/colleges.
-            </p>
+            </CardDescription>
           </div>
           <Button size="sm" className="gap-1.5" onClick={() => openModalRH()}>
             <Plus className="h-4 w-4" /> Add Education
           </Button>
-        </div>
+        </CardHeader>
 
-        {sectionloading ? (
-          <div className="space-y-4 animate-pulse mt-4">
-            {[1, 2].map((i) => (
-              <div
-                key={i}
-                className="flex gap-4 items-start border border-gray-100 rounded-lg p-5"
-              >
-                <Skeleton className="h-10 w-10 rounded bg-muted shrink-0" />
-                <div className="flex-1 space-y-2">
-                  <Skeleton className="h-5 w-48 bg-muted" />
-                  <Skeleton className="h-4 w-36 bg-muted" />
-                  <Skeleton className="h-3.5 w-20 bg-muted mt-1" />
+        <CardContent>
+          {sectionloading ? (
+            <div className="space-y-4 animate-pulse mt-4">
+              {[1, 2].map((i) => (
+                <div
+                  key={i}
+                  className="flex gap-4 items-start border border-gray-100 rounded-lg p-5"
+                >
+                  <Skeleton className="h-10 w-10 rounded bg-muted shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-5 w-48 bg-muted" />
+                    <Skeleton className="h-4 w-36 bg-muted" />
+                    <Skeleton className="h-3.5 w-20 bg-muted mt-1" />
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div>
-            <div>
-              {/* Existing Education List */}
-              <div className="space-y-4">
-                {userdata.map((item, index) => {
-                  // 1. VERIFIED: Master boolean is true
-                  const isVerified = item.is_verified === true;
-
-                  // 2. REJECTED: Not verified, and explicitly marked false for studying there
-                  const isRejected =
-                    !isVerified && item.is_studied_here === false;
-
-                  // 3. PENDING: Not verified, and has not been marked false (e.g., it is true or undefined/null)
-                  const isPending = !isVerified && !isRejected;
-
-                  return (
-                    <div key={index}>
-                      {item.level_id == 1 || item.level_id == 2 ? (
-                        <SchoolDisplay data={item} openModalRH={openModalRH} />
-                      ) : (
-                        <ClgDisplay
-                          data={item}
-                          openModalRH={openModalRH}
-                          isVerified={isVerified}
-                          isPending={isPending}
-                          isRejected={isRejected}
-                        />
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Available Levels - Same logic as EducationModal */}
-              {getAllowedLevelsForAdd(listlevel, userdata).length > 0 && (
-                <div className="space-y-2 mt-3">
-                  {getAllowedLevelsForAdd(listlevel, userdata).map((level) => (
-                    <button
-                      key={level.id}
-                      type="button"
-                      onClick={() => openModalRH(level.id)}
-                      className="block w-full rounded bg-blue-50 px-3 py-2 text-left font-bold text-blue-600 transition hover:underline"
-                    >
-                      Add {level.level}
-                    </button>
-                  ))}
-                </div>
-              )}
+              ))}
             </div>
-          </div>
-        )}
-      </div>
+          ) : (
+            <div>
+              <div>
+                {/* Existing Education List */}
+                <div className="space-y-4">
+                  {userdata.map((item, index) => {
+                    // 1. VERIFIED: Master boolean is true
+                    const isVerified = item.is_verified === true;
 
-      {/*   </Card> */}
+                    // 2. REJECTED: Not verified, and explicitly marked false for studying there
+                    const isRejected =
+                      !isVerified && item.is_studied_here === false;
+
+                    // 3. PENDING: Not verified, and has not been marked false (e.g., it is true or undefined/null)
+                    const isPending = !isVerified && !isRejected;
+
+                    return (
+                      <div key={index}>
+                        {item.level_id == 1 || item.level_id == 2 ? (
+                          <SchoolDisplay
+                            data={item}
+                            openModalRH={openModalRH}
+                          />
+                        ) : (
+                          <ClgDisplay
+                            data={item}
+                            openModalRH={openModalRH}
+                            isVerified={isVerified}
+                            isPending={isPending}
+                            isRejected={isRejected}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Available Levels - Same logic as EducationModal */}
+                {getAllowedLevelsForAdd(listlevel, userdata).length > 0 && (
+                  <div className="space-y-2 mt-3">
+                    {getAllowedLevelsForAdd(listlevel, userdata).map(
+                      (level) => (
+                        <button
+                          key={level.id}
+                          type="button"
+                          onClick={() => openModalRH(level.id)}
+                          className="block w-full rounded bg-blue-50 px-3 py-2 text-left font-bold text-blue-600 transition hover:underline"
+                        >
+                          Add {level.level}
+                        </button>
+                      ),
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Modal */}
       {isModalOpen && (

@@ -21,6 +21,15 @@ const AadharCardInfo = ({
   const [payment_Response, setPaymentResponse] = useState(null);
   const [resendTimer, setResendTimer] = useState(30);
 
+   const maskNumber = (numStr) => {
+    if (!numStr) return "";
+    const str = String(numStr).trim();
+    if (str.length <= 4) return str;
+    const lastFour = str.slice(-4);
+    const maskedPortion = "X".repeat(str.length - 4);
+    return `${maskedPortion}${lastFour}`;
+  };
+
   // verify payment after Razorpay
   const handlePaymentSuccessAadhar = async (response) => {
     setSectionloading(true);
@@ -230,7 +239,7 @@ const AadharCardInfo = ({
                 <span className="font-medium text-slate-700">
                   Aadhaar Number:
                 </span>{" "}
-                {userdata?.aadhar_number}
+                {maskNumber(userdata?.aadhar_number)}
               </div>
             </div>
           ) : (
