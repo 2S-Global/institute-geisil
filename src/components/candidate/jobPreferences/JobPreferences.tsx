@@ -240,10 +240,10 @@ const JobPreferences = ({ refreshKey }: JobPreferencesProps) => {
                     </span>
                   ) : (
                     <span
-                      className={`text-xs text-right truncate max-w-[200px] ${
+                      className={`text-right truncate max-w-[200px] text-xs font-medium ${
                         isNotAdded
-                          ? "text-muted-foreground/60 italic"
-                          : "font-medium text-foreground"
+                          ? "text-muted-foreground/70"
+                          : "text-foreground"
                       }`}
                       title={item.value}
                     >
