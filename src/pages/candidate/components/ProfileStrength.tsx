@@ -311,7 +311,7 @@ const ProfileMetrics = ({ refresh = 0 }: { refresh?: number }) => {
               <Skeleton className="h-6 w-12 rounded" />
             ) : (
               <span className="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-slate-50 flex-shrink-0">
-                {`${geisilScore}%`}
+                {`${geisilScore}`}
               </span>
             )}
           </div>
