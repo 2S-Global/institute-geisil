@@ -258,7 +258,8 @@ const CertificateMain = ({ setReload, list = [], setError, setSuccess }) => {
                             variant="secondary"
                             className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-[11px] font-normal"
                           >
-                            <CheckCircle2 className="h-3 w-3 mr-1" /> Does not expire
+                            <CheckCircle2 className="h-3 w-3 mr-1" /> Does not
+                            expire
                           </Badge>
                         ) : (
                           <Badge
@@ -273,7 +274,10 @@ const CertificateMain = ({ setReload, list = [], setError, setSuccess }) => {
                       {/* Credential ID */}
                       {cert.certificationId && (
                         <p className="text-xs text-muted-foreground mt-0.5 font-mono">
-                          Credential ID: <span className="text-foreground">{cert.certificationId}</span>
+                          Credential ID:{" "}
+                          <span className="text-foreground">
+                            {cert.certificationId}
+                          </span>
                         </p>
                       )}
 
@@ -283,15 +287,18 @@ const CertificateMain = ({ setReload, list = [], setError, setSuccess }) => {
                         <span>
                           Valid from{" "}
                           <strong className="text-foreground">
-                            {monthNames[cert.validityFrommonth - 1]} {cert.validityFromyear}
+                            {monthNames[cert.validityFrommonth - 1]}{" "}
+                            {cert.validityFromyear}
                           </strong>
                         </span>
 
                         {!cert.doesNotExpire && (
                           <span>
-                            {" "}to{" "}
+                            {" "}
+                            to{" "}
                             <strong className="text-foreground">
-                              {monthNames[cert.validityToMonth - 1]} {cert.validityToyear}
+                              {monthNames[cert.validityToMonth - 1]}{" "}
+                              {cert.validityToyear}
                             </strong>
                           </span>
                         )}

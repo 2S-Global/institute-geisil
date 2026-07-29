@@ -1,4 +1,8 @@
 import { NavLink, useLocation } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import api from "@/lib/axios";
+import { Badge } from "@/components/ui/badge";
+import { useAuth } from "./context/AuthContext.tsx";
 import {
   LayoutDashboard,
   Briefcase,
@@ -73,13 +77,45 @@ const secondary = [
 ];
 
 export function EmployerSidebar() {
+  const [pending, setPending] = useState(0);
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
+  const { refresh } = useAuth();
   const { pathname } = useLocation();
+  const countRef = useRef(0);
   const isActive = (path: string, end?: boolean) =>
     end
       ? pathname === path
       : pathname === path || pathname.startsWith(path + "/");
+  //console.log("refresh", refresh);
+  useEffect(() => {
+    async function fetchData() {
+      const response = await api.get(
+        `/api/companyprofile/get_verified_user_pending_count`,
+      );
+      if (response?.data?.data) {
+        countRef.current = response?.data?.data;
+        setPending(response?.data?.data || 0);
+      }
+      console.log("response2", response?.data?.data);
+    }
+    fetchData();
+  }, [refresh]);
+
+  /*   useEffect(() => {
+    async function fetchData() {
+      const response = await api.get(
+        `/api/companyprofile/get_verified_user_pending_count`,
+      );
+      if (response?.data?.data) {
+        setPending(response?.data?.data);
+      } else {
+        setPending(0);
+      }
+      console.log("response2", response?.data?.data);
+    }
+    fetchData();
+  }, [refresh]); */
 
   return (
     <Sidebar collapsible="icon" className="border-r  border-sidebar-border">
@@ -124,9 +160,20 @@ export function EmployerSidebar() {
                   >
                     <NavLink to={item.url} className="flex items-center gap-3">
                       <item.icon className="h-[18px] w-[18px] shrink-0" />
-                      {!collapsed && (
-                        <span className="truncate">{item.title}</span>
-                      )}
+                      {!collapsed &&
+                        (item.title === "Verify Requests" ? (
+                          <span className="truncate">
+                            {item.title}{" "}
+                            <Badge
+                              variant="outline"
+                              className="bg-amber-50 text-amber-700 border-amber-200 gap-1 shrink-0"
+                            >
+                              {pending}
+                            </Badge>
+                          </span>
+                        ) : (
+                          <span className="truncate">{item.title}</span>
+                        ))}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

@@ -27,7 +27,7 @@ import { useToast } from "@/hooks/use-toast";
 import MessageComponent from "@/components/common/ResponseMsg"; */
 import EmployeeInfoCard from "./EmployeeInfoCard";
 import PersonalInfoCard from "./PersonalDetailsCard";
-
+import { useAuth } from "../../context/AuthContext.tsx";
 import VerificationFormSection from "./VerificationFormSection";
 const getComparableDateValue = (year, month) => {
   if (!year || !month) return null;
@@ -50,7 +50,7 @@ const Modal = ({
   const [isFormValid, setIsFormValid] = useState(false);
   const [list_notice_period, setList_notice_period] = useState([]);
   const [token, setToken] = useState(null);
-
+  const { setrefresh } = useAuth();
   //const apiurl = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
@@ -206,6 +206,7 @@ const Modal = ({
         setSuccess(response.data.message);
         await FetchDetails(can_id, emp_id); // modal refresh
         await refreshList(); // 🔥 parent refresh
+        setrefresh((p) => p + 1);
         onClose();
       }
     } catch (error) {
@@ -553,30 +554,25 @@ const Modal = ({
                     {/* DESIGNATION */}
                     <div className="space-y-3">
                       <div className="flex items-center gap-2">
-                       
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="sr-only peer"
+                            id="designationSwitch"
+                            checked={formdata.designation_verified}
+                            onChange={handleToggle("designation_verified")}
+                          />
 
- <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          className="sr-only peer"
-                           id="designationSwitch"
-                           checked={formdata.designation_verified}
-                          onChange={handleToggle("designation_verified")}
-                        />
+                          {/* Track */}
+                          <div className="w-11 h-4 bg-gray-300 rounded-full peer peer-checked:bg-[#1a5a65] transition-colors duration-300"></div>
 
-                        {/* Track */}
-                        <div className="w-11 h-4 bg-gray-300 rounded-full peer peer-checked:bg-[#1a5a65] transition-colors duration-300"></div>
+                          {/* Thumb */}
+                          <div className="absolute left-1 top-1 w-4 h-3 bg-white rounded-full transition-all duration-300 peer-checked:translate-x-5"></div>
 
-                        {/* Thumb */}
-                        <div className="absolute left-1 top-1 w-4 h-3 bg-white rounded-full transition-all duration-300 peer-checked:translate-x-5"></div>
-
-                        <span className="ml-3 text-sm font-medium">
-                         Designation Verified
-                        </span>
-                      </label>
-
-
-
+                          <span className="ml-3 text-sm font-medium">
+                            Designation Verified
+                          </span>
+                        </label>
                       </div>
 
                       <div className="space-y-2">
@@ -598,27 +594,25 @@ const Modal = ({
                     <div className="space-y-3 md:col-span-2">
                       {/* DURATION VERIFIED */}
                       <div className="flex items-center gap-2 pb-2">
-                      
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            className="sr-only peer"
+                            type="checkbox"
+                            id="durationSwitch"
+                            checked={formdata.duration_verified}
+                            onChange={handleToggle("duration_verified")}
+                          />
 
-                         <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          className="sr-only peer"
-                          type="checkbox"
-                          id="durationSwitch"
-                          checked={formdata.duration_verified}
-                          onChange={handleToggle("duration_verified")}
-                        />
+                          {/* Track */}
+                          <div className="w-11 h-4 bg-gray-300 rounded-full peer peer-checked:bg-[#1a5a65] transition-colors duration-300"></div>
 
-                        {/* Track */}
-                        <div className="w-11 h-4 bg-gray-300 rounded-full peer peer-checked:bg-[#1a5a65] transition-colors duration-300"></div>
+                          {/* Thumb */}
+                          <div className="absolute left-1 top-1 w-4 h-3 bg-white rounded-full transition-all duration-300 peer-checked:translate-x-5"></div>
 
-                        {/* Thumb */}
-                        <div className="absolute left-1 top-1 w-4 h-3 bg-white rounded-full transition-all duration-300 peer-checked:translate-x-5"></div>
-
-                        <span className="ml-3 text-sm font-medium">
-                          Duration Verified
-                        </span>
-                      </label>
+                          <span className="ml-3 text-sm font-medium">
+                            Duration Verified
+                          </span>
+                        </label>
                       </div>
 
                       <label className="text-sm font-medium">

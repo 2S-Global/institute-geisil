@@ -1,4 +1,4 @@
-import { createContext, useContext ,useState} from "react";
+import { createContext, useContext, useState } from "react";
 import Cookies from "js-cookie";
 import api from "@/lib/axios";
 const AuthContext = createContext<any>(null);
@@ -6,17 +6,17 @@ const AuthContext = createContext<any>(null);
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }: any) => {
-   
-const [user, setUser] = useState<any>(() => {
+  const [user, setUser] = useState<any>(() => {
     const saved = localStorage.getItem("user");
     return saved ? JSON.parse(saved) : null;
   });
 
+  const [refresh, setrefresh] = useState(0);
 
   const login = async (email: string, password: string) => {
     try {
       const res = await api.post("/auth/login", { email, password });
-     /*  let newData={
+      /*  let newData={
           token:res?.data?.token,
           user:{
             role:res?.data?.data.role,
@@ -24,15 +24,15 @@ const [user, setUser] = useState<any>(() => {
         }
       } */
 
-      let newData={
-          token:'',
-          user:{
-            role:2,
-            isAuthenticated:  true,
-        }
-      }
-     // const { token, user } = res.data;
-      const { token, user } = newData
+      let newData = {
+        token: "",
+        user: {
+          role: 2,
+          isAuthenticated: true,
+        },
+      };
+      // const { token, user } = res.data;
+      const { token, user } = newData;
 
       localStorage.setItem("token", token);
       //localStorage.setItem("user", JSON.stringify(user));
@@ -51,8 +51,8 @@ const [user, setUser] = useState<any>(() => {
   const setLogin = () => {
     try {
       const token = Cookies.get("token");
-      if(token){
-           //localStorage.setItem("user", token);
+      if (token) {
+        //localStorage.setItem("user", token);
       }
       setUser(user);
     } catch (error: any) {
@@ -63,7 +63,6 @@ const [user, setUser] = useState<any>(() => {
     }
   };
 
-
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -71,12 +70,17 @@ const [user, setUser] = useState<any>(() => {
   };
 
   return (
-    <AuthContext.Provider value={{   
+    <AuthContext.Provider
+      value={{
         user,
         login,
         logout,
         setLogin,
-        isAuthenticated: !!user, }}>
+        setrefresh,
+        refresh,
+        isAuthenticated: !!user,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

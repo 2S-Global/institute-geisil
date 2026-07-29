@@ -12,13 +12,13 @@ import {
 } from "@/components/ui/popover";
 import { useNavigate } from "react-router-dom";
 import { LogoutModal } from "@/components/LogoutModal";
-
+import { useAuth } from "./context/AuthContext";
 export function CandidateLayout({ children }: { children: ReactNode }) {
   const [name, setName] = useState<string | null>(null);
   const [pic, setPic] = useState<string | null>(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
-
+  const { refresh } = useAuth();
   useEffect(() => {
     setName(localStorage.getItem("name"));
     setPic(localStorage.getItem("profilePicture"));
@@ -29,6 +29,17 @@ export function CandidateLayout({ children }: { children: ReactNode }) {
 
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    setName(localStorage.getItem("name"));
+    setPic(localStorage.getItem("profilePicture"));
+    const timer = setTimeout(() => {
+      setName(localStorage.getItem("name"));
+      setPic(localStorage.getItem("profilePicture"));
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [refresh]);
 
   const displayName = name === "null" ? "" : name || "Riya Sharma";
   const initials = displayName
