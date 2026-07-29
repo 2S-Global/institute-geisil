@@ -61,6 +61,7 @@ export const normalizeCandidate = (c: any): Candidate => {
     workMode: c.workMode || "-",
     category: c.category,
     featured: !!c.featured,
+    isOpenToWork: c.personalDetails?.visibility?.openToWork === true || c.personalDetails?.visibility?.openToWork === "true",
   };
 };
 
@@ -75,6 +76,7 @@ interface FilterParams {
 }
 
 export const filterCandidate = (candidate: Candidate, filters: FilterParams): boolean => {
+  
   const { searchQuery, locationQuery, experienceRange, gender, qualification, genderData, levelData } = filters;
 
   const searchLower = searchQuery.toLowerCase().trim();

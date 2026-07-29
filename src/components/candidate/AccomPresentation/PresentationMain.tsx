@@ -36,7 +36,7 @@ const ProfileMain = ({ setReload, list = [], setError, setSuccess }) => {
         </Button>
       </div>
 
-      {Array.isArray(list) &&
+      {Array.isArray(list) && list.length > 0 ? (
         list.map((item) => (
           <Card key={item._id}>
             <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
@@ -65,7 +65,14 @@ const ProfileMain = ({ setReload, list = [], setError, setSuccess }) => {
               />
             </CardContent>
           </Card>
-        ))}
+        ))
+      ) : (
+        <div className="mt-4 flex flex-1 items-center justify-center w-full shadow-sm">
+          <div className="w-full border-dashed border border-gray-200 rounded-xl p-8 text-center text-muted-foreground flex flex-col items-center justify-center">
+            <p className="text-sm">No Presentations added yet.</p>
+          </div>
+        </div>
+      )}
 
       {isModalOpen && (
         <ProfileModal

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Sparkles, Trash2 } from "lucide-react";
 import API from "@/lib/axios";
@@ -18,6 +19,7 @@ import "react-quill/dist/quill.snow.css";
 const WorkProfileModal = ({ show, onClose, item, setReload, onDelete }) => {
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
+  const [urlError, setUrlError] = useState("");
 
   const monthNames = [
     "January",
@@ -68,9 +70,26 @@ const WorkProfileModal = ({ show, onClose, item, setReload, onDelete }) => {
     currentlyWorking: false,
   });
 
+  const validateURL = (url) => {
+    try {
+      const pattern = new URL(url); // Will throw if invalid
+      return true;
+    } catch {
+      return false;
+    }
+  };
+  const handleBlur = () => {
+    if (formData.url && !validateURL(formData.url)) {
+      setUrlError("Please enter a valid URL (e.g. github.com or https://...)");
+    } else {
+      setUrlError("");
+    }
+  };
+
   // Populates data when the modal opens
   useEffect(() => {
     if (show) {
+      setUrlError("");
       if (item) {
         const fromYear =
           item.durationFromYear || item.durationFrom?.year || item.year || "";
@@ -129,6 +148,10 @@ const WorkProfileModal = ({ show, onClose, item, setReload, onDelete }) => {
   // Handle Input changes and reset target values if conditions change
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "url" && urlError) {
+      setUrlError("");
+    }
 
     setFormData((prev) => {
       const updated = { ...prev, [name]: value };
@@ -196,6 +219,17 @@ const WorkProfileModal = ({ show, onClose, item, setReload, onDelete }) => {
       return;
     }
 
+    // URL Validation Check
+    if (!validateURL(formData.url.trim())) {
+      setUrlError("Please enter a valid URL");
+      toast({
+        variant: "destructive",
+        title: "Invalid URL",
+        description: "Please enter a valid web link.",
+      });
+      return;
+    }
+
     const fromYear = formData.durationFromYear
       ? parseInt(formData.durationFromYear, 10)
       : null;
@@ -257,10 +291,15 @@ const WorkProfileModal = ({ show, onClose, item, setReload, onDelete }) => {
       ? String(monthNames.indexOf(formData.durationToMonth) + 1)
       : "";
 
+    // Normalize URL before sending payload
+    const formattedUrlPayload = formData.url.trim().match(/^https?:\/\//i)
+      ? formData.url.trim()
+      : `https://${formData.url.trim()}`;
+
     const payload = {
       _id: formData._id || undefined,
       workTitle: formData.workTitle.trim(),
-      url: formData.url.trim(),
+      url: formattedUrlPayload,
       description: formData.description,
       currentlyWorking: formData.currentlyWorking,
       durationFromYear: formData.durationFromYear || "",
@@ -314,7 +353,9 @@ const WorkProfileModal = ({ show, onClose, item, setReload, onDelete }) => {
       <DialogContent className="sm:max-w-[520px] p-0 overflow-hidden rounded-xl border-none shadow-xl">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <DialogTitle className="text-lg font-semibold text-gray-800">
-            {formData._id ? "Edit  Knowledge  Experience" : "Add  Knowledge  Experience"}
+            {formData._id
+              ? "Edit  Knowledge  Experience"
+              : "Add  Knowledge  Experience"}
           </DialogTitle>
         </div>
         <div className="px-6 py-4 max-h-[75vh] overflow-y-auto space-y-4 text-left">
@@ -349,11 +390,15 @@ const WorkProfileModal = ({ show, onClose, item, setReload, onDelete }) => {
             </label>
             <Input
               name="url"
-              placeholder="Enter Your URL"
+              placeholder="Enter Your URL (e.g. github.com/user)"
               value={formData.url}
               onChange={handleInputChange}
+              onBlur={handleBlur}
               className="bg-[#F4F8FA] border-none h-11 focus-visible:ring-1 focus-visible:ring-primary"
             />
+            {urlError && (
+              <p className="text-xs text-red-500 mt-1">{urlError}</p>
+            )}
           </div>
 
           {/* DURATION FROM */}
@@ -505,7 +550,6 @@ const WorkProfileModal = ({ show, onClose, item, setReload, onDelete }) => {
             <Button
               type="button"
               onClick={handleSave}
-              
               className="w-full sm:w-auto"
             >
               {saving

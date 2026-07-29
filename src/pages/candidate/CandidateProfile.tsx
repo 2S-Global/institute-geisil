@@ -95,8 +95,6 @@ export default function CandidateProfile() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalImg, setIsModalImg] = useState(false);
 
-
-
   //custom hook for job visibilty
 
   const { visibility, updateVisibility } = useUpdateJobVisibility();
@@ -764,7 +762,7 @@ export default function CandidateProfile() {
               </TabsContent>
 
               <TabsContent value="education" className="space-y-4 mt-6">
-                <AcademicSection />
+                <AcademicSection setRefresh={setRefresh} />
                 {/* <div className="space-y-4">
                 <AcademicSection />
                 <div className="space-y-4">
@@ -809,7 +807,7 @@ export default function CandidateProfile() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-lg">
-                      Resume & documents
+                      Resume & Documents
                     </CardTitle>
                     <CardDescription>
                       Keep your latest resume here. Recruiters can download it
@@ -984,8 +982,8 @@ export default function CandidateProfile() {
 
           <div className="space-y-6">
             <ProfileStrength refresh={refresh} />
-            <JobPreferences />
-
+            {/* <JobPreferences /> */}
+            <JobPreferences refreshKey={refresh} />
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">Visibility</CardTitle>
@@ -993,25 +991,34 @@ export default function CandidateProfile() {
                   Control who can find your profile.
                 </CardDescription>
               </CardHeader>
+
               <CardContent className="space-y-4">
                 <Toggle
-                  label="Open to opportunities"
+                  label="Open To Opportunities"
                   desc="Recruiters can reach out to you"
                   checked={visibility.openToWork}
-                  onChange={(checked) => updateVisibility("openToWork", checked)}
+                  onChange={(checked) =>
+                    updateVisibility("openToWork", checked)
+                  }
                 />
+
                 <Toggle
-                  label="Show profile in search"
+                  label="Show Profile In Search"
                   desc="Appear in candidate searches"
                   checked={visibility.showProfileInSearch}
-                  onChange={(checked) => updateVisibility("showProfileInSearch", checked)}
+                  onChange={(checked) =>
+                    updateVisibility("showProfileInSearch", checked)
+                  }
                 />
+
                 {/* <Toggle
-                  label="Hide from current employer"
-                  desc="Lumen Labs won't see your profile"
-                  checked={visibility.hideFromCureentEmployers}
-                  onChange={(checked) => updateVisibility("hideFromCureentEmployers", checked)}
-                /> */}
+      label="Hide From Current Employer"
+      desc="Your Current Employer Won't See Your Profile"
+      checked={visibility.hideFromCureentEmployers}
+      onChange={(checked) =>
+        updateVisibility("hideFromCureentEmployers", checked)
+      }
+    /> */}
               </CardContent>
             </Card>
           </div>
@@ -1108,12 +1115,12 @@ function Toggle({
   label,
   desc,
   checked,
-  onChange
+  onChange,
 }: {
   label: string;
   desc: string;
   checked?: boolean;
-  onChange: (checked: boolean) => void
+  onChange: (checked: boolean) => void;
 }) {
   return (
     <div className="flex items-start justify-between gap-3">

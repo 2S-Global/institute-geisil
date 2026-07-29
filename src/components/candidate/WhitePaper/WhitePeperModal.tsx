@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect } from "react";
 import API from "../../../lib/axios";
 import { useToast } from "@/hooks/use-toast";
@@ -46,6 +45,7 @@ const WhitePaperModal = ({ open, onOpenChange, item, fetchWhitePaperData }) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
+  const [urlError, setUrlError] = useState("");
 
   const getInitialFormState = (targetItem) => {
     if (!targetItem) {
@@ -99,14 +99,22 @@ const WhitePaperModal = ({ open, onOpenChange, item, fetchWhitePaperData }) => {
     if (item) {
       setFormData(getInitialFormState(item));
     }
-  }, [item]);
+    setUrlError("");
+  }, [item, open]);
 
-  const validateURL = (url) => {
+ const validateURL = (url) => {
     try {
-      new URL(url);
+      const pattern = new URL(url); // Will throw if invalid
       return true;
     } catch {
       return false;
+    }
+  };
+  const handleBlur = () => {
+    if (formData.url && !validateURL(formData.url)) {
+      setUrlError("Please enter a valid URL (e.g. github.com or https://...)");
+    } else {
+      setUrlError("");
     }
   };
 
@@ -135,14 +143,19 @@ const WhitePaperModal = ({ open, onOpenChange, item, fetchWhitePaperData }) => {
       return;
     }
     if (!validateURL(formData.url)) {
+      setUrlError("Please enter a valid URL (e.g. github.com or https://...)");
       toast({ title: "Invalid URL", description: "Please enter a valid URL.", variant: "destructive" });
       return;
     }
 
+    const cleanUrl = formData.url.trim().match(/^https?:\/\//i)
+      ? formData.url.trim()
+      : `https://${formData.url.trim()}`;
+
     const payload = {
       _id: formData._id || "",
       title: formData.title,
-      url: formData.url,
+      url: cleanUrl,
       publishYear: formData.publishYear ? Number(formData.publishYear) : null,
       publishMonth: formData.publishMonth ? Number(formData.publishMonth) : null,
       description: formData.description,
@@ -204,7 +217,7 @@ const WhitePaperModal = ({ open, onOpenChange, item, fetchWhitePaperData }) => {
         <DialogContent className="w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
           <div className="flex items-start justify-between mb-5 pr-6">
             <DialogHeader className="text-left">
-              <DialogTitle>White paper / Research publication / Journal entry</DialogTitle>
+              <DialogTitle>White Paper / Research Publication / Journal Entry</DialogTitle>
               <DialogDescription>Add links to your online publications</DialogDescription>
             </DialogHeader>
 
@@ -217,13 +230,23 @@ const WhitePaperModal = ({ open, onOpenChange, item, fetchWhitePaperData }) => {
 
           <div className="space-y-4">
             <div>
-              <Label>Title *</Label>
+              <Label>Title <span className="text-red-500">*</span></Label>
               <Input value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} />
             </div>
 
             <div>
-              <Label>URL *</Label>
-              <Input value={formData.url} onChange={(e) => setFormData({ ...formData, url: e.target.value })} />
+              <Label>URL <span className="text-red-500">*</span></Label>
+              <Input 
+                value={formData.url} 
+                onChange={(e) => {
+                  setFormData({ ...formData, url: e.target.value });
+                  if (urlError) setUrlError("");
+                }} 
+                onBlur={handleBlur} 
+              />
+              {urlError && (
+                <p className="text-xs text-red-500 mt-1">{urlError}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -242,7 +265,7 @@ const WhitePaperModal = ({ open, onOpenChange, item, fetchWhitePaperData }) => {
                     return <option key={year} value={String(year)}>{year}</option>;
                   })}
                 </select>
-                   
+                    
                 {/* MONTH SELECT */}
                 <select
                   value={formData.publishMonth}

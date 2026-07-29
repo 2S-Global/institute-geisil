@@ -180,7 +180,7 @@ const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
       name === "father_name" ||
       name === "mother_name"
     ) {
-      const onlyLetters = /^[A-Za-z\s]*$/; // Allow letters and spaces only
+      const onlyLetters = /^[A-Za-z/.\s]*$/; // Allow letters and spaces only
 
       if (!onlyLetters.test(value)) {
         return;

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import API from "@/lib/axios";
@@ -20,7 +19,7 @@ const CareerProfileModal = ({
   currentData,
   highlightField,
   onSaveSuccess,
-  setRefresh
+  setRefresh,
 }) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -277,8 +276,7 @@ const CareerProfileModal = ({
       shift: formData.shift,
       work_location: formData.work_location.map((loc) => loc.id),
       currency_type: formData.currency_type,
-      expected_salary:
-        Number(formData.expected_salary.toString().replace(/,/g, "")) || 0,
+      expected_salary: formData.expected_salary || 0,
     };
 
     try {
@@ -306,9 +304,13 @@ const CareerProfileModal = ({
 
   // Helper method to attach local dynamic outline classes to active inputs
   const getHighlightClass = (fieldKey) => {
-    const baseClass = "p-2 border rounded-lg transition-all duration-500 ease-in-out ";
+    const baseClass =
+      "p-2 border rounded-lg transition-all duration-500 ease-in-out ";
     if (activeHighlight === fieldKey) {
-      return baseClass + "border-[#223B6B] bg-[#223B6B]/[0.02] shadow-[0_0_0_3px_rgba(34,59,107,0.15)]";
+      return (
+        baseClass +
+        "border-[#223B6B] bg-[#223B6B]/[0.02] shadow-[0_0_0_3px_rgba(34,59,107,0.15)]"
+      );
     }
     return baseClass + "border-transparent bg-transparent";
   };
@@ -444,7 +446,10 @@ const CareerProfileModal = ({
           </div>
 
           {/* Desired Employment Type */}
-          <div id="employment_type" className={getHighlightClass("employment_type")}>
+          <div
+            id="employment_type"
+            className={getHighlightClass("employment_type")}
+          >
             <label className="text-xs font-semibold text-slate-700 block mb-2">
               Desired employment type
             </label>
@@ -493,7 +498,10 @@ const CareerProfileModal = ({
           </div>
 
           {/* Searchable Work Location */}
-          <div id="work_location" className={getHighlightClass("work_location")}>
+          <div
+            id="work_location"
+            className={getHighlightClass("work_location")}
+          >
             <label className="text-xs font-semibold text-slate-700 block mb-1.5">
               Preferred work location (Max 10)
             </label>
@@ -588,7 +596,10 @@ const CareerProfileModal = ({
           </div>
 
           {/* Expected Salary */}
-          <div id="expected_salary" className={getHighlightClass("expected_salary")}>
+          <div
+            id="expected_salary"
+            className={getHighlightClass("expected_salary")}
+          >
             <label className="text-xs font-semibold text-slate-700 block mb-1.5">
               Expected salary
             </label>
@@ -606,14 +617,18 @@ const CareerProfileModal = ({
                 <option value="INR">₹</option>
               </select>
               <Input
-                type="number"
+                type="text"
+                inputMode="numeric"
+                
                 value={formData.expected_salary ?? ""}
-                onChange={(e) =>
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\D/g, "");
+
                   setFormData((prev) => ({
                     ...prev,
-                    expected_salary: Number(e.target.value),
-                  }))
-                }
+                    expected_salary: val,
+                  }));
+                }}
                 className="focus-visible:ring-0 focus-visible:ring-offset-0"
               />
             </div>
@@ -621,11 +636,7 @@ const CareerProfileModal = ({
         </form>
 
         <DialogFooter className="px-6 py-4 border-t border-slate-100 flex items-center justify-end space-x-3 bg-white">
-          <Button
-            type="button"
-            onClick={onClose}
-            variant="outline"
-          >
+          <Button type="button" onClick={onClose} variant="outline">
             Cancel
           </Button>
           <Button

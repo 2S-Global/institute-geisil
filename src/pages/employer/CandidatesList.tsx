@@ -67,6 +67,7 @@ export type Candidate = {
   workMode: string;
   category: string;
   featured: boolean;
+  isOpenToWork?: boolean;
 };
 
 // 2. Extracted Helper Functions (Moved to utils/candidateUtils.ts)
@@ -76,6 +77,7 @@ export type Candidate = {
 // 4. Main Component
 export default function CandidatesList() {
   const { data: rawCandidates, loading, error } = useGetAllCandidates<any>();
+  console.log("Raw candidates===>" ,rawCandidates )
   const { handleBookmark, bookmarkLoading } = useBookmarkCandidate();
 
   // Custom hooks for filter data

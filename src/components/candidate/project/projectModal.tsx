@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect, ChangeEvent } from "react";
 import { Sparkles, Trash2 } from "lucide-react";
 import API from "@/lib/axios";
@@ -52,6 +54,7 @@ interface ProjectModalProps {
   show: boolean;
   onClose: () => void;
   item: ProjectItem | null;
+  onDeleteSuccess?: (deletedId: string) => void;
 }
 
 const getComparableDateValue = (year: string, month: string): number | null => {
@@ -64,6 +67,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
   show,
   onClose,
   item,
+  onDeleteSuccess,
 }) => {
   const { toast } = useToast();
   const [isGenerated, setIsGenerated] = useState<boolean>(false);
@@ -107,6 +111,8 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
       description: updatedDescription,
     });
     setIsGenerated(false);
+    setChildError(null);
+    setWrongDate(false);
   }, [item]);
 
   const apiurl =
@@ -291,7 +297,6 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
   const handleSave = async () => {
     setSaving(true);
 
-    // Clear end dates if project is marked ongoing
     const payload = { ...formData };
     if (
       payload.status === "in-progress" ||
@@ -358,6 +363,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
       setSaving(false);
     }
   };
+
   const handleDelete = async () => {
     if (!formData._id) return;
     setSaving(true);
@@ -373,6 +379,11 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
           title: "Deleted",
           description: response.data.message || "Project has been deleted.",
         });
+
+        if (onDeleteSuccess) {
+          onDeleteSuccess(formData._id);
+        }
+
         onClose();
         setReload((prev) => !prev);
       }
@@ -617,7 +628,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
         </form>
 
         <DialogFooter className="flex items-center gap-2 sm:justify-end border-t pt-4 mt-2">
-          <div className="flex justify-end gap-3 pt-6">
+          <div className="flex justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
@@ -633,20 +644,17 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                 disabled={!isFormValid || saving || wrongDate}
                 className="w-full sm:w-auto"
               >
-                {saving ? (
-                  <>
-                    
-                    {formData._id ? "Updating..." : "Saving..."}
-                  </>
-                ) : formData._id ? (
-                  "Update"
-                ) : (
-                  "Save"
-                )}
+                {saving
+                  ? formData._id
+                    ? "Updating..."
+                    : "Saving..."
+                  : formData._id
+                  ? "Update"
+                  : "Save"}
               </Button>
 
               {!isFormValid && (
-                <div className="pointer-events-none absolute bottom-full right-0 mb-2 hidden w-52 rounded-md border border-red-300 bg-white p-2 text-center text-sm text-red-600 shadow-lg group-hover:block">
+                <div className="pointer-events-none absolute bottom-full right-0 mb-2 hidden w-52 rounded-md border border-red-300 bg-white p-2 text-center text-sm text-red-600 shadow-lg group-hover:block z-50">
                   Please fill all required fields.
                 </div>
               )}

@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import API from "../../../lib/axios";
@@ -48,14 +46,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-const AcademicSection = () => {
+const AcademicSection = ({ setRefresh = () => {} }) => {
   const apiurl = import.meta.env.VITE_API_URL;
   // console.log("show",show)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [expanded, setExpanded] = useState({}); // Track expanded descriptions
   const [listlevel, setListlevel] = useState([]);
   const [reload, setReload] = useState(false);
-  const [missingLevels, setMissingLevels] = useState([]);
+  // const [missingLevels, setMissingLevels] = useState([]);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
@@ -64,86 +62,109 @@ const AcademicSection = () => {
   const [selectedLevel, setSelectedLevel] = useState("");
   const [edit_id, setEdit_id] = useState("");
 
-  const normalizeLevelText = (text) =>
-    String(text || "")
-      .toLowerCase()
-      .replace(/\s+/g, " ")
-      .trim();
+  const normalizeLevelName = (value) =>
+    String(value ?? "")
+      .trim()
+      .toLowerCase();
 
   const getLevelLabel = (levelItem) => {
     if (!levelItem) return "";
-    return normalizeLevelText(levelItem.level || levelItem.name || levelItem.label || "");
+    return normalizeLevelName(
+      levelItem.level || levelItem.name || levelItem.label,
+    );
   };
 
   const getRecordLevelLabel = (record) => {
-    const explicitLabel = record.level_name || record.levelName || record.level;
-    if (typeof explicitLabel === "string" && Number.isNaN(Number(explicitLabel))) {
-      return normalizeLevelText(explicitLabel);
+    const recordLevel =
+      record?.level_name ?? record?.levelName ?? record?.level;
+    if (typeof recordLevel === "string" && Number.isNaN(Number(recordLevel))) {
+      return normalizeLevelName(recordLevel);
     }
 
-    const id = record.level_id || record.level;
-    if (!id) return "";
+    const levelId = record?.level_id ?? recordLevel ?? "";
+    if (levelId === "") return "";
 
-    const mapped = listlevel.find((level) => String(level.id) === String(id));
-    return getLevelLabel(mapped);
+    const matchedLevel = listlevel.find(
+      (level) => String(level.id) === String(levelId),
+    );
+    return getLevelLabel(matchedLevel);
   };
 
-  const getAllowedAddLevelLabels = () => {
-    const existingLabels = userdata
-      .map(getRecordLevelLabel)
+  // Keep these conditions in sync with EducationModal's Select Level dropdown.
+  const getAllowedLevelsForAdd = (allLevels, records) => {
+    if (!allLevels.length) return [];
+
+    const existingLabels = records
+      .map((record) => getRecordLevelLabel(record))
       .filter(Boolean);
 
     const has10th = existingLabels.includes("10th standard");
     const has12th = existingLabels.includes("12th standard");
     const hasDiploma = existingLabels.includes("diploma");
-    const hasUndergraduate = existingLabels.some((label) => ["graduation", "undergraduate", "under graduate"].includes(label));
-    const hasPostgraduate = existingLabels.some((label) => ["post graduation", "postgraduate", "post graduate"].includes(label));
-    const hasDoctorate = existingLabels.some((label) => ["doctorate/phd", "doctorate", "phd"].includes(label));
+    const hasUndergraduate = existingLabels.some(
+      (label) =>
+        label === "undergraduate" ||
+        label === "under graduate" ||
+        label === "graduation",
+    );
+    const hasPostgraduate = existingLabels.some(
+      (label) => label === "postgraduate" || label === "post graduate",
+    );
+    const hasDoctorate = existingLabels.some(
+      (label) =>
+        label === "doctorate/phd" || label === "doctorate" || label === "phd",
+    );
+    const onlyLevels = (...labels) =>
+      allLevels.filter((level) => !labels.includes(getLevelLabel(level)));
 
-    if (!existingLabels.length) {
-      return ["10th standard"];
+    if (has10th && has12th) {
+      if (!hasUndergraduate) {
+        return onlyLevels(
+          "10th standard",
+          "12th standard",
+          "postgraduate",
+          "post graduate",
+          "post graduation",
+          "doctorate/phd",
+          "doctorate",
+          "phd",
+        );
+      } else if (!hasPostgraduate) {
+        return onlyLevels(
+          "10th standard",
+          "12th standard",
+          "doctorate/phd",
+          "doctorate",
+          "phd",
+        );
+      }
+      return onlyLevels("10th standard", "12th standard");
+    } else if (has10th) {
+      return onlyLevels("10th standard");
+    } else if (has12th) {
+      return onlyLevels("12th standard");
+    } else {
+      return onlyLevels(
+        "12th standard",
+        "postgraduate",
+        "post graduate",
+        "post graduation",
+        "under graduate",
+        "graduation",
+        "undergraduate",
+        "diploma",
+        "doctorate/phd",
+        "doctorate",
+        "phd",
+      );
     }
-
-    if (hasUndergraduate && !hasPostgraduate) {
-      return ["post graduation", "postgraduate", "post graduate"];
-    }
-
-    if (hasPostgraduate && !hasDoctorate) {
-      return ["doctorate/phd", "doctorate", "phd"];
-    }
-
-    if (hasDoctorate) return [];
-
-    if (has10th && !has12th && !hasDiploma) {
-      return ["12th standard", "diploma"];
-    }
-
-    if (has12th && hasDiploma && !hasUndergraduate) {
-      return ["graduation", "undergraduate", "under graduate"];
-    }
-
-    if (hasDiploma && !hasUndergraduate) {
-      return ["12th standard", "graduation", "undergraduate", "under graduate"];
-    }
-
-    if (has12th && !hasUndergraduate) {
-      return ["graduation", "undergraduate", "diploma"];
-    }
-
-    return [];
   };
 
-  const getAllowedAddLevels = () => {
-    const allowedLabels = getAllowedAddLevelLabels();
-    return listlevel.filter((level) => allowedLabels.includes(getLevelLabel(level)));
-  };
-
-  const getAllowedAddLevelIds = () => {
-    const allowedLabels = getAllowedAddLevelLabels();
-    return listlevel
-      .filter((level) => allowedLabels.includes(getLevelLabel(level)))
-      .map((level) => String(level.id));
-  };
+  // const getAllowedAddLevelIds = () => {
+  //   return getAllowedLevelsForAdd(listlevel, userdata).map((level) =>
+  //     String(level.id),
+  //   );
+  // };
 
   const [sectionloading, setSectionloading] = useState(false);
   const { toast } = useToast();
@@ -181,7 +202,9 @@ const AcademicSection = () => {
 
   const handleEducationChanged = async (deletedId = "") => {
     if (deletedId) {
-      setUserdata((current) => current.filter((record) => String(record._id) !== String(deletedId)));
+      setUserdata((current) =>
+        current.filter((record) => String(record._id) !== String(deletedId)),
+      );
       return;
     }
 
@@ -213,19 +236,19 @@ const AcademicSection = () => {
     fetchuserdata();
   }, []);
 
-  useEffect(() => {
-    const compareLevels = async () => {
-      //map missing levels from userdata
-      const missingLevels = listlevel.filter((level) => {
-        return !userdata.some((item) => item.level_id == level.id);
-      });
+  // useEffect(() => {
+  //   const compareLevels = async () => {
+  //     //map missing levels from userdata
+  //     const missingLevels = listlevel.filter((level) => {
+  //       return !userdata.some((item) => item.level_id == level.id);
+  //     });
 
-      // console.log("Missing Levels:", missingLevels);
-      setMissingLevels(missingLevels);
-    };
+  //     // console.log("Missing Levels:", missingLevels);
+  //     setMissingLevels(missingLevels);
+  //   };
 
-    compareLevels();
-  }, [userdata, listlevel]);
+  //   compareLevels();
+  // }, [userdata, listlevel]);
 
   const openModalRH = (level = "", edit_id = "") => {
     setIsModalOpen(true);
@@ -265,18 +288,13 @@ const AcademicSection = () => {
         <div className="flex items-start justify-between mb-3">
           <div>
             <h2 className="font-display text-lg font-semibold">
-              Education
+              Academic Achievements
             </h2>
             <p className="text-sm text-muted-foreground mt-1">
-              Details about your academic qualifications and
-              schools/colleges.
+              Details about your academic qualifications and schools/colleges.
             </p>
           </div>
-          <Button
-            size="sm"
-            className="gap-1.5"
-            onClick={() => openModalRH()}
-          >
+          <Button size="sm" className="gap-1.5" onClick={() => openModalRH()}>
             <Plus className="h-4 w-4" /> Add Education
           </Button>
         </div>
@@ -284,7 +302,10 @@ const AcademicSection = () => {
         {sectionloading ? (
           <div className="space-y-4 animate-pulse mt-4">
             {[1, 2].map((i) => (
-              <div key={i} className="flex gap-4 items-start border border-gray-100 rounded-lg p-5">
+              <div
+                key={i}
+                className="flex gap-4 items-start border border-gray-100 rounded-lg p-5"
+              >
                 <Skeleton className="h-10 w-10 rounded bg-muted shrink-0" />
                 <div className="flex-1 space-y-2">
                   <Skeleton className="h-5 w-48 bg-muted" />
@@ -328,25 +349,19 @@ const AcademicSection = () => {
                 })}
               </div>
 
-              {/* Missing Levels */}
-              {missingLevels.length > 0 && (
-                <div className="space-y-2">
-                  {missingLevels.map((level) => {
-                    const allowedLevelIds = getAllowedAddLevelIds();
-                    const isEnabled = allowedLevelIds.includes(String(level.id));
-
-                    return (
-                      <button
-                        key={level.id}
-                        type="button"
-                        onClick={() => isEnabled && openModalRH(level.id)}
-                        disabled={!isEnabled}
-                        className={`block w-full text-left font-bold mt-3 rounded px-3 py-2 transition ${isEnabled ? "text-blue-600 hover:underline bg-blue-50" : "text-gray-400 bg-gray-100 cursor-not-allowed"}`}
-                      >
-                        Add {level.level}
-                      </button>
-                    );
-                  })}
+              {/* Available Levels - Same logic as EducationModal */}
+              {getAllowedLevelsForAdd(listlevel, userdata).length > 0 && (
+                <div className="space-y-2 mt-3">
+                  {getAllowedLevelsForAdd(listlevel, userdata).map((level) => (
+                    <button
+                      key={level.id}
+                      type="button"
+                      onClick={() => openModalRH(level.id)}
+                      className="block w-full rounded bg-blue-50 px-3 py-2 text-left font-bold text-blue-600 transition hover:underline"
+                    >
+                      Add {level.level}
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
@@ -359,6 +374,7 @@ const AcademicSection = () => {
       {/* Modal */}
       {isModalOpen && (
         <EducationModal
+          setRefresh={setRefresh}
           show={isModalOpen}
           onClose={closeModalRH}
           reload={reload}

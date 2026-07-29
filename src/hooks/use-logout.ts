@@ -22,6 +22,7 @@ export function useLogout() {
 
       // Redirect
       navigate("/login");
+
     } catch (error) {
       console.error("Logout failed:", error);
     }
