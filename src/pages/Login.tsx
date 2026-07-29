@@ -33,7 +33,9 @@ export default function Login() {
     const role = localStorage.getItem("role");
 
     if (token) {
-      if (role === "1") {
+      if (role === "0") {
+        navigate("/admin/dashboard");
+      } else if (role === "1") {
         navigate("/candidate/dashboard");
       } else if (role === "2") {
         navigate("/employer");
@@ -76,7 +78,12 @@ export default function Login() {
         title: "Login Successful",
         description: response.data.message || "Welcome back!",
       });
-      if (role == "1") {
+      if (role == "0") {
+        localStorage.setItem("token", token);
+        // localStorage.setItem("candidate_name", candidateName);
+        localStorage.setItem("role", role);
+        window.location.href = "/admin/dashboard";
+      } else if (role == "1") {
         localStorage.setItem("token", token);
         // localStorage.setItem("candidate_name", candidateName);
         localStorage.setItem("role", role);

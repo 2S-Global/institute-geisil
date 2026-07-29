@@ -193,10 +193,13 @@ const App = () => {
               <Route
                 path="/admin/*"
                 element={
-                  <Routes>
-                    <Route path="/dashboard" element={<AdminDashboard />} />
-                    <Route path="/employers" element={<AdminListCompany />} />
-                  </Routes>
+                  <ProtectedRoute role="0">
+                    <Routes>
+                      <Route path="/dashboard" element={<AdminDashboard />} />
+                      <Route path="/employers" element={<AdminListCompany />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </ProtectedRoute>
                 }
               />
 

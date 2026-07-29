@@ -36,33 +36,39 @@ export function UserMenu() {
 
   // dashboard path
   const dashboardPath =
-    role === "1"
-      ? "/candidate/dashboard"
-      : role === "2"
-        ? "/employer/dashboard"
-        : role === "3"
-          ? "/institute/dashboard"
-          : "/";
+    role === "0"
+      ? "/admin/dashboard"
+      : role === "1"
+        ? "/candidate/dashboard"
+        : role === "2"
+          ? "/employer/dashboard"
+          : role === "3"
+            ? "/institute/dashboard"
+            : "/";
 
   // settings path
   const settingsPath =
-    role === "1"
-      ? "/candidate/settings"
-      : role === "2"
-        ? "/employer/settings"
-        : role === "3"
-          ? "/institute/settings"
-          : "/";
+    role === "0"
+      ? "/admin/settings"
+      : role === "1"
+        ? "/candidate/settings"
+        : role === "2"
+          ? "/employer/settings"
+          : role === "3"
+            ? "/institute/settings"
+            : "/";
 
   // role label
   const roleLabel =
-    role === "1"
-      ? "Candidate"
-      : role === "2"
-        ? "Employer"
-        : role === "3"
-          ? "Institute"
-          : "User";
+    role === "0"
+      ? "Admin"
+      : role === "1"
+        ? "Candidate"
+        : role === "2"
+          ? "Employer"
+          : role === "3"
+            ? "Institute"
+            : "User";
 
   return (
     <>
