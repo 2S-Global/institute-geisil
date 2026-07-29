@@ -31,6 +31,14 @@ const KycSection = ({ show, onClose, data = {}, setRefresh }) => {
 
   const { toast } = useToast();
 
+  const maskNumber = (numStr) => {
+    if (!numStr) return "";
+    const str = String(numStr).trim();
+    if (str.length <= 4) return str;
+    const lastFour = str.slice(-4);
+    const maskedPortion = "X".repeat(str.length - 4);
+    return `${maskedPortion}${lastFour}`;
+  };
   useEffect(() => {
     if (reload) {
       FetchData();
@@ -188,8 +196,10 @@ const KycSection = ({ show, onClose, data = {}, setRefresh }) => {
                         {userdata.pan_name}
                       </div>
                       <div>
-                        <span className="font-medium text-slate-700">PAN Number:</span>{" "}
-                        {userdata.pan_number}
+                        <span className="font-medium text-slate-700">
+                          PAN Number:
+                        </span>{" "}
+                        {maskNumber(userdata.pan_number)}
                       </div>
                     </div>
                   ) : (
@@ -235,7 +245,7 @@ const KycSection = ({ show, onClose, data = {}, setRefresh }) => {
                         <span className="font-medium text-slate-700">
                           DL Number:
                         </span>{" "}
-                        {userdata.dl_number}
+                        {maskNumber(userdata.dl_number)}
                       </div>
                     </div>
                   ) : (
@@ -281,7 +291,7 @@ const KycSection = ({ show, onClose, data = {}, setRefresh }) => {
                         <span className="font-medium text-slate-700">
                           EPIC Number:
                         </span>{" "}
-                        {userdata.epic_number}
+                        {maskNumber(userdata.epic_number)}
                       </div>
                     </div>
                   ) : (
