@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import API from "../../../lib/axios";
 import Cropper from "react-easy-crop";
-
+import { useAuth } from "../../context/AuthContext.tsx";
 import {
   Dialog,
   DialogContent,
@@ -20,7 +20,7 @@ const FormModal = ({ show, onClose, setRefresh, imageSrc }) => {
   const [selectedImage, setSelectedImage] = useState(
     imageSrc || "/images/resource/no_user.png",
   );
-
+  const { setrefresh } = useAuth();
   const {
     removeImage,
     isLoading: isLoadingRemove,
@@ -107,6 +107,11 @@ const FormModal = ({ show, onClose, setRefresh, imageSrc }) => {
       setSelectedImage(imageUrl);
       onClose();
       setSuccess(response.data.message || "Image uploaded successfully");
+      if (response?.data?.profilePicture) {
+        localStorage.setItem("profilePicture", response.data.profilePicture);
+        //window.location.reload();
+        setrefresh((p) => p + 1);
+      }
 
       setRefresh((v) => v + 1);
 

@@ -87,12 +87,7 @@ const CertificateMain = ({ setReload, list = [], setError, setSuccess }) => {
             Add details of certifications you have completed
           </p>
         </div>
-        <Button
-          size="sm"
-          
-          
-          onClick={openModal}
-        >
+        <Button size="sm" onClick={openModal}>
           <Plus className="h-4 w-4" /> Add Certifications
         </Button>
       </div>
@@ -106,20 +101,23 @@ const CertificateMain = ({ setReload, list = [], setError, setSuccess }) => {
                   <Award className="h-5 w-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p
-                    className="font-medium text-sm truncate"
-                    title={item.title}
-                  >
-                    {item?.title?.length > 30
-                      ? `${item?.title.slice(0, 30)}...`
-                      : item.title}
+                  <div className="flex justify-between">
+                    <p
+                      className="font-medium text-sm truncate"
+                      title={item.title}
+                    >
+                      {item?.title?.length > 30
+                        ? `${item?.title.slice(0, 30)}...`
+                        : item.title}
+                    </p>
                     <button
                       onClick={() => openModal(item)}
                       className="rounded-md p-1 hover:bg-muted transition-colors"
                     >
                       <Pencil className="h-4 w-4" />
                     </button>
-                  </p>
+                  </div>
+
                   <p className="text-xs text-muted-foreground">
                     <span>
                       <strong>Valid from:</strong>{" "}
