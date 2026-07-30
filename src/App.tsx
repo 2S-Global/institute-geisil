@@ -80,7 +80,9 @@ import Register from "./pages/Register.tsx";
 import Contact from "./pages/Contact.tsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.tsx";
 import AdminListCompany from "./pages/admin/AdminListCompany.tsx";
+import VerificationCms from "./pages/admin/VerificationCms.tsx";
 import Home from "./pages/Home.tsx";
+import WhyGEISIL from "./components/admin/WhyGEISIL/WhyGEISIL.tsx";
 const queryClient = new QueryClient();
 const App = () => {
   const [profile, setProfile] = useState();
@@ -197,6 +199,12 @@ const App = () => {
                     <Routes>
                       <Route path="/dashboard" element={<AdminDashboard />} />
                       <Route path="/employers" element={<AdminListCompany />} />
+                      <Route
+                        path="/verification"
+                        element={<VerificationCms />}
+                      />
+                      <Route path="/whygeisil" element={<WhyGEISIL />} />
+
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </ProtectedRoute>

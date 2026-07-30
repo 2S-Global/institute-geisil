@@ -13,6 +13,8 @@ import {
   LogOut,
   CreditCard,
   MessageSquare,
+  FileText,
+  ChevronRight,
 } from "lucide-react";
 import {
   Sidebar,
@@ -25,25 +27,42 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+
 
 const main = [
   { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard },
-  { title: "Candidates", url: "/admin/candidates", icon: Users },
-  { title: "Employers", url: "/admin/employers", icon: Briefcase },
-  { title: "Institutes", url: "/admin/institutes", icon: GraduationCap },
-  { title: "Jobs", url: "/admin/jobs", icon: ClipboardList },
-  { title: "Applications", url: "/admin/applications", icon: Building2 },
+  // { title: "Candidates", url: "/admin/candidates", icon: Users },
+  // { title: "Employers", url: "/admin/employers", icon: Briefcase },
+  // { title: "Institutes", url: "/admin/institutes", icon: GraduationCap },
+  // { title: "Jobs", url: "/admin/jobs", icon: ClipboardList },
+  // { title: "Applications", url: "/admin/applications", icon: Building2 },
 ];
 
 const manage = [
-  { title: "Payments", url: "/admin/payments", icon: CreditCard },
-  { title: "Reports", url: "/admin/reports", icon: FileBarChart },
-  { title: "Notifications", url: "/admin/notifications", icon: Bell },
-  { title: "Messages", url: "/admin/messages", icon: MessageSquare },
-  { title: "Roles & Access", url: "/admin/roles", icon: Shield },
+  // { title: "Payments", url: "/admin/payments", icon: CreditCard },
+  // { title: "Reports", url: "/admin/reports", icon: FileBarChart },
+  // { title: "Notifications", url: "/admin/notifications", icon: Bell },
+  // { title: "Messages", url: "/admin/messages", icon: MessageSquare },
+  // { title: "Roles & Access", url: "/admin/roles", icon: Shield },
   { title: "Settings", url: "/admin/settings", icon: Settings },
+];
+
+const cms = [
+  // { title: "Pages", url: "/admin/cms/pages" },
+  // { title: "Blogs", url: "/admin/cms/blogs" },
+  // { title: "Banners", url: "/admin/cms/banners" },
+  { title: "Verification Simplified", url: "/admin/verification" }, 
+   { title: "Why GEISIL", url: "/admin/whygeisil" },
 ];
 
 export function AdminSidebar() {
@@ -51,6 +70,7 @@ export function AdminSidebar() {
   const collapsed = state === "collapsed";
   const { pathname } = useLocation();
   const isActive = (path: string) => pathname === path || pathname.startsWith(path + "/");
+  const isCmsActive = cms.some((item) => isActive(item.url));
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
@@ -105,6 +125,39 @@ export function AdminSidebar() {
           )}
           <SidebarGroupContent>
             <SidebarMenu>
+              {/* Added Collapsible CMS Menu */}
+              <Collapsible defaultOpen={isCmsActive} className="group/collapsible">
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton
+                      isActive={isCmsActive}
+                      className="w-full flex items-center justify-between text-sidebar-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground rounded-md transition-colors data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground"
+                    >
+                      <div className="flex items-center gap-3">
+                        <FileText className="h-[18px] w-[18px] shrink-0" />
+                        {!collapsed && <span className="truncate">CMS</span>}
+                      </div>
+                      {!collapsed && (
+                        <ChevronRight className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                      )}
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {cms.map((subItem) => (
+                        <SidebarMenuSubItem key={subItem.title}>
+                          <SidebarMenuSubButton asChild isActive={isActive(subItem.url)}>
+                            <NavLink to={subItem.url}>
+                              <span>{subItem.title}</span>
+                            </NavLink>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
+
               {manage.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
