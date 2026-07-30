@@ -109,7 +109,10 @@ const PersonalSection = ({ setRefresh }) => {
             <CardTitle className="text-base sm:text-lg">
               Personal Details
             </CardTitle>
-            <CardDescription></CardDescription>
+            <CardDescription>
+              {" "}
+              This information helps employers know you better.
+            </CardDescription>
           </div>
 
           {hasPersonalData ? (
