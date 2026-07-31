@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import API from "../../../lib/axios";
@@ -141,9 +140,18 @@ const AcademicSection = ({ setRefresh = () => {} }) => {
       }
       return onlyLevels("10th standard", "12th standard");
     } else if (has10th) {
-      return onlyLevels("10th standard");
-    } else if (has12th) {
-      return onlyLevels("12th standard");
+      return onlyLevels(
+        "10th standard",
+        "postgraduate",
+        "post graduate",
+        "post graduation",
+        "under graduate",
+        "graduation",
+        "undergraduate",
+        "doctorate/phd",
+        "doctorate",
+        "phd",
+      );
     } else {
       return onlyLevels(
         "12th standard",

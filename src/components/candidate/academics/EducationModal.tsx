@@ -260,26 +260,41 @@ const EducationModal = ({
       allLevels.filter((level) => !labels.includes(getLevelLabel(level)));
 
     if (has10th && has12th) {
-    if (!hasUndergraduate
-    ){
-      return onlyLevels( "10th standard", "12th standard","postgraduate",
-        "post graduate",
-        "post graduation","doctorate/phd",
-        "doctorate",
-        "phd");
-    }else if (!hasPostgraduate
-    ){
-      return onlyLevels( "10th standard", "12th standard","doctorate/phd",
-        "doctorate",
-        "phd");
-    }
+      if (!hasUndergraduate) {
+        return onlyLevels(
+          "10th standard",
+          "12th standard",
+          "postgraduate",
+          "post graduate",
+          "post graduation",
+          "doctorate/phd",
+          "doctorate",
+          "phd",
+        );
+      } else if (!hasPostgraduate) {
+        return onlyLevels(
+          "10th standard",
+          "12th standard",
+          "doctorate/phd",
+          "doctorate",
+          "phd",
+        );
+      }
       return onlyLevels("10th standard", "12th standard");
     } else if (has10th) {
-      return onlyLevels("10th standard");
-    } else if (has12th) {
-      return onlyLevels("12th standard");
-    }
-     else {
+      return onlyLevels(
+        "10th standard",
+        "postgraduate",
+        "post graduate",
+        "post graduation",
+        "under graduate",
+        "graduation",
+        "undergraduate",
+        "doctorate/phd",
+        "doctorate",
+        "phd",
+      );
+    } else {
       return onlyLevels(
         "12th standard",
         "postgraduate",
