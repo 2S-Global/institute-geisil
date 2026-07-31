@@ -93,7 +93,7 @@ const VerificationSimplified: React.FC = () => {
       if (editingItem) {
         await API.patch(
           `/api/verification-services/update-service/${editingItem._id}`,
-          formData, // <-- Must include formData.iconColor
+          formData, 
         );
         toast({
           title: "Success",
@@ -180,7 +180,7 @@ const VerificationSimplified: React.FC = () => {
         </div>
       )}
 
-      {/* Cards Grid / Loading State / Empty State */}
+     
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3].map((index) => (
@@ -219,15 +219,18 @@ const VerificationSimplified: React.FC = () => {
         </div>
       )}
 
-      {/* Form Dialog */}
+      
       <VerificationFormDialog
         open={isFormOpen}
         onOpenChange={setIsFormOpen}
-        editingItem={editingItem}
+        editingItem={editingItem as any}
         submitting={submitting}
         onSubmit={handleSubmit}
+        addTitle="Add Verification Simplified Card"
+        editTitle="Edit Verification Simplified Card"
+        dialogDescription="Customize the text, brand colors, and iconography for the card."
+        badgeLabel="Why GEISIL"
       />
-
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent className="sm:max-w-[400px]">
@@ -263,5 +266,3 @@ const VerificationSimplified: React.FC = () => {
 };
 
 export default VerificationSimplified;
-
-

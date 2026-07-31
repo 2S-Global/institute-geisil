@@ -13,7 +13,7 @@ export const DynamicIcon: React.FC<DynamicIconProps> = ({
   color = "#059669",
   className = "h-7 w-7",
 }) => {
-  // 1. Fallback if icon prop is missing or empty
+  
   if (!icon || !icon.trim()) {
     return <CheckCircle className={className} style={{ color }} />;
   }
