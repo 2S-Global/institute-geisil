@@ -83,6 +83,7 @@ import AdminListCompany from "./pages/admin/AdminListCompany.tsx";
 import VerificationCms from "./pages/admin/VerificationCms.tsx";
 import Home from "./pages/Home.tsx";
 import WhyGEISIL from "./components/admin/WhyGEISIL/WhyGEISIL.tsx";
+import ManageBanners from "./pages/admin/ManageBanners.tsx";
 const queryClient = new QueryClient();
 const App = () => {
   const [profile, setProfile] = useState();
@@ -204,6 +205,7 @@ const App = () => {
                         element={<VerificationCms />}
                       />
                       <Route path="/whygeisil" element={<WhyGEISIL />} />
+                      <Route path="/banners" element={<ManageBanners />} />
 
                       <Route path="*" element={<NotFound />} />
                     </Routes>

@@ -1,5 +1,3 @@
-
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -75,7 +73,7 @@ export const VerificationCard: React.FC<VerificationCardProps> = ({
     </CardHeader>
 
     <CardContent className="p-0">
-      <CardDescription className="text-slate-500 text-sm leading-relaxed break-words whitespace-pre-wrap">
+      <CardDescription className="text-slate-500 text-sm text-justify leading-relaxed break-words whitespace-pre-wrap">
         {item.description}
       </CardDescription>
     </CardContent>
