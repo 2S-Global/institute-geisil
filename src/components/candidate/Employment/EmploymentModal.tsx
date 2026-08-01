@@ -98,7 +98,6 @@ export const EmploymentModal = ({
 
   const debouncedCompanyName = useDebounce(watchCompanyName, 300);
 
-  // Sorting profiles array using custom priority logic
   const sortedProfiles = useMemo(() => {
     if (!profiles || !Array.isArray(profiles)) return [];
     return [...profiles].sort((a, b) => {
@@ -235,19 +234,19 @@ export const EmploymentModal = ({
       const joinDate =
         editData.joining_year && editData.joining_month
           ? new Date(
-            parseInt(editData.joining_year, 10),
-            parseInt(editData.joining_month, 10) - 1,
-            1,
-          )
+              parseInt(editData.joining_year, 10),
+              parseInt(editData.joining_month, 10) - 1,
+              1,
+            )
           : null;
 
       const leaveDate =
         editData.leaving_year && editData.leaving_month
           ? new Date(
-            parseInt(editData.leaving_year, 10),
-            parseInt(editData.leaving_month, 10) - 1,
-            1,
-          )
+              parseInt(editData.leaving_year, 10),
+              parseInt(editData.leaving_month, 10) - 1,
+              1,
+            )
           : null;
 
       setIsDropdownSelect(true);
@@ -587,6 +586,12 @@ export const EmploymentModal = ({
 
   // 3. DELETE EMPLOYMENT API
   const handleDelete = async () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this employment record?",
+    );
+
+    if (!confirmed) return;
+
     try {
       const response = await API.delete(
         "/api/candidate/employment/delete_employment",
@@ -605,9 +610,8 @@ export const EmploymentModal = ({
         });
 
         if (onRefresh) onRefresh();
-        onClose(); // Close modal first
+        onClose();
 
-        // 💡 SINGLE trigger with brief delay
         setTimeout(() => {
           if (typeof setRefresh === "function") {
             setRefresh((prev) => prev + 1);
@@ -620,7 +624,7 @@ export const EmploymentModal = ({
           description: backendMsg,
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       const errorMsg =
         error.response?.data?.message ||
         error.response?.data?.msg ||
@@ -635,7 +639,6 @@ export const EmploymentModal = ({
       });
     }
   };
-
   return (
     <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <Dialog.Portal>
@@ -833,9 +836,7 @@ export const EmploymentModal = ({
                         const rawValue = e.target.value;
                         const titleCasedValue = rawValue.replace(
                           /\w\S*/g,
-                          (txt) =>
-                            txt.charAt(0).toUpperCase() +
-                            txt.slice(1),
+                          (txt) => txt.charAt(0).toUpperCase() + txt.slice(1),
                         );
 
                         // Mutate current input element value so cursor position stays synced
@@ -856,7 +857,7 @@ export const EmploymentModal = ({
                       className={cn(
                         "w-full bg-slate-50 text-sm text-slate-800 placeholder-slate-400 rounded-lg px-3.5 py-2.5 pr-10 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 transition-all",
                         errors.companyName &&
-                        "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+                          "border-red-500 focus:border-red-500 focus:ring-red-500/20",
                       )}
                     />
                     <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-slate-400 space-x-1">
@@ -915,7 +916,7 @@ export const EmploymentModal = ({
                     className={cn(
                       "w-full bg-slate-50 text-sm text-slate-800 placeholder-slate-400 rounded-lg px-3.5 py-2.5 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 transition-all",
                       errors.jobTitle &&
-                      "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+                        "border-red-500 focus:border-red-500 focus:ring-red-500/20",
                     )}
                   />
                 )}
@@ -948,7 +949,7 @@ export const EmploymentModal = ({
                       className={cn(
                         "flex items-center justify-between w-full bg-slate-50 text-sm text-slate-800 rounded-lg px-3 py-2 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 transition-all h-[42px]",
                         errors.joiningDate &&
-                        "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+                          "border-red-500 focus:border-red-500 focus:ring-red-500/20",
                         !watchJoiningDate && "text-slate-400",
                       )}
                     >
@@ -993,7 +994,7 @@ export const EmploymentModal = ({
                       className={cn(
                         "flex items-center justify-between w-full bg-slate-50 text-sm text-slate-800 rounded-lg px-3 py-2 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 transition-all h-[42px]",
                         errors.joiningDate &&
-                        "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+                          "border-red-500 focus:border-red-500 focus:ring-red-500/20",
                         !watchJoiningDate && "text-slate-400",
                       )}
                     >
@@ -1056,7 +1057,7 @@ export const EmploymentModal = ({
                         className={cn(
                           "flex items-center justify-between w-full bg-slate-50 text-sm text-slate-800 rounded-lg px-3 py-2 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 transition-all h-[42px]",
                           errors.leavingDate &&
-                          "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+                            "border-red-500 focus:border-red-500 focus:ring-red-500/20",
                           !watchLeavingDate && "text-slate-400",
                         )}
                       >
@@ -1110,7 +1111,7 @@ export const EmploymentModal = ({
                         className={cn(
                           "flex items-center justify-between w-full bg-slate-50 text-sm text-slate-800 rounded-lg px-3 py-2 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 transition-all h-[42px]",
                           errors.leavingDate &&
-                          "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+                            "border-red-500 focus:border-red-500 focus:ring-red-500/20",
                           !watchLeavingDate && "text-slate-400",
                         )}
                       >
@@ -1162,7 +1163,7 @@ export const EmploymentModal = ({
                           className={cn(
                             "flex items-center justify-between w-full bg-slate-50 text-sm text-slate-800 rounded-lg px-3.5 py-2.5 border border-slate-200 focus:outline-none focus:bg-white focus:border-[#122B5F] focus:ring-2 focus:ring-[#122B5F]/20 disabled:opacity-60 transition-all h-[42px]",
                             errors.noticePeriod &&
-                            "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+                              "border-red-500 focus:border-red-500 focus:ring-red-500/20",
                             !field.value && "text-slate-400",
                           )}
                         >
