@@ -86,7 +86,10 @@ export default function CandidateAppliedJobs() {
   const { loading, error, data, refetch } = useGetAppliedJobs();
 
   // Offer accept / reject Function
-  const handleAcceptRejectOffer = async (applicationId: string, accept: boolean) => {
+  const handleAcceptRejectOffer = async (
+    applicationId: string,
+    accept: boolean,
+  ) => {
     try {
       setActionLoadingId(applicationId);
       await acceptRejectOffer(applicationId, accept);
@@ -99,7 +102,10 @@ export default function CandidateAppliedJobs() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: err.response?.data?.message || err.message || "Failed to update offer status.",
+        description:
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to update offer status.",
       });
     } finally {
       setActionLoadingId(null);
@@ -107,7 +113,11 @@ export default function CandidateAppliedJobs() {
   };
 
   // Interview accept / reject Function
-  const handleAcceptRejectInterview = async (applicationId: string, jobId: string, accept: boolean) => {
+  const handleAcceptRejectInterview = async (
+    applicationId: string,
+    jobId: string,
+    accept: boolean,
+  ) => {
     try {
       setActionLoadingId(applicationId);
       await acceptInterview(applicationId, jobId, accept);
@@ -120,7 +130,10 @@ export default function CandidateAppliedJobs() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: err.response?.data?.message || err.message || "Failed to update interview status.",
+        description:
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to update interview status.",
       });
     } finally {
       setActionLoadingId(null);
@@ -135,10 +148,23 @@ export default function CandidateAppliedJobs() {
       const s = app.status?.toLowerCase();
 
       if (s === "applied") status = "Applied";
-      else if (s === "in review" || s === "in_review" || s === "under review" || s === "under_review") status = "In Review";
+      else if (
+        s === "in review" ||
+        s === "in_review" ||
+        s === "under review" ||
+        s === "under_review"
+      )
+        status = "In Review";
       else if (s === "shortlisted") status = "Shortlisted";
-      else if (s === "interview" || s === "invitation_sent") status = "Interview";
-      else if (s === "offered" || s === "offer" || s === "offer_sent" || s === "offer_letter_sent") status = "Offered";
+      else if (s === "interview" || s === "invitation_sent")
+        status = "Interview";
+      else if (
+        s === "offered" ||
+        s === "offer" ||
+        s === "offer_sent" ||
+        s === "offer_letter_sent"
+      )
+        status = "Offered";
       else if (s === "rejected") status = "Rejected";
       else if (s === "offer_letter_accepted") status = "Offer Accepted";
       else if (s === "offer_letter_rejected") status = "Offer Rejected";
@@ -183,9 +209,12 @@ export default function CandidateAppliedJobs() {
       const rawLocation = app.jobId?.jobLocationType;
       let locationStr = "-";
       if (Array.isArray(rawLocation) && rawLocation.length > 0) {
-        locationStr = rawLocation.map((loc: string) => loc.charAt(0).toUpperCase() + loc.slice(1)).join(", ");
+        locationStr = rawLocation
+          .map((loc: string) => loc.charAt(0).toUpperCase() + loc.slice(1))
+          .join(", ");
       } else if (typeof rawLocation === "string" && rawLocation.length > 0) {
-        locationStr = rawLocation.charAt(0).toUpperCase() + rawLocation.slice(1);
+        locationStr =
+          rawLocation.charAt(0).toUpperCase() + rawLocation.slice(1);
       }
 
       return {
@@ -193,7 +222,9 @@ export default function CandidateAppliedJobs() {
         jobId: app.jobId?._id || "",
         title: app.jobId?.jobTitle || "-",
         company: company,
-        logo: app.jobId?.userId?.companyLogo || company.substring(0, 2).toUpperCase(),
+        logo:
+          app.jobId?.userId?.companyLogo ||
+          company.substring(0, 2).toUpperCase(),
         location: locationStr,
         type: app.jobId?.jobExperienceLevel || "Full-time",
         salary: salaryStr,
@@ -202,7 +233,9 @@ export default function CandidateAppliedJobs() {
         match: app.match || 0,
         nextStep: app.nextStep || undefined,
         interviewInvitationStatus: app.interviewInvitationStatus || "pending",
-        interviewDate: app.interviewDate ? formatDate(app.interviewDate) : undefined,
+        interviewDate: app.interviewDate
+          ? formatDate(app.interviewDate)
+          : undefined,
         interviewTime: app.interviewTime || undefined,
       };
     });
@@ -211,7 +244,10 @@ export default function CandidateAppliedJobs() {
   const counts = useMemo(() => {
     const c: Record<string, number> = { All: jobs.length };
     jobs.forEach((j) => (c[j.status] = (c[j.status] || 0) + 1));
-    c["Offered"] = (c["Offered"] || 0) + (c["Offer Accepted"] || 0) + (c["Offer Rejected"] || 0);
+    c["Offered"] =
+      (c["Offered"] || 0) +
+      (c["Offer Accepted"] || 0) +
+      (c["Offer Rejected"] || 0);
     return c;
   }, [jobs]);
 
@@ -219,7 +255,11 @@ export default function CandidateAppliedJobs() {
     let list = jobs.filter((j) => {
       if (tab === "All") return true;
       if (tab === "Offered") {
-        return j.status === "Offered" || j.status === "Offer Accepted" || j.status === "Offer Rejected";
+        return (
+          j.status === "Offered" ||
+          j.status === "Offer Accepted" ||
+          j.status === "Offer Rejected"
+        );
       }
       return j.status === tab;
     });
@@ -229,15 +269,21 @@ export default function CandidateAppliedJobs() {
         (j) =>
           j.title.toLowerCase().includes(q) ||
           j.company.toLowerCase().includes(q) ||
-          j.location.toLowerCase().includes(q)
+          j.location.toLowerCase().includes(q),
       );
     }
-    if (sort === "match") list = [...list].sort((a, b) => (b.match || 0) - (a.match || 0));
+    if (sort === "match")
+      list = [...list].sort((a, b) => (b.match || 0) - (a.match || 0));
     return list;
   }, [tab, query, sort, jobs]);
 
   const stats = [
-    { label: "Total Applied", value: jobs.length, icon: Briefcase, tint: "text-primary bg-primary/10" },
+    {
+      label: "Total Applied",
+      value: jobs.length,
+      icon: Briefcase,
+      tint: "text-primary bg-primary/10",
+    },
     {
       label: "In Process",
       value: (counts["Shortlisted"] || 0) + (counts["Interview"] || 0),
@@ -267,7 +313,9 @@ export default function CandidateAppliedJobs() {
       <CandidateLayout>
         <div className="flex flex-col items-center justify-center min-h-[400px] gap-2">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          <p className="text-sm text-muted-foreground">Loading applied jobs...</p>
+          <p className="text-sm text-muted-foreground">
+            Loading applied jobs...
+          </p>
         </div>
       </CandidateLayout>
     );
@@ -277,7 +325,9 @@ export default function CandidateAppliedJobs() {
     return (
       <CandidateLayout>
         <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-          <p className="text-destructive font-medium">Failed to load applied jobs.</p>
+          <p className="text-destructive font-medium">
+            Failed to load applied jobs.
+          </p>
           <Button onClick={() => window.location.reload()}>Retry</Button>
         </div>
       </CandidateLayout>
@@ -309,12 +359,16 @@ export default function CandidateAppliedJobs() {
           {stats.map((s) => (
             <Card key={s.label}>
               <CardContent className="p-4 flex items-center gap-3">
-                <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${s.tint}`}>
+                <div
+                  className={`h-10 w-10 rounded-lg flex items-center justify-center ${s.tint}`}
+                >
                   <s.icon className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">{s.label}</p>
-                  <p className="text-xl font-semibold text-foreground leading-tight">{s.value}</p>
+                  <p className="text-xl font-semibold text-foreground leading-tight">
+                    {s.value}
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -371,17 +425,60 @@ export default function CandidateAppliedJobs() {
         {/* List */}
         <div className="space-y-3">
           {filtered.length === 0 ? (
+            // <NoData
+            //   title="No applications found"
+            //   description="Try adjusting your filters or browse new jobs."
+            //   className="border border-border bg-card rounded-xl p-12"
+            // />
+
             <NoData
-              title="No applications found"
-              description="Try adjusting your filters or browse new jobs."
+              title={
+                query.trim()
+                  ? `No "${query}" Found`
+                  : tab === "All"
+                    ? "No Applications Found"
+                    : tab === "Applied"
+                      ? "No Applied Jobs Found"
+                      : tab === "Shortlisted"
+                        ? "No Shortlisted Candidates Found"
+                        : tab === "Interview"
+                          ? "No Interview Schedules Found"
+                          : tab === "Offered"
+                            ? "No Job Offers Found"
+                            : tab === "Rejected"
+                              ? "No Rejected Applications Found"
+                              : `No ${tab} Found`
+              }
+              description={
+                query.trim()
+                  ? "Check your spelling or try a different search word."
+                  : tab === "All"
+                    ? "You haven't applied for any jobs yet."
+                    : tab === "Applied"
+                      ? "You have not submitted any job applications yet."
+                      : tab === "Shortlisted"
+                        ? "You don't have any shortlisted applications at the moment."
+                        : tab === "Interview"
+                          ? "You have no upcoming or past interviews scheduled right now."
+                          : tab === "Offered"
+                            ? "You haven't received any job offers yet."
+                            : tab === "Rejected"
+                              ? "You have no rejected applications."
+                              : `You currently have no applications under the ${tab} status.`
+              }
               className="border border-border bg-card rounded-xl p-12"
             />
           ) : (
             filtered.map((j) => {
-              const meta = statusMeta[j.status as Status] || { icon: Briefcase, color: "bg-gray-100 text-gray-800" };
+              const meta = statusMeta[j.status as Status] || {
+                icon: Briefcase,
+                color: "bg-gray-100 text-gray-800",
+              };
               const StatusIcon = meta.icon;
 
-              const showInterviewActions = j.status === "Interview" && j.interviewInvitationStatus === "pending";
+              const showInterviewActions =
+                j.status === "Interview" &&
+                j.interviewInvitationStatus === "pending";
               const showOfferActions = j.status === "Offered";
 
               return (
@@ -402,7 +499,9 @@ export default function CandidateAppliedJobs() {
 
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="font-semibold text-foreground truncate">{j.title}</h3>
+                          <h3 className="font-semibold text-foreground truncate">
+                            {j.title}
+                          </h3>
                           <Badge
                             variant="outline"
                             className={`gap-1 font-medium ${meta.color}`}
@@ -428,7 +527,8 @@ export default function CandidateAppliedJobs() {
                             {j.salary}
                           </span>
                           <span className="flex items-center gap-1">
-                            <Clock className="h-3.5 w-3.5" /> Applied {j.appliedOn}
+                            <Clock className="h-3.5 w-3.5" /> Applied{" "}
+                            {j.appliedOn}
                           </span>
                         </div>
                         {j.nextStep && (
@@ -440,13 +540,19 @@ export default function CandidateAppliedJobs() {
                         {(j.interviewDate || j.interviewTime) && (
                           <div className="mt-2 ml-2 inline-flex items-center gap-1.5 text-xs font-medium text-purple-600 bg-purple-500/10 px-2 py-1 rounded-md">
                             <CalendarCheck className="h-3.5 w-3.5" />
-                            Interview: {j.interviewDate || ""}{j.interviewTime ? ` at ${j.interviewTime}` : ""}
+                            Interview: {j.interviewDate || ""}
+                            {j.interviewTime ? ` at ${j.interviewTime}` : ""}
                           </div>
                         )}
                       </div>
 
                       <div className="flex items-center gap-2 md:flex-col md:items-end">
-                        <Button size="sm" variant="outline" className="gap-2" asChild>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="gap-2"
+                          asChild
+                        >
                           <Link to={`/candidate/applied-jobs/${j.jobId}`}>
                             <Eye className="h-4 w-4" /> View
                           </Link>
@@ -454,12 +560,19 @@ export default function CandidateAppliedJobs() {
                         <div className="flex items-center gap-1">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button size="icon" variant="ghost" disabled={actionLoadingId === j.id}>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                disabled={actionLoadingId === j.id}
+                              >
                                 <MoreVertical className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-48">
-                              <DropdownMenuItem className="cursor-pointer" asChild>
+                              <DropdownMenuItem
+                                className="cursor-pointer"
+                                asChild
+                              >
                                 <Link to={`/candidate/jobs/${j.jobId}`}>
                                   <ExternalLink className="h-4 w-4 mr-2" />
                                   Open Job
@@ -469,12 +582,22 @@ export default function CandidateAppliedJobs() {
                               {/* Conditional Offer Actions */}
                               {showOfferActions && (
                                 <>
-                                  <DropdownMenuItem className="cursor-pointer" onClick={() => handleAcceptRejectOffer(j.id, true)}>
+                                  <DropdownMenuItem
+                                    className="cursor-pointer"
+                                    onClick={() =>
+                                      handleAcceptRejectOffer(j.id, true)
+                                    }
+                                  >
                                     <CheckCircle2 className="h-4 w-4 mr-2 text-green-600" />
                                     Accept Offer
                                   </DropdownMenuItem>
 
-                                  <DropdownMenuItem className="cursor-pointer" onClick={() => handleAcceptRejectOffer(j.id, false)}>
+                                  <DropdownMenuItem
+                                    className="cursor-pointer"
+                                    onClick={() =>
+                                      handleAcceptRejectOffer(j.id, false)
+                                    }
+                                  >
                                     <XCircle className="h-4 w-4 mr-2 text-red-600" />
                                     Reject Offer
                                   </DropdownMenuItem>
@@ -484,12 +607,30 @@ export default function CandidateAppliedJobs() {
                               {/* Conditional Interview Actions */}
                               {showInterviewActions && (
                                 <>
-                                  <DropdownMenuItem className="cursor-pointer" onClick={() => handleAcceptRejectInterview(j.id, j.jobId, true)}>
+                                  <DropdownMenuItem
+                                    className="cursor-pointer"
+                                    onClick={() =>
+                                      handleAcceptRejectInterview(
+                                        j.id,
+                                        j.jobId,
+                                        true,
+                                      )
+                                    }
+                                  >
                                     <CalendarCheck className="h-4 w-4 mr-2 text-green-600" />
                                     Accept Interview
                                   </DropdownMenuItem>
 
-                                  <DropdownMenuItem className="cursor-pointer" onClick={() => handleAcceptRejectInterview(j.id, j.jobId, false)}>
+                                  <DropdownMenuItem
+                                    className="cursor-pointer"
+                                    onClick={() =>
+                                      handleAcceptRejectInterview(
+                                        j.id,
+                                        j.jobId,
+                                        false,
+                                      )
+                                    }
+                                  >
                                     <CalendarX2 className="h-4 w-4 mr-2 text-red-600" />
                                     Reject Interview
                                   </DropdownMenuItem>
@@ -536,9 +677,7 @@ export default function CandidateAppliedJobs() {
       </div>
       <CandidateRescheduleModal
         open={rescheduleData.open}
-        onClose={() =>
-          setRescheduleData((prev) => ({ ...prev, open: false }))
-        }
+        onClose={() => setRescheduleData((prev) => ({ ...prev, open: false }))}
         applicationId={rescheduleData.applicationId}
         jobTitle={rescheduleData.jobTitle}
         companyName={rescheduleData.companyName}
