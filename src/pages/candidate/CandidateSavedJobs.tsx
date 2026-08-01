@@ -71,7 +71,6 @@ interface SavedJobCard {
 //   onRemove: () => void;
 // }
 
-
 export default function CandidateSavedJobs() {
   const [jobs, setJobs] = useState<SavedJobCard[]>([]);
   const [query, setQuery] = useState("");
@@ -80,13 +79,16 @@ export default function CandidateSavedJobs() {
   const [applyingJob, setApplyingJob] = useState<any | null>(null);
   const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set());
 
-  const { data, isLoading, error, fetchAllSavedJobs, totalApplied } = useGetAllSavedJobs();
+  const { data, isLoading, error, fetchAllSavedJobs, totalApplied } =
+    useGetAllSavedJobs();
   const { handleBookmark, bookmarkLoading } = useBookmarkJob();
   const { data: appliedJobs } = useGetAppliedJobs();
 
   useEffect(() => {
     if (appliedJobs && Array.isArray(appliedJobs)) {
-      setAppliedJobIds(new Set(appliedJobs.map((app: any) => app.jobId?._id).filter(Boolean)));
+      setAppliedJobIds(
+        new Set(appliedJobs.map((app: any) => app.jobId?._id).filter(Boolean)),
+      );
     }
   }, [appliedJobs]);
 
@@ -102,10 +104,7 @@ export default function CandidateSavedJobs() {
       const job = item.job ?? {};
 
       //extracted tags
-      const tags = [
-        ...(job.jobSkills ?? []),
-        ...(job.specialization ?? []),
-      ];
+      const tags = [...(job.jobSkills ?? []), ...(job.specialization ?? [])];
 
       //deadline
       const deadline = getJobDeadline(job.jobExpiryDate);
@@ -121,7 +120,7 @@ export default function CandidateSavedJobs() {
         salary: formatSalary(job.salary),
         posted: job.createdAt ? getTimeAgo(job.createdAt) : "-",
         savedOn: item.savedAt ? getTimeAgo(item.savedAt) : "-",
-        match: job.match ?? 90,//mock
+        match: job.match ?? 90, //mock
         tags,
         deadline,
         rawJob: job,
@@ -148,10 +147,18 @@ export default function CandidateSavedJobs() {
         list.sort((a, b) => b.match - a.match);
         break;
       case "salary-high":
-        list.sort((a, b) => parseInt(b.salary.replace(/\D/g, "")) - parseInt(a.salary.replace(/\D/g, "")));
+        list.sort(
+          (a, b) =>
+            parseInt(b.salary.replace(/\D/g, "")) -
+            parseInt(a.salary.replace(/\D/g, "")),
+        );
         break;
       case "salary-low":
-        list.sort((a, b) => parseInt(a.salary.replace(/\D/g, "")) - parseInt(b.salary.replace(/\D/g, "")));
+        list.sort(
+          (a, b) =>
+            parseInt(a.salary.replace(/\D/g, "")) -
+            parseInt(b.salary.replace(/\D/g, "")),
+        );
         break;
       case "deadline":
         list.sort(compareJobsByDeadline);
@@ -171,14 +178,18 @@ export default function CandidateSavedJobs() {
     },
     {
       label: "Remote Jobs",
-      value: jobs.filter((j) => j.rawJob?.jobLocationType?.toLowerCase() === "remote").length,
+      value: jobs.filter(
+        (j) => j.rawJob?.jobLocationType?.toLowerCase() === "remote",
+      ).length,
       icon: Globe,
       tint: "text-emerald-600 bg-emerald-500/10",
     },
     {
       label: "Full-Time Jobs",
       value: jobs.filter((j) =>
-        j.rawJob?.jobType?.some((t: string) => t.toLowerCase().includes("full-time"))
+        j.rawJob?.jobType?.some((t: string) =>
+          t.toLowerCase().includes("full-time"),
+        ),
       ).length,
       icon: Briefcase,
       tint: "text-amber-600 bg-amber-500/10",
@@ -212,7 +223,7 @@ export default function CandidateSavedJobs() {
             </p>
           </div>
           <Button className="gap-2">
-            <Link to={`/candidate/jobs`} >
+            <Link to={`/candidate/jobs`}>
               <Briefcase className="h-4 w-4 inline " /> Browse Jobs
             </Link>
           </Button>
@@ -223,12 +234,16 @@ export default function CandidateSavedJobs() {
           {stats.map((s) => (
             <Card key={s.label}>
               <CardContent className="p-4 flex items-center gap-3">
-                <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${s.tint}`}>
+                <div
+                  className={`h-10 w-10 rounded-lg flex items-center justify-center ${s.tint}`}
+                >
                   <s.icon className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">{s.label}</p>
-                  <p className="text-xl font-semibold text-foreground leading-tight">{s.value}</p>
+                  <p className="text-xl font-semibold text-foreground leading-tight">
+                    {s.value}
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -250,12 +265,14 @@ export default function CandidateSavedJobs() {
             <Card>
               <CardContent className="p-12 text-center">
                 <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary mb-3" />
-                <p className="text-sm text-muted-foreground">Loading saved jobs…</p>
+                <p className="text-sm text-muted-foreground">
+                  Loading saved jobs…
+                </p>
               </CardContent>
             </Card>
           ) : filtered.length === 0 ? (
             <NoData
-              title="No saved jobs found"
+              title="No Interview Found"
               description="Try adjusting your search or browse new opportunities."
               className="border border-border bg-card rounded-xl p-12"
             />

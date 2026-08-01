@@ -60,7 +60,7 @@ const manage = [
 const cms = [
   // { title: "Pages", url: "/admin/cms/pages" },
   // { title: "Blogs", url: "/admin/cms/blogs" },
-  // { title: "Banners", url: "/admin/cms/banners" },
+  { title: "Manage Banners", url: "/admin/banners" },
   { title: "Verification Simplified", url: "/admin/verification" }, 
    { title: "Why GEISIL", url: "/admin/whygeisil" },
 ];
