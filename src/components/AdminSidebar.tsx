@@ -61,6 +61,7 @@ const cms = [
   // { title: "Pages", url: "/admin/cms/pages" },
   // { title: "Blogs", url: "/admin/cms/blogs" },
   { title: "Manage Banners", url: "/admin/banners" },
+  { title: "About Page", url: "/admin/about-page" },
   { title: "Verification Simplified", url: "/admin/verification" }, 
    { title: "Why GEISIL", url: "/admin/whygeisil" },
 ];
