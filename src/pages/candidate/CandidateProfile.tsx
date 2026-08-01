@@ -70,6 +70,8 @@ import CareerProfile from "@/components/candidate/Career Profile/CareerProfile";
 import JobPreferences from "@/components/candidate/jobPreferences/JobPreferences";
 import ITSkills from "@/components/candidate/ITSkills/ITSkills";
 import OtherSkills from "@/components/candidate/Other Skills/OtherSkills";
+import TestOne from "@/components/candidate/TestOne/TestOne";
+import TestTwo from "@/components/candidate/TestTwo/TestOne";
 import ProfileStrength from "./components/ProfileStrength";
 import { useUpdateJobVisibility } from "./hooks/useUpdateJobVisibility";
 
@@ -110,7 +112,13 @@ export default function CandidateProfile() {
   const [resumeFile, setResumeFile] = useState<any>(null);
   const [resumeUrl, setResumeUrl] = useState("");
   const [uploadDate, setUploadDate] = useState("");
+
+  const [coverFile, setCoverFile] = useState<any>(null);
+  const [coverUrl, setCoverUrl] = useState("");
+  const [coverDate, setCoverDate] = useState("");
+
   const [resumeLoading, setResumeLoading] = useState(false);
+  const [coverLetterLoading, setCoverLetterLoading] = useState(false);
   const [downloadLoading, setDownloadLoading] = useState(false);
   const [downloadReportLoading, setDownloadReportLoading] = useState(false);
   const [geisilScore, setGeisilScore] = useState();
@@ -227,10 +235,42 @@ export default function CandidateProfile() {
     }
   };
 
+  const fetchCoverLetter = async () => {
+    try {
+      setCoverLetterLoading(true);
+
+      const response = await API.get("/api/candidate/resumefile/cover-letter");
+
+      if (response.data.success) {
+        const { fileName, fileUrl, updatedAt } = response.data.data;
+
+        if (fileName) {
+          setCoverFile({ name: fileName });
+          setCoverUrl(fileUrl);
+
+          const formattedDate = new Date(updatedAt).toLocaleString("en-IN", {
+            month: "short",
+            day: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+
+          setCoverDate(formattedDate);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setCoverLetterLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchProfilePic();
     FetchKyc();
     fetchResume();
+    fetchCoverLetter();
   }, []);
   useEffect(() => {
     fetchProfilePic();
@@ -303,6 +343,81 @@ export default function CandidateProfile() {
     link.click();
     document.body.removeChild(link);
   };
+
+  //cover letter
+
+  const handleCoverLetterUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    const formData = new FormData();
+
+    formData.append("file", file);
+
+    try {
+      setCoverLetterLoading(true);
+
+      await API.post("/api/candidate/resumefile/cover-letter", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      fetchCoverLetter();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setCoverLetterLoading(false);
+    }
+  };
+
+  const handleDeleteCoverLetter = async () => {
+    const result = await Swal.fire({
+      title: "Delete Resume?",
+      text: "You won't be able to recover it.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Delete",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      await API.delete("/api/candidate/resumefile/delete_resume_details");
+
+      setCoverFile(null);
+      setCoverUrl("");
+      setCoverDate("");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const handleCoverLetterDownload = () => {
+    if (!resumeUrl) return;
+
+    // Open PDF in a new tab
+    const pdfWindow = window.open("", "_blank");
+
+    if (pdfWindow) {
+      pdfWindow.location.href = resumeUrl;
+    }
+
+    // Download file separately
+    const link = document.createElement("a");
+    link.href = resumeUrl;
+    link.target = "_blank";
+    link.download = "resume.pdf";
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  //cover letter
+
   const downloadResume = async () => {
     try {
       setDownloadLoading(true);
@@ -627,6 +742,8 @@ export default function CandidateProfile() {
                 <OnlineProfileSection />
                 <AccomOnlinePresentationSection />
                 <PatentSection />
+                <TestOne />
+                <TestTwo />
                 {/*  <Card>
                   <CardHeader className="flex flex-row items-center justify-between">
                     <div>
@@ -915,6 +1032,120 @@ export default function CandidateProfile() {
                           No resume uploaded yet.
                         </div>
                       )}
+                    </div>
+                    <div className="wwwwwwwwww">
+                      <div className=" rounded-xl  bg-white shadow-sm">
+                        <div className="mb-4">
+                          <h2 className="text-lg font-semibold text-gray-900">
+                            Cover Letter
+                          </h2>
+                          <p className="mt-1 text-sm text-gray-500">
+                            Keep your latest cover letter here. Recruiters can
+                            download it instantly.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="border-2 border-dashed rounded-lg p-8 text-center bg-muted/20">
+                        <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-3" />
+                        <p className="font-medium text-sm">
+                          Drop your cover letter here
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          PDF or DOCX, up to 5 MB
+                        </p>
+                        {/* <Button size="sm" className="mt-4">
+                        Choose file
+                      </Button> */}
+                        <Button size="sm" className="mt-4" asChild>
+                          <label className="cursor-pointer">
+                            Choose file
+                            <input
+                              type="file"
+                              accept=".pdf,.doc,.docx"
+                              hidden
+                              onChange={handleCoverLetterUpload}
+                            />
+                          </label>
+                        </Button>
+                      </div>
+
+                      <div className="space-y-2 mt-3">
+                        {coverLetterLoading ? (
+                          <div className="flex items-center gap-3 rounded-md border bg-card px-3 py-2.5 animate-pulse">
+                            <Skeleton className="h-9 w-9 rounded bg-muted shrink-0" />
+                            <div className="flex-1 min-w-0 space-y-2">
+                              <Skeleton className="h-4 w-40 bg-muted" />
+                              <Skeleton className="h-3 w-24 bg-muted" />
+                            </div>
+                            <Skeleton className="h-8 w-8 rounded-full bg-muted shrink-0" />
+                            <Skeleton className="h-8 w-8 rounded-full bg-muted shrink-0" />
+                            <Skeleton className="h-8 w-8 rounded-full bg-muted shrink-0" />
+                          </div>
+                        ) : coverFile ? (
+                          <div className="flex items-center gap-3 rounded-md border bg-card px-3 py-2.5 pt-2">
+                            <div className="h-9 w-9 rounded bg-primary/10 text-primary flex items-center justify-center">
+                              <FileText className="h-4 w-4" />
+                            </div>
+
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">
+                                {coverFile.name}
+                              </p>
+
+                              <p className="text-xs text-muted-foreground">
+                                Uploaded on {uploadDate}
+                              </p>
+                            </div>
+
+                            {/* Preview */}
+                            {resumeUrl && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                title="Preview"
+                                className="h-8 w-8"
+                                asChild
+                              >
+                                <a
+                                  href={resumeUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </a>
+                              </Button>
+                            )}
+
+                            {/* Download */}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              title="Download Report"
+                              className="h-8 w-8"
+                              // onClick={downloadResume}
+                              onClick={handleResumeDownload}
+                              disabled={downloadLoading}
+                            >
+                              <Download className="h-4 w-4" />
+                            </Button>
+
+                            {/* Delete */}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              title="Delete Resume"
+                              className="h-8 w-8 text-destructive"
+                              onClick={handleDeleteResume}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="rounded-md border border-dashed p-4 text-center text-sm text-muted-foreground">
+                            No resume uploaded yet.
+                          </div>
+                        )}
+                      </div>
                     </div>
                     <div className="flex items-center justify-between rounded-lg border bg-white px-4 py-3 shadow-sm hover:shadow-md transition">
                       <div className="flex items-center gap-3">
