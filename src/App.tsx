@@ -85,6 +85,8 @@ import Home from "./pages/Home.tsx";
 import WhyGEISIL from "./components/admin/WhyGEISIL/WhyGEISIL.tsx";
 import ManageBanners from "./pages/admin/ManageBanners.tsx";
 import AboutPageCms from "./pages/admin/AboutPage.tsx";
+
+import ManageServices from "./components/admin/ManageServices/manageservices.tsx";
 const queryClient = new QueryClient();
 const App = () => {
   const [profile, setProfile] = useState();
@@ -208,6 +210,7 @@ const App = () => {
                       <Route path="/whygeisil" element={<WhyGEISIL />} />
                       <Route path="/banners" element={<ManageBanners />} />
                       <Route path="/about-page" element={<AboutPageCms />} />
+                      <Route path="/manageservices" element = {<ManageServices/>}/>
 
                       <Route path="*" element={<NotFound />} />
                     </Routes>
