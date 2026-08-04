@@ -66,6 +66,7 @@ import CandidateAppliedJobs from "./pages/candidate/CandidateAppliedJobs.tsx";
 import CandidateJobs from "./pages/candidate/CandidateJobs.tsx";
 import CandidateSavedJobs from "./pages/candidate/CandidateSavedJobs.tsx";
 import CandidateApplicationDetail from "./pages/candidate/CandidateApplicationDetail.tsx";
+import MentalTest from "./pages/candidate/MentalTest.tsx";
 
 import CandidateJobDetail from "./pages/candidate/CandidateJobDetail.tsx";
 import CandidateSettings from "./pages/candidate/CandidateSettings.tsx";
@@ -403,6 +404,10 @@ const App = () => {
                       <Route
                         path="/assessments/:id"
                         element={<CandidateAssessmentDetail />}
+                      />
+                       <Route
+                        path="/mentaltest"
+                        element={<MentalTest />}
                       />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
