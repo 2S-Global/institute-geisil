@@ -120,6 +120,7 @@ export default function CandidateProfile() {
   const [resumeLoading, setResumeLoading] = useState(false);
   const [coverLetterLoading, setCoverLetterLoading] = useState(false);
   const [downloadLoading, setDownloadLoading] = useState(false);
+  const [downloadLoadingCover, setDownloadLoadingCover] = useState(false);
   const [downloadReportLoading, setDownloadReportLoading] = useState(false);
   const [geisilScore, setGeisilScore] = useState();
   const [scoreLoading, setScoreLoading] = useState(false);
@@ -376,7 +377,7 @@ export default function CandidateProfile() {
 
   const handleDeleteCoverLetter = async () => {
     const result = await Swal.fire({
-      title: "Delete Resume?",
+      title: "Delete cover letter?",
       text: "You won't be able to recover it.",
       icon: "warning",
       showCancelButton: true,
@@ -386,8 +387,7 @@ export default function CandidateProfile() {
     if (!result.isConfirmed) return;
 
     try {
-      await API.delete("/api/candidate/resumefile/delete_resume_details");
-
+      await API.delete("/api/candidate/resumefile/cover-letter");
       setCoverFile(null);
       setCoverUrl("");
       setCoverDate("");
@@ -396,20 +396,20 @@ export default function CandidateProfile() {
     }
   };
   const handleCoverLetterDownload = () => {
-    if (!resumeUrl) return;
+    if (!coverUrl) return;
 
     // Open PDF in a new tab
     const pdfWindow = window.open("", "_blank");
 
     if (pdfWindow) {
-      pdfWindow.location.href = resumeUrl;
+      pdfWindow.location.href = coverUrl;
     }
 
     // Download file separately
     const link = document.createElement("a");
-    link.href = resumeUrl;
+    link.href = coverUrl;
     link.target = "_blank";
-    link.download = "resume.pdf";
+    link.download = "Cover Letter.pdf";
 
     document.body.appendChild(link);
     link.click();
@@ -1098,7 +1098,7 @@ export default function CandidateProfile() {
                             </div>
 
                             {/* Preview */}
-                            {resumeUrl && (
+                            {coverUrl && (
                               <Button
                                 variant="ghost"
                                 size="icon"
@@ -1107,7 +1107,7 @@ export default function CandidateProfile() {
                                 asChild
                               >
                                 <a
-                                  href={resumeUrl}
+                                  href={coverUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                 >
@@ -1123,7 +1123,7 @@ export default function CandidateProfile() {
                               title="Download Report"
                               className="h-8 w-8"
                               // onClick={downloadResume}
-                              onClick={handleResumeDownload}
+                              onClick={handleCoverLetterDownload}
                               disabled={downloadLoading}
                             >
                               <Download className="h-4 w-4" />
@@ -1135,14 +1135,14 @@ export default function CandidateProfile() {
                               size="icon"
                               title="Delete Resume"
                               className="h-8 w-8 text-destructive"
-                              onClick={handleDeleteResume}
+                              onClick={handleDeleteCoverLetter}
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
                         ) : (
                           <div className="rounded-md border border-dashed p-4 text-center text-sm text-muted-foreground">
-                            No resume uploaded yet.
+                            No cover letter uploaded yet.
                           </div>
                         )}
                       </div>
