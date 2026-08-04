@@ -37,7 +37,8 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-
+import { title } from "process";
+import { url } from "inspector";
 
 const main = [
   { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard },
@@ -62,15 +63,17 @@ const cms = [
   // { title: "Blogs", url: "/admin/cms/blogs" },
   { title: "Manage Banners", url: "/admin/banners" },
   { title: "About Page", url: "/admin/about-page" },
-  { title: "Verification Simplified", url: "/admin/verification" }, 
-   { title: "Why GEISIL", url: "/admin/whygeisil" },
+  { title: "Verification Simplified", url: "/admin/verification" },
+  { title: "Why GEISIL", url: "/admin/whygeisil" },
+  {title: "Manage Services", url:"/admin/manageservices"}
 ];
 
 export function AdminSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const { pathname } = useLocation();
-  const isActive = (path: string) => pathname === path || pathname.startsWith(path + "/");
+  const isActive = (path: string) =>
+    pathname === path || pathname.startsWith(path + "/");
   const isCmsActive = cms.some((item) => isActive(item.url));
 
   return (
@@ -82,7 +85,9 @@ export function AdminSidebar() {
           </div>
           {!collapsed && (
             <div className="min-w-0">
-              <p className="font-display font-bold text-sidebar-primary leading-tight truncate">GEISIL</p>
+              <p className="font-display font-bold text-sidebar-primary leading-tight truncate">
+                GEISIL
+              </p>
               <p className="text-[11px] uppercase tracking-wider text-sidebar-foreground/70 truncate">
                 Admin Console
               </p>
@@ -109,7 +114,9 @@ export function AdminSidebar() {
                   >
                     <NavLink to={item.url} className="flex items-center gap-3">
                       <item.icon className="h-[18px] w-[18px] shrink-0" />
-                      {!collapsed && <span className="truncate">{item.title}</span>}
+                      {!collapsed && (
+                        <span className="truncate">{item.title}</span>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -127,7 +134,10 @@ export function AdminSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {/* Added Collapsible CMS Menu */}
-              <Collapsible defaultOpen={isCmsActive} className="group/collapsible">
+              <Collapsible
+                defaultOpen={isCmsActive}
+                className="group/collapsible"
+              >
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton
@@ -147,7 +157,10 @@ export function AdminSidebar() {
                     <SidebarMenuSub>
                       {cms.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton asChild isActive={isActive(subItem.url)}>
+                          <SidebarMenuSubButton
+                            asChild
+                            isActive={isActive(subItem.url)}
+                          >
                             <NavLink to={subItem.url}>
                               <span>{subItem.title}</span>
                             </NavLink>
@@ -168,7 +181,9 @@ export function AdminSidebar() {
                   >
                     <NavLink to={item.url} className="flex items-center gap-3">
                       <item.icon className="h-[18px] w-[18px] shrink-0" />
-                      {!collapsed && <span className="truncate">{item.title}</span>}
+                      {!collapsed && (
+                        <span className="truncate">{item.title}</span>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
