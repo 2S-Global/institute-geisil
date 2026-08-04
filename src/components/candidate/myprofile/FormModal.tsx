@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import API from "../../../lib/axios";
@@ -31,6 +33,7 @@ const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [isFormValid, setIsFormValid] = useState(false);
+  const [initialDataString, setInitialDataString] = useState("");
   const { toast } = useToast();
   const salaryCurrencies = [
     { label: "₹", value: "INR" },
@@ -105,7 +108,7 @@ const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
           },
         });
         if (response.status === 200) {
-          setFormData({
+          const loadedData = {
             full_name: response.data.name || "",
             gender: response.data.gender || "",
             dob: response.data.dob ? new Date(response.data.dob) : null,
@@ -118,7 +121,9 @@ const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
             currency: response.data.currency || "INR",
             experience_months: response.data.experience_months || "",
             experience_years: response.data.experience_years || "",
-          });
+          };
+          setFormData(loadedData);
+          setInitialDataString(JSON.stringify(loadedData));
 
           if (response.data.country_id == 102) {
             setIsResidingInIndia(true);
@@ -221,6 +226,8 @@ const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
   useEffect(() => {
     ValidateForm();
   }, [formData]);
+
+  const hasChanges = initialDataString ? JSON.stringify(formData) !== initialDataString : false;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -326,7 +333,9 @@ const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
               <input
                 name="father_name"
                 type="text"
-                className="w-full border rounded-md px-3 py-2 text-sm"
+                readOnly
+                disabled
+                className="w-full border rounded-md px-3 py-2 text-sm cursor-not-allowed bg-muted/50"
                 value={formData.father_name}
                 onChange={handleChange}
                 placeholder="Enter father's full name"
@@ -372,7 +381,7 @@ const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
             </div>
 
             {/* Experience */}
-            <div className="space-y-1.5">
+            {/* <div className="space-y-1.5">
               <label className="text-sm font-medium">Total Experience</label>
 
               <div className="flex gap-2">
@@ -418,7 +427,7 @@ const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
                   </select>
                 )}
               </div>
-            </div>
+            </div> */}
 
             {/* Salary */}
             <div className="space-y-1.5">
@@ -470,7 +479,9 @@ const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
               </label>
               <input
                 type="date"
-                className="w-full border rounded-md px-3 py-2 text-sm relative"
+                readOnly
+                disabled
+                className="w-full border rounded-md px-3 py-2 text-sm relative cursor-not-allowed bg-muted/50"
                 value={
                   formData?.dob
                     ? new Date(formData.dob).toISOString().split("T")[0]
@@ -565,13 +576,13 @@ const FormModal = ({ show, onClose, data = {}, setRefresh }) => {
               </Button>
 
               <div className="relative inline-flex group">
-                <Button type="submit" disabled={!isFormValid || loading}>
+                <Button type="submit" disabled={!isFormValid || !hasChanges || loading}>
                   {loading ? "Saving..." : "Save"}
                 </Button>
 
-                {!isFormValid && (
+                {(!isFormValid || !hasChanges) && (
                   <div className="pointer-events-none absolute bottom-full right-0 mb-2 hidden w-52 rounded-md border border-red-300 bg-white p-2 text-center text-sm text-red-600 shadow-lg group-hover:block">
-                    Please fill all required fields.
+                    {!isFormValid ? "Please fill all required fields." : "No changes detected to save."}
                   </div>
                 )}
               </div>

@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+
+
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Trash2, Sparkles } from "lucide-react";
 import API from "../../../lib/axios";
@@ -6,21 +8,9 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-//import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 
 const FormModal = ({
@@ -33,23 +23,32 @@ const FormModal = ({
   setRefresh,
   setSuccess,
 }) => {
-  const apiurl = import.meta.env.VITE_API_URL;
-  console.log("show", show);
   const { toast } = useToast();
   const [profilesummary, setProfilesummary] = useState(
     mainprofilesummary || "",
   );
 
   const [loading, setLoading] = useState(false);
-  const [isGenerated, setIsGenerated] = useState(false); // Track button presses
+  const [isGenerated, setIsGenerated] = useState(false);
+  
   const token = localStorage.getItem("token");
+
+  // Keep local state synced when modal re-opens or prop updates
+  useEffect(() => {
+    setProfilesummary(mainprofilesummary || "");
+    setIsGenerated(false);
+  }, [mainprofilesummary, show]);
+
   if (!token) {
     console.log("No token");
   }
 
+  // Check if current text differs from the original saved value
+  const hasChanges = profilesummary !== (mainprofilesummary || "");
+
   const handleGenerateHeadline = () => {
     if (isGenerated) {
-      setProfilesummary(""); // Clear text if pressed again
+      setProfilesummary(mainprofilesummary || ""); 
       setIsGenerated(false);
     } else {
       setProfilesummary(
@@ -62,8 +61,6 @@ const FormModal = ({
   if (!show) return null;
 
   const handelSubmit = async () => {
-    console.log("submit");
-    console.log(profilesummary);
     if (!token) {
       setError("Authorization token is missing. Please log in.");
       return;
@@ -108,7 +105,7 @@ const FormModal = ({
         `/api/useraction/delete_profile_summary`,
       );
       if (response.status !== 200) {
-        throw new Error("Failed to delete education record");
+        throw new Error("Failed to delete record");
       }
       mainsetProfilesummary("");
       if (setRefresh) {
@@ -117,7 +114,7 @@ const FormModal = ({
       onClose();
       setError("Profile Summary deleted successfully");
     } catch (error) {
-      console.error("Error deleting education record:", error);
+      console.error("Error deleting record:", error);
     }
   };
 
@@ -127,40 +124,38 @@ const FormModal = ({
     }
   };
 
-  if (!show) return null;
-
   return (
     <>
       <style>
         {`
-      .custom-textarea::placeholder {
-        color: #c7c5c5 !important;
-        font-size: 15px !important;
-      }
+          .custom-textarea::placeholder {
+            color: #c7c5c5 !important;
+            font-size: 15px !important;
+          }
 
-      .suggestion-btn {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        background-color: #e8f0fe;
-        color: #1a73e8;
-        border-radius: 20px;
-        padding: 6px 14px;
-        border: none;
-        font-size: 14px;
-        cursor: pointer;
-        transition: all 0.3s ease-in-out;
-      }
+          .suggestion-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background-color: #e8f0fe;
+            color: #1a73e8;
+            border-radius: 20px;
+            padding: 6px 14px;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+          }
 
-      .suggestion-btn:hover {
-        background-color: #d2e3fc;
-      }
+          .suggestion-btn:hover {
+            background-color: #d2e3fc;
+          }
 
-      .suggestion-btn svg {
-        width: 16px;
-        height: 16px;
-      }
-    `}
+          .suggestion-btn svg {
+            width: 16px;
+            height: 16px;
+          }
+        `}
       </style>
 
       <Dialog open={show} onOpenChange={onClose}>
@@ -208,7 +203,7 @@ const FormModal = ({
                 onClick={handleGenerateHeadline}
               >
                 <Sparkles size={16} />
-                {isGenerated ? "Clear" : "Help me write"}
+                {isGenerated ? "Revert" : "Help me write"}
               </button>
 
               <small className="text-right text-xs text-gray-500">
@@ -231,15 +226,10 @@ const FormModal = ({
             <Button
               type="button"
               onClick={handelSubmit}
-              disabled={profilesummary.trim().length < 1 || loading}
+              // Disabled if loading, empty text, OR if no edits were made
+              disabled={loading || !profilesummary.trim() || !hasChanges}
             >
-              {loading
-                ? mainprofilesummary
-                  ? "Saving..."
-                  : "Saving..."
-                : mainprofilesummary
-                  ? "Save"
-                  : "Save"}
+              {loading ? "Saving..." : "Save"}
             </Button>
           </div>
         </DialogContent>

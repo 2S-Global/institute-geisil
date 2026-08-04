@@ -1,3 +1,5 @@
+
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import API from "../../../lib/axios";
@@ -12,7 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { useHandleProfilePictureRemove } from "./hooks/useHandleProfilePitcureRemove";
+
 const FormModal = ({ show, onClose, setRefresh, imageSrc }) => {
   const apiurl = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
@@ -21,17 +23,8 @@ const FormModal = ({ show, onClose, setRefresh, imageSrc }) => {
     imageSrc || "/images/resource/no_user.png",
   );
   const { setrefresh } = useAuth();
-  const {
-    removeImage,
-    isLoading: isLoadingRemove,
-    error: errorRemove,
-    data: dataRemove,
-  } = useHandleProfilePictureRemove();
 
   const [image, setImage] = useState(null);
-
-  const [preview, setPreview] = useState(null);
-
   const [file, setFile] = useState(null);
 
   const [crop, setCrop] = useState({
@@ -40,43 +33,34 @@ const FormModal = ({ show, onClose, setRefresh, imageSrc }) => {
   });
 
   const [zoom, setZoom] = useState(1);
-
   const [croppedPixels, setCroppedPixels] = useState(null);
-
-  const [success, setSuccess] = useState("");
-
-  const [error, setError] = useState("");
-
   const [loading, setLoading] = useState(false);
 
   // Select image
-
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
 
     if (!selectedFile) return;
 
     if (selectedFile.size > 2 * 1024 * 1024) {
-      setError("Image size should be less than 2MB");
-
+      toast({
+        title: "Error",
+        variant: "destructive",
+        description: "Image size should be less than 2MB",
+      });
       return;
     }
 
     setFile(selectedFile);
-
     setImage(URL.createObjectURL(selectedFile));
-
-    setError("");
   };
 
   // Crop complete
-
   const cropComplete = (area, pixels) => {
     setCroppedPixels(pixels);
   };
 
   // Upload API
-
   const uploadImage = async () => {
     try {
       setLoading(true);
@@ -89,9 +73,7 @@ const FormModal = ({ show, onClose, setRefresh, imageSrc }) => {
 
       const response = await API.post(
         `${apiurl}/api/useraction/update-profile-picture`,
-
         formData,
-
         {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -102,19 +84,15 @@ const FormModal = ({ show, onClose, setRefresh, imageSrc }) => {
 
       const imageUrl = URL.createObjectURL(croppedFile);
 
-      setPreview(imageUrl);
-
       setSelectedImage(imageUrl);
       onClose();
-      setSuccess(response.data.message || "Image uploaded successfully");
+
       if (response?.data?.profilePicture) {
         localStorage.setItem("profilePicture", response.data.profilePicture);
-        //window.location.reload();
         setrefresh((p) => p + 1);
       }
 
       setRefresh((v) => v + 1);
-
       setImage(null);
 
       setTimeout(() => {
@@ -125,8 +103,6 @@ const FormModal = ({ show, onClose, setRefresh, imageSrc }) => {
       }, 500);
     } catch (err) {
       console.log(err);
-
-      setError("Failed to upload image");
       toast({
         title: "Error",
         variant: "destructive",
@@ -153,7 +129,6 @@ const FormModal = ({ show, onClose, setRefresh, imageSrc }) => {
 
         <div className="space-y-5 pt-2">
           {/* Profile Image */}
-
           <div className="flex justify-center">
             {image ? (
               <div
@@ -193,7 +168,6 @@ const FormModal = ({ show, onClose, setRefresh, imageSrc }) => {
           </div>
 
           {/* Zoom */}
-
           {image && (
             <div className="px-5">
               <label className="text-sm text-muted-foreground">Zoom</label>
@@ -210,117 +184,42 @@ const FormModal = ({ show, onClose, setRefresh, imageSrc }) => {
             </div>
           )}
 
-          {/* Actions */}
-
-          <div className="border rounded-lg p-4 text-center bg-muted/30">
-            <label
-              htmlFor="file-upload"
-              className={`inline-flex items-center px-4 py-2 bg-primary text-white rounded-md cursor-pointer ${
-                loading || isLoadingRemove
-                  ? "opacity-50 pointer-events-none"
-                  : ""
-              }`}
-            >
-              Change Photo
-            </label>
-
+          {/* Actions - Single Conditional Button */}
+          <div className="border rounded-lg p-4 text-center bg-muted/30 flex items-center justify-center gap-3 flex-wrap">
             <input
               id="file-upload"
               type="file"
               accept="image/png,image/jpeg,image/gif"
               hidden
-              disabled={loading || isLoadingRemove}
+              disabled={loading}
               onChange={handleFileChange}
             />
 
-            {image && (
-              <button
-                type="button"
-                className="ml-2 px-4 py-2 bg-primary text-white rounded-md disabled:opacity-50"
-                onClick={uploadImage}
-                disabled={loading || isLoadingRemove}
+            {!image ? (
+              <label
+                htmlFor="file-upload"
+                className={`inline-flex items-center px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 font-medium text-sm rounded-md cursor-pointer transition-colors ${
+                  loading ? "opacity-50 pointer-events-none" : ""
+                }`}
               >
+                Change Photo
+              </label>
+            ) : (
+              <Button type="button" onClick={uploadImage} disabled={loading}>
                 {loading ? "Uploading..." : "Save Photo"}
-              </button>
+              </Button> 
             )}
 
-            <button
-              type="button"
-              className="ml-2 px-4 py-2 border border-red-500 text-red-500 rounded-md disabled:opacity-50"
-              disabled={loading || isLoadingRemove}
-              onClick={async () => {
-                const result = await removeImage();
-                if (result && result.success) {
-                  setSelectedImage("/images/resource/no_user.png");
-                  toast({
-                    title: "Success",
-                    description:
-                      result.message || "Profile picture removed successfully",
-                  });
-                  setRefresh((v: any) => v + 1);
-                  setImage(null);
-                  setPreview(null);
-                  setFile(null);
-                  onClose();
-                } else {
-                  toast({
-                    title: "Error",
-                    variant: "destructive",
-                    description:
-                      result?.error || "Failed to remove profile picture",
-                  });
-                }
-              }}
-            >
-              {isLoadingRemove ? "Deleting..." : "Delete Photo"}
-            </button>
-
-            <p className="text-xs text-muted-foreground mt-3">
-              Supported file formats: PNG, JPG, JPEG, GIF — up to 2MB.
-            </p>
+            <div className="w-full">
+              <p className="text-xs text-muted-foreground mt-2">
+                Supported file formats: PNG, JPG, JPEG, GIF — up to 2MB.
+              </p>
+            </div>
           </div>
-
-          {/* Preview */}
-
-          {/*    {preview && (
-            <div className="flex justify-center">
-              <div
-                className="rounded-full overflow-hidden border"
-                style={{
-                  width: 140,
-                  height: 140,
-                }}
-              >
-                <img
-                  src={preview}
-                  alt="Preview"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
-          )} */}
-
-          {/* Message */}
-
-          {/*   {success && (
-            <div className="text-sm text-green-600 bg-green-50 p-2 rounded">
-              {success}
-            </div>
-          )}
-
-          {error && (
-            <div className="text-sm text-red-500 bg-red-50 p-2 rounded">
-              {error}
-            </div>
-          )} */}
         </div>
 
         <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={onClose}
-            disabled={loading || isLoadingRemove}
-          >
+          <Button variant="outline" onClick={onClose} disabled={loading}>
             Cancel
           </Button>
         </DialogFooter>
@@ -330,7 +229,6 @@ const FormModal = ({ show, onClose, setRefresh, imageSrc }) => {
 };
 
 // Create circular cropped file
-
 function createCroppedImage(imageSrc, crop) {
   return new Promise((resolve) => {
     const image = new Image();
@@ -357,23 +255,13 @@ function createCroppedImage(imageSrc, crop) {
         crop.height,
       );
 
-      canvas.toBlob(
-        (blob) => {
-          resolve(
-            new File(
-              [blob],
-
-              "profile.png",
-
-              {
-                type: "image/png",
-              },
-            ),
-          );
-        },
-
-        "image/png",
-      );
+      canvas.toBlob((blob) => {
+        resolve(
+          new File([blob], "profile.png", {
+            type: "image/png",
+          }),
+        );
+      }, "image/png");
     };
   });
 }
