@@ -18,9 +18,17 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import UserModal from "@/components/admin/BehavioralTest/FormModal";
+import { useAddQuestion } from "./hooks/useAddQuestion";
 
 const BehavioralTest = () => {
+
+
+  const { addQuestion, loading: testAddLoading, error: testError, data: testData } = useAddQuestion()
+
+
   const { toast } = useToast();
+
+
   const [services, setServices] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -341,11 +349,18 @@ const BehavioralTest = () => {
           open={open}
           setOpen={setOpen}
           user={selectedUser}
-          onSave={(data) => {
+          loading={testAddLoading}
+          onSave={async (data) => {
             if (selectedUser) {
               console.log("UPDATE", selectedUser.id, data);
             } else {
               console.log("CREATE", data);
+              const payload = {
+                question: data.question,
+                options: [data.option1, data.option2, data.option3, data.option4],
+                correctOption: data.correctAnswer,
+              };
+              await addQuestion(payload);
             }
           }}
         />

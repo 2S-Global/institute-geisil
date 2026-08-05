@@ -44,7 +44,8 @@ type Props = {
   open: boolean;
   setOpen: (value: boolean) => void;
   question?: Question | null;
-  onSave: (data: QuestionForm) => void;
+  onSave: (data: any) => void;
+  loading?: boolean;
 };
 
 export default function QuestionModal({
@@ -52,6 +53,7 @@ export default function QuestionModal({
   setOpen,
   question,
   onSave,
+  loading = false,
 }: Props) {
   const [serverError, setServerError] = useState("");
 
@@ -98,15 +100,15 @@ export default function QuestionModal({
     }
   }, [question, open, reset]);
 
-  const onSubmit = (data: QuestionForm) => {
+  const onSubmit = async (data: QuestionForm) => {
     const payload = {
       ...data,
-      answerText: data[data.correctAnswer as keyof QuestionForm],
+      correctAnswer: data[data.correctAnswer as keyof QuestionForm] as string,
     };
 
-    console.log(payload);
+    console.log("payload",payload);
 
-    onSave(data);
+    await onSave(payload);
 
     reset();
 
@@ -205,8 +207,8 @@ export default function QuestionModal({
               )}
             </div>
 
-            <Button type="submit" className="w-full">
-              {question ? "Update" : "Save"}
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Saving..." : (question ? "Update" : "Save")}
             </Button>
           </form>
         </DialogContent>
