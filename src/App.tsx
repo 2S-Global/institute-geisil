@@ -86,6 +86,7 @@ import Home from "./pages/Home.tsx";
 import WhyGEISIL from "./components/admin/WhyGEISIL/WhyGEISIL.tsx";
 import ManageBanners from "./pages/admin/ManageBanners.tsx";
 import AboutPageCms from "./pages/admin/AboutPage.tsx";
+import BehavioralTest from "./pages/admin/BehavioralTest.tsx";
 
 import ManageServices from "./components/admin/ManageServices/manageservices.tsx";
 const queryClient = new QueryClient();
@@ -211,7 +212,14 @@ const App = () => {
                       <Route path="/whygeisil" element={<WhyGEISIL />} />
                       <Route path="/banners" element={<ManageBanners />} />
                       <Route path="/about-page" element={<AboutPageCms />} />
-                      <Route path="/manageservices" element = {<ManageServices/>}/>
+                      <Route
+                        path="/behavioraltest"
+                        element={<BehavioralTest />}
+                      />
+                      <Route
+                        path="/manageservices"
+                        element={<ManageServices />}
+                      />
 
                       <Route path="*" element={<NotFound />} />
                     </Routes>
@@ -408,10 +416,7 @@ const App = () => {
                         path="/assessments/:id"
                         element={<CandidateAssessmentDetail />}
                       />
-                       <Route
-                        path="/mentaltest"
-                        element={<MentalTest />}
-                      />
+                      <Route path="/mentaltest" element={<MentalTest />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </ProtectedRoute>
