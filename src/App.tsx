@@ -88,7 +88,7 @@ import ManageBanners from "./pages/admin/ManageBanners.tsx";
 import AboutPageCms from "./pages/admin/AboutPage.tsx";
 import BehavioralTest from "./pages/admin/BehavioralTest.tsx";
 
-import ManageServices from "./components/admin/ManageServices/manageservices.tsx";
+import ManageServices from "./components/admin/ManageServices/ManageServices.tsx";
 import PersonalityTest from "./pages/admin/PersonalityTest/PersonalityTest.tsx";
 const queryClient = new QueryClient();
 const App = () => {
