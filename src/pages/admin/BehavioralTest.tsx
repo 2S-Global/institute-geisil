@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import API from "@/lib/axios";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,84 +17,87 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-import UserModal from "@/components/admin/BehavioralTest/FormModal";
-import { useAddQuestion } from "./hooks/useAddQuestion";
+import FormModal from "@/components/admin/BehavioralTest/FormModal";
+import Pagination from "@/components/admin/BehavioralTest/Pagination";
+import { useQuestion } from "./hooks/useQuestion";
 
 const BehavioralTest = () => {
-
-
-  const { addQuestion, loading: testAddLoading, error: testError, data: testData } = useAddQuestion()
-
+  const {
+    addQuestion,
+    editQuestion,
+    loading: testAddLoading,
+    error: respError,
+    data: respData,
+  } = useQuestion();
 
   const { toast } = useToast();
 
-
-  const [services, setServices] = useState([]);
+  const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [refresh, setRefresh] = useState(false);
 
-  // Modal State Management
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  // selected data
+  const [selectedData, setSelectedData] = useState();
 
   // Delete Confirmation Alert Dialog State
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [serviceToDelete, setServiceToDelete] = useState(null);
+  const [deleteData, setDeleteData] = useState(null);
 
-  // Active Form Data State matching your API structure
-  const [currentService, setCurrentService] = useState({
-    _id: "",
-    title: "",
-    description: "",
-  });
   const [loading, setLoading] = useState(false);
 
   const [open, setOpen] = useState(false);
 
-  const [selectedUser, setSelectedUser] = useState<any>(null);
+  //pagination
 
-  const users = [
-    {
-      id: "1",
-      name: "John",
-      email: "john@test.com",
-    },
-  ];
+  const [page, setPage] = useState(1);
 
-  function editUser(user: any) {
-    setSelectedUser(user);
+  const pageSize = 10;
 
-    setOpen(true);
-  }
+  const filteredData = useMemo(() => {
+    return data.filter((v) =>
+      (v.question || "").toLowerCase().includes(searchTerm.toLowerCase()),
+    );
+  }, [searchTerm, data]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
+
+  const paginatedData = filteredData.slice(
+    (page - 1) * pageSize,
+    page * pageSize,
+  );
 
   function createUser() {
-    setSelectedUser(null);
-
+    setSelectedData(null);
     setOpen(true);
   }
 
   // Fetch Services on Component Mount
   useEffect(() => {
-    fetchServices();
+    fetchData();
   }, []);
 
-  const fetchServices = async () => {
+  useEffect(() => {
+    fetchData();
+  }, [refresh]);
+
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const response = await API.get("/api/home/get-service-details");
+      const response = await API.get("/api/mental-test");
 
       const result = response.data;
       if (result && Array.isArray(result.data)) {
-        setServices(result.data);
+        setData(result.data);
       } else if (Array.isArray(result)) {
-        setServices(result);
+        setData(result);
       } else {
-        setServices([]);
+        setData([]);
       }
     } catch (error) {
-      console.error("Error fetching services:", error);
+      console.error("Error fetching data:", error);
       toast({
         title: "Error",
-        description: "Failed to fetch service details.",
+        description: "Failed to fetch record details.",
         variant: "destructive",
       });
     } finally {
@@ -102,143 +105,51 @@ const BehavioralTest = () => {
     }
   };
 
-  // Handle Input Changes for Modals
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setCurrentService((prev) => ({ ...prev, [name]: value }));
-  };
-
-  // Open Update Modal and load selected service data
-  const handleOpenUpdate = (service) => {
-    setCurrentService({
-      _id: service._id || "",
-      title: service.title || "",
-      description: service.description || "",
-    });
-    setIsUpdateModalOpen(true);
-  };
-
-  // Handle Add New Service Form Submission
-  const handleSaveNew = async (e) => {
-    e.preventDefault();
-    if (!currentService.title.trim()) return;
-
-    try {
-      const response = await API.post("/api/home/add-service-details", {
-        title: currentService.title,
-        description: currentService.description,
-      });
-
-      if (response.data?.success) {
-        setIsAddModalOpen(false);
-        fetchServices();
-        toast({
-          title: "Success",
-          description: response.data.message || "Service added successfully.",
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: response.data?.message || "Failed to add service.",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error("Error adding service:", error);
-      toast({
-        title: "Error",
-        description: "Something went wrong while adding the service.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  // Handle Update Service Form Submission using PUT and URL parameter ID
-  const handleUpdateService = async (e) => {
-    e.preventDefault();
-    try {
-      const payload = {
-        _id: currentService._id,
-        title: currentService.title,
-        description: currentService.description,
-      };
-
-      const response = await API.put(
-        `/api/home/update-service-details/${currentService._id}`,
-        payload,
-      );
-
-      if (response.data?.success) {
-        setIsUpdateModalOpen(false);
-        fetchServices();
-        toast({
-          title: "Success",
-          description: response.data.message || "Service updated successfully.",
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: response.data?.message || "Failed to update service.",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error("Error updating service:", error);
-      toast({
-        title: "Error",
-        description: "Something went wrong while updating the service.",
-        variant: "destructive",
-      });
-    }
+  // Open Update Modal and load selected record data
+  const handleOpenUpdate = (record) => {
+    setSelectedData(record);
+    setOpen(true);
   };
 
   // Trigger Delete Confirmation Dialog
-  const confirmDelete = (service) => {
-    setServiceToDelete(service);
+  const confirmDelete = (record) => {
+    setDeleteData(record);
     setIsDeleteDialogOpen(true);
   };
 
-  // Handle Delete Service execution using PUT /api/home/delete-service-details/:id
-  const handleDeleteService = async () => {
-    if (!serviceToDelete) return;
+  // Handle Delete
+  const handleDelete = async () => {
+    if (!deleteData) return;
 
     try {
-      const response = await API.put(
-        `/api/home/delete-service-details/${serviceToDelete._id}`,
-      );
+      const response = await API.delete(`/api/mental-test/${deleteData._id}`);
 
       if (response.data?.success) {
-        setServices((prev) =>
-          prev.filter((s) => s._id !== serviceToDelete._id),
-        );
+        setData((prev) => prev.filter((s) => s._id !== deleteData._id));
         toast({
           title: "Success",
-          description: response.data.message || "Service deleted successfully.",
+          description:
+            response.data.message || "Question deleted successfully.",
         });
       } else {
         toast({
           title: "Error",
-          description: response.data?.message || "Failed to delete service.",
+          description: response.data?.message || "Failed to delete record.",
           variant: "destructive",
         });
       }
     } catch (error) {
-      console.error("Error deleting service:", error);
+      console.error("Error deleting record:", error);
       toast({
         title: "Error",
-        description: "Something went wrong while deleting the service.",
+        description: "Something went wrong while deleting the record.",
         variant: "destructive",
       });
     } finally {
       setIsDeleteDialogOpen(false);
-      setServiceToDelete(null);
+      setDeleteData(null);
     }
   };
-
-  // Filtered Services List based on Search Input
-  const filteredServices = services.filter((s) =>
-    (s.title || "").toLowerCase().includes(searchTerm.toLowerCase()),
-  );
 
   return (
     <AdminLayout>
@@ -247,10 +158,11 @@ const BehavioralTest = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
-              Manage Services
+              Behavioral Test
             </h1>
             <p className="text-xs sm:text-sm text-gray-500">
-              Configure and manage services displayed across your platform.
+              A step toward evaluating skills, attitudes, and workplace
+              behaviors
             </p>
           </div>
 
@@ -258,17 +170,14 @@ const BehavioralTest = () => {
             <div className="relative flex-1 md:w-72">
               <input
                 type="text"
-                placeholder="Search services..."
+                placeholder="Search data..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
               />
             </div>
-            <Button
-              onClick={createUser}
-              className="bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-1.5 whitespace-nowrap"
-            >
-              <Plus className="w-4 h-4" /> Add New Service
+            <Button onClick={createUser} className="bg-[#112B5F] text-white">
+              <Plus className="w-4 h-4" /> Add Question
             </Button>
           </div>
         </div>
@@ -279,41 +188,34 @@ const BehavioralTest = () => {
               <table className="w-full text-left border-collapse min-w-[640px]">
                 <thead>
                   <tr className="bg-gray-100 border-b border-gray-200 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    <th className="py-3 px-4 sm:px-6">Title</th>
-                    <th className="py-3 px-4 sm:px-6">Description</th>
+                    <th className="py-3 px-4 sm:px-6">Question</th>
                     <th className="py-3 px-4 sm:px-6 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 text-sm text-gray-700">
                   {loading ? (
-                    Array.from({ length: 3 }).map((_, index) => (
+                    Array.from({ length: 2 }).map((_, index) => (
                       <tr key={index}>
                         <td colSpan="3" className="py-4 px-4 sm:px-6">
                           <Skeleton className="h-6 w-full" />
                         </td>
                       </tr>
                     ))
-                  ) : filteredServices.length > 0 ? (
-                    filteredServices.map((service) => (
+                  ) : paginatedData.length > 0 ? (
+                    paginatedData.map((record) => (
                       <tr
-                        key={service._id}
+                        key={record._id}
                         className="hover:bg-gray-50 transition"
                       >
                         <td className="py-4 px-4 sm:px-6 font-medium text-gray-900 whitespace-nowrap">
-                          {service.title}
+                          {record.question}
                         </td>
-                        <td className="py-4 px-4 sm:px-6 text-gray-500 max-w-xs sm:max-w-md truncate">
-                          <span
-                            dangerouslySetInnerHTML={{
-                              __html: service.description,
-                            }}
-                          />
-                        </td>
+
                         <td className="py-4 px-4 sm:px-6 text-right space-x-1 sm:space-x-2 whitespace-nowrap">
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleOpenUpdate(service)}
+                            onClick={() => handleOpenUpdate(record)}
                             className="text-blue-600 hover:text-blue-700 hover:bg-blue-100"
                           >
                             <Pencil className="h-3.5 w-3.5" />
@@ -321,7 +223,7 @@ const BehavioralTest = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => confirmDelete(service)}
+                            onClick={() => confirmDelete(record)}
                             className="text-red-600 hover:text-red-700 hover:bg-red-100"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
@@ -335,7 +237,7 @@ const BehavioralTest = () => {
                         colSpan="3"
                         className="text-center py-8 text-gray-400"
                       >
-                        No services found.
+                        No data found.
                       </td>
                     </tr>
                   )}
@@ -344,23 +246,71 @@ const BehavioralTest = () => {
             </div>
           </CardContent>
         </Card>
+        {/* Pagination with page numbers */}
+        <Pagination page={page} totalPages={totalPages} setPage={setPage} />
 
-        <UserModal
+        <FormModal
           open={open}
           setOpen={setOpen}
-          user={selectedUser}
+          selectedData={selectedData}
           loading={testAddLoading}
           onSave={async (data) => {
-            if (selectedUser) {
-              console.log("UPDATE", selectedUser.id, data);
+            if (selectedData) {
+              try {
+                const payload = {
+                  question: data.question,
+                  options: [
+                    data.option1,
+                    data.option2,
+                    data.option3,
+                    data.option4,
+                  ],
+                  correctOption: data.correctAnswer,
+                };
+                const result = await editQuestion(payload, selectedData._id);
+                if (result.success) {
+                  toast({
+                    title: "Success",
+                    description: result.message || "",
+                  });
+                  setRefresh((pre) => !pre);
+                }
+              } catch (err) {
+                console.log("UPDATE", err);
+                toast({
+                  title: "Error",
+                  description: "Something went wrong.",
+                  variant: "destructive",
+                });
+              }
             } else {
               console.log("CREATE", data);
-              const payload = {
-                question: data.question,
-                options: [data.option1, data.option2, data.option3, data.option4],
-                correctOption: data.correctAnswer,
-              };
-              await addQuestion(payload);
+              try {
+                const payload = {
+                  question: data.question,
+                  options: [
+                    data.option1,
+                    data.option2,
+                    data.option3,
+                    data.option4,
+                  ],
+                  correctOption: data.correctAnswer,
+                };
+                const result = await addQuestion(payload);
+                if (result.success) {
+                  toast({
+                    title: "Success",
+                    description: result.message || "",
+                  });
+                  setRefresh((pre) => !pre);
+                }
+              } catch (err) {
+                toast({
+                  title: "Error",
+                  description: "Something went wrong.",
+                  variant: "destructive",
+                });
+              }
             }
           }}
         />
@@ -375,7 +325,7 @@ const BehavioralTest = () => {
               <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
               <AlertDialogDescription>
                 This action cannot be undone. This will permanently delete the
-                service &quot;{serviceToDelete?.title}&quot; from the server.
+                record &quot;{deleteData?.question}&quot; from the server.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="flex-col sm:flex-row gap-2">
@@ -386,7 +336,7 @@ const BehavioralTest = () => {
                 Cancel
               </AlertDialogCancel>
               <AlertDialogAction
-                onClick={handleDeleteService}
+                onClick={handleDelete}
                 className="bg-red-600 hover:bg-red-700 text-white"
               >
                 Delete

@@ -15,6 +15,7 @@ import {
   MessageSquare,
   FileText,
   ChevronRight,
+  NotepadText,
 } from "lucide-react";
 import {
   Sidebar,
@@ -42,6 +43,11 @@ import { url } from "inspector";
 
 const main = [
   { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard },
+  {
+    title: "Behavioral Test",
+    url: "/admin/behavioral-test",
+    icon: NotepadText,
+  },
   // { title: "Candidates", url: "/admin/candidates", icon: Users },
   // { title: "Employers", url: "/admin/employers", icon: Briefcase },
   // { title: "Institutes", url: "/admin/institutes", icon: GraduationCap },
@@ -65,7 +71,7 @@ const cms = [
   { title: "About Page", url: "/admin/about-page" },
   { title: "Verification Simplified", url: "/admin/verification" },
   { title: "Why GEISIL", url: "/admin/whygeisil" },
-  {title: "Manage Services", url:"/admin/manageservices"}
+  { title: "Manage Services", url: "/admin/manageservices" },
 ];
 
 export function AdminSidebar() {

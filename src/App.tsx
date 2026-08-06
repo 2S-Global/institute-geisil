@@ -214,7 +214,7 @@ const App = () => {
                       <Route path="/banners" element={<ManageBanners />} />
                       <Route path="/about-page" element={<AboutPageCms />} />
                       <Route
-                        path="/behavioraltest"
+                        path="/behavioral-test"
                         element={<BehavioralTest />}
                       />
                       <Route

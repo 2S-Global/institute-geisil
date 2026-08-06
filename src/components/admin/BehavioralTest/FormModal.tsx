@@ -51,7 +51,7 @@ type Props = {
 export default function QuestionModal({
   open,
   setOpen,
-  question,
+  selectedData,
   onSave,
   loading = false,
 }: Props) {
@@ -79,14 +79,26 @@ export default function QuestionModal({
 
   // ADD + EDIT FORM FILL
   useEffect(() => {
-    if (question) {
+    if (selectedData) {
+      const options = selectedData.options;
+
+      const correctAnswerKey =
+        options[0] === selectedData.correctOption
+          ? "option1"
+          : options[1] === selectedData.correctOption
+            ? "option2"
+            : options[2] === selectedData.correctOption
+              ? "option3"
+              : options[3] === selectedData.correctOption
+                ? "option4"
+                : "";
       reset({
-        question: question.question,
-        option1: question.option1,
-        option2: question.option2,
-        option3: question.option3,
-        option4: question.option4,
-        correctAnswer: question.correctAnswer,
+        question: selectedData.question,
+        option1: selectedData?.options[0],
+        option2: selectedData?.options[1],
+        option3: selectedData?.options[2],
+        option4: selectedData?.options[3],
+        correctAnswer: correctAnswerKey,
       });
     } else {
       reset({
@@ -98,7 +110,7 @@ export default function QuestionModal({
         correctAnswer: "",
       });
     }
-  }, [question, open, reset]);
+  }, [selectedData, open, reset]);
 
   const onSubmit = async (data: QuestionForm) => {
     const payload = {
@@ -106,12 +118,8 @@ export default function QuestionModal({
       correctAnswer: data[data.correctAnswer as keyof QuestionForm] as string,
     };
 
-    console.log("payload",payload);
-
     await onSave(payload);
-
     reset();
-
     setOpen(false);
   };
 
@@ -137,11 +145,13 @@ export default function QuestionModal({
         >
           <DialogHeader>
             <DialogTitle>
-              {question ? "Edit Question" : "Add Question"}
+              {selectedData ? "Edit Question" : "Add Question"}
             </DialogTitle>
 
             <DialogDescription>
-              {question ? "Update question details." : "Create a new question."}
+              {selectedData
+                ? "Update question details."
+                : "Create a new question."}
             </DialogDescription>
           </DialogHeader>
 
@@ -208,7 +218,7 @@ export default function QuestionModal({
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Saving..." : (question ? "Update" : "Save")}
+              {loading ? "Saving..." : selectedData ? "Update" : "Save"}
             </Button>
           </form>
         </DialogContent>
