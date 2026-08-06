@@ -89,6 +89,7 @@ import AboutPageCms from "./pages/admin/AboutPage.tsx";
 import BehavioralTest from "./pages/admin/BehavioralTest.tsx";
 
 import ManageServices from "./components/admin/ManageServices/ManageServices.tsx";
+import PersonalityTest from "./pages/admin/PersonalityTest/PersonalityTest.tsx";
 const queryClient = new QueryClient();
 const App = () => {
   const [profile, setProfile] = useState();
@@ -215,6 +216,10 @@ const App = () => {
                       <Route
                         path="/behavioral-test"
                         element={<BehavioralTest />}
+                      />
+                      <Route
+                        path="/personality-test"
+                        element={<PersonalityTest />}
                       />
                       <Route
                         path="/manageservices"
