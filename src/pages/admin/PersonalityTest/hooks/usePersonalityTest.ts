@@ -62,7 +62,9 @@ export const usePersonalityTest = () => {
             setQuestions(mappedQuestions);
         } catch (err) {
             console.error("Failed to load questions:", err);
-            toast.error("Failed to load questions");
+            toast.error("Failed to load questions" , 
+                {position : 'top-right'}
+            );
         } finally {
             setQuestionsLoading(false);
         }
@@ -75,11 +77,15 @@ export const usePersonalityTest = () => {
         try {
             const response = await api.delete(`/api/mental-feedback/delete/${id}`);
             console.log('is tis wokring==>' , response)
-            toast.success("Question deleted successfully");
+            toast.success("Question deleted successfully" ,{
+                position : 'top-right'
+            });
             fetchQuestions();
         } catch (err) {
             console.error("Failed to delete question:", err);
-            toast.error("Failed to delete question");
+            toast.error("Failed to delete question" , {
+                position : 'top-right'
+            });
         } finally {
             setQuestionsLoading(false);
         }
@@ -114,12 +120,12 @@ export const usePersonalityTest = () => {
     }, [questions, activeTab, searchTerm]);
 
     const totalPages = useMemo(() => {
-        return Math.ceil(filteredQuestions.length / 10);
+        return Math.ceil(filteredQuestions.length / 5);
     }, [filteredQuestions]);
 
     const paginatedQuestions = useMemo(() => {
-        const startIndex = (currentPage - 1) * 10;
-        return filteredQuestions.slice(startIndex, startIndex + 10);
+        const startIndex = (currentPage - 1) * 5;
+        return filteredQuestions.slice(startIndex, startIndex + 5);
     }, [filteredQuestions, currentPage]);
 
     const initialModalCategory = useMemo(() => {
@@ -133,11 +139,15 @@ export const usePersonalityTest = () => {
         setQuestionsLoading(true);
         try {
             const response = await api.post("/api/mental-feedback/create-feedback-form", saveData);
-            toast.success(response.data.message || "Questions saved successfully");
+            toast.success(response.data.message || "Questions saved successfully", 
+                {position : 'top-right'}
+            );
             fetchQuestions();
         } catch (err: any) {
             console.error(err);
-            toast.error(err.response?.data?.message || "Failed to save questions");
+            toast.error(err.response?.data?.message || "Failed to save questions" , 
+                {position : 'top-right'}
+            );
         } finally {
             setQuestionsLoading(false);
         }
@@ -147,11 +157,15 @@ export const usePersonalityTest = () => {
         setQuestionsLoading(true);
         try {
             const response = await api.patch(`/api/mental-feedback/update-feedback-form/${id}`, updateData);
-            toast.success(response.data.message || "Question updated successfully");
+            toast.success(response.data.message || "Question updated successfully" , 
+                {position : 'top-right'}
+            );
             fetchQuestions();
         } catch (err: any) {
             console.error(err);
-            toast.error(err.response?.data?.message || "Failed to update question");
+            toast.error(err.response?.data?.message || "Failed to update question" , 
+                {position : 'top-right'}
+            );
         } finally {
             setQuestionsLoading(false);
         }
