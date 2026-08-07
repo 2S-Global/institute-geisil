@@ -1,21 +1,15 @@
-import { Plus } from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 import { AdminLayout } from "@/components/AdminLayout";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-} from "@/components/ui/pagination";
-import CategoryTabContent from "./components/CategoryTabContent";
+import { Card, CardContent } from "@/components/ui/card";
 import QuestionModal from "./components/QuestionModal";
 import { usePersonalityTest } from "./hooks/usePersonalityTest";
 import { useState } from "react";
 import { DeleteConfirmationModal } from "@/components/common/DeleteConfirmationModal";
+import { QuestionSkeleton } from "./components/QuestionSkeleton";
+import Pagination from "@/components/admin/BehavioralTest/Pagination";
+import NoData from "@/components/common/NoData";
 
 interface questionData {
     category: string;
@@ -84,7 +78,7 @@ const PersonalityTest = () => {
     return (
         <AdminLayout>
             <div className="p-4 sm:p-6 lg:p-8 bg-gray-50 min-h-screen font-sans">
-
+            
                 {/* Top Header & Controls */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                     <div>
@@ -97,6 +91,20 @@ const PersonalityTest = () => {
                     </div>
 
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+                        <div className="w-full sm:w-48">
+                            <Select value={activeTab} onValueChange={setActiveTab} disabled={headersLoading}>
+                                <SelectTrigger className="w-full bg-white border border-gray-300 shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <SelectValue placeholder={headersLoading ? "Loading..." : "Select Category"} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {categoriesList.map((category) => (
+                                        <SelectItem key={category} value={category}>
+                                            {category}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
                         <div className="relative flex-1 md:w-72">
                             <input
                                 type="text"
@@ -116,24 +124,6 @@ const PersonalityTest = () => {
                     </div>
                 </div>
 
-                {/* Category Selector */}
-                <div className="mb-6 max-w-xs">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Select Category
-                    </label>
-                    <Select value={activeTab} onValueChange={setActiveTab} disabled={headersLoading}>
-                        <SelectTrigger className="w-full bg-white border border-gray-300 shadow-sm">
-                            <SelectValue placeholder={headersLoading ? "Loading categories..." : "Select a category"} />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {categoriesList.map((category) => (
-                                <SelectItem key={category} value={category}>
-                                    {category}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
                 <DeleteConfirmationModal
                     open={deleteModal}
                     onOpenChange={(open) => {
@@ -150,66 +140,67 @@ const PersonalityTest = () => {
                     isPending={loading}
                 />
 
-                {/* 2. Wrapped the content in <Tabs> to provide the missing context */}
-                <Tabs value={activeTab} className="w-full">
-                    <CategoryTabContent
-                        key={activeTab}
-                        category={activeTab}
-                        loading={loading}
-                        filteredQuestions={filteredQuestions}
-                        onEdit={handleEditClick}
-                        onDelete={handleDeleteClick}
-                    />
-                </Tabs>
+                <Card className="border border-gray-200 shadow-sm overflow-hidden bg-white">
+                    <CardContent className="p-0">
+                        <div className="w-full overflow-x-auto">
+                            <table className="w-full text-left border-collapse min-w-[640px]">
+                                <thead>
+                                    <tr className="bg-gray-100 border-b border-gray-200 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <th className="py-3 px-4 sm:px-6">Question</th>
+                                        <th className="py-3 px-4 sm:px-6 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-200 text-sm text-gray-700">
+                                    {loading ? (
+                                        Array.from({ length: 5 }).map((_, index) => (
+                                            <QuestionSkeleton key={index} />
+                                        ))
+                                    ) : filteredQuestions.length > 0 ? (
+                                        filteredQuestions.map((q) => (
+                                            <tr key={q._id} className="hover:bg-gray-50 transition">
+                                                <td className="py-4 px-4 sm:px-6 font-medium text-gray-900">
+                                                    {q.question}
+                                                </td>
+                                                <td className="py-4 px-4 sm:px-6 text-right space-x-1 sm:space-x-2 whitespace-nowrap">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => handleEditClick(q)}
+                                                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-100"
+                                                    >
+                                                        <Pencil className="h-3.5 w-3.5" />
+                                                    </Button>
+                                                    <Button
+                                                        onClick={() => handleDeleteClick(q)}
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="text-red-600 hover:text-red-700 hover:bg-red-100"
+                                                    >
+                                                        <Trash2 className="h-3.5 w-3.5" />
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={2} className="py-8 text-center">
+                                                <NoData
+                                                    title="No questions found"
+                                                    description="Try adjusting your search or add a new question."
+                                                    delay={0}
+                                                />
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </CardContent>
+                </Card>
 
                 {/* Pagination Controls */}
                 {totalPages > 1 && (
-                    <div className="mt-6 flex justify-center">
-                        <Pagination>
-                            <PaginationContent>
-                                <PaginationItem>
-                                    <PaginationPrevious
-                                        href="#"
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            if (currentPage > 1) setCurrentPage(currentPage - 1);
-                                        }}
-                                        className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                                    />
-                                </PaginationItem>
-
-                                {Array.from({ length: totalPages }).map((_, i) => {
-                                    const page = i + 1;
-                                    return (
-                                        <PaginationItem key={page}>
-                                            <PaginationLink
-                                                href="#"
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    setCurrentPage(page);
-                                                }}
-                                                isActive={page === currentPage}
-                                                className="cursor-pointer"
-                                            >
-                                                {page}
-                                            </PaginationLink>
-                                        </PaginationItem>
-                                    );
-                                })}
-
-                                <PaginationItem>
-                                    <PaginationNext
-                                        href="#"
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-                                        }}
-                                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                                    />
-                                </PaginationItem>
-                            </PaginationContent>
-                        </Pagination>
-                    </div>
+                    <Pagination page={currentPage} totalPages={totalPages} setPage={setCurrentPage} />
                 )}
             </div>
 

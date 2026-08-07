@@ -1,6 +1,16 @@
 import { useMemo } from "react";
 
-export default function Pagination({ page, totalPages, setPage }) {
+interface PaginationProps {
+  page: number;
+  totalPages: number;
+  setPage: (page: number) => void;
+}
+
+export default function Pagination({ page, totalPages, setPage }: PaginationProps) {
+
+
+
+  // console.log(' page, totalPages,', page, totalPages,)
   const pages = useMemo(() => {
     const result = [];
 
@@ -43,7 +53,7 @@ export default function Pagination({ page, totalPages, setPage }) {
     >
       {/* Previous */}
       <button
-        disabled={page === 1}
+        disabled={page <= 1}
         onClick={() => setPage(page - 1)}
         className="
           px-3 py-2
@@ -52,6 +62,7 @@ export default function Pagination({ page, totalPages, setPage }) {
           bg-gray-200
           hover:bg-gray-300
           disabled:opacity-50
+          transition
         "
       >
         <span className="hidden sm:inline">Previous</span>
@@ -63,7 +74,7 @@ export default function Pagination({ page, totalPages, setPage }) {
         {pages.map((item, index) =>
           item === "..." ? (
             <span
-              key={index}
+              key={`dots-${index}`}
               className="
                 px-3 py-2
                 text-gray-500
@@ -73,8 +84,8 @@ export default function Pagination({ page, totalPages, setPage }) {
             </span>
           ) : (
             <button
-              key={item}
-              onClick={() => setPage(item)}
+              key={`page-${item}-${index}`}
+              onClick={() => setPage(item as number)}
               className={`
                 min-w-[40px]
                 h-10
@@ -82,10 +93,9 @@ export default function Pagination({ page, totalPages, setPage }) {
                 text-sm
                 transition
 
-                ${
-                  page === item
-                    ? "bg-[#112B5F] text-white"
-                    : "bg-gray-100 hover:bg-gray-200"
+                ${page === item
+                  ? "bg-[#112B5F] text-white"
+                  : "bg-gray-100 hover:bg-gray-200"
                 }
               `}
             >
@@ -97,20 +107,19 @@ export default function Pagination({ page, totalPages, setPage }) {
 
       {/* Next */}
       <button
-        disabled={page === totalPages}
+        disabled={page >= totalPages || totalPages === 0}
         onClick={() => setPage(page + 1)}
         className="
           px-3 py-2
           text-sm
           rounded-lg
-          bg-[#112B5F]
-          text-white
-          hover:bg-[#0d2148]
+          bg-gray-200
+          hover:bg-gray-300
           disabled:opacity-50
+          transition
         "
       >
         <span className="hidden sm:inline">Next</span>
-
         <span className="sm:hidden">→</span>
       </button>
     </div>

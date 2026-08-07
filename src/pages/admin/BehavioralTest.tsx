@@ -19,6 +19,7 @@ import {
 
 import FormModal from "@/components/admin/BehavioralTest/FormModal";
 import Pagination from "@/components/admin/BehavioralTest/Pagination";
+import NoData from "@/components/common/NoData";
 import { useQuestion } from "./hooks/useQuestion";
 
 const BehavioralTest = () => {
@@ -79,6 +80,10 @@ const BehavioralTest = () => {
   useEffect(() => {
     fetchData();
   }, [refresh]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm]);
 
   const fetchData = async () => {
     try {
@@ -233,11 +238,12 @@ const BehavioralTest = () => {
                     ))
                   ) : (
                     <tr>
-                      <td
-                        colSpan="3"
-                        className="text-center py-8 text-gray-400"
-                      >
-                        No data found.
+                      <td colSpan={2} className="py-8 text-center">
+                        <NoData
+                          title="No questions found"
+                          description="Try adjusting your search or add a new question."
+                          delay={0}
+                        />
                       </td>
                     </tr>
                   )}
