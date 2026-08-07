@@ -67,6 +67,7 @@ import CandidateJobs from "./pages/candidate/CandidateJobs.tsx";
 import CandidateSavedJobs from "./pages/candidate/CandidateSavedJobs.tsx";
 import CandidateApplicationDetail from "./pages/candidate/CandidateApplicationDetail.tsx";
 import BehavioralAssessment from "./pages/candidate/BehavioralAssessment.tsx";
+import PersonalityAssessment from "./pages/candidate/PersonalityAssessment.tsx";
 
 import CandidateJobDetail from "./pages/candidate/CandidateJobDetail.tsx";
 import CandidateSettings from "./pages/candidate/CandidateSettings.tsx";
@@ -386,7 +387,6 @@ const App = () => {
                         path="/my-profile"
                         element={<CandidateProfile />}
                       />
-
                       <Route
                         path="/applications"
                         element={<CandidateAppliedJobs />}
@@ -425,6 +425,11 @@ const App = () => {
                         path="/behavioral-assessment"
                         element={<BehavioralAssessment />}
                       />
+                      <Route
+                        path="/personality-assessment"
+                        element={<PersonalityAssessment />}
+                      />
+
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </ProtectedRoute>

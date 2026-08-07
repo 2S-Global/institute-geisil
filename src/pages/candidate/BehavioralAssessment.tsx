@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import API from "@/lib/axios";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 /* const questions = [
   {
     id: 13546456,
@@ -66,8 +67,6 @@ export default function BehavioralAssessment() {
     try {
       setLoading(true);
       const response = await API.get("/api/mental-test");
-      const response2 = await API.get("/api/mental-test/attempt-history");
-      console.log("response 2", response2.data.data?.[0]);
 
       if (response.data.success) {
         const data = response.data.data;
@@ -137,20 +136,21 @@ export default function BehavioralAssessment() {
     <CandidateLayout>
       <div className="min-h-screen p-4 sm:p-6 md:p-8">
         <div className="mx-auto w-full rounded-xl bg-white p-4 shadow sm:p-6">
-          {/* Back Button */}
-          <div className="mb-4">
-            <Button
-              type="button"
-              variant="outline"
+          <div className="flex items-center gap-3 mb-6">
+            <button
               onClick={() => window.history.back()}
+              className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition text-gray-700 flex items-center justify-center"
+              aria-label="Go back"
             >
-              ← Back
-            </Button>
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Behavioral Assessment
+              </h1>
+              <p className="text-sm text-gray-500"></p>
+            </div>
           </div>
-
-          <h1 className="mb-6 text-2xl font-bold">
-            Team Personality Questionnaire
-          </h1>
 
           {loading ? (
             <div className="mb-6 rounded-lg border p-4 sm:p-5">

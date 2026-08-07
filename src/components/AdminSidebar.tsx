@@ -48,6 +48,11 @@ const main = [
     url: "/admin/behavioral-test",
     icon: NotepadText,
   },
+  {
+    title: "Personality Test",
+    url: "/admin/personality-test",
+    icon: NotepadText,
+  },
   // { title: "Candidates", url: "/admin/candidates", icon: Users },
   // { title: "Employers", url: "/admin/employers", icon: Briefcase },
   // { title: "Institutes", url: "/admin/institutes", icon: GraduationCap },

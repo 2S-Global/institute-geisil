@@ -70,8 +70,8 @@ import CareerProfile from "@/components/candidate/Career Profile/CareerProfile";
 import JobPreferences from "@/components/candidate/jobPreferences/JobPreferences";
 import ITSkills from "@/components/candidate/ITSkills/ITSkills";
 import OtherSkills from "@/components/candidate/Other Skills/OtherSkills";
-import TestOne from "@/components/candidate/TestOne/TestOne";
-import TestTwo from "@/components/candidate/TestTwo/TestOne";
+import TestOne from "@/components/candidate/TestOne/TestMain";
+import TestTwo from "@/components/candidate/TestTwo/TestMain";
 import ProfileStrength from "./components/ProfileStrength";
 import { useUpdateJobVisibility } from "./hooks/useUpdateJobVisibility";
 
