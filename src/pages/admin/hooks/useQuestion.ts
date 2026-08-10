@@ -9,7 +9,6 @@ export const useQuestion = () => {
   type QuestionData = {
     question: string;
     options: string[];
-    correctOption: string;
   };
 
   const addQuestion = async (questionData: QuestionData) => {

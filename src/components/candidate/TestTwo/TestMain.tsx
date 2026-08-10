@@ -86,11 +86,11 @@ const TestMain = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-100">
             <div>
               <h5 className="text-xl font-bold tracking-tight text-slate-900">
-                Personality Assessment
+                Big 5 Personality Assessment (OCEAN)
               </h5>
-              <p className="text-sm text-slate-500 mt-0.5">
-                Personality Assessment help identify strengths, improve
-                teamwork, and support better decisions.
+              <p className="text-sm text-slate-500 mt-0.5 text-justify">
+                Please rate each statement based on how accurately it describes
+                you in a workplace setting
               </p>
             </div>
             {!isScore && !loading && (

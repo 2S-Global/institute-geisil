@@ -140,11 +140,14 @@ const TestMain = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-100">
             <div>
               <h5 className="text-xl font-bold tracking-tight text-slate-900">
-                Behavioral Assessment
+                Workplace Behavioral Style Assessment (DISC)
               </h5>
-              <p className="text-sm text-slate-500 mt-0.5">
-                Behavioral Assessments help identify strengths, improve
-                teamwork, and support better decisions.
+              <p className="text-sm text-slate-500 mt-0.5 text-justify">
+                This is a self-report workplace behavioral style questionnaire.
+                It is not a clinical or diagnostic tool. There are no right or
+                wrong answers — choose the option in each question that best
+                describes how you actually behave at work. Use the same Employee
+                ID your HR team gave you.
               </p>
             </div>
             {!isScore && !loading && (
