@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import api from "@/lib/axios";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 
 export interface TestHeader {
     _id: string;
@@ -62,9 +62,11 @@ export const usePersonalityTest = () => {
             setQuestions(mappedQuestions);
         } catch (err) {
             console.error("Failed to load questions:", err);
-            toast.error("Failed to load questions" , 
-                {position : 'top-right'}
-            );
+            toast({
+                title: "Error",
+                description: "Failed to load questions",
+                variant: "destructive",
+            });
         } finally {
             setQuestionsLoading(false);
         }
@@ -77,14 +79,17 @@ export const usePersonalityTest = () => {
         try {
             const response = await api.delete(`/api/mental-feedback/delete/${id}`);
             console.log('is tis wokring==>' , response)
-            toast.success("Question deleted successfully" ,{
-                position : 'top-right'
+            toast({
+                title: "Success",
+                description: "Question deleted successfully",
             });
             fetchQuestions();
         } catch (err) {
             console.error("Failed to delete question:", err);
-            toast.error("Failed to delete question" , {
-                position : 'top-right'
+            toast({
+                title: "Error",
+                description: "Failed to delete question",
+                variant: "destructive",
             });
         } finally {
             setQuestionsLoading(false);
@@ -139,15 +144,18 @@ export const usePersonalityTest = () => {
         setQuestionsLoading(true);
         try {
             const response = await api.post("/api/mental-feedback/create-feedback-form", saveData);
-            toast.success(response.data.message || "Questions saved successfully", 
-                {position : 'top-right'}
-            );
+            toast({
+                title: "Success",
+                description: response.data.message || "Questions saved successfully",
+            });
             fetchQuestions();
         } catch (err: any) {
             console.error(err);
-            toast.error(err.response?.data?.message || "Failed to save questions" , 
-                {position : 'top-right'}
-            );
+            toast({
+                title: "Error",
+                description: err.response?.data?.message || "Failed to save questions",
+                variant: "destructive",
+            });
         } finally {
             setQuestionsLoading(false);
         }
@@ -157,15 +165,18 @@ export const usePersonalityTest = () => {
         setQuestionsLoading(true);
         try {
             const response = await api.patch(`/api/mental-feedback/update-feedback-form/${id}`, updateData);
-            toast.success(response.data.message || "Question updated successfully" , 
-                {position : 'top-right'}
-            );
+            toast({
+                title: "Success",
+                description: response.data.message || "Question updated successfully",
+            });
             fetchQuestions();
         } catch (err: any) {
             console.error(err);
-            toast.error(err.response?.data?.message || "Failed to update question" , 
-                {position : 'top-right'}
-            );
+            toast({
+                title: "Error",
+                description: err.response?.data?.message || "Failed to update question",
+                variant: "destructive",
+            });
         } finally {
             setQuestionsLoading(false);
         }
