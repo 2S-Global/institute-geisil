@@ -49,11 +49,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   const displayName = name === "null" ? "" : name || "Riya Sharma";
   const initials = displayName
     ? displayName
-        .split(" ")
-        .map((w) => w[0])
-        .slice(0, 2)
-        .join("")
-        .toUpperCase()
+      .split(" ")
+      .map((w) => w[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase()
     : "RS";
   return (
     <SidebarProvider>

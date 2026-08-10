@@ -18,7 +18,15 @@ import {
 } from "@/components/ui/alert-dialog";
 
 import FormModal from "@/components/admin/BehavioralTest/FormModal";
-import Pagination from "@/components/admin/BehavioralTest/Pagination";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import NoData from "@/components/common/NoData";
 import { useQuestion } from "./hooks/useQuestion";
 
@@ -61,6 +69,27 @@ const BehavioralTest = () => {
   }, [searchTerm, data]);
 
   const totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
+
+  const pages = useMemo(() => {
+    const result = [];
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    result.push(1);
+    if (page > 3) {
+      result.push("...");
+    }
+    const start = Math.max(2, page - 1);
+    const end = Math.min(totalPages - 1, page + 1);
+    for (let i = start; i <= end; i++) {
+      result.push(i);
+    }
+    if (page < totalPages - 2) {
+      result.push("...");
+    }
+    result.push(totalPages);
+    return result;
+  }, [page, totalPages]);
 
   const paginatedData = filteredData.slice(
     (page - 1) * pageSize,
@@ -253,7 +282,43 @@ const BehavioralTest = () => {
           </CardContent>
         </Card>
         {/* Pagination with page numbers */}
-        <Pagination page={page} totalPages={totalPages} setPage={setPage} />
+        {totalPages > 1 && (
+          <Pagination className="mt-6 flex justify-center">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => page > 1 && setPage(page - 1)}
+                  className={page <= 1 ? "pointer-events-none opacity-50 cursor-not-allowed" : "cursor-pointer"}
+                />
+              </PaginationItem>
+              {pages.map((item, index) => (
+                <PaginationItem key={index}>
+                  {item === "..." ? (
+                    <PaginationEllipsis />
+                  ) : (
+                    <PaginationLink
+                      onClick={() => setPage(item as number)}
+                      isActive={page === item}
+                      className={
+                        page === item
+                          ? "bg-[#112B5F] text-white border-[#112B5F] hover:bg-[#112B5F]/90 hover:text-white cursor-default"
+                          : "cursor-pointer"
+                      }
+                    >
+                      {item}
+                    </PaginationLink>
+                  )}
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => page < totalPages && setPage(page + 1)}
+                  className={page >= totalPages ? "pointer-events-none opacity-50 cursor-not-allowed" : "cursor-pointer"}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        )}
 
         <FormModal
           open={open}
