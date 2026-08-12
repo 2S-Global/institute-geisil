@@ -288,7 +288,11 @@ const BehavioralTest = () => {
               <PaginationItem>
                 <PaginationPrevious
                   onClick={() => page > 1 && setPage(page - 1)}
-                  className={page <= 1 ? "pointer-events-none opacity-50 cursor-not-allowed" : "cursor-pointer"}
+                  className={
+                    page <= 1
+                      ? "pointer-events-none opacity-50 cursor-not-allowed"
+                      : "cursor-pointer"
+                  }
                 />
               </PaginationItem>
               {pages.map((item, index) => (
@@ -313,7 +317,11 @@ const BehavioralTest = () => {
               <PaginationItem>
                 <PaginationNext
                   onClick={() => page < totalPages && setPage(page + 1)}
-                  className={page >= totalPages ? "pointer-events-none opacity-50 cursor-not-allowed" : "cursor-pointer"}
+                  className={
+                    page >= totalPages
+                      ? "pointer-events-none opacity-50 cursor-not-allowed"
+                      : "cursor-pointer"
+                  }
                 />
               </PaginationItem>
             </PaginationContent>
@@ -330,13 +338,7 @@ const BehavioralTest = () => {
               try {
                 const payload = {
                   question: data.question,
-                  options: [
-                    data.option1,
-                    data.option2,
-                    data.option3,
-                    data.option4,
-                  ],
-                  correctOption: data.correctAnswer,
+                  options: data.options,
                 };
                 const result = await editQuestion(payload, selectedData._id);
                 if (result.success) {
@@ -359,13 +361,7 @@ const BehavioralTest = () => {
               try {
                 const payload = {
                   question: data.question,
-                  options: [
-                    data.option1,
-                    data.option2,
-                    data.option3,
-                    data.option4,
-                  ],
-                  correctOption: data.correctAnswer,
+                  options: data.options,
                 };
                 const result = await addQuestion(payload);
                 if (result.success) {

@@ -197,7 +197,7 @@ export default function BehavioralAssessment() {
                     <div key={index} className="flex items-start gap-3">
                       <RadioGroup.Item
                         id={`q-${question.id}-${index}`}
-                        value={String(option)}
+                        value={String(option?.text)}
                         className="
                                   mt-1
                                   flex
@@ -232,7 +232,7 @@ export default function BehavioralAssessment() {
                               sm:text-base
                             "
                       >
-                        {option}
+                        {option?.text}
                       </label>
                     </div>
                   ))}

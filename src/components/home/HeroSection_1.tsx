@@ -1,3 +1,5 @@
+
+
 import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Sparkles, ShieldCheck, Zap } from "lucide-react";
@@ -30,22 +32,17 @@ export default function HeroSection() {
 
   useEffect(() => {
     let isMounted = true;
-
     (async () => {
       try {
         setLoading(true);
-
         const response = await api.get(`/api/home/all-banner`);
-
         if (isMounted && response.data?.data) {
           setHomeBanner(response.data.data);
         }
       } catch (error) {
         console.error("Error fetching hero banners:", error);
       } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
+        if (isMounted) setLoading(false);
       }
     })();
 
@@ -84,7 +81,6 @@ export default function HeroSection() {
 
   useEffect(() => {
     if (homeBanner.length <= 1) return;
-
     const timer = setInterval(() => {
       nextSlide();
     }, 6000);
@@ -98,13 +94,11 @@ export default function HeroSection() {
       opacity: 0,
       scale: 0.95,
     }),
-
     center: {
       x: 0,
       opacity: 1,
       scale: 1,
     },
-
     exit: (dir: number) => ({
       x: dir > 0 ? "-100%" : "100%",
       opacity: 0,
@@ -114,27 +108,19 @@ export default function HeroSection() {
 
   const currentBanner = homeBanner[slide];
 
-  /*
-   * LOADING STATE
-   */
   if (loading) {
     return (
-      <section className="w-full min-h-[calc(100vh-4rem)] flex items-center justify-center bg-white border-b border-slate-200 px-4 sm:px-6 py-12">
+      <section className="w-full min-h-[calc(100vh-4rem)] flex items-center justify-center bg-gradient-to-br from-background via-primary/10 to-background border-b border-border/40 px-4 sm:px-6 py-12">
         <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           <div className="lg:col-span-7 flex flex-col items-center lg:items-start space-y-4 sm:space-y-6 text-center lg:text-left">
             <Skeleton className="h-7 w-36 sm:w-44 rounded-full" />
-
             <Skeleton className="h-10 sm:h-16 w-full max-w-xl rounded-xl" />
-
             <Skeleton className="h-20 sm:h-24 w-full max-w-lg rounded-xl" />
-
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto pt-2">
               <Skeleton className="h-12 sm:h-14 w-full sm:w-40 rounded-xl" />
-
               <Skeleton className="h-12 sm:h-14 w-full sm:w-40 rounded-xl" />
             </div>
           </div>
-
           <div className="lg:col-span-5 w-full max-w-md lg:max-w-none mx-auto">
             <Skeleton className="w-full aspect-[4/3] sm:aspect-[16/10] lg:aspect-[4/3] rounded-3xl" />
           </div>
@@ -143,37 +129,20 @@ export default function HeroSection() {
     );
   }
 
-  /*
-   * NO BANNER
-   */
-  if (!homeBanner.length) {
-    return null;
-  }
+  if (!homeBanner.length) return null;
 
   return (
     <section
       id="home"
-      className="relative w-full min-h-[calc(100vh-4rem)] lg:min-h-[90vh] flex items-center justify-center overflow-hidden bg-white border-b border-slate-200 py-8 sm:py-12 lg:py-16 select-none"
+      className="relative w-full min-h-[calc(100vh-4rem)] lg:min-h-[90vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-primary/15 via-30% to-background border-b border-border/50 py-8 sm:py-12 lg:py-16 select-none"
     >
-      {/* ================================
-          BACKGROUND GRAPHICS
-      ================================= */}
+      {/* BACKGROUND GRAPHICS & GLOW */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(99,102,241,0.18),transparent_45%),radial-gradient(circle_at_80%_80%,rgba(168,85,247,0.18),transparent_45%),radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.12),transparent_55%)] pointer-events-none" />
 
-      {/* Soft background gradient */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(17,43,95,0.07),transparent_35%),radial-gradient(circle_at_85%_80%,rgba(37,99,235,0.06),transparent_35%)] pointer-events-none" />
+      <div className="absolute top-1/4 -left-20 sm:-left-32 w-64 sm:w-96 h-64 sm:h-96 bg-gradient-to-tr from-primary/30 to-purple-500/20 rounded-full blur-[80px] sm:blur-[110px] pointer-events-none animate-pulse" />
+      <div className="absolute bottom-10 -right-20 w-72 sm:w-[500px] h-72 sm:h-[500px] bg-gradient-to-bl from-blue-600/20 via-primary/20 to-transparent rounded-full blur-[90px] sm:blur-[130px] pointer-events-none" />
 
-      {/* Left glow */}
-      <div className="absolute top-1/4 -left-20 sm:-left-32 w-64 sm:w-96 h-64 sm:h-96 bg-[#112B5F]/10 rounded-full blur-[90px] pointer-events-none" />
-
-      {/* Right glow */}
-      <div className="absolute bottom-10 -right-20 w-72 sm:w-[500px] h-72 sm:h-[500px] bg-blue-500/10 rounded-full blur-[110px] pointer-events-none" />
-
-      {/* Subtle dot pattern */}
-      <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:20px_20px] opacity-30 pointer-events-none" />
-
-      {/* ================================
-          MAIN CONTAINER
-      ================================= */}
+      <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#1f2937_1px,transparent_1px)] [background-size:16px_16px] opacity-25 pointer-events-none" />
 
       <div className="max-w-[1536px] w-full mx-auto px-4 sm:px-6 lg:px-12 z-10 my-auto">
         <AnimatePresence mode="wait" custom={direction}>
@@ -185,124 +154,75 @@ export default function HeroSection() {
             animate="center"
             exit="exit"
             transition={{
-              x: {
-                type: "spring",
-                stiffness: 280,
-                damping: 30,
-              },
-              opacity: {
-                duration: 0.3,
-              },
-              scale: {
-                duration: 0.3,
-              },
+              x: { type: "spring", stiffness: 280, damping: 30 },
+              opacity: { duration: 0.3 },
+              scale: { duration: 0.3 },
             }}
             className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center"
           >
-            {/* ================================
-                LEFT COLUMN
-            ================================= */}
-
+            {/* LEFT COLUMN: TEXT CONTENT */}
             <div className="lg:col-span-7 xl:col-span-6 order-1 text-center lg:text-left space-y-4 sm:space-y-6 lg:pr-4">
-              {/* Badge */}
               <motion.div
-                initial={{
-                  opacity: 0,
-                  y: 10,
-                }}
-                animate={{
-                  opacity: 1,
-                  y: 0,
-                }}
-                transition={{
-                  delay: 0.1,
-                }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
                 className="inline-block"
               >
                 <Badge
                   variant="outline"
-                  className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1 sm:py-1.5 bg-[#112B5F]/5 text-[#112B5F] border-[#112B5F]/20 rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase shadow-sm"
+                  className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1 sm:py-1.5 bg-gradient-to-r from-primary/20 to-purple-500/10 text-primary border-primary/30 backdrop-blur-md rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase shadow-sm"
                 >
-                  <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#112B5F]" />
-
+                  <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary animate-pulse" />
                   {currentBanner?.subtitle || "Verified Service"}
                 </Badge>
               </motion.div>
 
-              {/* Heading */}
               <motion.h1
-                initial={{
-                  opacity: 0,
-                  y: 15,
-                }}
-                animate={{
-                  opacity: 1,
-                  y: 0,
-                }}
-                transition={{
-                  delay: 0.15,
-                }}
-                className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.15]"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight text-foreground leading-[1.15]"
               >
-                <span className="bg-gradient-to-r from-slate-950 via-slate-800 to-[#112B5F] bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-foreground via-foreground/95 to-primary bg-clip-text text-transparent drop-shadow-sm">
                   {currentBanner?.banner_title}
                 </span>
               </motion.h1>
 
-              {/* Description */}
               <motion.p
-                initial={{
-                  opacity: 0,
-                  y: 15,
-                }}
-                animate={{
-                  opacity: 1,
-                  y: 0,
-                }}
-                transition={{
-                  delay: 0.2,
-                }}
-                className="text-slate-600 text-justify text-sm sm:text-lg xl:text-xl max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal tracking-wide"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="text-muted-foreground text-justify text-sm sm:text-lg xl:text-xl max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal tracking-wide"
               >
                 {currentBanner?.description}
               </motion.p>
 
-              {/* CTA BUTTONS */}
+              {/* CALL TO ACTION BUTTONS */}
               <motion.div
-                initial={{
-                  opacity: 0,
-                  y: 15,
-                }}
-                animate={{
-                  opacity: 1,
-                  y: 0,
-                }}
-                transition={{
-                  delay: 0.25,
-                }}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25 }}
                 className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:gap-4 pt-2 sm:pt-4"
               >
-                {/* Primary Button */}
                 <Button
                   asChild
                   size="lg"
-                  className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base font-semibold rounded-xl sm:rounded-2xl bg-[#112B5F] hover:bg-[#0D2149] shadow-lg shadow-[#112B5F]/20 hover:shadow-xl hover:shadow-[#112B5F]/30 hover:scale-[1.02] active:scale-[0.98] transition-all border-none text-white"
+                  className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base font-semibold rounded-xl sm:rounded-2xl bg-gradient-to-r from-primary via-primary to-purple-600 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all border-none text-white"
                 >
                   <Link
                     to="/register"
                     className="flex items-center justify-center"
                   >
                     Get Started Free
-                    <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+                    <ArrowRight className="ml-2 h-4 h-4 sm:w-5 sm:h-5" />
                   </Link>
                 </Button>
 
-                {/* Secondary Button */}
                 <Button
                   asChild
                   size="lg"
                   variant="outline"
-                  className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base font-semibold rounded-xl sm:rounded-2xl bg-white text-[#112B5F] border-[#112B5F]/30 hover:bg-[#112B5F] hover:text-white hover:border-[#112B5F] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
+                  className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base font-semibold rounded-xl sm:rounded-2xl bg-background/40 text-foreground backdrop-blur-xl border-border/80 hover:bg-foreground hover:text-background hover:border-foreground hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
                 >
                   <a
                     href="#services"
@@ -313,7 +233,7 @@ export default function HeroSection() {
                 </Button>
               </motion.div>
 
-              {/* SLIDER DOTS */}
+              {/* SLIDE INDICATORS */}
               {homeBanner.length > 1 && (
                 <div className="flex justify-center lg:justify-start items-center gap-2 sm:gap-3 pt-4 sm:pt-6">
                   {homeBanner.map((_, index) => (
@@ -326,8 +246,8 @@ export default function HeroSection() {
                       aria-label={`Go to slide ${index + 1}`}
                       className={`h-2.5 sm:h-3 rounded-full transition-all duration-500 focus:outline-none p-1 -m-1 ${
                         slide === index
-                          ? "w-8 sm:w-12 bg-[#112B5F] shadow-md shadow-[#112B5F]/30"
-                          : "w-2.5 sm:w-3 bg-[#112B5F]/25 hover:bg-[#112B5F]/50"
+                          ? "w-8 sm:w-12 bg-gradient-to-r from-primary to-purple-500 shadow-md shadow-primary/40"
+                          : "w-2.5 sm:w-3 bg-muted-foreground/30 hover:bg-muted-foreground/65"
                       }`}
                     />
                   ))}
@@ -335,26 +255,21 @@ export default function HeroSection() {
               )}
             </div>
 
-            {/* ================================
-                RIGHT COLUMN
-            ================================= */}
-
+            {/* RIGHT COLUMN: CARD / MEDIA DISPLAY */}
             <div className="lg:col-span-5 xl:col-span-6 order-2 w-full">
               <motion.div
                 drag="x"
-                dragConstraints={{
-                  left: 0,
-                  right: 0,
-                }}
+                dragConstraints={{ left: 0, right: 0 }}
                 dragElastic={0.15}
                 onDragEnd={handleDragEnd}
                 className="relative mx-auto max-w-md sm:max-w-lg lg:max-w-none cursor-grab active:cursor-grabbing touch-pan-y"
               >
-                {/* Image Card - No Border / No Shadow */}
-                <Card className="relative overflow-hidden border-0 shadow-none bg-transparent rounded-3xl sm:rounded-[2.5rem]">
+                {/* Outer Glow */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-primary via-purple-500 to-blue-500 rounded-[1.75rem] sm:rounded-[2.5rem] blur-lg sm:blur-xl opacity-60 sm:opacity-70 transition duration-1000" />
+
+                <Card className="relative overflow-hidden border border-white/20 dark:border-white/10 shadow-xl sm:shadow-2xl bg-card/30 backdrop-blur-2xl rounded-[1.5rem] sm:rounded-[2rem]">
                   <CardContent className="p-0">
-                    <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] lg:aspect-[4/3] overflow-hidden group rounded-3xl sm:rounded-[2.5rem]">
-                      {/* Banner Image */}
+                    <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] lg:aspect-[4/3] overflow-hidden group">
                       <img
                         src={currentBanner?.banner_image}
                         alt={currentBanner?.banner_title || "Hero Banner"}
@@ -362,30 +277,26 @@ export default function HeroSection() {
                         draggable={false}
                       />
 
-                      {/* Image Information Card */}
-                      <div className="absolute bottom-3 sm:bottom-6 left-3 sm:left-6 right-3 sm:right-6 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/90 backdrop-blur-xl border border-white/80 shadow-lg flex items-center justify-between gap-2 pointer-events-none">
+                      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent opacity-90 pointer-events-none" />
+
+                      {/* OVERLAY BADGE */}
+                      <div className="absolute bottom-3 sm:bottom-6 left-3 sm:left-6 right-3 sm:right-6 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-background/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-lg flex items-center justify-between gap-2 pointer-events-none">
                         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                          {/* Icon */}
-                          <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-[#112B5F]/10 text-[#112B5F] shrink-0">
+                          <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary/30 to-purple-500/20 text-primary shrink-0">
                             <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
                           </div>
-
-                          {/* Text */}
                           <div className="min-w-0">
-                            <p className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">
+                            <p className="text-[10px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider truncate">
                               System Feature
                             </p>
-
-                            <p className="text-xs sm:text-sm font-bold text-slate-900 truncate">
+                            <p className="text-xs sm:text-sm font-bold text-foreground truncate">
                               {currentBanner?.banner_title}
                             </p>
                           </div>
                         </div>
 
-                        {/* Status */}
-                        <div className="flex items-center gap-1.5 text-emerald-600 text-[10px] sm:text-xs font-bold bg-emerald-50 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-emerald-200 shrink-0">
+                        <div className="flex items-center gap-1.5 text-emerald-500 text-[10px] sm:text-xs font-bold bg-emerald-500/10 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-emerald-500/20 shrink-0">
                           <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-
                           {!currentBanner?.is_del ? "Active" : "Archived"}
                         </div>
                       </div>

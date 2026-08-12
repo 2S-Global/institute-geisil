@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Plus,
-  Calendar,
-  RotateCcw,
-  CheckCircle2,
-  ThumbsUp,
-} from "lucide-react";
+import { Plus, Calendar, RotateCcw, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import API from "@/lib/axios";
 import { useNavigate } from "react-router-dom";
@@ -173,72 +167,103 @@ const TestMain = () => {
             <div className="w-full h-36 rounded-2xl bg-slate-100 animate-pulse border border-slate-200/60" />
           ) : isScore ? (
             /* Assessment Card */
-            <>
-              <div
-                className={`relative overflow-hidden rounded-2xl border border-green-200 bg-green-50/40 p-6 sm:p-7 transition-all duration-300 shadow-sm hover:shadow-md`}
-              >
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-                  {/* Left: Circular Progress Ring (Forced Full & Solid Green with ThumbsUp inside) */}
-                  <div className="relative flex items-center justify-center shrink-0">
-                    <svg
-                      className="w-32 h-32 transform -rotate-90 drop-shadow-xs"
-                      viewBox="0 0 100 100"
-                    >
-                      {/* Track Circle */}
-                      <circle
-                        className="text-slate-200/80 stroke-current"
-                        strokeWidth="7"
-                        cx="50"
-                        cy="50"
-                        r={radius}
-                        fill="transparent"
-                      />
-                      {/* Full Progress Circle - Emerald Green */}
-                      <circle
-                        className="text-emerald-500 stroke-current transition-all duration-1000 ease-out"
-                        strokeWidth="7"
-                        strokeLinecap="round"
-                        cx="50"
-                        cy="50"
-                        r={radius}
-                        fill="transparent"
-                        strokeDasharray={circumference}
-                        strokeDashoffset={0}
-                      />
-                    </svg>
+            <div
+              className={`relative overflow-hidden rounded-2xl border ${status.border} ${status.bg}/40 p-6 sm:p-7 transition-all duration-300 shadow-sm hover:shadow-md`}
+            >
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+                {/* Left: Circular Progress Ring */}
+                <div className="relative flex items-center justify-center shrink-0">
+                  <svg
+                    className="w-32 h-32 transform -rotate-90 drop-shadow-xs"
+                    viewBox="0 0 100 100"
+                  >
+                    {/* Track Circle */}
+                    <circle
+                      className="text-slate-200/80 stroke-current"
+                      strokeWidth="7"
+                      cx="50"
+                      cy="50"
+                      r={radius}
+                      fill="transparent"
+                    />
+                    {/* Animated Progress Circle */}
+                    <circle
+                      className={`${status.stroke} stroke-current transition-all duration-1000 ease-out`}
+                      strokeWidth="7"
+                      strokeLinecap="round"
+                      cx="50"
+                      cy="50"
+                      r={radius}
+                      fill="transparent"
+                      strokeDasharray={circumference}
+                      strokeDashoffset={strokeDashoffset}
+                    />
+                  </svg>
 
-                    {/* Centered Inner ThumbsUp Icon */}
-                    <div className="absolute flex flex-col items-center justify-center text-center pointer-events-none">
-                      <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 shadow-xs">
-                        <ThumbsUp className="w-5 h-5" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Middle: Assessment Status, Score & Date */}
-                  <div className="flex-1 text-center sm:text-left space-y-2">
-                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                      {/* Completion Date Badge (Always Shown) */}
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium text-slate-700 bg-white/90 border border-slate-200 shadow-xs">
-                        <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                        Completed: {formattedDate || "N/A"}
-                      </span>
-                    </div>
-
-                    <div>
-                      <h6 className="text-base font-semibold text-slate-800">
-                        Assessment Completed
-                      </h6>
-                    </div>
-
-                    <p className="text-xs text-slate-500 max-w-md">
-                      Your performance metric is evaluated based on your latest
-                      personality assessment responses.
-                    </p>
+                  {/* Centered Inner Score Text */}
+                  <div className="absolute flex flex-col items-center justify-center text-center pointer-events-none">
+                    <span className="text-3xl font-extrabold tracking-tight text-slate-900">
+                      {percentage}%
+                    </span>
+                    <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest -mt-0.5">
+                      Score
+                    </span>
                   </div>
                 </div>
+
+                {/* Middle: Assessment Status, Score & Date */}
+                <div className="flex-1 text-center sm:text-left space-y-2">
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                    {/* Performance Badge */}
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${status.bg} ${status.color} border ${status.border} ring-1 ${status.ring}`}
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      {status.text}
+                    </span>
+
+                    {/* Completion Date Badge */}
+                    {formattedDate && (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium text-slate-700 bg-white/90 border border-slate-200 shadow-xs">
+                        <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                        Completed: {formattedDate}
+                      </span>
+                    )}
+                  </div>
+
+                  <div>
+                    <h6 className="text-base font-semibold text-slate-800">
+                      Assessment Completed
+                    </h6>
+                    <p className="text-sm text-slate-600 mt-0.5">
+                      Overall Score:{" "}
+                      {/*  <span className={`font-bold ${status.color}`}>
+                        {scoreData?.score ?? percentage} /{" "}
+                        {scoreData?.totalQuestions ?? 100}
+                      </span>{" "} */}
+                      ({percentage}%)
+                    </p>
+                  </div>
+
+                  <p className="text-xs text-slate-500 max-w-md">
+                    Your performance metric is evaluated based on your latest
+                    behavioral assessment responses.
+                  </p>
+                </div>
+
+                {/* Right: Retake Action Button */}
+                {/* <div className="shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-200/60 w-full sm:w-auto flex justify-center">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/candidate/behavioral-assessment")}
+                className="w-full sm:w-auto bg-white/90 hover:bg-white border-slate-200 shadow-xs text-slate-700"
+              >
+                <RotateCcw className="mr-2 h-3.5 w-3.5 text-slate-500" /> Retake Test
+              </Button>
+            </div> */}
               </div>
-            </>
+            </div>
           ) : (
             /* Empty State */
             <div className="mt-4 flex flex-1 items-center justify-center w-full">
