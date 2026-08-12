@@ -5,7 +5,7 @@ export const useQuestion = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
-  // http://localhost:8080/api/mental-test/create-question
+  
   type QuestionData = {
     question: string;
     options: string[];
