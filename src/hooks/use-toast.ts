@@ -123,6 +123,7 @@ export const reducer = (state: State, action: Action): State => {
 
 const listeners: Array<(state: State) => void> = [];
 
+
 let memoryState: State = { toasts: [] };
 
 function dispatch(action: Action) {
@@ -147,6 +148,7 @@ function toast({ ...props }: Toast) {
   dispatch({
     type: "ADD_TOAST",
     toast: {
+      duration: 2000,
       ...props,
       id,
       open: true,

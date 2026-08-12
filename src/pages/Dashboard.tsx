@@ -75,6 +75,7 @@ const formatted = date.toLocaleDateString("en-GB", {
   month: "short",
   year: "numeric",
 });
+
 const Dashboard = () => {
   const [stats, setStats] = useState({
     total: 0,
@@ -84,7 +85,7 @@ const Dashboard = () => {
   });
   const [recruiters, setRecruiters] = useState([]);
   const [evaluations, setEvaluations] = useState([]);
-  const [departmentData, setDepartmentData] = useState([]); // ✅ move here
+  const [departmentData, setDepartmentData] = useState([]);
   const [activeRecruiter, setActiveRecruiter] = useState([]);
 
   // Add fetch function
@@ -103,7 +104,7 @@ const Dashboard = () => {
   };
 
 
-  
+
   const fetchStats = async () => {
     try {
       const res = await api.get("/api/institutestudent/get_students_counts");
@@ -168,7 +169,7 @@ const Dashboard = () => {
     fetchDepartmentData(); // <-- add this
     fetchActiveRecruiter();
   }, []);
- 
+
   return (
     <DashboardLayout>
       {/* Page header */}

@@ -1,21 +1,12 @@
 import { NavLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
-  Users,
-  Building2,
-  GraduationCap,
-  Briefcase,
-  ClipboardList,
-  FileBarChart,
-  Bell,
   Settings,
-  Shield,
   LogOut,
-  CreditCard,
-  MessageSquare,
   FileText,
   ChevronRight,
-  NotepadText,
+  Speech,
+  Brain
 } from "lucide-react";
 import {
   Sidebar,
@@ -32,26 +23,25 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   useSidebar,
+
 } from "@/components/ui/sidebar";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { title } from "process";
-import { url } from "inspector";
 
 const main = [
   { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard },
   {
     title: "Behavioral Test",
     url: "/admin/behavioral-test",
-    icon: NotepadText,
+    icon: Speech,
   },
   {
     title: "Personality Test",
     url: "/admin/personality-test",
-    icon: NotepadText,
+    icon: Brain,
   },
   // { title: "Candidates", url: "/admin/candidates", icon: Users },
   // { title: "Employers", url: "/admin/employers", icon: Briefcase },
