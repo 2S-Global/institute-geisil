@@ -131,7 +131,7 @@ export default function BehavioralAssessment() {
 
   return (
     <CandidateLayout>
-      <div className="min-h-screen p-4 sm:p-6 md:p-8">
+      <div className=" p-4 sm:p-6 md:p-8">
         <div className="mx-auto w-full rounded-xl bg-white p-4 shadow sm:p-6">
           {/* Header */}
           <div className="mb-6 flex items-center gap-3">
@@ -169,7 +169,7 @@ export default function BehavioralAssessment() {
 
               <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
                 <div
-                  className="h-full rounded-full bg-blue-600 transition-all duration-300"
+                  className="h-full rounded-full bg-[#112B5F] transition-all duration-300"
                   style={{
                     width: `${
                       questions.length
@@ -240,12 +240,12 @@ export default function BehavioralAssessment() {
                             border-gray-400
                             focus:outline-none
                             focus:ring-2
-                            focus:ring-blue-500
-                            data-[state=checked]:border-blue-600
+                            focus:ring-[#112B5F]
+                            data-[state=checked]:border-[#112B5F]
                           "
                         >
                           <RadioGroup.Indicator className="flex items-center justify-center">
-                            <div className="h-2.5 w-2.5 rounded-full bg-blue-600" />
+                            <div className="h-2.5 w-2.5 rounded-full bg-[#112B5F]" />
                           </RadioGroup.Indicator>
                         </RadioGroup.Item>
 

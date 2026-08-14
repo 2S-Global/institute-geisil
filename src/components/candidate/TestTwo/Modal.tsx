@@ -27,7 +27,7 @@ export default function Modal({ open, setOpen, data }: AddQuestionModalProps) {
         z-50
         flex
         w-[calc(100%-16px)]
-        max-w-6xl
+        max-w-7xl
         -translate-x-1/2
         -translate-y-1/2
         flex-col

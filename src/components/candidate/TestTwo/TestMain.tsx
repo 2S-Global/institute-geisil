@@ -111,10 +111,10 @@ const TestMain = () => {
             {isScore && (
               <Button
                 size="sm"
-                onClick={() => modalOpen()}
+                disabled
                 className="self-start sm:self-center shadow-sm"
               >
-                <Eye className="h-3.5 w-3.5" /> Result
+                <Plus className="mr-1.5 h-4 w-4" /> Start Assessment
               </Button>
             )}
           </div>
@@ -177,8 +177,11 @@ const TestMain = () => {
                   </div>
 
                   <div>
-                    <h6 className="text-base font-semibold text-slate-800">
-                      Assessment Completed
+                    <h6
+                      className="text-base font-semibold text-blue-600 underline cursor-pointer hover:text-blue-800"
+                      onClick={() => modalOpen()}
+                    >
+                      Assessment Report
                     </h6>
                   </div>
 

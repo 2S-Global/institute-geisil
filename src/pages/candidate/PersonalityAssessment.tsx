@@ -338,7 +338,7 @@ export default function PersonalityAssessment() {
    */
   return (
     <CandidateLayout>
-      <div ref={topRef} className="min-h-screen p-4 sm:p-6 md:p-8">
+      <div ref={topRef} className=" p-4 sm:p-6 md:p-8">
         <div className="mx-auto w-full max-w-5xl rounded-xl bg-white p-4 shadow sm:p-6">
           {/* ========================================
               PAGE HEADER

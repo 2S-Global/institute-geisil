@@ -13,7 +13,7 @@ import {
 export default function PersonalityChart({ data }) {
   const chartData = [
     {
-      name: data?.headerScores?.[0]?.headerName,
+      name: data?.headerScores?.[0]?.headerName + "(O)",
       shortName: data?.headerScores?.[0]?.headerName,
       score: data?.headerScores?.[0]?.percentage,
       color: "#6258df",
@@ -23,7 +23,7 @@ export default function PersonalityChart({ data }) {
       backgroundColor: "#f7f6ff",
     },
     {
-      name: data?.headerScores?.[1]?.headerName,
+      name: data?.headerScores?.[1]?.headerName + "(C)",
       shortName: data?.headerScores?.[1]?.headerName,
       score: data?.headerScores?.[1]?.percentage,
       color: "#33ccff",
@@ -33,7 +33,7 @@ export default function PersonalityChart({ data }) {
       backgroundColor: "#c1ebf8c0",
     },
     {
-      name: data?.headerScores?.[2]?.headerName,
+      name: data?.headerScores?.[2]?.headerName + "(E)",
       shortName: data?.headerScores?.[2]?.headerName,
       score: data?.headerScores?.[2]?.percentage,
       color: "#2ea49e",
@@ -43,7 +43,7 @@ export default function PersonalityChart({ data }) {
       backgroundColor: "#f4fffd",
     },
     {
-      name: data?.headerScores?.[3]?.headerName,
+      name: data?.headerScores?.[3]?.headerName + "(A)",
       shortName: data?.headerScores?.[3]?.headerName,
       score: data?.headerScores?.[3]?.percentage,
       color: "#e38b2e",
@@ -53,7 +53,7 @@ export default function PersonalityChart({ data }) {
       backgroundColor: "#fffaf0",
     },
     {
-      name: data?.headerScores?.[4]?.headerName,
+      name: data?.headerScores?.[4]?.headerName + "(N)",
       shortName: data?.headerScores?.[4]?.headerName,
       score: data?.headerScores?.[4]?.percentage,
       color: "#5c10a9",
