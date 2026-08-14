@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
-import { useState, useEffect,useRef } from "react";
-import{YMD} from "../lib/utils";
+import { useState, useEffect, useRef } from "react";
+import { YMD } from "../lib/utils";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -151,12 +151,12 @@ const stageStyles: Record<string, { cls: string; icon: any }> = {
 };
 import API from "../lib/axios";
 const RecruiterRequirementDetail = () => {
-  const [recruiter,setRecruiter]=useState()
-  const [requirements,setRequirement]=useState()
-    const [query, setQuery] = useState("");
+  const [recruiter, setRecruiter] = useState()
+  const [requirements, setRequirement] = useState()
+  const [query, setQuery] = useState("");
   const { id } = useParams();
-  
-const apiurl = import.meta.env.VITE_API_URL;
+
+  const apiurl = import.meta.env.VITE_API_URL;
   const [form, setForm] = useState<RecruiterForm>(emptyForm);
   const [errors, setErrors] = useState<
     Partial<Record<keyof RecruiterForm, string>>
@@ -167,42 +167,42 @@ const apiurl = import.meta.env.VITE_API_URL;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [courses, setCourses] = useState([]);
   const [courseSelected, setCourseSelected] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
-     const [selectedSudent, setSelectedSudent] = useState(); 
-     const [refresh, setRefresh] = useState(0); 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedSudent, setSelectedSudent] = useState();
+  const [refresh, setRefresh] = useState(0);
   const { toast } = useToast();
- const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split("T")[0];
   const r = recruitersDB[id ?? "default"] ?? recruitersDB.default;
   const initials = r.name.split(" ").map((w: string) => w[0]).slice(0, 2).join("");
 
-console.log("selected",selectedSudent,recruiter?._id);
+  console.log("selected", selectedSudent, recruiter?._id);
 
 
-/* const itemsPerPage = 10;
-  const filtered = (requirements || [])?.filter((s) =>
-    s.name.toLowerCase().includes(query.toLowerCase()),
-  );
- 
+  /* const itemsPerPage = 10;
+    const filtered = (requirements || [])?.filter((s) =>
+      s.name.toLowerCase().includes(query.toLowerCase()),
+    );
+   
+  
+      const totalPages = Math.ceil(filtered?.length / itemsPerPage);
+    const paginatedLists = filtered?.slice(
+      (currentPage - 1) * itemsPerPage,
+      currentPage * itemsPerPage,
+    ); */
+  /* console.log('paginatedLists',paginatedLists) */
 
-    const totalPages = Math.ceil(filtered?.length / itemsPerPage);
-  const paginatedLists = filtered?.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage,
-  ); */
-/* console.log('paginatedLists',paginatedLists) */
-
-/*     const fetchRecruiter= async () => {
-    try {
-      const res = await API.get(
-        `/api/instituteprofile/get_all_companies_by_institute?id=${id}`,
-      );
-      const data = res?.data?.data || {};
-      console.log(data)
-      setRecruiter(data);
-    } catch (err) {
-      console.error("Error fetching stats", err);
-    }
-  }; */
+  /*     const fetchRecruiter= async () => {
+      try {
+        const res = await API.get(
+          `/api/instituteprofile/get_all_companies_by_institute?id=${id}`,
+        );
+        const data = res?.data?.data || {};
+        console.log(data)
+        setRecruiter(data);
+      } catch (err) {
+        console.error("Error fetching stats", err);
+      }
+    }; */
 
 
   const toggleItem = (item) => {
@@ -212,16 +212,16 @@ console.log("selected",selectedSudent,recruiter?._id);
         : [...prev, item]
     );
   };
-useEffect(()=>{
-  setSelectedSudent(requirements)
-},[requirements])
- 
+  useEffect(() => {
+    setSelectedSudent(requirements)
+  }, [requirements])
 
-const sendInterview = async () => {
-  
+
+  const sendInterview = async () => {
+
     const payload = {
-     students:selectedSudent, 
-     recruiter:recruiter
+      students: selectedSudent,
+      recruiter: recruiter
     };
 
     let response = "";
@@ -235,7 +235,7 @@ const sendInterview = async () => {
         title: "Success",
         description: "Requirement save successfully",
       });
-     
+
     } catch (err) {
       if (err.response) {
         toast({
@@ -248,7 +248,7 @@ const sendInterview = async () => {
   };
 
 
-  const fetchRequirement= async () => {
+  const fetchRequirement = async () => {
     try {
       const res = await API.get(
         `/api/instituteprofile/get_company_requirement_by_id?id=${id}`,
@@ -261,7 +261,7 @@ const sendInterview = async () => {
     }
   };
 
-  const fetchCompanyRequirementSudents= async (program,tenth,twelvth) => {
+  const fetchCompanyRequirementSudents = async (program, tenth, twelvth) => {
     try {
       //console.log("gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg")
       const res = await API.get(
@@ -275,7 +275,7 @@ const sendInterview = async () => {
     }
   };
 
-  
+
   useEffect(() => {
     /* fetchRecruiter(); */
     fetchRequirement();
@@ -286,27 +286,27 @@ const sendInterview = async () => {
     if (recruiter?._id) {
       console.log('recruiter', recruiter);
       setForm({
-  numberOfHired: recruiter?.numberOfHired || "",
-  numberOfOpenings:  String(recruiter?.numberOfOpenings) || "",
-  courses:recruiter?.courses?"true":"",
-  tenTh: String(recruiter?.tenth) || "",
-  twelveTh: String(recruiter?.twelvth) || "",
-  date: recruiter?.date || "",
-  time: recruiter?.time || "",
-  remarks: recruiter?.remarks || "",
-  role: recruiter?.role || "",
+        numberOfHired: recruiter?.numberOfHired || "",
+        numberOfOpenings: String(recruiter?.numberOfOpenings) || "",
+        courses: recruiter?.courses ? "true" : "",
+        tenTh: String(recruiter?.tenth) || "",
+        twelveTh: String(recruiter?.twelvth) || "",
+        date: recruiter?.date || "",
+        time: recruiter?.time || "",
+        remarks: recruiter?.remarks || "",
+        role: recruiter?.role || "",
       });
-      const program=[]
-         const course=recruiter?.courses?.map((id)=>{
-            const row=courses.find((item)=>item.value===id);
-            if(row){
-                program.push(row.value)
-                return({'value':row.value,'label':row.label})
-            }
-          })
-          //console.log("ssssssssssssssssssssssssssssssssssssssssss",courses,course,program,recruiter?.courses,recruiter?.twelvth)
-          fetchCompanyRequirementSudents(program,recruiter?.tenth,recruiter?.twelvth)
-         setCourseSelected(()=>course||[])
+      const program = []
+      const course = recruiter?.courses?.map((id) => {
+        const row = courses.find((item) => item.value === id);
+        if (row) {
+          program.push(row.value)
+          return ({ 'value': row.value, 'label': row.label })
+        }
+      })
+      //console.log("ssssssssssssssssssssssssssssssssssssssssss",courses,course,program,recruiter?.courses,recruiter?.twelvth)
+      fetchCompanyRequirementSudents(program, recruiter?.tenth, recruiter?.twelvth)
+      setCourseSelected(() => course || [])
     }
   }, [recruiter?._id]);
 
@@ -322,12 +322,12 @@ const sendInterview = async () => {
     }));
   };
 
- 
+
 
   // ✅ Submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
- console.log("form",form);
+    console.log("form", form);
     const result = recruiterSchema.safeParse(form);
     console.log("result", result);
     if (!result.success) {
@@ -352,7 +352,7 @@ const sendInterview = async () => {
       courses: courseOptions,
       date: form.date,
       time: form.time,
-      id:recruiter?._id
+      id: recruiter?._id
     };
 
     let response = "";
@@ -382,10 +382,10 @@ const sendInterview = async () => {
   };
 
 
-const StudentInterview= async () => {
+  const StudentInterview = async () => {
     const payload = {
-      students:selectedSudent, 
-      recruiter:recruiter
+      students: selectedSudent,
+      recruiter: recruiter
     };
     let response = "";
     try {
@@ -398,7 +398,7 @@ const StudentInterview= async () => {
         title: "Success",
         description: "Requirement save successfully",
       });
-     
+
     } catch (err) {
       if (err.response) {
         toast({
@@ -441,7 +441,7 @@ const StudentInterview= async () => {
         <Link to="/institute/recruiters"><ArrowLeft className="h-4 w-4" /> Back to recruiters</Link>
       </Button>
 
-     {/*  <PageHeader
+      {/*  <PageHeader
         eyebrow="Recruiter profile"
         title={recruiter?.companyName||""}
         description={recruiter?.description}
@@ -456,12 +456,12 @@ const StudentInterview= async () => {
       /> */}
 
       {/* Profile summary */}
-     <Card className="mb-6 border-border/60 shadow-sm overflow-hidden">
+      <Card className="mb-6 border-border/60 shadow-sm overflow-hidden">
         {/* Header */}
         <div className="bg-[#1b4498] px-6 pt-6 pb-6">
           <div className="flex flex-col md:flex-row md:items-end gap-4">
-            
-           {/*  <Avatar className="h-20 w-20 border-4 border-card shadow-md">
+
+            {/*  <Avatar className="h-20 w-20 border-4 border-card shadow-md">
               <AvatarFallback className="bg-primary-soft text-white font-display font-bold text-2xl">
                 {recruiter?.companyName?.charAt(0) || ""}
               </AvatarFallback>
@@ -484,9 +484,9 @@ const StudentInterview= async () => {
                   </div>
                 </div>
 
-                
 
-              {/*   <Badge
+
+                {/*   <Badge
                   variant="outline"
                   className="bg-white"
                 >
@@ -503,7 +503,7 @@ const StudentInterview= async () => {
                 </Badge> */}
               </div>
 
-             {/*  <p className="text-sm text-white mt-1">
+              {/*  <p className="text-sm text-white mt-1">
                 {recruiter?.sector || ""} • since {recruiter?.since || ""}
               </p> */}
             </div>
@@ -512,11 +512,11 @@ const StudentInterview= async () => {
 
         {/* Content */}
         <CardContent className="pt-0">
-              <Separator className="mb-5" />
+          <Separator className="mb-5" />
 
-         <form onSubmit={handleSubmit} className="space-y-5 pt-2">
-          <div className="grid gap-4 md:grid-cols-2">
-           
+          <form onSubmit={handleSubmit} className="space-y-5 pt-2">
+            <div className="grid gap-4 md:grid-cols-2">
+
               <div className="space-y-1.5 md:col-span-2">
                 <Label htmlFor="Course">
                   Course <span className="text-red-500">*</span>
@@ -537,79 +537,79 @@ const StudentInterview= async () => {
                   <p className="text-sm text-red-500">{errors.courses}</p>
                 )}
               </div>
-            
-           
 
-            <div className="grid gap-4 md:grid-cols-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="numberOfOpenings">
-                  10th (%) <span className="text-red-500">*</span>
-                </Label>
 
-                <Input
-                  id="tenTh"
-                  value={form.tenTh}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (/^[0-9.]*$/.test(value)) {
-                      update("tenTh", value);
-                    }
-                  }}
-                  placeholder="10th (%)"
-                />
 
-                {errors.tenTh && (
-                  <p className="text-xs text-destructive">{errors.tenTh}</p>
-                )}
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="numberOfOpenings">
+                    10th (%) <span className="text-red-500">*</span>
+                  </Label>
+
+                  <Input
+                    id="tenTh"
+                    value={form.tenTh}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (/^[0-9.]*$/.test(value)) {
+                        update("tenTh", value);
+                      }
+                    }}
+                    placeholder="10th (%)"
+                  />
+
+                  {errors.tenTh && (
+                    <p className="text-xs text-destructive">{errors.tenTh}</p>
+                  )}
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="email">
+                    12th (%) <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="twelveTh"
+                    type="text"
+                    value={form.twelveTh}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (/^[0-9.]*$/.test(value)) {
+                        update("twelveTh", value);
+                      }
+                    }}
+                    placeholder="12th (%)"
+                  />
+                  {errors.twelveTh && (
+                    <p className="text-xs text-destructive">{errors.twelveTh}</p>
+                  )}
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="numberOfOpenings">
+                    Openings <span className="text-red-500">*</span>
+                  </Label>
+
+                  <Input
+                    id="numberOfOpenings"
+                    value={form.numberOfOpenings}
+                    maxLength="4"
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (/^[0-9]*$/.test(value)) {
+                        update("numberOfOpenings", value);
+                      }
+                    }}
+                    placeholder="Openings"
+                  />
+
+                  {errors.numberOfOpenings && (
+                    <p className="text-xs text-destructive">
+                      {errors.numberOfOpenings}
+                    </p>
+                  )}
+                </div>
               </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="email">
-                  12th (%) <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="twelveTh"
-                  type="text"
-                  value={form.twelveTh}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (/^[0-9.]*$/.test(value)) {
-                      update("twelveTh", value);
-                    }
-                  }}
-                  placeholder="12th (%)"
-                />
-                {errors.twelveTh && (
-                  <p className="text-xs text-destructive">{errors.twelveTh}</p>
-                )}
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="numberOfOpenings">
-                  Openings <span className="text-red-500">*</span>
-                </Label>
-
-                <Input
-                  id="numberOfOpenings"
-                  value={form.numberOfOpenings}
-                  maxLength="4"
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (/^[0-9]*$/.test(value)) {
-                      update("numberOfOpenings", value);
-                    }
-                  }}
-                  placeholder="Openings"
-                />
-
-                {errors.numberOfOpenings && (
-                  <p className="text-xs text-destructive">
-                    {errors.numberOfOpenings}
-                  </p>
-                )}
-              </div>
-            </div>
-            {/* 
+              {/* 
                   <div className="space-y-1.5">
                     <Label htmlFor="email">Hired *</Label>
                     <Input
@@ -629,41 +629,41 @@ const StudentInterview= async () => {
                     )}
                   </div> */}
 
-            <div className="space-y-1.5">
-              <Label htmlFor="notes">
-                Role <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="role"
-                type="text"
-                value={form.role}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (/^[a-zA-Z,\s]*$/.test(value)) {
-                    update("role", value);
-                  }
-                }}
-                placeholder="Role"
-              />
-              {errors.role && (
-                <p className="text-xs text-destructive">{errors.role}</p>
-              )}
-            </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="notes">
+                  Role <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="role"
+                  type="text"
+                  value={form.role}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (/^[a-zA-Z,\s]*$/.test(value)) {
+                      update("role", value);
+                    }
+                  }}
+                  placeholder="Role"
+                />
+                {errors.role && (
+                  <p className="text-xs text-destructive">{errors.role}</p>
+                )}
+              </div>
 
-            <div className="space-y-1.5 ">
-              <Label htmlFor="notes">Remarks</Label>
-              <Textarea
-                id="remarks"
-                value={form.remarks}
-                onChange={(e) => update("remarks", e.target.value)}
-                placeholder="remarks"
-                maxLength={500}
-                rows={5}
-              />
-            </div>
+              <div className="space-y-1.5 ">
+                <Label htmlFor="notes">Remarks</Label>
+                <Textarea
+                  id="remarks"
+                  value={form.remarks}
+                  onChange={(e) => update("remarks", e.target.value)}
+                  placeholder="remarks"
+                  maxLength={500}
+                  rows={5}
+                />
+              </div>
               <div className="space-y-1.5">
                 <Label htmlFor="scheduledDate">
-                   Exam Date
+                  Exam Date
                 </Label>
                 <Input
                   style={{ position: "relative" }}
@@ -681,42 +681,42 @@ const StudentInterview= async () => {
                 )}
 
                 <div className="space-y-1.5">
-                <Label htmlFor="time">
-                  Exam Time 
-                </Label>
-                <Input
-                  style={{ position: "relative" }}
-                  id="time"
-                  type="time"
-                  value={form.time}
-                  onChange={(e) => update("time", e.target.value)}
-                />
-                {errors.time && (
-                  <p className="text-xs text-destructive">
-                    {errors.time}
-                  </p>
-                )}
+                  <Label htmlFor="time">
+                    Exam Time
+                  </Label>
+                  <Input
+                    style={{ position: "relative" }}
+                    id="time"
+                    type="time"
+                    value={form.time}
+                    onChange={(e) => update("time", e.target.value)}
+                  />
+                  {errors.time && (
+                    <p className="text-xs text-destructive">
+                      {errors.time}
+                    </p>
+                  )}
+                </div>
               </div>
-              </div>
-               
-          </div>
 
-           <div className="flex justify-end">
-  <Button
-    type="submit"
-    className="bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand"
-  >
-    Update
-  </Button>
-</div>
-         
-        </form>
+            </div>
+
+            <div className="flex justify-end">
+              <Button
+                type="submit"
+                className="bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand"
+              >
+                Update
+              </Button>
+            </div>
+
+          </form>
         </CardContent>
-    </Card>
+      </Card>
 
       <Card className="shadow-sm border-border/60">
         <CardContent className="p-4 md:p-6">
-         {/*  <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+          {/*  <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
             <div></div>
             <div className="flex items-center gap-2">
               <div className="relative">
@@ -749,10 +749,10 @@ const StudentInterview= async () => {
                   </th>
 
                   <th className="font-medium py-3 px-4 text-center">
-                   12th %
+                    12th %
                   </th>
-                   <th className="font-medium py-3 px-4 text-center">
-                   Placement
+                  <th className="font-medium py-3 px-4 text-center">
+                    Placement
                   </th>
                   <th className="font-medium py-3 px-4 text-center">Action</th>
                 </tr>
@@ -775,7 +775,7 @@ const StudentInterview= async () => {
                     <td className="py-4 px-4 text-muted-foreground">
                       {s?.tenTh}
                     </td>
-                     <td className="py-4 px-4 text-muted-foreground">
+                    <td className="py-4 px-4 text-muted-foreground">
                       {s?.twelveTh}
                     </td>
 
@@ -783,27 +783,27 @@ const StudentInterview= async () => {
                       {Number(s?.total_students || 0).toLocaleString()}
                     </td>
 
-                   <td className="py-4 px-4 text-muted-foreground">
-                     <input type="checkbox" checked={selectedSudent?.includes(s)}
-                       onChange={() => toggleItem(s)}/>
+                    <td className="py-4 px-4 text-muted-foreground">
+                      <input type="checkbox" checked={selectedSudent?.includes(s)}
+                        onChange={() => toggleItem(s)} />
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            
+
           </div>
-           <div className="flex justify-end">
-  <Button
-   onClick={()=>StudentInterview()}
-    className="bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand mt-3"
-  >
-    Submit
-  </Button>
-</div>
+          <div className="flex justify-end">
+            <Button
+              onClick={() => StudentInterview()}
+              className="bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand mt-3"
+            >
+              Submit
+            </Button>
+          </div>
 
           {/* Pagination */}
-       {/*  <div className="flex items-center justify-between mt-4">
+          {/*  <div className="flex items-center justify-between mt-4">
             <p className="text-sm text-muted-foreground">
               Page {currentPage} of {totalPages}
             </p>
