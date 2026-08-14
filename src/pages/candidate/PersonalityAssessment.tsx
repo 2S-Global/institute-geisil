@@ -1,9 +1,8 @@
 import { useMemo, useState, useEffect, useRef } from "react";
-import * as Tabs from "@radix-ui/react-tabs";
 import API from "@/lib/axios";
 import { useNavigate } from "react-router-dom";
 import { CandidateLayout } from "@/components/CandidateLayout";
-import { ArrowLeft, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
 
@@ -15,58 +14,44 @@ export default function PersonalityAssessment() {
 
   const navigate = useNavigate();
   const { toast } = useToast();
+
   const topRef = useRef(null);
 
-  const [activeTab, setActiveTab] = useState("");
+  const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
   const [error, setError] = useState("");
 
+  /*
+   * ========================================
+   * FETCH QUESTIONS
+   * ========================================
+   *
+   * Header API is no longer needed.
+   */
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [feedbackResponse, headerResponse] = await Promise.all([
-        API.get("/api/mental-feedback/get-feedback-form"),
-        API.get("/api/mental-feedback/get-all-test-header"),
-      ]);
-      const headers =
-        headerResponse.data?.success && Array.isArray(headerResponse.data?.data)
-          ? headerResponse.data.data
-          : [];
-      const headerMap = headers.reduce((acc, item) => {
-        if (item?._id) {
-          acc[item._id] = item.header;
-        }
 
-        return acc;
-      }, {});
-      if (
-        feedbackResponse.data?.success &&
-        Array.isArray(feedbackResponse.data?.data)
-      ) {
-        const data = feedbackResponse.data.data;
+      const response = await API.get("/api/mental-feedback/get-feedback-form");
+
+      if (response.data?.success && Array.isArray(response.data?.data)) {
+        const data = response.data.data;
 
         /*
-         * Normalize the API response.
+         * Flatten all questions from all sections.
+         *
+         * We don't need header information anymore
+         * because questions are displayed one by one.
          */
         const questionsList = data.flatMap((section) => {
-          const headerId = section?.header;
-
-          const headerName = headerMap[headerId] || "General";
-
           return (section?.questions || []).map((question) => ({
             _id: question._id,
 
-            // Existing component uses question.question
+            // Existing question text
             question: question.text,
 
-            // Keep reversed information
+            // Keep existing reversed information
             is_reversed: question.is_reversed,
-
-            // Existing grouping logic uses item.header.header
-            header: {
-              _id: headerId,
-              header: headerName,
-            },
           }));
         });
 
@@ -75,7 +60,7 @@ export default function PersonalityAssessment() {
         setQuestions([]);
       }
     } catch (e) {
-      console.error("Failed to fetch behavioral assessment:", e);
+      console.error("Failed to fetch personality assessment:", e);
 
       setQuestions([]);
 
@@ -94,65 +79,61 @@ export default function PersonalityAssessment() {
   }, []);
 
   /*
-   * ----------------------------------------
-   * GROUP QUESTIONS BY HEADER NAME
-   * ----------------------------------------
+   * ========================================
+   * CURRENT QUESTION
+   * ========================================
    */
-  const groupedQuestions = useMemo(() => {
-    if (!Array.isArray(questions)) return {};
-
-    return questions.reduce((acc, item) => {
-      const key = item.header?.header || "General";
-
-      if (!acc[key]) {
-        acc[key] = [];
-      }
-
-      acc[key].push(item);
-
-      return acc;
-    }, {});
-  }, [questions]);
-
-  const tabNames = Object.keys(groupedQuestions);
+  const currentQuestionData = questions[currentQuestion];
 
   /*
-   * ----------------------------------------
-   * SET FIRST TAB
-   * ----------------------------------------
+   * ========================================
+   * ANSWERED COUNT
+   * ========================================
    */
-  useEffect(() => {
-    if (tabNames.length > 0 && !activeTab) {
-      setActiveTab(tabNames[0]);
-    }
-  }, [tabNames, activeTab]);
+  const answeredCount = useMemo(() => {
+    return Object.keys(answers).length;
+  }, [answers]);
 
   /*
-   * ----------------------------------------
-   * CHECK TAB COMPLETION
-   * ----------------------------------------
+   * ========================================
+   * CURRENT QUESTION ANSWERED
+   * ========================================
    */
-  const isTabCompleted = (tab) => {
-    if (!groupedQuestions[tab]) return false;
-
-    return groupedQuestions[tab].every((q) => answers[q._id]);
-  };
+  const isCurrentQuestionAnswered =
+    currentQuestionData && answers[currentQuestionData._id] !== undefined;
 
   /*
-   * ----------------------------------------
+   * ========================================
+   * LAST QUESTION
+   * ========================================
+   */
+  const isLastQuestion =
+    questions.length > 0 && currentQuestion === questions.length - 1;
+
+  /*
+   * ========================================
+   * PROGRESS
+   * ========================================
+   */
+  const progress =
+    questions.length > 0 ? (answeredCount / questions.length) * 100 : 0;
+
+  /*
+   * ========================================
    * SCROLL TO TOP
-   * ----------------------------------------
+   * ========================================
    */
   const scrollToTop = () => {
     topRef.current?.scrollIntoView({
       behavior: "smooth",
+      block: "start",
     });
   };
 
   /*
-   * ----------------------------------------
+   * ========================================
    * HANDLE ANSWER
-   * ----------------------------------------
+   * ========================================
    */
   const handleAnswer = (questionId, value) => {
     const updated = {
@@ -161,46 +142,72 @@ export default function PersonalityAssessment() {
     };
 
     setAnswers(updated);
+    setError("");
 
-    if (
-      groupedQuestions[activeTab]?.every((q) =>
-        q._id === questionId ? true : updated[q._id],
-      )
-    ) {
-      setError("");
+    /*
+     * Automatically move to the next question
+     * after selecting an answer.
+     */
+    if (currentQuestion < questions.length - 1) {
+      setTimeout(() => {
+        setCurrentQuestion((prev) => prev + 1);
+        scrollToTop();
+      }, 200);
     }
   };
 
   /*
-   * ----------------------------------------
-   * NEXT TAB
-   * ----------------------------------------
+   * ========================================
+   * PREVIOUS QUESTION
+   * ========================================
    */
-  const nextTab = () => {
-    if (!isTabCompleted(activeTab)) {
-      setError("Please fill all questions.");
-      return;
-    }
+  const previousQuestion = () => {
+    if (currentQuestion > 0) {
+      setError("");
 
-    setError("");
-
-    const currentIndex = tabNames.indexOf(activeTab);
-
-    if (currentIndex < tabNames.length - 1) {
-      setActiveTab(tabNames[currentIndex + 1]);
+      setCurrentQuestion((prev) => prev - 1);
 
       scrollToTop();
     }
   };
 
   /*
-   * ----------------------------------------
+   * ========================================
+   * NEXT QUESTION
+   * ========================================
+   */
+  const nextQuestion = () => {
+    /*
+     * Don't allow next without answering
+     * the current question.
+     */
+    if (!isCurrentQuestionAnswered) {
+      setError("Please select an answer first.");
+      return;
+    }
+
+    setError("");
+
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion((prev) => prev + 1);
+
+      scrollToTop();
+    }
+  };
+
+  /*
+   * ========================================
    * SUBMIT
-   * ----------------------------------------
+   * ========================================
+   *
+   * Existing submit payload is preserved.
    */
   const handleSubmit = async () => {
-    if (!isTabCompleted(activeTab)) {
-      setError("Please fill all questions.");
+    /*
+     * Make sure every question has an answer.
+     */
+    if (answeredCount !== questions.length) {
+      setError("Please answer all questions before submitting.");
       return;
     }
 
@@ -257,51 +264,52 @@ export default function PersonalityAssessment() {
   if (loading) {
     return (
       <CandidateLayout>
-        <div className="mx-auto max-w-5xl animate-pulse p-4">
-          {/* Header Skeleton */}
-          <div className="mb-6 flex items-center gap-4">
-            <div className="h-10 w-10 rounded-lg bg-gray-200" />
+        <div className="min-h-screen p-4 sm:p-6 md:p-8">
+          <div className="mx-auto w-full max-w-5xl rounded-xl bg-white p-4 shadow sm:p-6">
+            {/* Header Skeleton */}
+            <div className="mb-6 flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-gray-200" />
 
-            <div className="h-8 w-64 rounded-lg bg-gray-200" />
-          </div>
-
-          {/* Tabs Skeleton */}
-          <div className="mb-6 flex gap-2 overflow-hidden border-b pb-2">
-            <div className="h-9 w-44 rounded-lg bg-gray-200" />
-            <div className="h-9 w-40 rounded-lg bg-gray-200" />
-            <div className="h-9 w-32 rounded-lg bg-gray-200" />
-          </div>
-
-          {/* Question Skeleton */}
-          <div className="space-y-5">
-            {[1, 2, 3].map((item) => (
-              <div
-                key={item}
-                className="space-y-4 rounded-xl border bg-white p-5 shadow-sm"
-              >
-                <div className="h-5 w-3/4 rounded bg-gray-200" />
-
-                <div className="mt-4 flex items-center justify-between gap-2">
-                  <div className="hidden h-4 w-28 rounded bg-gray-200 sm:block" />
-
-                  <div className="flex gap-2 sm:gap-4">
-                    {[1, 2, 3, 4, 5].map((circle) => (
-                      <div
-                        key={circle}
-                        className="h-10 w-10 rounded-full bg-gray-200 sm:h-12 sm:w-12"
-                      />
-                    ))}
-                  </div>
-
-                  <div className="hidden h-4 w-28 rounded bg-gray-200 sm:block" />
-                </div>
+              <div className="space-y-2">
+                <div className="h-7 w-64 rounded-lg bg-gray-200" />
+                <div className="h-4 w-40 rounded bg-gray-200" />
               </div>
-            ))}
-          </div>
+            </div>
 
-          {/* Button Skeleton */}
-          <div className="mt-8 flex justify-end">
-            <div className="h-11 w-28 rounded-lg bg-gray-200" />
+            {/* Progress Skeleton */}
+            <div className="mb-6">
+              <div className="mb-2 flex justify-between">
+                <div className="h-4 w-24 rounded bg-gray-200" />
+                <div className="h-4 w-28 rounded bg-gray-200" />
+              </div>
+
+              <div className="h-2 w-full rounded-full bg-gray-200" />
+            </div>
+
+            {/* Question Skeleton */}
+            <div className="rounded-xl border bg-white p-5 shadow-sm">
+              <div className="mb-6 h-6 w-4/5 rounded bg-gray-200" />
+
+              <div className="mb-3 flex justify-between">
+                <div className="h-4 w-28 rounded bg-gray-200" />
+                <div className="h-4 w-28 rounded bg-gray-200" />
+              </div>
+
+              <div className="flex justify-center gap-2 sm:gap-4">
+                {[1, 2, 3, 4, 5].map((item) => (
+                  <div
+                    key={item}
+                    className="h-11 w-11 rounded-full bg-gray-200 sm:h-12 sm:w-12"
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Button Skeleton */}
+            <div className="mt-8 flex justify-between">
+              <div className="h-11 w-28 rounded-lg bg-gray-200" />
+              <div className="h-11 w-28 rounded-lg bg-gray-200" />
+            </div>
           </div>
         </div>
       </CandidateLayout>
@@ -313,10 +321,10 @@ export default function PersonalityAssessment() {
    * NO QUESTIONS
    * ========================================
    */
-  if (tabNames.length === 0) {
+  if (questions.length === 0) {
     return (
       <CandidateLayout>
-        <div className="flex justify-center p-12 text-gray-500">
+        <div className="flex min-h-screen items-center justify-center p-12 text-gray-500">
           No questions available.
         </div>
       </CandidateLayout>
@@ -330,154 +338,201 @@ export default function PersonalityAssessment() {
    */
   return (
     <CandidateLayout>
-      <div ref={topRef} className="mx-auto max-w-5xl p-4">
-        {/* Page Header */}
-        <div className="mb-6 flex items-center gap-3">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center justify-center rounded-lg border border-gray-300 p-2 text-gray-700 transition hover:bg-gray-100"
-            aria-label="Go back"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </button>
+      <div ref={topRef} className="min-h-screen p-4 sm:p-6 md:p-8">
+        <div className="mx-auto w-full max-w-5xl rounded-xl bg-white p-4 shadow sm:p-6">
+          {/* ========================================
+              PAGE HEADER
+          ======================================== */}
+          <div className="mb-6 flex items-center gap-3">
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center justify-center rounded-lg border border-gray-300 p-2 text-gray-700 transition hover:bg-gray-100"
+              aria-label="Go back"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </button>
 
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Personality Assessment
-            </h1>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Personality Assessment
+              </h1>
 
-            <p className="text-sm text-gray-500">
-              Please complete all sections to submit your feedback.
-            </p>
+              <p className="text-sm text-gray-500">
+                Question {currentQuestion + 1} of {questions.length}
+              </p>
+            </div>
           </div>
-        </div>
 
-        {/* Tabs */}
-        <Tabs.Root value={activeTab} onValueChange={(val) => setActiveTab(val)}>
-          <Tabs.List className="flex gap-2 overflow-x-auto border-b pb-2">
-            {tabNames.map((tab) => {
-              const completed = isTabCompleted(tab);
+          {/* ========================================
+              PROGRESS
+          ======================================== */}
+          <div className="mb-6">
+            <div className="mb-2 flex items-center justify-between text-sm">
+              <span className="font-medium text-gray-700">
+                Assessment Progress
+              </span>
 
-              const isActive = activeTab === tab;
+              <span className="text-gray-500">
+                Answered {answeredCount} / {questions.length}
+              </span>
+            </div>
 
-              return (
-                <Tabs.Trigger
-                  key={tab}
-                  value={tab}
-                  className={`flex items-center gap-2 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition ${
-                    isActive
-                      ? "bg-[#112B5F] text-white shadow-sm"
-                      : completed
-                        ? "border border-green-200 bg-green-50 text-green-800 hover:bg-green-100"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
+              <div
+                className="h-full rounded-full bg-[#112B5F] transition-all duration-300"
+                style={{
+                  width: `${progress}%`,
+                }}
+              />
+            </div>
+          </div>
+
+          {/* ========================================
+              QUESTION
+          ======================================== */}
+          <div className="rounded-xl border bg-white p-5 shadow-sm sm:p-6">
+            <div className="mb-6">
+              <p className="mb-2 text-sm font-medium text-[#112B5F]">
+                Question {currentQuestion + 1} of {questions.length}
+              </p>
+
+              <h2 className="text-base font-semibold leading-7 text-gray-900 sm:text-lg">
+                {currentQuestion + 1}. {currentQuestionData.question}
+              </h2>
+            </div>
+
+            {/* Rating Scale */}
+            <div className="pt-2">
+              {/* Mobile labels */}
+              <div className="mb-3 flex justify-between text-[10px] font-semibold uppercase tracking-wide text-gray-500 sm:hidden">
+                <span>Strongly Disagree</span>
+
+                <span>Strongly Agree</span>
+              </div>
+
+              <div className="flex items-center justify-between gap-2 sm:gap-4">
+                {/* Desktop left label */}
+                <span className="hidden w-40 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 sm:block md:w-48 md:text-sm">
+                  Strongly Disagree
+                </span>
+
+                {/* Options */}
+                <div className="mx-auto flex flex-1 items-center justify-center gap-2 sm:gap-4">
+                  {OPTIONS.map((option) => {
+                    const isSelected =
+                      answers[currentQuestionData._id] === option;
+
+                    return (
+                      <label
+                        key={option}
+                        className={`flex h-11 w-11 shrink-0 cursor-pointer select-none items-center justify-center rounded-full border text-center font-medium transition sm:h-12 sm:w-12 ${
+                          isSelected
+                            ? "border-[#112B5F] bg-[#112B5F] text-white shadow-md"
+                            : "border-gray-300 bg-white text-gray-700 hover:border-[#112B5F] hover:bg-gray-50"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name={`question-${currentQuestionData._id}`}
+                          value={option}
+                          checked={isSelected}
+                          onChange={() =>
+                            handleAnswer(currentQuestionData._id, option)
+                          }
+                          className="hidden"
+                        />
+
+                        {option}
+                      </label>
+                    );
+                  })}
+                </div>
+
+                {/* Desktop right label */}
+                <span className="hidden w-40 text-right text-xs font-semibold uppercase tracking-wider text-gray-500 sm:block md:w-48 md:text-sm">
+                  Strongly Agree
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* ========================================
+              ERROR
+          ======================================== */}
+          {error && (
+            <p className="mt-4 text-sm font-medium text-red-500">{error}</p>
+          )}
+
+          {/* ========================================
+              NAVIGATION
+          ======================================== */}
+          <div className="mt-8 flex items-center justify-between gap-3">
+            {/* Previous */}
+            <button
+              type="button"
+              onClick={previousQuestion}
+              disabled={currentQuestion === 0}
+              className={`flex items-center gap-2 rounded-lg border px-5 py-3 font-medium transition ${
+                currentQuestion === 0
+                  ? "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400"
+                  : "border-gray-300 bg-white text-gray-700 hover:bg-gray-100"
+              }`}
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Previous
+            </button>
+
+            {/* Next / Submit */}
+            {!isLastQuestion ? (
+              <div className="group relative">
+                <button
+                  type="button"
+                  onClick={nextQuestion}
+                  disabled={!isCurrentQuestionAnswered}
+                  className={`flex items-center gap-2 rounded-lg px-5 py-3 font-medium text-white transition ${
+                    isCurrentQuestionAnswered
+                      ? "bg-[#112B5F] hover:opacity-90"
+                      : "cursor-not-allowed bg-gray-400"
                   }`}
                 >
-                  {completed && !isActive && (
-                    <CheckCircle2 className="h-4 w-4 text-green-600" />
-                  )}
+                  Next
+                  <ArrowRight className="h-4 w-4" />
+                </button>
 
-                  {tab}
-                </Tabs.Trigger>
-              );
-            })}
-          </Tabs.List>
-
-          {/* Tab Contents */}
-          {tabNames.map((tab) => (
-            <Tabs.Content key={tab} value={tab}>
-              <div className="mt-6 space-y-5">
-                {groupedQuestions[tab]?.map((question, index) => (
-                  <div
-                    key={question._id}
-                    className="space-y-4 rounded-xl border bg-white p-5 shadow-sm"
-                  >
-                    <h3 className="font-medium text-gray-900">
-                      {index + 1}. {question.question}
-                    </h3>
-
-                    {/* Responsive Rating Scale */}
-                    <div className="mt-4 pt-2">
-                      {/* Mobile Labels */}
-                      <div className="mb-2 flex justify-between text-xs font-semibold uppercase tracking-wider text-gray-500 sm:hidden">
-                        <span>Strongly Disagree</span>
-
-                        <span>Strongly Agree</span>
-                      </div>
-
-                      {/* Desktop Horizontal Scale */}
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="hidden w-56 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 sm:block md:text-sm">
-                          Strongly Disagree
-                        </span>
-
-                        <div className="mx-auto flex max-w-md flex-1 items-center justify-center gap-2 sm:gap-4">
-                          {OPTIONS.map((option) => {
-                            const isSelected = answers[question._id] === option;
-
-                            return (
-                              <label
-                                key={option}
-                                className={`flex h-11 w-11 shrink-0 cursor-pointer select-none items-center justify-center rounded-full border text-center font-medium transition sm:h-12 sm:w-12 ${
-                                  isSelected
-                                    ? "border-[#112B5F] bg-[#112B5F] text-white shadow-sm"
-                                    : "border-gray-300 text-gray-700 hover:border-[#112B5F] hover:bg-gray-50"
-                                }`}
-                              >
-                                <input
-                                  type="radio"
-                                  className="hidden"
-                                  checked={isSelected}
-                                  onChange={() =>
-                                    handleAnswer(question._id, option)
-                                  }
-                                />
-
-                                {option}
-                              </label>
-                            );
-                          })}
-                        </div>
-
-                        <span className="hidden w-36 text-right text-xs font-semibold uppercase tracking-wider text-gray-500 sm:block md:text-sm">
-                          Strongly Agree
-                        </span>
-                      </div>
-                    </div>
+                {/* Tooltip when Next is disabled */}
+                {!isCurrentQuestionAnswered && (
+                  <div className="pointer-events-none absolute bottom-full right-0 mb-2 whitespace-nowrap rounded-md bg-red-600 px-3 py-2 text-xs font-medium text-white opacity-0 shadow-lg transition-opacity duration-200 group-hover:opacity-100">
+                    Please select an answer first.
+                    <div className="absolute bottom-0 right-4 h-2 w-2 translate-y-1/2 rotate-45 bg-red-600" />
                   </div>
-                ))}
-              </div>
-
-              {/* Validation Error */}
-              {error && activeTab === tab && (
-                <p className="mt-4 font-medium text-red-500">{error}</p>
-              )}
-
-              {/* Navigation */}
-              <div className="mt-8 flex justify-end">
-                {tab !== tabNames[tabNames.length - 1] ? (
-                  <button
-                    onClick={nextTab}
-                    className="rounded-lg bg-[#112B5F] px-6 py-3 font-medium text-white transition hover:opacity-90"
-                  >
-                    Next
-                  </button>
-                ) : (
-                  <button
-                    disabled={!isTabCompleted(tab)}
-                    onClick={handleSubmit}
-                    className={`rounded-lg px-6 py-3 font-medium text-white ${
-                      isTabCompleted(tab)
-                        ? "bg-[#112B5F] transition hover:opacity-90"
-                        : "cursor-not-allowed bg-gray-400"
-                    }`}
-                  >
-                    Submit
-                  </button>
                 )}
               </div>
-            </Tabs.Content>
-          ))}
-        </Tabs.Root>
+            ) : (
+              <div className="group relative">
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={answeredCount !== questions.length}
+                  className={`rounded-lg px-6 py-3 font-medium text-white transition ${
+                    answeredCount === questions.length
+                      ? "bg-[#112B5F] hover:opacity-90"
+                      : "cursor-not-allowed bg-gray-400"
+                  }`}
+                >
+                  Submit
+                </button>
+
+                {/* Tooltip when Submit is disabled */}
+                {answeredCount !== questions.length && (
+                  <div className="pointer-events-none absolute bottom-full right-0 mb-2 whitespace-nowrap rounded-md bg-red-600 px-3 py-2 text-xs font-medium text-white opacity-0 shadow-lg transition-opacity duration-200 group-hover:opacity-100">
+                    Please answer all questions first.
+                    <div className="absolute bottom-0 right-4 h-2 w-2 translate-y-1/2 rotate-45 bg-red-600" />
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </CandidateLayout>
   );

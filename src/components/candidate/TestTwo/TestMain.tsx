@@ -5,10 +5,12 @@ import {
   RotateCcw,
   CheckCircle2,
   ThumbsUp,
+  Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import API from "@/lib/axios";
 import { useNavigate } from "react-router-dom";
+import Modal from "./Modal";
 import {
   Card,
   CardContent,
@@ -46,8 +48,11 @@ const TestMain = () => {
   const [scoreData, setScoreData] = useState<ScoreData | null>(null);
   const [isScore, setIsScore] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [open, setOpen] = useState<boolean>(false);
   const navigate = useNavigate();
-
+  const modalOpen = () => {
+    setOpen(true);
+  };
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -100,6 +105,16 @@ const TestMain = () => {
                 onClick={() => navigate("/candidate/personality-assessment")}
               >
                 <Plus className="mr-1.5 h-4 w-4" /> Start Assessment
+              </Button>
+            )}
+
+            {isScore && (
+              <Button
+                size="sm"
+                onClick={() => modalOpen()}
+                className="self-start sm:self-center shadow-sm"
+              >
+                <Eye className="h-3.5 w-3.5" /> Result
               </Button>
             )}
           </div>
@@ -190,6 +205,7 @@ const TestMain = () => {
           )}
         </div>
       </CardContent>
+      <Modal open={open} setOpen={setOpen} data={scoreData} />
     </Card>
   );
 };
