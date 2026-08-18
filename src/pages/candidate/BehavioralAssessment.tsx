@@ -239,8 +239,7 @@ export default function BehavioralAssessment() {
                             border
                             border-gray-400
                             focus:outline-none
-                            focus:ring-2
-                            focus:ring-[#112B5F]
+                            
                             data-[state=checked]:border-[#112B5F]
                           "
                         >
@@ -277,7 +276,7 @@ export default function BehavioralAssessment() {
                   variant="outline"
                   onClick={goToPrevious}
                   disabled={currentQuestion === 0}
-                  className="gap-2"
+                  className="gap-2 bg-[#112B5F] text-white hover:bg-[#0d2149] hover:text-white"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   Previous
