@@ -9,10 +9,25 @@ const RazorpayPayment = ({ onSuccess, documentType, feesType, text }) => {
   const [token, setToken] = useState(null);
   const [isRazorpayLoaded, setIsRazorpayLoaded] = useState(false);
   const [amount, setAmount] = useState(null);
+  const [isPan, setIsPan] = useState();
   useEffect(() => {
     if (typeof window !== "undefined") {
       setToken(localStorage.getItem("token"));
     }
+  }, []);
+  const panCheck = async () => {
+    try {
+      const res = await API.get(`/api/check/is-pan-added`);
+      if (res?.data.data) {
+        console.log("res1", res?.data?.data?.isPanAdded);
+        setIsPan(res?.data?.data?.isPanAdded);
+      }
+    } catch (error) {
+      console.log("");
+    }
+  };
+  useEffect(() => {
+    panCheck();
   }, []);
   const fetchFees = async () => {
     try {
@@ -81,22 +96,73 @@ const RazorpayPayment = ({ onSuccess, documentType, feesType, text }) => {
 
   return (
     <>
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={handlePayment}
-        disabled={!isRazorpayLoaded || !amount}
-        className="w-full mt-2 h-8 text-xs font-semibold rounded-lg
+      {isPan && (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={handlePayment}
+          disabled={!isRazorpayLoaded || !amount}
+          className="w-full mt-2 h-8 text-xs font-semibold rounded-lg
              bg-[#28406F] text-white border-[#28406F]
              hover:bg-[#1f3359] hover:text-white
              dark:bg-[#28406F] dark:text-white dark:border-[#28406F]
-             dark:hover:bg-[#1f3359] dark:hover:text-white"
-      >
-        {isRazorpayLoaded && amount
-          ? `Pay ₹${amount.toFixed(2)} to verify ${text}`
-          : "Loading..."}
-      </Button>
+             dark:hover:bg-[#1f3359] dark:hover:text-white p-2"
+        >
+          {isRazorpayLoaded && amount
+            ? `Pay ₹${amount.toFixed(2)} to verify ${text}`
+            : "Loading..."}
+        </Button>
+      )}
+
+      {!isPan && (
+        <div className="relative group w-full mt-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled
+            className="
+        w-full p-2 h-8 text-xs font-semibold rounded-lg
+        bg-[#28406F] text-white border-[#28406F]
+        hover:bg-[#1f3359] hover:text-white
+        dark:bg-[#28406F] dark:text-white dark:border-[#28406F]
+      "
+          >
+            {isRazorpayLoaded && amount
+              ? `Pay ₹${amount.toFixed(2)} to verify ${text}`
+              : "Loading..."}
+          </Button>
+
+          {/* Professional Tooltip */}
+          <div
+            className="
+        absolute bottom-full left-1/2 z-50
+        mb-2 -translate-x-1/2
+        w-max max-w-[90vw]
+        rounded-md bg-gray-900
+        px-3 py-2
+        text-center text-xs font-medium text-white
+        shadow-lg
+        opacity-0 invisible
+        transition-all duration-200
+        group-hover:opacity-100
+        group-hover:visible
+      "
+          >
+            PAN number is required to continue with verification.
+            {/* Arrow */}
+            <div
+              className="
+          absolute left-1/2 top-full
+          -translate-x-1/2
+          border-4 border-transparent
+          border-t-gray-900
+        "
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 };
