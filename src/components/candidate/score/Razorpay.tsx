@@ -2,19 +2,32 @@
 import React, { useEffect, useState } from "react";
 import API from "../../../lib/axios";
 import { Button } from "@/components/ui/button";
-const RazorpayPayment = ({ onSuccess, documentType, text }) => {
+const RazorpayPayment = ({ onSuccess, documentType, feesType, text }) => {
   const apiurl = import.meta.env.VITE_API_URL;
   const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY;
 
   const [token, setToken] = useState(null);
   const [isRazorpayLoaded, setIsRazorpayLoaded] = useState(false);
-
+  const [amount, setAmount] = useState(null);
   useEffect(() => {
     if (typeof window !== "undefined") {
       setToken(localStorage.getItem("token"));
     }
   }, []);
+  const fetchFees = async () => {
+    try {
+      const response = await API.get(`/api/candidatekyc/fees/${feesType}`);
+      if (response.data.success) {
+        setAmount(Number(response.data.fees));
+      }
+    } catch (error) {
+      console.error("❌ Error fetching fees:", error);
+    }
+  };
 
+  useEffect(() => {
+    if (token) fetchFees();
+  }, [apiurl, token]);
   // Load Razorpay script
   useEffect(() => {
     if (window.Razorpay) {
@@ -73,14 +86,16 @@ const RazorpayPayment = ({ onSuccess, documentType, text }) => {
         variant="outline"
         size="sm"
         onClick={handlePayment}
-        disabled={!isRazorpayLoaded}
+        disabled={!isRazorpayLoaded || !amount}
         className="w-full mt-2 h-8 text-xs font-semibold rounded-lg
              bg-[#28406F] text-white border-[#28406F]
              hover:bg-[#1f3359] hover:text-white
              dark:bg-[#28406F] dark:text-white dark:border-[#28406F]
              dark:hover:bg-[#1f3359] dark:hover:text-white"
       >
-        {text}
+        {isRazorpayLoaded && amount
+          ? `Pay ₹${amount.toFixed(2)} to verify ${text}`
+          : "Loading..."}
       </Button>
     </>
   );

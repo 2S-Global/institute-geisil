@@ -14,6 +14,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { User } from "lucide-react";
+import { toLocalDateTime } from "../../../utils/utils";
 
 // Imported variables
 import CibilLogo from "../../../../public/images/resource/Cibil Logo.png";
@@ -44,7 +45,7 @@ const getStatusTheme = (value = 0) => {
     };
   }
   return {
-    label: "Incomplete",
+    label: "Poor",
     textClass: "text-slate-400 dark:text-slate-500",
     progressClass: "[&>div]:bg-slate-400 dark:[&>div]:bg-slate-600",
   };
@@ -71,53 +72,46 @@ const ProfileMetrics = ({ refresh = 0 }: { refresh?: number }) => {
   const geisilTheme = useMemo(() => getStatusTheme(geisilScore), [geisilScore]);
 
   const cibilPercentage = useMemo(() => {
-    if (!cibilScore) return 0;
-    const percentage = ((cibilScore - 300) / 600) * 100;
+    if (!cibil?.Score) return 0;
+    const percentage = ((cibil?.Score - 300) / 600) * 100;
     return Math.min(Math.max(percentage, 0), 100);
-  }, [cibilScore]);
+  }, [cibil?.Score]);
 
   const cibilTheme = useMemo(
     () => getStatusTheme(cibilPercentage),
     [cibilPercentage],
   );
-  const experianScore = 0;
+  console.log("cibilPercentage", cibilPercentage);
+  console.log("cibilTheme", cibilTheme);
+
   const experianPercentage = useMemo(() => {
-    if (!experianScore) return 0;
-    const percentage = ((experianScore - 300) / 600) * 100;
+    if (!experian?.Score) return 0;
+    const percentage = ((experian?.Score - 300) / 600) * 100;
     return Math.min(Math.max(percentage, 0), 100);
-  }, [experianScore]);
+  }, [experian?.Score]);
 
   const experianTheme = useMemo(
     () => getStatusTheme(experianPercentage),
     [experianPercentage],
   );
 
-  const handelpaymentsuccess = async (response, documentType) => {
+  const handlePaymentSuccess = async (response, documentType) => {
     setSectionloading(true);
     try {
       const res = await API.post(`/api/candidate/score/credit-report/verify`, {
         razorpay_payment_id: response.razorpay_payment_id,
         razorpay_order_id: response.razorpay_order_id,
         razorpay_signature: response.razorpay_signature,
+        type: documentType,
       });
 
       if (res.data.success) {
-        if (res.data.verificationResult?.success) {
-          //setSuccess(res.data.verificationResult?.message || res.data.message);
-          setReload(true);
-          toast({
-            title: "Success",
-            description:
-              res.data.verificationResult?.message || res.data.message,
-          });
-        } else {
-          toast({
-            title: "Error",
-            variant: "destructive",
-            description:
-              res.data.verificationResult?.message || res.data.message,
-          });
-        }
+        setReload(true);
+        scoreData();
+        toast({
+          title: "Success",
+          description: res.data.message,
+        });
       } else {
         //setError(res.data.message);
         toast({
@@ -148,6 +142,7 @@ const ProfileMetrics = ({ refresh = 0 }: { refresh?: number }) => {
       }
       if (res2?.data.data) {
         console.log("res2", res2?.data.data);
+        setExperian(res2?.data.data);
       }
     } catch (error) {
       console.log("");
@@ -268,11 +263,11 @@ const ProfileMetrics = ({ refresh = 0 }: { refresh?: number }) => {
                   </h4>
                 </div>
 
-                {!cibil ? (
+                {scoresLoading ? (
                   <Skeleton className="h-6 w-12 rounded" />
                 ) : (
                   <span className="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-slate-50 flex-shrink-0">
-                    {cibil?.score}
+                    {cibil?.Score || 0}
                   </span>
                 )}
               </div>
@@ -286,7 +281,7 @@ const ProfileMetrics = ({ refresh = 0 }: { refresh?: number }) => {
               </div>
 
               <Progress
-                value={scoresLoading ? 0 : cibilPercentage}
+                value={!cibil?.Score ? 0 : cibilPercentage}
                 className={`h-1.5 bg-slate-200/70 dark:bg-slate-800 transition-all ${cibilTheme.progressClass}`}
               />
 
@@ -300,16 +295,19 @@ const ProfileMetrics = ({ refresh = 0 }: { refresh?: number }) => {
                   <Skeleton className="h-3 w-24 rounded" />
                 ) : (
                   <span className="text-[10px] sm:text-xs font-medium text-slate-700 dark:text-slate-300">
-                    Not checked yet
+                    {cibil?.paymentDate
+                      ? toLocalDateTime(cibil?.paymentDate)
+                      : "Not checked yet"}
                   </span>
                 )}
               </div>
 
               {/* Payment */}
               <RazorpayPayment
-                onSuccess={handelpaymentsuccess}
+                onSuccess={handlePaymentSuccess}
                 documentType="CIBIL"
-                text="Pay 7 for Latest CIBIL Score"
+                text="for Latest CIBIL Score"
+                feesType="cibil"
               />
             </div>
           </div>
@@ -336,7 +334,7 @@ const ProfileMetrics = ({ refresh = 0 }: { refresh?: number }) => {
                   <Skeleton className="h-6 w-12 rounded" />
                 ) : (
                   <span className="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-slate-50 flex-shrink-0">
-                    {experianScore}
+                    {experian?.Score || 0}
                   </span>
                 )}
               </div>
@@ -352,7 +350,7 @@ const ProfileMetrics = ({ refresh = 0 }: { refresh?: number }) => {
               </div>
 
               <Progress
-                value={scoresLoading ? 0 : experianPercentage}
+                value={!experian?.Score ? 0 : experianPercentage}
                 className={`h-1.5 bg-slate-200/70 dark:bg-slate-800 transition-all ${experianTheme.progressClass}`}
               />
 
@@ -366,16 +364,19 @@ const ProfileMetrics = ({ refresh = 0 }: { refresh?: number }) => {
                   <Skeleton className="h-3 w-24 rounded" />
                 ) : (
                   <span className="text-[10px] sm:text-xs font-medium text-slate-700 dark:text-slate-300">
-                    Not checked yet
+                    {experian?.paymentDate
+                      ? toLocalDateTime(experian?.paymentDate)
+                      : "Not checked yet"}
                   </span>
                 )}
               </div>
 
               {/* Payment */}
               <RazorpayPayment
-                onSuccess={handelpaymentsuccess}
+                onSuccess={handlePaymentSuccess}
                 documentType="EXPERIAN"
-                text="Pay 7 for Latest Experian Score"
+                feesType="experian"
+                text="for Latest Experian Score"
               />
             </div>
           </div>
