@@ -1,170 +1,5 @@
-// import React, { useMemo } from "react";
-// import {
-//   Card,
-//   CardContent,
-//   CardDescription,
-//   CardHeader,
-//   CardTitle,
-// } from "@/components/ui/card";
-// import { Progress } from "@/components/ui/progress";
-// import { User } from "lucide-react";
-
-// // Imported variables
-// import CibilLogo from "../../../../public/images/resource/Cibil Logo.png";
-// import EisilScoreLogo from "../../../../public/images/resource/Eisil Score Logo.png";
-// import { useProfileMetrics } from "../hooks/useProfileMetrics";
-
-// const getStatusTheme = (value = 0) => {
-//   if (value >= 85) {
-//     return {
-//       label: "Excellent",
-//       textClass: "text-emerald-600 dark:text-emerald-400",
-//       progressClass: "[&>div]:bg-emerald-500",
-//     };
-//   }
-//   if (value >= 70) {
-//     return {
-//       label: "Strong",
-//       textClass: "text-blue-600 dark:text-blue-400",
-//       progressClass: "[&>div]:bg-blue-500",
-//     };
-//   }
-//   if (value >= 50) {
-//     return {
-//       label: "Good",
-//       textClass: "text-amber-600 dark:text-amber-400",
-//       progressClass: "[&>div]:bg-amber-500",
-//     };
-//   }
-//   return {
-//     label: "Incomplete",
-//     textClass: "text-slate-400 dark:text-slate-500",
-//     progressClass: "[&>div]:bg-slate-400 dark:[&>div]:bg-slate-600",
-//   };
-// };
-
-// const ProfileMetrics = ({ refresh = 0 }: { refresh?: number }) => {
-//   const {
-//     profileProgress,
-//     geisilScore,
-//     cibilScore,
-//     profileLoading,
-//     scoresLoading,
-//   } = useProfileMetrics(refresh);
-
-//   const profileTheme = useMemo(() => getStatusTheme(profileProgress), [profileProgress]);
-//   const geisilTheme = useMemo(() => getStatusTheme(geisilScore), [geisilScore]);
-
-//   const cibilPercentage = useMemo(() => {
-//     if (!cibilScore) return 0;
-//     const percentage = ((cibilScore - 300) / 600) * 100;
-//     return Math.min(Math.max(percentage, 0), 100);
-//   }, [cibilScore]);
-
-//   const cibilTheme = useMemo(() => getStatusTheme(cibilPercentage), [cibilPercentage]);
-
-//   return (
-//     <Card className="border border-slate-200/80 dark:border-slate-800 shadow-sm w-full md:max-w-sm mx-auto rounded-xl bg-white dark:bg-slate-950">
-//       <CardHeader className="pb-5 px-4 md:px-6 pt-4 md:pt-6">
-//         <CardTitle className="text-sm font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-//           Account Status
-//         </CardTitle>
-//         <CardDescription className="text-xs text-slate-400 dark:text-slate-500">
-//           Overview of platform matching index and profile verification.
-//         </CardDescription>
-//       </CardHeader>
-
-//       <CardContent className="space-y-6 px-4 md:px-6 pb-6">
-//         {/* Metric Segment: Profile Completeness */}
-//         <div className="space-y-2">
-//           <div className="flex items-center justify-between w-full">
-//             <div className="flex items-center gap-3">
-//               <div className="p-1 rounded bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-500 flex-shrink-0">
-//                 <User size={16} />
-//               </div>
-//               <h4 className="text-sm font-semibold tracking-tight text-slate-800 dark:text-slate-200">
-//                 Profile Completeness
-//               </h4>
-//             </div>
-//             <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-slate-50 flex-shrink-0">
-//               {profileLoading ? "—" : `${profileProgress}%`}
-//             </span>
-//           </div>
-
-//           <div className="flex justify-between items-center text-[10px] font-medium uppercase tracking-wider">
-//             {!profileLoading && <p className={profileTheme.textClass}>{profileTheme.label}</p>}
-//           </div>
-//           <Progress
-//             value={profileLoading ? 0 : Number(profileProgress)}
-//             className={`h-1 bg-slate-100 dark:bg-slate-900 transition-all ${profileTheme.progressClass}`}
-//           />
-//         </div>
-
-//         {/* Metric Segment: Geisil Score */}
-//         <div className="space-y-2">
-//           <div className="flex items-center justify-between w-full">
-//             <div className="flex items-center gap-3">
-//               <div className="h-5 w-16 relative flex items-center justify-center flex-shrink-0">
-//                 <img
-//                   src={EisilScoreLogo}
-//                   alt="Eisil Score"
-//                   className="object-contain h-full w-full dark:invert"
-//                 />
-//               </div>
-//               <h4 className="text-sm font-semibold tracking-tight text-slate-800 dark:text-slate-200">
-//                 Geisil Score
-//               </h4>
-//             </div>
-//             <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-slate-50 flex-shrink-0">
-//               {scoresLoading ? "—" : `${geisilScore}%`}
-//             </span>
-//           </div>
-
-//           <div className="flex justify-between items-center text-[10px] font-medium uppercase tracking-wider">
-//             {!scoresLoading && <p className={geisilTheme.textClass}>{geisilTheme.label}</p>}
-//           </div>
-//           <Progress
-//             value={scoresLoading ? 0 : Number(geisilScore)}
-//             className={`h-1 bg-slate-100 dark:bg-slate-900 transition-all ${geisilTheme.progressClass}`}
-//           />
-//         </div>
-
-//         {/* Metric Segment: CIBIL Score */}
-//         <div className="space-y-2">
-//           <div className="flex items-center justify-between w-full">
-//             <div className="flex items-center gap-3">
-//               <div className="h-5 w-14 relative flex items-center justify-center flex-shrink-0">
-//                 <img
-//                   src={CibilLogo}
-//                   alt="Cibil"
-//                   className="object-contain h-full w-full dark:invert"
-//                 />
-//               </div>
-//               <h4 className="text-sm font-semibold tracking-tight text-slate-800 dark:text-slate-200">
-//                 CIBIL Score
-//               </h4>
-//             </div>
-//             <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-slate-50 flex-shrink-0">
-//               {scoresLoading ? "—" : cibilScore}
-//             </span>
-//           </div>
-
-//           <div className="flex justify-between items-center text-[10px] font-medium uppercase tracking-wider">
-//             {!scoresLoading && <p className={cibilTheme.textClass}>{cibilTheme.label}</p>}
-//           </div>
-//           <Progress
-//             value={scoresLoading ? 0 : cibilPercentage}
-//             className={`h-1 bg-slate-100 dark:bg-slate-900 transition-all ${cibilTheme.progressClass}`}
-//           />
-//         </div>
-//       </CardContent>
-//     </Card>
-//   );
-// };
-
-// export default ProfileMetrics;
-
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
+import { Separator } from "@/components/ui/separator";
 import API from "../../../lib/axios";
 import RazorpayPayment from "@/components/candidate/score/Razorpay";
 import { Button } from "@/components/ui/button";
@@ -218,6 +53,8 @@ const getStatusTheme = (value = 0) => {
 const ProfileMetrics = ({ refresh = 0 }: { refresh?: number }) => {
   const [reload, setReload] = useState(false);
   const [sectionloading, setSectionloading] = useState(true);
+  const [cibil, setCibil] = useState();
+  const [experian, setExperian] = useState();
   const { toast } = useToast();
   const {
     profileProgress,
@@ -255,10 +92,10 @@ const ProfileMetrics = ({ refresh = 0 }: { refresh?: number }) => {
     [experianPercentage],
   );
 
-  const handelpaymentsuccess = async (response) => {
+  const handelpaymentsuccess = async (response, documentType) => {
     setSectionloading(true);
     try {
-      const res = await API.post(`/api/candidatekyc/verify-order`, {
+      const res = await API.post(`/api/candidate/score/credit-report/verify`, {
         razorpay_payment_id: response.razorpay_payment_id,
         razorpay_order_id: response.razorpay_order_id,
         razorpay_signature: response.razorpay_signature,
@@ -294,13 +131,31 @@ const ProfileMetrics = ({ refresh = 0 }: { refresh?: number }) => {
       toast({
         title: "Error",
         variant: "destructive",
-        description: "Failed to update KYC.",
+        description: `Failed try again later`,
       });
     } finally {
       setSectionloading(false);
     }
   };
+  const scoreData = async () => {
+    try {
+      const res1 = await API.get(`/api/candidate/score/my-score/CIBIL`);
+      const res2 = await API.get(`/api/candidate/score/my-score/EXPERIAN`);
 
+      if (res1?.data.data) {
+        console.log("res1", res1?.data?.data);
+        setCibil(res1?.data.data);
+      }
+      if (res2?.data.data) {
+        console.log("res2", res2?.data.data);
+      }
+    } catch (error) {
+      console.log("");
+    }
+  };
+  useEffect(() => {
+    scoreData();
+  }, []);
   return (
     <Card className="border border-slate-200/80 dark:border-slate-800 shadow-sm w-full rounded-xl bg-white dark:bg-slate-950 transition-all">
       <CardHeader className="pb-4 sm:pb-5 px-4 sm:px-6 pt-4 sm:pt-6">
@@ -313,213 +168,217 @@ const ProfileMetrics = ({ refresh = 0 }: { refresh?: number }) => {
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="space-y-5 sm:space-y-6 px-4 sm:px-6 pb-5 sm:pb-6">
-        {/* Metric Segment: Profile Completeness */}
-        <div className="space-y-1.5 sm:space-y-2">
-          <div className="flex items-center justify-between gap-2 w-full">
-            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-              <div className="p-1.5 sm:p-2 rounded bg-slate-100 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 text-slate-600 dark:text-slate-400 flex-shrink-0">
-                <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+      <CardContent className="px-4 sm:px-6 pb-5 sm:pb-6">
+        <div className="space-y-4 sm:space-y-5">
+          {/* Profile Completeness Card */}
+          <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 p-4 sm:p-5 shadow-sm">
+            <div className="space-y-1.5 sm:space-y-2">
+              <div className="flex items-center justify-between gap-2 w-full">
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                  <div className="p-1.5 sm:p-2 rounded-lg bg-white dark:bg-slate-950 border border-slate-200/60 dark:border-slate-800 text-slate-600 dark:text-slate-400 flex-shrink-0">
+                    <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  </div>
+
+                  <h4 className="text-xs sm:text-sm font-semibold tracking-tight text-slate-800 dark:text-slate-200 truncate">
+                    Profile Completeness
+                  </h4>
+                </div>
+
+                {profileLoading ? (
+                  <Skeleton className="h-6 w-12 rounded" />
+                ) : (
+                  <span className="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-slate-50 flex-shrink-0">
+                    {`${profileProgress}%`}
+                  </span>
+                )}
               </div>
 
-              <h4 className="text-xs sm:text-sm font-semibold tracking-tight text-slate-800 dark:text-slate-200 truncate">
-                Profile Completeness
-              </h4>
-            </div>
-
-            {profileLoading ? (
-              <Skeleton className="h-6 w-12 rounded" />
-            ) : (
-              <span className="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-slate-50 flex-shrink-0">
-                {`${profileProgress}%`}
-              </span>
-            )}
-          </div>
-
-          <div className="flex justify-between items-center text-[10px] sm:text-xs font-semibold uppercase tracking-wider min-h-[16px]">
-            {profileLoading ? (
-              <Skeleton className="h-3 w-16 rounded" />
-            ) : (
-              <p className={profileTheme.textClass}>{profileTheme.label}</p>
-            )}
-          </div>
-
-          <Progress
-            value={profileLoading ? 0 : Number(profileProgress)}
-            className={`h-1.5 bg-slate-100 dark:bg-slate-900 transition-all ${profileTheme.progressClass}`}
-          />
-        </div>
-
-        {/* Metric Segment: Geisil Score */}
-        <div className="space-y-1.5 sm:space-y-2">
-          <div className="flex items-center justify-between gap-2 w-full">
-            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-              <div className="h-5 w-14 sm:w-16 relative flex items-center justify-center flex-shrink-0">
-                <img
-                  src={EisilScoreLogo}
-                  alt="Eisil Score"
-                  className="object-contain h-full w-full dark:invert"
-                />
+              <div className="flex justify-between items-center text-[10px] sm:text-xs font-semibold uppercase tracking-wider min-h-[16px]">
+                {profileLoading ? (
+                  <Skeleton className="h-3 w-16 rounded" />
+                ) : (
+                  <p className={profileTheme.textClass}>{profileTheme.label}</p>
+                )}
               </div>
 
-              <h4 className="text-xs sm:text-sm font-semibold tracking-tight text-slate-800 dark:text-slate-200 truncate">
-                Geisil Score
-              </h4>
+              <Progress
+                value={profileLoading ? 0 : Number(profileProgress)}
+                className={`h-1.5 bg-slate-200/70 dark:bg-slate-800 transition-all ${profileTheme.progressClass}`}
+              />
             </div>
-
-            {scoresLoading ? (
-              <Skeleton className="h-6 w-12 rounded" />
-            ) : (
-              <span className="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-slate-50 flex-shrink-0">
-                {`${geisilScore}`}
-              </span>
-            )}
           </div>
 
-          <div className="flex justify-between items-center text-[10px] sm:text-xs font-semibold uppercase tracking-wider min-h-[16px]">
-            {scoresLoading ? (
-              <Skeleton className="h-3 w-16 rounded" />
-            ) : (
-              <p className={geisilTheme.textClass}>{geisilTheme.label}</p>
-            )}
-          </div>
+          {/* Geisil Score Card */}
+          <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 p-4 sm:p-5 shadow-sm">
+            <div className="space-y-1.5 sm:space-y-2">
+              <div className="flex items-center justify-between gap-2 w-full">
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                  <div className="h-5 w-14 sm:w-16 relative flex items-center justify-center flex-shrink-0">
+                    <img
+                      src={EisilScoreLogo}
+                      alt="Eisil Score"
+                      className="object-contain h-full w-full dark:invert"
+                    />
+                  </div>
 
-          <Progress
-            value={scoresLoading ? 0 : Number(geisilScore)}
-            className={`h-1.5 bg-slate-100 dark:bg-slate-900 transition-all ${geisilTheme.progressClass}`}
-          />
-        </div>
+                  <h4 className="text-xs sm:text-sm font-semibold tracking-tight text-slate-800 dark:text-slate-200 truncate">
+                    Geisil Score
+                  </h4>
+                </div>
 
-        {/* Metric Segment: CIBIL Score */}
-        <div className="space-y-1.5 sm:space-y-2">
-          <div className="flex items-center justify-between gap-2 w-full">
-            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-              <div className="h-5 w-12 sm:w-14 relative flex items-center justify-center flex-shrink-0">
-                <img
-                  src={CibilLogo}
-                  alt="CIBIL"
-                  className="object-contain h-full w-full dark:invert"
-                />
+                {scoresLoading ? (
+                  <Skeleton className="h-6 w-12 rounded" />
+                ) : (
+                  <span className="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-slate-50 flex-shrink-0">
+                    {geisilScore}
+                  </span>
+                )}
               </div>
 
-              <h4 className="text-xs sm:text-sm font-semibold tracking-tight text-slate-800 dark:text-slate-200 truncate">
-                CIBIL Score
-              </h4>
-            </div>
-
-            {scoresLoading ? (
-              <Skeleton className="h-6 w-12 rounded" />
-            ) : (
-              <span className="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-slate-50 flex-shrink-0">
-                {cibilScore}
-              </span>
-            )}
-          </div>
-
-          <div className="flex justify-between items-center text-[10px] sm:text-xs font-semibold uppercase tracking-wider min-h-[16px]">
-            {scoresLoading ? (
-              <Skeleton className="h-3 w-16 rounded" />
-            ) : (
-              <p className={cibilTheme.textClass}>{cibilTheme.label}</p>
-            )}
-          </div>
-
-          <Progress
-            value={scoresLoading ? 0 : cibilPercentage}
-            className={`h-1.5 bg-slate-100 dark:bg-slate-900 transition-all ${cibilTheme.progressClass}`}
-          />
-
-          {/* Last CIBIL Check */}
-          <div className="flex items-center justify-between gap-2 pt-1">
-            <span className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400">
-              Last checked
-            </span>
-
-            {scoresLoading ? (
-              <Skeleton className="h-3 w-24 rounded" />
-            ) : (
-              <span className="text-[10px] sm:text-xs font-medium text-slate-700 dark:text-slate-300">
-                {"Not checked yet"}
-              </span>
-            )}
-          </div>
-
-          {/* Pay for Latest CIBIL Score */}
-
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={scoresLoading}
-            className="w-full mt-2 h-8 text-xs font-semibold rounded-lg
-             bg-[#28406F] text-white border-[#28406F]
-             hover:bg-[#1f3359] hover:text-white
-             dark:bg-[#28406F] dark:text-white dark:border-[#28406F]
-             dark:hover:bg-[#1f3359] dark:hover:text-white"
-          >
-            Pay for Latest CIBIL Score
-          </Button>
-        </div>
-
-        {/* Metric Segment: experian Score */}
-        <div className="space-y-1.5 sm:space-y-2">
-          <div className="flex items-center justify-between gap-2 w-full">
-            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-              <div className="h-5 w-12 sm:w-14 relative flex items-center justify-center flex-shrink-0">
-                <img
-                  src={ExperianLogo}
-                  alt="CIBIL"
-                  className="object-contain h-full w-full dark:invert"
-                />
+              <div className="flex justify-between items-center text-[10px] sm:text-xs font-semibold uppercase tracking-wider min-h-[16px]">
+                {scoresLoading ? (
+                  <Skeleton className="h-3 w-16 rounded" />
+                ) : (
+                  <p className={geisilTheme.textClass}>{geisilTheme.label}</p>
+                )}
               </div>
 
-              <h4 className="text-xs sm:text-sm font-semibold tracking-tight text-slate-800 dark:text-slate-200 truncate">
-                Experian Score
-              </h4>
+              <Progress
+                value={scoresLoading ? 0 : Number(geisilScore)}
+                className={`h-1.5 bg-slate-200/70 dark:bg-slate-800 transition-all ${geisilTheme.progressClass}`}
+              />
             </div>
-
-            {scoresLoading ? (
-              <Skeleton className="h-6 w-12 rounded" />
-            ) : (
-              <span className="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-slate-50 flex-shrink-0">
-                {experianScore}
-              </span>
-            )}
           </div>
 
-          <div className="flex justify-between items-center text-[10px] sm:text-xs font-semibold uppercase tracking-wider min-h-[16px]">
-            {scoresLoading ? (
-              <Skeleton className="h-3 w-16 rounded" />
-            ) : (
-              <p className={experianTheme.textClass}>{experianTheme.label}</p>
-            )}
+          {/* CIBIL Score Card */}
+          <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 p-4 sm:p-5 shadow-sm">
+            <div className="space-y-1.5 sm:space-y-2">
+              <div className="flex items-center justify-between gap-2 w-full">
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                  <div className="h-5 w-12 sm:w-14 relative flex items-center justify-center flex-shrink-0">
+                    <img
+                      src={CibilLogo}
+                      alt="CIBIL"
+                      className="object-contain h-full w-full dark:invert"
+                    />
+                  </div>
+
+                  <h4 className="text-xs sm:text-sm font-semibold tracking-tight text-slate-800 dark:text-slate-200 truncate">
+                    CIBIL Score
+                  </h4>
+                </div>
+
+                {!cibil ? (
+                  <Skeleton className="h-6 w-12 rounded" />
+                ) : (
+                  <span className="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-slate-50 flex-shrink-0">
+                    {cibil?.score}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex justify-between items-center text-[10px] sm:text-xs font-semibold uppercase tracking-wider min-h-[16px]">
+                {scoresLoading ? (
+                  <Skeleton className="h-3 w-16 rounded" />
+                ) : (
+                  <p className={cibilTheme.textClass}>{cibilTheme.label}</p>
+                )}
+              </div>
+
+              <Progress
+                value={scoresLoading ? 0 : cibilPercentage}
+                className={`h-1.5 bg-slate-200/70 dark:bg-slate-800 transition-all ${cibilTheme.progressClass}`}
+              />
+
+              {/* Last CIBIL Check */}
+              <div className="flex items-center justify-between gap-2 pt-1">
+                <span className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400">
+                  Last checked
+                </span>
+
+                {scoresLoading ? (
+                  <Skeleton className="h-3 w-24 rounded" />
+                ) : (
+                  <span className="text-[10px] sm:text-xs font-medium text-slate-700 dark:text-slate-300">
+                    Not checked yet
+                  </span>
+                )}
+              </div>
+
+              {/* Payment */}
+              <RazorpayPayment
+                onSuccess={handelpaymentsuccess}
+                documentType="CIBIL"
+                text="Pay 7 for Latest CIBIL Score"
+              />
+            </div>
           </div>
 
-          <Progress
-            value={scoresLoading ? 0 : experianPercentage}
-            className={`h-1.5 bg-slate-100 dark:bg-slate-900 transition-all ${experianTheme.progressClass}`}
-          />
+          {/* Experian Score Card */}
+          <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 p-4 sm:p-5 shadow-sm">
+            <div className="space-y-1.5 sm:space-y-2">
+              <div className="flex items-center justify-between gap-2 w-full">
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                  <div className="h-5 w-12 sm:w-14 relative flex items-center justify-center flex-shrink-0">
+                    <img
+                      src={ExperianLogo}
+                      alt="Experian"
+                      className="object-contain h-full w-full dark:invert"
+                    />
+                  </div>
 
-          {/* Last CIBIL Check */}
-          <div className="flex items-center justify-between gap-2 pt-1">
-            <span className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400">
-              Last checked
-            </span>
+                  <h4 className="text-xs sm:text-sm font-semibold tracking-tight text-slate-800 dark:text-slate-200 truncate">
+                    Experian Score
+                  </h4>
+                </div>
 
-            {scoresLoading ? (
-              <Skeleton className="h-3 w-24 rounded" />
-            ) : (
-              <span className="text-[10px] sm:text-xs font-medium text-slate-700 dark:text-slate-300">
-                {"Not checked yet"}
-              </span>
-            )}
+                {scoresLoading ? (
+                  <Skeleton className="h-6 w-12 rounded" />
+                ) : (
+                  <span className="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-slate-50 flex-shrink-0">
+                    {experianScore}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex justify-between items-center text-[10px] sm:text-xs font-semibold uppercase tracking-wider min-h-[16px]">
+                {scoresLoading ? (
+                  <Skeleton className="h-3 w-16 rounded" />
+                ) : (
+                  <p className={experianTheme.textClass}>
+                    {experianTheme.label}
+                  </p>
+                )}
+              </div>
+
+              <Progress
+                value={scoresLoading ? 0 : experianPercentage}
+                className={`h-1.5 bg-slate-200/70 dark:bg-slate-800 transition-all ${experianTheme.progressClass}`}
+              />
+
+              {/* Last Experian Check */}
+              <div className="flex items-center justify-between gap-2 pt-1">
+                <span className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400">
+                  Last checked
+                </span>
+
+                {scoresLoading ? (
+                  <Skeleton className="h-3 w-24 rounded" />
+                ) : (
+                  <span className="text-[10px] sm:text-xs font-medium text-slate-700 dark:text-slate-300">
+                    Not checked yet
+                  </span>
+                )}
+              </div>
+
+              {/* Payment */}
+              <RazorpayPayment
+                onSuccess={handelpaymentsuccess}
+                documentType="EXPERIAN"
+                text="Pay 7 for Latest Experian Score"
+              />
+            </div>
           </div>
-
-          <RazorpayPayment
-            onSuccess={handelpaymentsuccess}
-            documentType="pan"
-            text="for Latest Experian Score"
-          />
         </div>
       </CardContent>
     </Card>

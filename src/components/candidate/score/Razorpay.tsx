@@ -8,28 +8,12 @@ const RazorpayPayment = ({ onSuccess, documentType, text }) => {
 
   const [token, setToken] = useState(null);
   const [isRazorpayLoaded, setIsRazorpayLoaded] = useState(false);
-  const [amount, setAmount] = useState(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       setToken(localStorage.getItem("token"));
     }
   }, []);
-
-  const fetchFees = async () => {
-    try {
-      const response = await API.get(`/api/candidatekyc/fees/${documentType}`);
-      if (response.data.success) {
-        setAmount(Number(response.data.fees));
-      }
-    } catch (error) {
-      console.error("❌ Error fetching fees:", error);
-    }
-  };
-
-  useEffect(() => {
-    if (token) fetchFees();
-  }, [apiurl, token]);
 
   // Load Razorpay script
   useEffect(() => {
@@ -48,12 +32,12 @@ const RazorpayPayment = ({ onSuccess, documentType, text }) => {
     if (!isRazorpayLoaded) return console.error("Razorpay SDK not loaded!");
 
     try {
-      const response = await API.post(`/api/candidate/score/payment/create`);
-
+      const response = await API.post(`/api/candidate/score/payment/create`, {
+        type: documentType,
+      });
       if (!response.data || !response.data.data) {
         throw new Error("Order creation failed");
       }
-
       const order = response.data.data;
 
       const options = {
@@ -62,10 +46,10 @@ const RazorpayPayment = ({ onSuccess, documentType, text }) => {
         currency: "INR",
         name: "GEISIL",
         description: "Payment for Verification",
-        order_id: order.id,
+        order_id: order.orderId,
         handler: function (paymentResponse) {
           console.log("✅ Payment successful:", paymentResponse);
-          if (onSuccess) onSuccess(paymentResponse);
+          if (onSuccess) onSuccess(paymentResponse, documentType);
         },
         prefill: {
           name: "",
@@ -89,16 +73,14 @@ const RazorpayPayment = ({ onSuccess, documentType, text }) => {
         variant="outline"
         size="sm"
         onClick={handlePayment}
-        disabled={!isRazorpayLoaded || !amount}
+        disabled={!isRazorpayLoaded}
         className="w-full mt-2 h-8 text-xs font-semibold rounded-lg
              bg-[#28406F] text-white border-[#28406F]
              hover:bg-[#1f3359] hover:text-white
              dark:bg-[#28406F] dark:text-white dark:border-[#28406F]
              dark:hover:bg-[#1f3359] dark:hover:text-white"
       >
-        {isRazorpayLoaded && amount
-          ? `Pay ₹${amount.toFixed(2)} ${text}`
-          : "Loading..."}
+        {text}
       </Button>
     </>
   );
