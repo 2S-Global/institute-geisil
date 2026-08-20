@@ -1,4 +1,4 @@
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ClipboardCheck, CheckCircle2, Clock, AlertCircle, Plus, Download } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import {nameFormate,timeAgo} from "../lib/utils"
+import { nameFormate, timeAgo } from "../lib/utils"
 import {
   Dialog,
   DialogContent,
@@ -59,12 +59,12 @@ const statusStyles: Record<string, string> = {
 };
 
 const evaluationTypes = [
-  {key:"Aptitude_Coding",value:"Aptitude + Coding"},
-  {key:"Technical",value:"Technical"},
-  {key:"Case_Study",value:"Case Study"},
-  {key:"Group_Discussion",value:"Group Discussion"},
-  {key:"Behavioral",value:"Behavioral"},
-  {key:"Domain_Knowledge",value:"Domain Knowledge"} 
+  { key: "Aptitude_Coding", value: "Aptitude + Coding" },
+  { key: "Technical", value: "Technical" },
+  { key: "Case_Study", value: "Case Study" },
+  { key: "Group_Discussion", value: "Group Discussion" },
+  { key: "Behavioral", value: "Behavioral" },
+  { key: "Domain_Knowledge", value: "Domain Knowledge" }
 ];
 
 const evaluationSchema = z
@@ -74,8 +74,8 @@ const evaluationSchema = z
     type: z.string().min(1, "Select an evaluation type"),
     status: z.enum(["Completed", "Reviewing", "Pending"]),
     score: z.coerce.number().int().min(0).max(100),
-    scheduledDate:z.string().trim().min(1, "Date is required").pipe(z.coerce.date()),
-    evaluator: z.string().regex(/^[A-Za-z ]*$/,  "only letters allow").trim().max(80).optional().or(z.literal("")),
+    scheduledDate: z.string().trim().min(1, "Date is required").pipe(z.coerce.date()),
+    evaluator: z.string().regex(/^[A-Za-z ]*$/, "only letters allow").trim().max(80).optional().or(z.literal("")),
     notes: z.string().max(500).optional().or(z.literal("")),
   })
   .refine((d) => d.status === "Pending" || d.score > 0, {
@@ -111,25 +111,25 @@ const Evaluations = () => {
     setForm((f) => ({ ...f, [key]: value }));
   };
 
-  const handleSelect = (key,value) => {
+  const handleSelect = (key, value) => {
     if (value) {
       setForm((f) => ({ ...f, [key]: value }));
-    
+
       const findData = studentList.find(
         (u) => u._id === value,
       );
       setForm((f) => ({ ...f, 'rollNo': findData.USN }));
-     
+
     } else {
       setForm((f) => ({ ...f, 'rollNo': '' }));
     }
-   
+
   };
 
 
 
 
-  const handleSubmit = async(e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = evaluationSchema.safeParse(form);
     if (!result.success) {
@@ -155,50 +155,50 @@ const Evaluations = () => {
       },
       ...prev,
     ]); */
-    console.log("result",result.data);
-      let sendData={
-      student_name:result.data.student,
-      role:result.data.rollNo,
-      evaluation_type:result.data.type,
-      status:result.data.status,
-      score:result.data.score,
-      date:result.data.scheduledDate,
-      evaluator_name:result.data.evaluator,
-      notes:result.data.notes
+    console.log("result", result.data);
+    let sendData = {
+      student_name: result.data.student,
+      role: result.data.rollNo,
+      evaluation_type: result.data.type,
+      status: result.data.status,
+      score: result.data.score,
+      date: result.data.scheduledDate,
+      evaluator_name: result.data.evaluator,
+      notes: result.data.notes
     }
 
-      let response = "";
-          try {
-            response = await api.post("/api/instituteprofile/add_evaluation",
-              sendData,
-            );
-           
-            if(response?.data?.success){
-                  toast({
-                    title: "success",
-                    description: "Evaluations saved successfully",
-                  });
-                  fetchEvaluationList()
-            }
-            else{
-              toast({
-                    title: "Error",
-                    variant: "destructive",
-                    description:response?.data?.message ||"",
-                  });
-            }
-          
-            //await fetchRecruiterList();
-            setForm(emptyForm);
-            setOpen(false);
-          } catch (err) {
-            console.log(err.response);
-            toast({
-              title: "Failed",
-              variant: "destructive",
-              description: err?.response?.data?.message?.replace("_"," "),
-            });
-          }
+    let response = "";
+    try {
+      response = await api.post("/api/instituteprofile/add_evaluation",
+        sendData,
+      );
+
+      if (response?.data?.success) {
+        toast({
+          title: "success",
+          description: "Evaluations saved successfully",
+        });
+        fetchEvaluationList()
+      }
+      else {
+        toast({
+          title: "Error",
+          variant: "destructive",
+          description: response?.data?.message || "",
+        });
+      }
+
+      //await fetchRecruiterList();
+      setForm(emptyForm);
+      setOpen(false);
+    } catch (err) {
+      console.log(err.response);
+      toast({
+        title: "Failed",
+        variant: "destructive",
+        description: err?.response?.data?.message?.replace("_", " "),
+      });
+    }
 
     //toast({ title: "Success", description: `Evaluation added successfully` });
     setForm(emptyForm);
@@ -222,7 +222,7 @@ const Evaluations = () => {
         "/api/instituteprofile/get_evaluation",
       );
       const data = res?.data?.data || [];
-      console.log('data',data)
+      console.log('data', data)
       setEvaluations(data);
     } catch (err) {
       console.error("Error fetching stats", err);
@@ -234,7 +234,7 @@ const Evaluations = () => {
     fetchEvaluationList();
   }, []);
 
-  console.log('evaluations',evaluations)
+  console.log('evaluations', evaluations)
   return (
     <DashboardLayout>
       <PageHeader
@@ -243,7 +243,7 @@ const Evaluations = () => {
         description="Configure assessments, monitor results and review pending submissions."
         actions={
           <>
-           {/*  <Button variant="outline" className="gap-2"><Download className="h-4 w-4" />Export</Button> */}
+            {/*  <Button variant="outline" className="gap-2"><Download className="h-4 w-4" />Export</Button> */}
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
                 <Button className="gap-2 bg-primary hover:bg-[hsl(var(--primary-hover))] text-primary-foreground shadow-brand">
@@ -260,8 +260,8 @@ const Evaluations = () => {
                 <form onSubmit={handleSubmit} className="space-y-5 pt-2">
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-1.5">
-                      <Label htmlFor="student">Student name <span style={{color:"red"}}>*</span></Label>
-                    {/*   <Input
+                      <Label htmlFor="student">Student name <span style={{ color: "red" }}>*</span></Label>
+                      {/*   <Input
                         id="student"
                         value={form.student}
                         onChange={(e) => update("student", e.target.value)}
@@ -291,12 +291,12 @@ const Evaluations = () => {
                         onChange={(e) => update("rollNo", e.target.value)}
                         placeholder="e.g. 22BCE1234"
                         readonly="readonly"
-                       
+
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label>Evaluation type <span style={{color:"red"}}>*</span></Label>
+                      <Label>Evaluation type <span style={{ color: "red" }}>*</span></Label>
                       <Select value={form.type} onValueChange={(v) => update("type", v)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select type" />
@@ -311,7 +311,7 @@ const Evaluations = () => {
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label>Status <span style={{color:"red"}}>*</span></Label>
+                      <Label>Status <span style={{ color: "red" }}>*</span></Label>
                       <Select
                         value={form.status}
                         onValueChange={(v) => update("status", v as EvaluationForm["status"])}
@@ -328,36 +328,36 @@ const Evaluations = () => {
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label htmlFor="score">Score (0–100) <span style={{color:"red"}}>*</span></Label>
+                      <Label htmlFor="score">Score (0–100) <span style={{ color: "red" }}>*</span></Label>
                       <Input
                         id="score"
                         type="number"
                         min={0}
                         max={100}
                         value={form.score}
-                       
-                         onChange={(e) => {
-    const value = e.target.value;
 
-    if (value.length <= 3) {
-      update("score", Number(value) as never);
-    }
-  }}
+                        onChange={(e) => {
+                          const value = e.target.value;
+
+                          if (value.length <= 3) {
+                            update("score", Number(value) as never);
+                          }
+                        }}
                         disabled={form.status === "Pending"}
                       />
                       {errors.score && <p className="text-xs text-destructive">{errors.score}</p>}
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label htmlFor="scheduledDate">Date <span style={{color:"red"}}>*</span></Label>
+                      <Label htmlFor="scheduledDate">Date <span style={{ color: "red" }}>*</span></Label>
                       <Input
-                      style={{position:"relative"}}
+                        style={{ position: "relative" }}
                         id="scheduledDate"
                         type="date"
                         value={form.scheduledDate}
                         onChange={(e) => update("scheduledDate", e.target.value)}
                       />
-                        {errors.scheduledDate && <p className="text-xs text-destructive">{errors.scheduledDate}</p>}
+                      {errors.scheduledDate && <p className="text-xs text-destructive">{errors.scheduledDate}</p>}
                     </div>
 
                     <div className="space-y-1.5 md:col-span-2">
@@ -484,78 +484,79 @@ const Evaluations = () => {
               </thead>
 
               <tbody className="divide-y divide-border/60">
-                {evaluations?.map((e) =>{
-                const last=e?.evaluations?.length-1;
-                let lastEvaluation=last>0?e?.evaluations[last]:e?.evaluations[0];
-                
-                return(
-                  <tr
-                    key={e?._id}
-                    className="hover:bg-muted/30 transition-colors group"
-                  >
-                    {/* Student */}
-                    <td className="py-3 px-4">
-                      <Link
-                        to={`/institute/evaluations/${e?._id}`}
-                        className="flex items-center gap-3 min-w-[220px]"
-                      >
-                        <Avatar className="h-9 w-9 border shrink-0">
-                          <AvatarFallback className="bg-accent/10 text-accent text-xs font-semibold">
-                            {e?.student_name
-                              .charAt(0).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
+                {evaluations?.map((e) => {
+                  const last = e?.evaluations?.length - 1;
+                  let lastEvaluation = last > 0 ? e?.evaluations[last] : e?.evaluations[0];
 
-                        <div className="min-w-0">
-                          <p className="font-semibold text-foreground group-hover:text-primary transition-colors truncate">
-                            {e?.student_name && nameFormate(e?.student_name)}
-                          </p>
+                  return (
+                    <tr
+                      key={e?._id}
+                      className="hover:bg-muted/30 transition-colors group"
+                    >
+                      {/* Student */}
+                      <td className="py-3 px-4">
+                        <Link
+                          to={`/institute/evaluations/${e?._id}`}
+                          className="flex items-center gap-3 min-w-[220px]"
+                        >
+                          <Avatar className="h-9 w-9 border shrink-0">
+                            <AvatarFallback className="bg-accent/10 text-accent text-xs font-semibold">
+                              {e?.student_name
+                                .charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
 
-                          <p className="text-xs text-muted-foreground truncate">
-                           
-                          </p>
-                        </div>
-                      </Link>
-                    </td>
+                          <div className="min-w-0">
+                            <p className="font-semibold text-foreground group-hover:text-primary transition-colors truncate">
+                              {e?.student_name && nameFormate(e?.student_name)}
+                            </p>
 
-                    {/* Type */}
-                    <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">
-                      {lastEvaluation?.evaluation_type?.replace("_"," ")}
-                    </td>
+                            <p className="text-xs text-muted-foreground truncate">
 
-                    {/* Score */}
-                    <td className="py-3 px-4">
-                      {lastEvaluation?.status === "Pending" ? (
-                        <span className="text-xs text-muted-foreground">—</span>
-                      ) : (
-                        <div className="flex items-center gap-3 min-w-[150px]">
-                          <Progress value={lastEvaluation?.score} className="h-1.5 flex-1" />
+                            </p>
+                          </div>
+                        </Link>
+                      </td>
 
-                          <span className="text-sm font-semibold text-foreground w-10 text-right shrink-0">
-                            {lastEvaluation?.score}
-                          </span>
-                        </div>
-                      )}
-                    </td>
+                      {/* Type */}
+                      <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">
+                        {lastEvaluation?.evaluation_type?.replace("_", " ")}
+                      </td>
 
-                    {/* Date */}
-                    <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">
-                       {lastEvaluation?.date && timeAgo(lastEvaluation?.date)}
-                    </td>
+                      {/* Score */}
+                      <td className="py-3 px-4">
+                        {lastEvaluation?.status === "Pending" ? (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        ) : (
+                          <div className="flex items-center gap-3 min-w-[150px]">
+                            <Progress value={lastEvaluation?.score} className="h-1.5 flex-1" />
 
-                    {/* Status */}
-                    <td className="py-3 px-4 text-right">
-                      <Badge
-                        variant="outline"
-                        className={`${statusStyles[lastEvaluation?.status]} whitespace-nowrap`}
-                      >
-                        {lastEvaluation?.status}
-                      </Badge>
-                    </td>
-                  </tr>
+                            <span className="text-sm font-semibold text-foreground w-10 text-right shrink-0">
+                              {lastEvaluation?.score}
+                            </span>
+                          </div>
+                        )}
+                      </td>
+
+                      {/* Date */}
+                      <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">
+                        {lastEvaluation?.date && timeAgo(lastEvaluation?.date)}
+                      </td>
+
+                      {/* Status */}
+                      <td className="py-3 px-4 text-right">
+                        <Badge
+                          variant="outline"
+                          className={`${statusStyles[lastEvaluation?.status]} whitespace-nowrap`}
+                        >
+                          {lastEvaluation?.status}
+                        </Badge>
+                      </td>
+                    </tr>
+                  )
+                }
+
                 )}
-              
-              )}
               </tbody>
             </table>
           </div>

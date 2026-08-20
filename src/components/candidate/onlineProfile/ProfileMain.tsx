@@ -1,6 +1,4 @@
-
-
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import ProfileModal from "./ProfileModal";
 import { Pencil, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,7 +17,7 @@ const ProfileMain = ({ setReload, list = [], setError, setSuccess }) => {
   const openModal = (Edit_item) => {
     if (Edit_item) {
       setItem(Edit_item);
-      console.log("Selected Item:", item);
+      console.log("Selected Item:", Edit_item);
     } else {
       setItem([]);
     }
@@ -34,8 +32,8 @@ const ProfileMain = ({ setReload, list = [], setError, setSuccess }) => {
 
   return (
     <>
-      <div className="pt-4">
-        <div className="flex items-start justify-between">
+      <div className="pt-4 space-y-4">
+        <div className="flex items-start justify-between gap-4">
           <div>
             <h5 className="text-lg font-semibold">Online Profile</h5>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -43,62 +41,58 @@ const ProfileMain = ({ setReload, list = [], setError, setSuccess }) => {
               Portfolio, etc.)
             </p>
           </div>
-
-          {/* <button
-        onClick={openModal}
-        className="rounded-md p-2 hover:bg-muted transition-colors"
-      >
-        <Pencil className="h-4 w-4" />
-      </button> */}
-          <Button size="sm" onClick={() => openModal()}>
-            <Plus className=" h-4 w-4" />
-            Add Online Profile
+          <Button
+            size="sm"
+            onClick={() => openModal()}
+            className="flex items-center gap-1 shrink-0"
+          >
+            <Plus className="h-4 w-4" /> Add Online Profile
           </Button>
         </div>
 
         {Array.isArray(list) && list.length > 0 ? (
           list.map((item) => (
-            <Card key={item._id} className="mt-2">
-              <CardContent className="text-sm space-y-1">
-                <div className="mt-5 border-b pb-4 last:border-b-0">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h6 className="font-semibold text-gray-900">
-                        {item.socialProfileName}
-                      </h6>
-
-                      <a
-                        href={item.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="mt-1 block break-all text-sm text-blue-600 hover:underline"
-                      >
-                        {item.url}
-                      </a>
-                    </div>
-
-                    <Button
-                      onClick={() => openModal(item)}
-                      variant="ghost"
-                      size="icon"
+            <Card key={item._id}>
+              <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
+                <div className="flex-1 space-y-1">
+                  <CardTitle className="text-base font-semibold">
+                    {item.socialProfileName}
+                  </CardTitle>
+                  <CardDescription>
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-blue-600 hover:underline break-all"
                     >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                  </div>
-
+                      {item.url}
+                    </a>
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                  onClick={() => openModal(item)}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+              </CardHeader>
+              {item.description && (
+                <CardContent>
                   <div
-                    className="mt-2 text-justify"
+                    className="text-sm text-muted-foreground text-justify"
                     dangerouslySetInnerHTML={{
                       __html: item.description,
                     }}
                   />
-                </div>
-              </CardContent>
+                </CardContent>
+              )}
             </Card>
           ))
         ) : (
-          <div className="mt-4 flex flex-1 items-center justify-center w-full shadow-sm">
-            <div className="w-full border-dashed border border-gray-200 rounded-xl p-8 text-center text-muted-foreground flex flex-col items-center justify-center">
+          <div className="flex flex-1 items-center justify-center w-full">
+            <div className="w-full border border-dashed border-gray-200 rounded-xl p-8 text-center text-muted-foreground flex flex-col items-center justify-center">
               <p className="text-sm">No Online Profiles added yet.</p>
             </div>
           </div>
