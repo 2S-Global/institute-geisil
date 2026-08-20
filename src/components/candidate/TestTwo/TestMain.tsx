@@ -90,7 +90,7 @@ const TestMain = () => {
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-100">
             <div>
-              <h5 className="text-xl font-bold tracking-tight text-slate-900">
+              <h5 className="text-lg font-semibold">
                 Big 5 Personality Assessment (OCEAN)
               </h5>
               <p className="text-sm text-slate-500 mt-0.5 text-justify">
