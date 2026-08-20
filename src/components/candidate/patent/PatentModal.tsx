@@ -342,7 +342,7 @@ const PatentModal = ({
                 <input
                   type="text"
                   className="w-full rounded-md border p-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="Enter Presentation title"
+                  placeholder="Enter Patent title"
                   value={formData.title}
                   onChange={(e) =>
                     setFormData({

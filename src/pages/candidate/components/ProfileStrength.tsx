@@ -306,7 +306,7 @@ const ProfileMetrics = ({ refresh = 0 }: { refresh?: number }) => {
               <RazorpayPayment
                 onSuccess={handlePaymentSuccess}
                 documentType="CIBIL"
-                text="for Latest CIBIL Score"
+                text="CIBIL"
                 feesType="cibil"
               />
             </div>
@@ -376,7 +376,7 @@ const ProfileMetrics = ({ refresh = 0 }: { refresh?: number }) => {
                 onSuccess={handlePaymentSuccess}
                 documentType="EXPERIAN"
                 feesType="experian"
-                text="for Latest Experian Score"
+                text="Experian"
               />
             </div>
           </div>
