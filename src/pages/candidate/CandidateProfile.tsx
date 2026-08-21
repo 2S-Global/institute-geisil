@@ -719,9 +719,9 @@ export default function CandidateProfile() {
           </Card>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[2.75fr_2.25fr] gap-6">
           {/* Left column */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-6">
             <Tabs defaultValue="about" className="w-full">
               <TabsList className="grid grid-cols-5 w-full">
                 <TabsTrigger value="about">About</TabsTrigger>
@@ -1189,29 +1189,8 @@ export default function CandidateProfile() {
             </Tabs>
           </div>
 
-          {/* Right column */}
-          {/* <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Profile strength</CardTitle>
-                <CardDescription>
-                  Complete your profile to get noticed by recruiters.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold">
-                      {completion}% complete
-                    </span>
-                    <Badge variant="secondary" className="text-xs">
-                      Strong
-                    </Badge>
-                  </div>
-                  <Progress value={completion} className="h-2" />
-                </div> */}
 
-          <div className="space-y-6">
+          <div className="space-y-6 ">
             <ProfileStrength refresh={refresh} />
             {/* <JobPreferences /> */}
             <JobPreferences refreshKey={refresh} />

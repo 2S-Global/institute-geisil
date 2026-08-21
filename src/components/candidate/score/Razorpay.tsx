@@ -110,7 +110,7 @@ const RazorpayPayment = ({ onSuccess, documentType, feesType, text }) => {
              dark:hover:bg-[#1f3359] dark:hover:text-white p-2"
         >
           {isRazorpayLoaded && amount
-            ? `Pay ₹${amount.toFixed(2)} to verify ${text}`
+            ? `Pay ₹${amount.toFixed(0)} to get ${text} Score`
             : "Loading..."}
         </Button>
       )}
@@ -130,7 +130,7 @@ const RazorpayPayment = ({ onSuccess, documentType, feesType, text }) => {
       "
           >
             {isRazorpayLoaded && amount
-              ? `Pay ₹${amount.toFixed(2)} to verify ${text}`
+              ? `Pay ₹${amount.toFixed(0)} to get ${text} Score`
               : "Loading..."}
           </Button>
 
