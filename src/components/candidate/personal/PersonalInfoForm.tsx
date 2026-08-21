@@ -370,22 +370,24 @@ const PersonalInfoForm = ({
                 </label>
                 <div className="relative flex items-center">
                   <input
-                    type="date"
-                    className="w-full border border-gray-300 rounded-md pl-3 pr-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer accent-indigo-600 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                    type="text"
+                    readonly={true}
+                    disabled={true}
+                    className="w-full border rounded-md px-3 py-2 text-sm relative cursor-not-allowed bg-muted/50"
                     value={
                       formData?.dob
                         ? new Date(formData.dob).toISOString().split("T")[0]
                         : ""
                     }
-                    onChange={(e) =>
+                    /* onChange={(e) =>
                       setFormData({
                         ...formData,
                         dob: e.target.value,
                       })
-                    }
+                    } */
                     max={today.toISOString().split("T")[0]}
                   />
-                  <Calendar className="absolute right-3 h-4 w-4 text-gray-400 pointer-events-none" />
+                  {/* <Calendar className="absolute right-3 h-4 w-4 text-gray-400 pointer-events-none" /> */}
                 </div>
               </div>
 

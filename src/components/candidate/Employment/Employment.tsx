@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import {
   Pencil,
@@ -276,7 +275,7 @@ export const EmploymentCard = ({ setRefresh }) => {
                           <span
                             onClick={() => handleOpenInfo(job)}
                             className={`inline-flex items-center gap-1 text-[11px] px-2.5 py-0.5 rounded-full font-semibold border shadow-sm cursor-pointer hover:opacity-90 transition-opacity ${getBadgeStyles(
-                              companyStatus
+                              companyStatus,
                             )}`}
                           >
                             <StatusIcon
@@ -329,6 +328,18 @@ export const EmploymentCard = ({ setRefresh }) => {
                     {/* Edit Action Button */}
                     {companyStatus !== "verified" &&
                       companyStatus !== "rejected" && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEdit(job)}
+                          className="text-slate-500 hover:text-slate-800 hover:bg-slate-100 shrink-0"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                      )}
+                    {job.currentlyWorking &&
+                      (companyStatus == "verified" ||
+                        companyStatus == "rejected") && (
                         <Button
                           variant="ghost"
                           size="icon"

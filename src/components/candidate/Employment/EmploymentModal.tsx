@@ -97,7 +97,7 @@ export const EmploymentModal = ({
   const watchLeavingDate = watch("leavingDate");
 
   const debouncedCompanyName = useDebounce(watchCompanyName, 300);
-
+  console.log("aaa dddd", editData);
   const sortedProfiles = useMemo(() => {
     if (!profiles || !Array.isArray(profiles)) return [];
     return [...profiles].sort((a, b) => {
@@ -768,6 +768,11 @@ export const EmploymentModal = ({
                         <RadioGroup.Item
                           value={type.id}
                           id={type.id}
+                          disabled={
+                            editData?.currentlyWorking &&
+                            (editData?.workedInCompany === true ||
+                              editData?.workedInCompany === false)
+                          }
                           className="w-4 h-4 rounded-full border border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#122B5F] focus:ring-offset-2 data-[state=checked]:border-[#122B5F] data-[state=checked]:bg-[#122B5F] flex items-center justify-center transition-all"
                         >
                           <RadioGroup.Indicator className="w-1.5 h-1.5 rounded-full bg-white" />
@@ -829,6 +834,11 @@ export const EmploymentModal = ({
                     <input
                       {...field}
                       type="text"
+                      disabled={
+                        editData?.currentlyWorking &&
+                        (editData?.workedInCompany === true ||
+                          editData?.workedInCompany === false)
+                      }
                       placeholder="e.g. Google, Microsoft, Acme Corp"
                       autoComplete="off"
                       onChange={(e) => {
@@ -944,6 +954,11 @@ export const EmploymentModal = ({
                         : ""
                     }
                     onValueChange={handleJoiningMonthChange}
+                    disabled={
+                      editData?.currentlyWorking &&
+                      (editData?.workedInCompany === true ||
+                        editData?.workedInCompany === false)
+                    }
                   >
                     <Select.Trigger
                       className={cn(
@@ -989,6 +1004,11 @@ export const EmploymentModal = ({
                         : ""
                     }
                     onValueChange={handleJoiningYearChange}
+                    disabled={
+                      editData?.currentlyWorking &&
+                      (editData?.workedInCompany === true ||
+                        editData?.workedInCompany === false)
+                    }
                   >
                     <Select.Trigger
                       className={cn(
@@ -1228,6 +1248,11 @@ export const EmploymentModal = ({
                   >
                     <ReactQuill
                       theme="snow"
+                      readOnly={
+                        editData?.currentlyWorking &&
+                        (editData?.workedInCompany === true ||
+                          editData?.workedInCompany === false)
+                      }
                       value={field.value}
                       onChange={field.onChange}
                       modules={quillModules}
@@ -1238,15 +1263,18 @@ export const EmploymentModal = ({
                   </div>
                 )}
               />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleAiGeneration}
-                className="rounded-full bg-[#EBF3FF] hover:bg-[#DCE9FF] border-none text-[#2563EB] text-xs h-8 px-4 gap-1.5 font-medium shadow-none"
-              >
-                <Sparkles className="h-3.5 w-3.5 fill-[#2563EB]" />
-                Help me write
-              </Button>
+
+              {
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleAiGeneration}
+                  className="rounded-full bg-[#EBF3FF] hover:bg-[#DCE9FF] border-none text-[#2563EB] text-xs h-8 px-4 gap-1.5 font-medium shadow-none"
+                >
+                  <Sparkles className="h-3.5 w-3.5 fill-[#2563EB]" />
+                  Help me write
+                </Button>
+              }
             </div>
 
             {/* Footer Actions */}

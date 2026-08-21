@@ -454,7 +454,7 @@ const EducationModal = ({
 
       if (formData.level == 2) {
         requiredFields.push("eng_marks");
-        requiredFields.push("math_marks");
+        //requiredFields.push("math_marks");
       }
 
       const isAnyFieldEmpty = requiredFields.some((field) => {

@@ -767,12 +767,7 @@ const Modal = ({
               )}
 
               <DialogFooter className="pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={onClose}
-                  className="mt-2"
-                >
+                <Button type="button" variant="outline" onClick={onClose}>
                   Cancel
                 </Button>
 
