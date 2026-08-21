@@ -21,6 +21,7 @@ import CibilLogo from "../../../../public/images/resource/Cibil Logo.png";
 import ExperianLogo from "../../../../public/images/resource/EXPGF_BIG.png";
 import EisilScoreLogo from "../../../../public/images/resource/Eisil Score Logo.png";
 import { useProfileMetrics } from "../hooks/useProfileMetrics";
+import CreditScoreGauge from "./SpeedoMeter";
 
 const getStatusTheme = (value = 0) => {
   if (value >= 85) {
@@ -71,29 +72,7 @@ const ProfileMetrics = ({ refresh = 0 }: { refresh?: number }) => {
   );
   const geisilTheme = useMemo(() => getStatusTheme(geisilScore), [geisilScore]);
 
-  const cibilPercentage = useMemo(() => {
-    if (!cibil?.Score) return 0;
-    const percentage = ((cibil?.Score - 300) / 600) * 100;
-    return Math.min(Math.max(percentage, 0), 100);
-  }, [cibil?.Score]);
 
-  const cibilTheme = useMemo(
-    () => getStatusTheme(cibilPercentage),
-    [cibilPercentage],
-  );
-  console.log("cibilPercentage", cibilPercentage);
-  console.log("cibilTheme", cibilTheme);
-
-  const experianPercentage = useMemo(() => {
-    if (!experian?.Score) return 0;
-    const percentage = ((experian?.Score - 300) / 600) * 100;
-    return Math.min(Math.max(percentage, 0), 100);
-  }, [experian?.Score]);
-
-  const experianTheme = useMemo(
-    () => getStatusTheme(experianPercentage),
-    [experianPercentage],
-  );
 
   const handlePaymentSuccess = async (response, documentType) => {
     setSectionloading(true);
@@ -165,46 +144,42 @@ const ProfileMetrics = ({ refresh = 0 }: { refresh?: number }) => {
 
       <CardContent className="px-4 sm:px-6 pb-5 sm:pb-6">
         <div className="space-y-4 sm:space-y-5">
-          {/* Profile Completeness Card */}
-          <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 p-4 sm:p-5 shadow-sm">
-            <div className="space-y-1.5 sm:space-y-2">
-              <div className="flex items-center justify-between gap-2 w-full">
-                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                  <div className="p-1.5 sm:p-2 rounded-lg bg-white dark:bg-slate-950 border border-slate-200/60 dark:border-slate-800 text-slate-600 dark:text-slate-400 flex-shrink-0">
-                    <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  </div>
-
-                  <h4 className="text-xs sm:text-sm font-semibold tracking-tight text-slate-800 dark:text-slate-200 truncate">
-                    Profile Completeness
-                  </h4>
+          {/* Profile Completeness Section (Unwrapped & Compact) */}
+          <div className="space-y-2 pb-2">
+            <div className="flex items-center justify-between gap-2 w-full">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-500 flex-shrink-0">
+                  <User className="w-3.5 h-3.5" />
                 </div>
-
-                {profileLoading ? (
-                  <Skeleton className="h-6 w-12 rounded" />
-                ) : (
-                  <span className="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-slate-50 flex-shrink-0">
-                    {`${profileProgress}%`}
-                  </span>
-                )}
+                <span className="text-xs sm:text-sm font-semibold tracking-tight text-slate-800 dark:text-slate-200 truncate">
+                  Profile Completeness
+                </span>
               </div>
 
-              <div className="flex justify-between items-center text-[10px] sm:text-xs font-semibold uppercase tracking-wider min-h-[16px]">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 {profileLoading ? (
-                  <Skeleton className="h-3 w-16 rounded" />
+                  <Skeleton className="h-5 w-12 rounded" />
                 ) : (
-                  <p className={profileTheme.textClass}>{profileTheme.label}</p>
+                  <>
+                    <span className={`text-[10px] font-bold uppercase tracking-wider ${profileTheme.textClass}`}>
+                      {profileTheme.label}
+                    </span>
+                    <span className="text-sm font-bold tracking-tight text-slate-900 dark:text-slate-50">
+                      {profileProgress}%
+                    </span>
+                  </>
                 )}
               </div>
-
-              <Progress
-                value={profileLoading ? 0 : Number(profileProgress)}
-                className={`h-1.5 bg-slate-200/70 dark:bg-slate-800 transition-all ${profileTheme.progressClass}`}
-              />
             </div>
+
+            <Progress
+              value={profileLoading ? 0 : Number(profileProgress)}
+              className={`h-1.5 bg-slate-100 dark:bg-slate-900 transition-all ${profileTheme.progressClass}`}
+            />
           </div>
 
           {/* Geisil Score Card */}
-          <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 p-4 sm:p-5 shadow-sm">
+          {/* <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 p-4 sm:p-5 shadow-sm">
             <div className="space-y-1.5 sm:space-y-2">
               <div className="flex items-center justify-between gap-2 w-full">
                 <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
@@ -243,66 +218,39 @@ const ProfileMetrics = ({ refresh = 0 }: { refresh?: number }) => {
                 className={`h-1.5 bg-slate-200/70 dark:bg-slate-800 transition-all ${geisilTheme.progressClass}`}
               />
             </div>
-          </div>
+          </div> */}
 
-          {/* CIBIL Score Card */}
-          <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 p-4 sm:p-5 shadow-sm">
-            <div className="space-y-1.5 sm:space-y-2">
-              <div className="flex items-center justify-between gap-2 w-full">
-                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                  <div className="h-5 w-12 sm:w-14 relative flex items-center justify-center flex-shrink-0">
-                    <img
-                      src={CibilLogo}
-                      alt="CIBIL"
-                      className="object-contain h-full w-full dark:invert"
-                    />
-                  </div>
-
-                  <h4 className="text-xs sm:text-sm font-semibold tracking-tight text-slate-800 dark:text-slate-200 truncate">
-                    CIBIL Score
-                  </h4>
-                </div>
-
-                {scoresLoading ? (
-                  <Skeleton className="h-6 w-12 rounded" />
-                ) : (
-                  <span className="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-slate-50 flex-shrink-0">
-                    {cibil?.Score || 0}
-                  </span>
-                )}
-              </div>
-
-              <div className="flex justify-between items-center text-[10px] sm:text-xs font-semibold uppercase tracking-wider min-h-[16px]">
-                {scoresLoading ? (
-                  <Skeleton className="h-3 w-16 rounded" />
-                ) : (
-                  <p className={cibilTheme.textClass}>{cibilTheme.label}</p>
-                )}
-              </div>
-
-              <Progress
-                value={!cibil?.Score ? 0 : cibilPercentage}
-                className={`h-1.5 bg-slate-200/70 dark:bg-slate-800 transition-all ${cibilTheme.progressClass}`}
-              />
-
-              {/* Last CIBIL Check */}
-              <div className="flex items-center justify-between gap-2 pt-1">
-                <span className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400">
-                  Last checked
+          {/* CIBIL & Experian Scores (Responsive layout: flex-col on mobile, sm:flex-row on larger screens) */}
+          <div className="flex flex-col sm:flex-row items-stretch justify-between gap-6 sm:gap-4 pt-4 border-t border-slate-200/80 dark:border-slate-800">
+            {/* CIBIL Column */}
+            <div className="flex-1 flex flex-col items-center text-center w-full">
+              <div className="flex items-center gap-1.5 mb-2 justify-between w-full">
+                <img
+                  src={CibilLogo}
+                  alt="CIBIL"
+                  className="object-contain h-4 w-10 dark:invert"
+                />
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                  {cibil?.Score || "—"}
                 </span>
+              </div>
 
+              <div className="w-full flex justify-center py-2 min-h-[90px]">
                 {scoresLoading ? (
-                  <Skeleton className="h-3 w-24 rounded" />
+                  <div className="flex flex-col items-center space-y-2">
+                    <Skeleton className="h-[55px] w-[80px] rounded-t-full" />
+                    <Skeleton className="h-4 w-8" />
+                    <Skeleton className="h-3.5 w-14 rounded-full" />
+                  </div>
                 ) : (
-                  <span className="text-[10px] sm:text-xs font-medium text-slate-700 dark:text-slate-300">
-                    {cibil?.paymentDate
-                      ? toLocalDateTime(cibil?.paymentDate)
-                      : "Not checked yet"}
-                  </span>
+                  <CreditScoreGauge score={cibil?.Score} size={180} />
                 )}
               </div>
 
-              {/* Payment */}
+              <div className="mt-2 text-[9px] text-slate-500 dark:text-slate-400">
+                Last checked: {cibil?.paymentDate ? toLocalDateTime(cibil?.paymentDate).split(",")[0] : "Never"}
+              </div>
+
               <RazorpayPayment
                 onSuccess={handlePaymentSuccess}
                 documentType="CIBIL"
@@ -310,68 +258,40 @@ const ProfileMetrics = ({ refresh = 0 }: { refresh?: number }) => {
                 feesType="cibil"
               />
             </div>
-          </div>
 
-          {/* Experian Score Card */}
-          <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 p-4 sm:p-5 shadow-sm">
-            <div className="space-y-1.5 sm:space-y-2">
-              <div className="flex items-center justify-between gap-2 w-full">
-                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                  <div className="h-5 w-12 sm:w-14 relative flex items-center justify-center flex-shrink-0">
-                    <img
-                      src={ExperianLogo}
-                      alt="Experian"
-                      className="object-contain h-full w-full dark:invert"
-                    />
-                  </div>
+            {/* Separators: Vertical on tablet/desktop (sm:block), Horizontal on mobile (block sm:hidden) */}
+            <Separator orientation="vertical" className="hidden sm:block h-auto bg-slate-200/80 dark:bg-slate-800 w-[1px]" />
+            <Separator orientation="horizontal" className="block sm:hidden w-full bg-slate-200/80 dark:bg-slate-800 h-[1px] my-2" />
 
-                  <h4 className="text-xs sm:text-sm font-semibold tracking-tight text-slate-800 dark:text-slate-200 truncate">
-                    Experian Score
-                  </h4>
-                </div>
-
-                {scoresLoading ? (
-                  <Skeleton className="h-6 w-12 rounded" />
-                ) : (
-                  <span className="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-slate-50 flex-shrink-0">
-                    {experian?.Score || 0}
-                  </span>
-                )}
-              </div>
-
-              <div className="flex justify-between items-center text-[10px] sm:text-xs font-semibold uppercase tracking-wider min-h-[16px]">
-                {scoresLoading ? (
-                  <Skeleton className="h-3 w-16 rounded" />
-                ) : (
-                  <p className={experianTheme.textClass}>
-                    {experianTheme.label}
-                  </p>
-                )}
-              </div>
-
-              <Progress
-                value={!experian?.Score ? 0 : experianPercentage}
-                className={`h-1.5 bg-slate-200/70 dark:bg-slate-800 transition-all ${experianTheme.progressClass}`}
-              />
-
-              {/* Last Experian Check */}
-              <div className="flex items-center justify-between gap-2 pt-1">
-                <span className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400">
-                  Last checked
+            {/* Experian Column */}
+            <div className="flex-1 flex flex-col items-center text-center w-full">
+              <div className="flex items-center gap-1.5 mb-2 justify-between w-full">
+                <img
+                  src={ExperianLogo}
+                  alt="Experian"
+                  className="object-contain h-4 w-10 dark:invert"
+                />
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                  {experian?.Score || "—"}
                 </span>
+              </div>
 
+              <div className="w-full flex justify-center py-2 min-h-[90px]">
                 {scoresLoading ? (
-                  <Skeleton className="h-3 w-24 rounded" />
+                  <div className="flex flex-col items-center space-y-2">
+                    <Skeleton className="h-[55px] w-[80px] rounded-t-full" />
+                    <Skeleton className="h-4 w-8" />
+                    <Skeleton className="h-3.5 w-14 rounded-full" />
+                  </div>
                 ) : (
-                  <span className="text-[10px] sm:text-xs font-medium text-slate-700 dark:text-slate-300">
-                    {experian?.paymentDate
-                      ? toLocalDateTime(experian?.paymentDate)
-                      : "Not checked yet"}
-                  </span>
+                  <CreditScoreGauge score={experian?.Score} size={180} />
                 )}
               </div>
 
-              {/* Payment */}
+              <div className="mt-2 text-[9px] text-slate-500 dark:text-slate-400">
+                Last checked: {experian?.paymentDate ? toLocalDateTime(experian?.paymentDate).split(",")[0] : "Never"}
+              </div>
+
               <RazorpayPayment
                 onSuccess={handlePaymentSuccess}
                 documentType="EXPERIAN"

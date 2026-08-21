@@ -126,15 +126,15 @@ const CandidateDashboard = () => {
     completed: "bg-indigo-500/10 text-indigo-600 border-indigo-500/20",
   };
 
-const [userName, setUserName] = useState("");
+  const [userName, setUserName] = useState("");
 
   const completion = progress;
   useEffect(() => {
 
-      const name = localStorage.getItem("user_name");
-      if (name) {
-        setUserName(name);
-      }
+    const name = localStorage.getItem("user_name");
+    if (name) {
+      setUserName(name);
+    }
     fetchDashboardData();
     fetchUserData();
     fetchAppliedJobs();
@@ -254,8 +254,8 @@ const [userName, setUserName] = useState("");
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3 mt-6">
-        <Card className="lg:col-span-2 shadow-sm border-border/60">
+      <div className="grid grid-cols-1 lg:grid-cols-[2.75fr_2.25fr] gap-6 mt-6">
+        <Card className=" shadow-sm border-border/60">
           <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
             <div>
               <CardTitle className="text-lg font-display">
@@ -354,54 +354,13 @@ const [userName, setUserName] = useState("");
           </CardContent>
         </Card>
 
-        {/* <Card className="shadow-sm border-border/60">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-display">
-              Profile Completion
-            </CardTitle>
-            <CardDescription>
-              Stronger profiles get noticed more
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-baseline justify-between">
-              <span className="font-display text-3xl font-bold text-foreground">
-                {completion}%
-              </span>
-            </div>
-            <Progress value={completion} className="h-2 mt-3" />
-            <ul className="mt-4 space-y-2.5">
-              {checklist.map((c) => (
-                <li key={c.label} className="flex items-center gap-2.5 text-sm">
-                  {c.done ? (
-                    <CheckCircle2 className="h-4 w-4 text-success shrink-0" />
-                  ) : (
-                    <Circle className="h-4 w-4 text-muted-foreground shrink-0" />
-                  )}
-                  <span
-                    className={
-                      c.done
-                        ? "text-muted-foreground line-through"
-                        : "text-foreground"
-                    }
-                  >
-                    {c.label}
-                  </span>
-                </li>
-              ))}
-            </ul>
-            <Button asChild variant="outline" size="sm" className="w-full mt-4">
-              <Link to="/candidate/profile">Complete profile</Link>
-            </Button>
-          </CardContent>
-        </Card> */}
-        
+        <div className="space-y-6">
           <ProfileStrength />
-        
+        </div>
       </div>
-          
-      <div className="grid gap-4 lg:grid-cols-3 mt-6">
-        <Card className="lg:col-span-2 shadow-sm border-border/60">
+
+      <div className="grid gap-4 lg:grid-cols-5 mt-6">
+        <Card className="lg:col-span-3 shadow-sm border-border/60">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <div>
               <CardTitle className="text-lg font-display flex items-center gap-2">
@@ -494,7 +453,7 @@ const [userName, setUserName] = useState("");
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm border-border/60">
+        <Card className="shadow-sm lg:col-span-2 border-border/60">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg font-display">
               Upcoming Interviews
