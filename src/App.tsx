@@ -80,6 +80,9 @@ import About from "./pages/About.tsx";
 import BlogList from "./pages/BlogList.tsx";
 import Register from "./pages/Register.tsx";
 import Contact from "./pages/Contact.tsx";
+import JobSearch from "./pages/JobsSearch.tsx";
+import JobSHome from "./pages/Jobs.tsx";
+import JobDetailHomePage from "./pages/JobDetail.tsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.tsx";
 import AdminListCompany from "./pages/admin/AdminListCompany.tsx";
 import VerificationCms from "./pages/admin/VerificationCms.tsx";
@@ -199,6 +202,10 @@ const App = () => {
               <Route path="/login" element={<Login />} />
               <Route path="/loading" element={<Loading />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/jobs" element={<JobSHome />} />
+              <Route path="/job-search" element={<JobSearch />} />
+              <Route path="/jobs/:id" element={<JobDetailHomePage />} />
 
               <Route
                 path="/admin/*"

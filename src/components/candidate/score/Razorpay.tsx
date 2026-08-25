@@ -89,6 +89,13 @@ const RazorpayPayment = ({ onSuccess, documentType, feesType, text }) => {
 
       const rzp = new window.Razorpay(options);
       rzp.open();
+
+      /*   console.log("Razorpay order:", order);
+      console.log("Razorpay key:", razorpayKey);
+      console.log("Order ID:", order.orderId);
+      console.log("Amount:", order.amount); */
+      console.log("Origin:", window.location.origin);
+      console.log("Full URL:", window.location.href);
     } catch (error) {
       console.error("❌ Error during order creation:", error);
     }

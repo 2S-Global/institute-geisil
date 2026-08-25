@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { useLayoutEffect, useState } from "react";
 import Cookies from "js-cookie";
@@ -32,7 +31,7 @@ import { Button } from "@/components/ui/button";
 import { UserMenu } from "@/components/UserMenu";
 import Logo from "../../assets/img/Logo.webp";
 
-export default function Header() {
+export default function Header({ url = "" }) {
   const [active, setActive] = useState("home");
   const [token, setToken] = useState<string | null>(null);
 
@@ -77,7 +76,7 @@ export default function Header() {
         </Link>
         <nav className="hidden md:flex items-center gap-7 text-sm">
           <a
-            href="#home"
+            href={url ? "/#home" : "#home"}
             onClick={() => setActive("home")}
             className={
               active === "home"
@@ -88,7 +87,7 @@ export default function Header() {
             Home
           </a>
           <a
-            href="#about"
+            href={url ? "/#about" : "#about"}
             onClick={() => setActive("about")}
             className={
               active === "about"
@@ -99,7 +98,7 @@ export default function Header() {
             About
           </a>
           <a
-            href="#services"
+            href={url ? "/#services" : "#services"}
             onClick={() => setActive("services")}
             className={
               active === "services"
@@ -110,7 +109,7 @@ export default function Header() {
             Services
           </a>
           <a
-            href="#verification"
+            href={url ? "/#verification" : "#verification"}
             onClick={() => setActive("verification")}
             className={
               active === "verification"
@@ -121,7 +120,7 @@ export default function Header() {
             Verification
           </a>
           <a
-            href="#clients"
+            href={url ? "/#clients" : "#clients"}
             onClick={() => setActive("clients")}
             className={
               active === "clients"
@@ -132,7 +131,7 @@ export default function Header() {
             Clients
           </a>
           <a
-            href="#testimonials"
+            href={url ? "/#testimonials" : "#testimonials"}
             onClick={() => setActive("testimonials")}
             className={
               active === "testimonials"
@@ -143,7 +142,18 @@ export default function Header() {
             Testimonials
           </a>
           <a
-            href="#contact"
+            href={url ? "/jobs" : "/jobs"}
+            onClick={() => setActive("jobs")}
+            className={
+              active === "jobs"
+                ? "text-primary font-medium"
+                : "text-muted-foreground hover:text-primary"
+            }
+          >
+            Jobs
+          </a>
+          <a
+            href={url ? "/#contact" : "#contact"}
             onClick={() => setActive("contact")}
             className={
               active === "contact"
