@@ -6,7 +6,8 @@ import {
   FileText,
   ChevronRight,
   Speech,
-  Brain
+  Brain,
+  Eye
 } from "lucide-react";
 import {
   Sidebar,
@@ -30,6 +31,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { title } from "process";
 
 const main = [
   { title: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard },
@@ -42,7 +44,11 @@ const main = [
     title: "Personality Test",
     url: "/admin/personality-test",
     icon: Brain,
-  },
+  }, {
+    title: "Response Tracker",
+    url: "/admin/api-tracker",
+    icon: Eye,
+  }
   // { title: "Candidates", url: "/admin/candidates", icon: Users },
   // { title: "Employers", url: "/admin/employers", icon: Briefcase },
   // { title: "Institutes", url: "/admin/institutes", icon: GraduationCap },

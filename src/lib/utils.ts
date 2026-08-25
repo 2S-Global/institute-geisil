@@ -30,6 +30,16 @@ export function nameFormate(str) {
     .join(" ");
 }
 
+export function toTitleCase(str: string): string {
+  if (!str) return "";
+  return str
+    .replace(/[-_]/g, " ")
+    .toLowerCase()
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
 
 /* 
 export function timeAgo(dateInput) {

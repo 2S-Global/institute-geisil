@@ -2,9 +2,9 @@ import api from "@/lib/axios"
 import { useEffect, useState, useCallback } from "react"
 
 export const useGetAppliedJobs = () => {
-  const [data, setData] = useState<any[]>([])
+  const [data, setData] = useState<[]>([])
   const [loading, setLoading] = useState<boolean>(true)
-  const [error, setError] = useState<any>(null)
+  const [error, setError] = useState<unknown>(null)
 
   const fetchAppliedJobs = useCallback(async () => {
     try {
@@ -15,7 +15,7 @@ export const useGetAppliedJobs = () => {
       } else {
         setError(res.data.message || "Failed to fetch applied jobs")
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error(err)
       setError(err)
     } finally {

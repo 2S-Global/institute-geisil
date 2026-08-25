@@ -91,7 +91,7 @@ import WhyGEISIL from "./components/admin/WhyGEISIL/WhyGEISIL.tsx";
 import ManageBanners from "./pages/admin/ManageBanners.tsx";
 import AboutPageCms from "./pages/admin/AboutPage.tsx";
 import BehavioralTest from "./pages/admin/BehavioralTest.tsx";
-
+import ResponseTracker from './pages/ResponseTracker/ResponseTracker.tsx';
 import ManageServices from "./components/admin/ManageServices/ManageServices.tsx";
 import PersonalityTest from "./pages/admin/PersonalityTest/PersonalityTest.tsx";
 const queryClient = new QueryClient();
@@ -213,6 +213,7 @@ const App = () => {
                   <ProtectedRoute role="0">
                     <Routes>
                       <Route path="/dashboard" element={<AdminDashboard />} />
+                      <Route path="/api-tracker" element={<ResponseTracker />} />
                       <Route path="/employers" element={<AdminListCompany />} />
                       <Route
                         path="/verification"

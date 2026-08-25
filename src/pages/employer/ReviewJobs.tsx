@@ -21,6 +21,7 @@ import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { validateDocuments } from "@/components/employer/postJob/validatePostJobDocuments";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import { parseDatabaseDateToLocal } from "@/utils/utils";
 const styles: Record<string, string> = {
   active: "bg-success/10 text-success border-success/20",
   draft: "bg-warning/10 text-warning border-warning/20",
@@ -82,8 +83,9 @@ export default function ReviewJobs() {
   const [success, setSuccess] = useState(null);
   const [errorId, setErrorId] = useState(0);
   const [errorField, setErrorField] = useState(0);
-  const formattedExpiryDate = data?.jobExpiryDate
-    ? new Date(data.jobExpiryDate).toLocaleDateString("en-GB", {
+  const expiryDateObj = parseDatabaseDateToLocal(data?.jobExpiryDate);
+  const formattedExpiryDate = expiryDateObj
+    ? expiryDateObj.toLocaleDateString("en-GB", {
         day: "2-digit",
         month: "long",
         year: "numeric",

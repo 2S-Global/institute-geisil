@@ -1,3 +1,5 @@
+import { parseDatabaseDateToYYYYMMDD } from "../../../utils/utils";
+
 /**
  * Helper to compare two jobs by their deadline.
  * - Active deadlines (today or future) are sorted ascending (closest first).
@@ -9,7 +11,15 @@ export const compareJobsByDeadline = (a: any, b: any): number => {
     if (!expiryDateStr) return Infinity;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const expiry = new Date(expiryDateStr);
+
+    const parsedStr = parseDatabaseDateToYYYYMMDD(expiryDateStr);
+    let expiry: Date;
+    if (parsedStr) {
+      const parts = parsedStr.split("-");
+      expiry = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+    } else {
+      expiry = new Date(expiryDateStr);
+    }
     if (isNaN(expiry.getTime())) return Infinity;
     expiry.setHours(0, 0, 0, 0);
     return Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
