@@ -1,3 +1,5 @@
+import { parseDatabaseDateToYYYYMMDD } from "../../../utils/utils";
+
 export const getJobDeadline = (
   jobExpiryDate?: string
 ): string | undefined => {
@@ -6,7 +8,14 @@ export const getJobDeadline = (
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const expiry = new Date(jobExpiryDate);
+  const parsedStr = parseDatabaseDateToYYYYMMDD(jobExpiryDate);
+  let expiry: Date;
+  if (parsedStr) {
+    const parts = parsedStr.split("-");
+    expiry = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+  } else {
+    expiry = new Date(jobExpiryDate);
+  }
   expiry.setHours(0, 0, 0, 0);
 
   const daysLeft = Math.ceil(

@@ -22,6 +22,11 @@ import { validateDocuments } from "@/components/employer/postJob/validatePostJob
 import { useNavigate } from "react-router-dom";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import {
+  parseDatabaseDateToYYYYMMDD,
+  parseYYYYMMDDToLocalDate,
+  formatLocalDateToYYYYMMDD,
+} from "@/utils/utils";
 const styles: Record<string, string> = {
   active: "bg-success/10 text-success border-success/20",
   draft: "bg-warning/10 text-warning border-warning/20",
@@ -284,7 +289,7 @@ export default function PostNewJob() {
             contractPeriod: job.contractPeriod || "",
             positionAvailable: job.positionAvailable || "",
             jobExpiryDate: job.jobExpiryDate
-              ? new Date(job.jobExpiryDate).toISOString().split("T")[0]
+              ? parseDatabaseDateToYYYYMMDD(job.jobExpiryDate)
               : null,
             salary: {
               structure: job.salary?.structure || "range",
@@ -697,45 +702,27 @@ export default function PostNewJob() {
       return;
     }
 
-    // 📌 EMAIL VALIDATION
-    if (
-      !formData.getApplicationUpdateEmail ||
-      formData.getApplicationUpdateEmail.trim() === ""
-    ) {
-      setError({ getApplicationUpdateEmail: "Email is required" });
-      setErrorField("getApplicationUpdateEmail");
-      setErrorId(Date.now());
+    // 📌 EMAIL FORMAT REGEX (ONLY IF NOT EMPTY)
+    if (formData.getApplicationUpdateEmail && formData.getApplicationUpdateEmail.trim() !== "") {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-      const ref = refs["getApplicationUpdateEmail"];
-      if (ref && ref.current) {
-        try {
-          ref.current.focus();
-        } catch (err) {
-          console.warn("Focus failed for email field", err);
+      if (!emailRegex.test(formData.getApplicationUpdateEmail)) {
+        setError({
+          getApplicationUpdateEmail: "Please enter a valid email address",
+        });
+        setErrorField("getApplicationUpdateEmail");
+        setErrorId(Date.now());
+
+        const ref = refs["getApplicationUpdateEmail"];
+        if (ref && ref.current) {
+          try {
+            ref.current.focus();
+          } catch (err) {
+            console.warn("Focus failed on invalid email", err);
+          }
         }
+        return;
       }
-      return;
-    }
-
-    // 📌 EMAIL FORMAT REGEX
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-
-    if (!emailRegex.test(formData.getApplicationUpdateEmail)) {
-      setError({
-        getApplicationUpdateEmail: "Please enter a valid email address",
-      });
-      setErrorField("getApplicationUpdateEmail");
-      setErrorId(Date.now());
-
-      const ref = refs["getApplicationUpdateEmail"];
-      if (ref && ref.current) {
-        try {
-          ref.current.focus();
-        } catch (err) {
-          console.warn("Focus failed on invalid email", err);
-        }
-      }
-      return;
     }
 
     if (formData.specialization.length === 0) {
@@ -815,6 +802,7 @@ export default function PostNewJob() {
       if (id) {
         const payload = {
           ...formData,
+          jobExpiryDate: formatLocalDateToYYYYMMDD(formData.jobExpiryDate),
 
           // ✅ REQUIRED by backend
           jobTitle: formData.jobTitleName?.trim(),
@@ -866,6 +854,7 @@ export default function PostNewJob() {
       } else {
         const payload = {
           ...formData,
+          jobExpiryDate: formatLocalDateToYYYYMMDD(formData.jobExpiryDate),
 
           // ✅ REQUIRED by backend
           jobTitle: formData.jobTitleName?.trim(),
@@ -1174,7 +1163,6 @@ export default function PostNewJob() {
                     className="font-semibold"
                   >
                     Get application updates
-                    <span className="text-red-500">*</span>
                   </label>
 
                   <input
@@ -1439,11 +1427,10 @@ export default function PostNewJob() {
 
                         <select
                           ref={showByRef}
-                          className={`w-full rounded-lg border px-4 py-3 bg-gray-50 ${
-                            errorField === "showBy"
+                          className={`w-full rounded-lg border px-4 py-3 bg-gray-50 ${errorField === "showBy"
                               ? "border-red-500"
                               : "border-gray-300"
-                          }`}
+                            }`}
                           value={formData.showBy || ""}
                           onChange={(e) => {
                             setFormData((prev) => ({
@@ -1490,11 +1477,10 @@ export default function PostNewJob() {
                                 toHours: "",
                               }))
                             }
-                            className={`w-full rounded-lg border px-4 py-3 bg-gray-50 ${
-                              errorField === "expectedHours"
+                            className={`w-full rounded-lg border px-4 py-3 bg-gray-50 ${errorField === "expectedHours"
                                 ? "border-red-500"
                                 : "border-gray-300"
-                            }`}
+                              }`}
                           />
 
                           {errorField === "expectedHours" && (
@@ -1524,11 +1510,10 @@ export default function PostNewJob() {
                                   expectedHours: "",
                                 }))
                               }
-                              className={`w-full rounded-lg border px-4 py-3 bg-gray-50 ${
-                                errorField === "fromHours"
+                              className={`w-full rounded-lg border px-4 py-3 bg-gray-50 ${errorField === "fromHours"
                                   ? "border-red-500"
                                   : "border-gray-300"
-                              }`}
+                                }`}
                             />
 
                             {errorField === "fromHours" && (
@@ -1554,11 +1539,10 @@ export default function PostNewJob() {
                                   expectedHours: "",
                                 }))
                               }
-                              className={`w-full rounded-lg border px-4 py-3 bg-gray-50 ${
-                                errorField === "toHours"
+                              className={`w-full rounded-lg border px-4 py-3 bg-gray-50 ${errorField === "toHours"
                                   ? "border-red-500"
                                   : "border-gray-300"
-                              }`}
+                                }`}
                             />
 
                             {errorField === "toHours" && (
@@ -1598,11 +1582,10 @@ export default function PostNewJob() {
                           placeholder=""
                           min={1}
                           value={formData.contractLength ?? ""}
-                          className={`w-full rounded-lg border px-4 py-3 outline-none transition ${
-                            errorField === "contractLength"
+                          className={`w-full rounded-lg border px-4 py-3 outline-none transition ${errorField === "contractLength"
                               ? "border-red-500"
                               : "border-gray-300"
-                          }`}
+                            }`}
                           onChange={(e) => {
                             setFormData((prev) => ({
                               ...prev,
@@ -1625,11 +1608,10 @@ export default function PostNewJob() {
                         <label className="block mb-1 text-sm">Period</label>
 
                         <select
-                          className={`w-full rounded-lg border px-4 py-3 outline-none transition ${
-                            errorField === "contractPeriod"
+                          className={`w-full rounded-lg border px-4 py-3 outline-none transition ${errorField === "contractPeriod"
                               ? "border-red-500"
                               : "border-gray-300"
-                          }`}
+                            }`}
                           name="contractPeriod"
                           ref={contractPeriodRef}
                           value={formData.contractPeriod ?? ""}
@@ -1680,11 +1662,7 @@ export default function PostNewJob() {
                       onOpen={() => setOpenExpiryPicker(true)}
                       onClose={() => setOpenExpiryPicker(false)}
                       closeOnSelect
-                      value={
-                        formData.jobExpiryDate
-                          ? new Date(formData.jobExpiryDate)
-                          : null
-                      }
+                      value={parseYYYYMMDDToLocalDate(formData.jobExpiryDate)}
                       onChange={(newValue) => {
                         handleDateChange(newValue);
                         setOpenExpiryPicker(false);
@@ -1869,7 +1847,7 @@ export default function PostNewJob() {
                         className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 outline-none focus:border-blue-500"
                         placeholder={
                           formData.salary.structure === "range" ||
-                          formData.salary.structure === "maximum amount"
+                            formData.salary.structure === "maximum amount"
                             ? "800000"
                             : "400000"
                         }
@@ -2083,11 +2061,10 @@ export default function PostNewJob() {
                   </label>
 
                   <select
-                    className={`w-full rounded-lg border px-4 py-3 outline-none ${
-                      error?.jobLocationType
+                    className={`w-full rounded-lg border px-4 py-3 outline-none ${error?.jobLocationType
                         ? "border-red-500"
                         : "border-gray-300"
-                    }`}
+                      }`}
                     value={formData.jobLocationType}
                     ref={jobLocationTypeRef}
                     onChange={(e) => {
@@ -2136,191 +2113,191 @@ export default function PostNewJob() {
                   )}
                 </div>
 
-{/* Show when On-site */}
-{formData.jobLocationType === "on-site" && (
-  <>
-    {/* Branch Dropdown */}
-    <div className="w-full md:w-1/2 px-3 mb-6" id="branchBlock">
-      <label>
-        <b>Branch </b>
-        <span className="text-red-500">*</span>
-      </label>
+                {/* Show when On-site */}
+                {formData.jobLocationType === "on-site" && (
+                  <>
+                    {/* Branch Dropdown */}
+                    <div className="w-full md:w-1/2 px-3 mb-6" id="branchBlock">
+                      <label>
+                        <b>Branch </b>
+                        <span className="text-red-500">*</span>
+                      </label>
 
-      <select
-        className="w-full rounded-md border border-gray-300 px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        value={formData.branch}
-        onChange={(e) => {
-          const selectedBranchId = e.target.value;
+                      <select
+                        className="w-full rounded-md border border-gray-300 px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value={formData.branch}
+                        onChange={(e) => {
+                          const selectedBranchId = e.target.value;
 
-          const selectedBranch = branch.find(
-            (b) => b._id === selectedBranchId,
-          );
+                          const selectedBranch = branch.find(
+                            (b) => b._id === selectedBranchId,
+                          );
 
-          setFormData((prev) => ({
-            ...prev,
-            branch: selectedBranchId,
-            address: selectedBranch?.address || "",
-          }));
-        }}
-        ref={branchRef}
-      >
-        <option value="">Select</option>
-        {branch.map((level) => (
-          <option key={level._id} value={level._id}>
-            {level.name}
-          </option>
-        ))}
-      </select>
+                          setFormData((prev) => ({
+                            ...prev,
+                            branch: selectedBranchId,
+                            address: selectedBranch?.address || "",
+                          }));
+                        }}
+                        ref={branchRef}
+                      >
+                        <option value="">Select</option>
+                        {branch.map((level) => (
+                          <option key={level._id} value={level._id}>
+                            {level.name}
+                          </option>
+                        ))}
+                      </select>
 
-      {error.branch && (
-        <p className="mt-1 text-sm font-medium text-red-500">
-          {error.branch}
-        </p>
-      )}
-    </div>
+                      {error.branch && (
+                        <p className="mt-1 text-sm font-medium text-red-500">
+                          {error.branch}
+                        </p>
+                      )}
+                    </div>
 
-    {/* Complete Address */}
-    <div className="w-full md:w-1/2 px-3 mb-6" id="completeAddressBlock">
-      <label>
-        <b>Complete Address </b>
-        <span className="text-red-500">*</span>
-      </label>
+                    {/* Complete Address */}
+                    <div className="w-full md:w-1/2 px-3 mb-6" id="completeAddressBlock">
+                      <label>
+                        <b>Complete Address </b>
+                        <span className="text-red-500">*</span>
+                      </label>
 
-      <input
-        type="text"
-        name="address"
-        ref={addressRef}
-        placeholder="C-1 Someshwar Tenament, Ranip, Ahmedabad, Gujarat, India"
-        value={formData.address}
-        onChange={(e) => {
-          console.log(
-            "Complete Address selected value -- Chandra Sarkar : ",
-            e.target.value,
-          );
+                      <input
+                        type="text"
+                        name="address"
+                        ref={addressRef}
+                        placeholder="C-1 Someshwar Tenament, Ranip, Ahmedabad, Gujarat, India"
+                        value={formData.address}
+                        onChange={(e) => {
+                          console.log(
+                            "Complete Address selected value -- Chandra Sarkar : ",
+                            e.target.value,
+                          );
 
-          setFormData((prev) => ({
-            ...prev,
-            address: e.target.value,
-          }));
-        }}
-        readOnly
-        className="w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2"
-      />
+                          setFormData((prev) => ({
+                            ...prev,
+                            address: e.target.value,
+                          }));
+                        }}
+                        readOnly
+                        className="w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2"
+                      />
 
-      {error.address && (
-        <p className="mt-1 text-sm font-medium text-red-500">
-          {error.address}
-        </p>
-      )}
-    </div>
-  </>
-)}
+                      {error.address && (
+                        <p className="mt-1 text-sm font-medium text-red-500">
+                          {error.address}
+                        </p>
+                      )}
+                    </div>
+                  </>
+                )}
 
-{/* Show when Remote */}
-{formData.jobLocationType === "remote" && (
-  <div className="w-full md:w-1/2 px-3 mb-6" ref={advertiseCityRef}>
-    <label className="mb-2 block">
-      <b>Do you want to advertise your job in a specific city?</b>
-      <span className="text-red-500"> *</span>
-    </label>
+                {/* Show when Remote */}
+                {formData.jobLocationType === "remote" && (
+                  <div className="w-full md:w-1/2 px-3 mb-6" ref={advertiseCityRef}>
+                    <label className="mb-2 block">
+                      <b>Do you want to advertise your job in a specific city?</b>
+                      <span className="text-red-500"> *</span>
+                    </label>
 
-    <div className="flex flex-wrap gap-4">
-      {/* No Option */}
-      <label className="flex items-center">
-        <input
-          type="radio"
-          name="advertiseCity"
-          value="No"
-          checked={formData.advertiseCity === "No"}
-          onChange={(e) =>
-            setFormData((prev) => ({
-              ...prev,
-              advertiseCity: e.target.value,
-              advertiseCityName: "",
-            }))
-          }
-          className="mr-2 h-4 w-4"
-        />
-        No (Anywhere in India)
-      </label>
+                    <div className="flex flex-wrap gap-4">
+                      {/* No Option */}
+                      <label className="flex items-center">
+                        <input
+                          type="radio"
+                          name="advertiseCity"
+                          value="No"
+                          checked={formData.advertiseCity === "No"}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              advertiseCity: e.target.value,
+                              advertiseCityName: "",
+                            }))
+                          }
+                          className="mr-2 h-4 w-4"
+                        />
+                        No (Anywhere in India)
+                      </label>
 
-      {/* Yes Option */}
-      <label className="flex items-center">
-        <input
-          type="radio"
-          name="advertiseCity"
-          value="Yes"
-          checked={formData.advertiseCity === "Yes"}
-          onChange={(e) =>
-            setFormData((prev) => ({
-              ...prev,
-              advertiseCity: e.target.value,
-            }))
-          }
-          className="mr-2 h-4 w-4"
-        />
-        Yes
-      </label>
-    </div>
+                      {/* Yes Option */}
+                      <label className="flex items-center">
+                        <input
+                          type="radio"
+                          name="advertiseCity"
+                          value="Yes"
+                          checked={formData.advertiseCity === "Yes"}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              advertiseCity: e.target.value,
+                            }))
+                          }
+                          className="mr-2 h-4 w-4"
+                        />
+                        Yes
+                      </label>
+                    </div>
 
-    {error.advertiseCity && (
-      <div className="mt-1 text-sm text-red-500">
-        {error.advertiseCity}
-      </div>
-    )}
-  </div>
-)}
+                    {error.advertiseCity && (
+                      <div className="mt-1 text-sm text-red-500">
+                        {error.advertiseCity}
+                      </div>
+                    )}
+                  </div>
+                )}
 
-{/* Show when Remote + Yes */}
-{formData.jobLocationType === "remote" &&
-  formData.advertiseCity === "Yes" && (
-    <div className="w-full md:w-1/2 px-3 mb-6">
-      <label>
-        <b>Where do you want to advertise this job?</b>
-        <span className="text-red-500">*</span>
-      </label>
+                {/* Show when Remote + Yes */}
+                {formData.jobLocationType === "remote" &&
+                  formData.advertiseCity === "Yes" && (
+                    <div className="w-full md:w-1/2 px-3 mb-6">
+                      <label>
+                        <b>Where do you want to advertise this job?</b>
+                        <span className="text-red-500">*</span>
+                      </label>
 
-      <input
-        type="text"
-        name="advertiseCityName"
-        value={formData.advertiseCityName}
-        onChange={handleChange}
-        ref={advertiseCityNameRef}
-        className="w-full rounded-md border border-gray-300 px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
+                      <input
+                        type="text"
+                        name="advertiseCityName"
+                        value={formData.advertiseCityName}
+                        onChange={handleChange}
+                        ref={advertiseCityNameRef}
+                        className="w-full rounded-md border border-gray-300 px-3 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
 
-      {error.advertiseCityName && (
-        <div className="mt-1 text-sm text-red-500">
-          {error.advertiseCityName}
-        </div>
-      )}
-    </div>
-  )}
+                      {error.advertiseCityName && (
+                        <div className="mt-1 text-sm text-red-500">
+                          {error.advertiseCityName}
+                        </div>
+                      )}
+                    </div>
+                  )}
 
-{/* Resume Required Checkbox */}
-<div className="w-full  px-3 mb-6" id="requireRemumeBlock">
-  <div className="flex items-center">
-    <input
-      type="checkbox"
-      id="rememberMe"
-      checked={formData.resumeRequired}
-      onChange={(e) => {
-        setFormData((prev) => ({
-          ...prev,
-          resumeRequired: e.target.checked,
-        }));
-      }}
-      className="h-4 w-4"
-    />
+                {/* Resume Required Checkbox */}
+                <div className="w-full  px-3 mb-6" id="requireRemumeBlock">
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="rememberMe"
+                      checked={formData.resumeRequired}
+                      onChange={(e) => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          resumeRequired: e.target.checked,
+                        }));
+                      }}
+                      className="h-4 w-4"
+                    />
 
-    <label
-      className="ml-2 text-sm font-medium text-gray-700"
-      htmlFor="rememberMe"
-    >
-      Resume is required
-    </label>
-  </div>
-</div>
+                    <label
+                      className="ml-2 text-sm font-medium text-gray-700"
+                      htmlFor="rememberMe"
+                    >
+                      Resume is required
+                    </label>
+                  </div>
+                </div>
                 {/* Submit Button */}
                 <div className="w-full px-3 text-right">
                   <button
