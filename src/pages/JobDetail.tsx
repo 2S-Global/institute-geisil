@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import Cookies from "js-cookie";
 import {
   MapPin,
   Briefcase,
@@ -118,6 +119,17 @@ export default function CandidateJobDetail() {
   const [applied, setApplied] = useState(false);
   const [alreadyApplied, setAlreadyApplied] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+
+  const [token, setToken] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token") ?? Cookies.get("token") ?? null;
+    const role = localStorage.getItem("role") ?? null;
+
+    setToken(token);
+    setRole(role);
+  }, []);
 
   // Fetch Job Details
   useEffect(() => {
@@ -378,22 +390,24 @@ export default function CandidateJobDetail() {
                 </div>
 
                 <div className="flex flex-wrap gap-2 mt-5">
-                  <Button
-                    size="lg"
-                    disabled={applied || alreadyApplied}
-                    className="gap-2"
-                    onClick={() => setDialogOpen(true)}
-                  >
-                    {applied || alreadyApplied ? (
-                      <>
-                        <CheckCircle2 className="h-4 w-4" /> Applied
-                      </>
-                    ) : (
-                      <>
-                        <Send className="h-4 w-4" /> Apply now
-                      </>
-                    )}
-                  </Button>
+                  {token && Number(role) === 1 && (
+                    <Button
+                      size="lg"
+                      disabled={applied || alreadyApplied}
+                      className="gap-2"
+                      onClick={() => setDialogOpen(true)}
+                    >
+                      {applied || alreadyApplied ? (
+                        <>
+                          <CheckCircle2 className="h-4 w-4" /> Applied
+                        </>
+                      ) : (
+                        <>
+                          <Send className="h-4 w-4" /> Apply now
+                        </>
+                      )}
+                    </Button>
+                  )}
 
                   <CandidateApplyModal
                     open={dialogOpen}
@@ -406,34 +420,37 @@ export default function CandidateJobDetail() {
                     onSuccess={() => setApplied(true)}
                   />
 
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    onClick={async () => {
-                      if (id) {
-                        await handleBookmark(id, saved, () => {
-                          setSaved((s) => !s);
-                        });
-                      }
-                    }}
-                    disabled={bookmarkLoading[id || ""]}
-                    className="gap-2"
-                  >
-                    {bookmarkLoading[id || ""] ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" /> Checking...
-                      </>
-                    ) : saved ? (
-                      <>
-                        <BookmarkCheck className="h-4 w-4 fill-primary text-primary" />{" "}
-                        Saved
-                      </>
-                    ) : (
-                      <>
-                        <Bookmark className="h-4 w-4" /> Save Job
-                      </>
-                    )}
-                  </Button>
+                  {token && Number(role) === 1 && (
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      onClick={async () => {
+                        if (id) {
+                          await handleBookmark(id, saved, () => {
+                            setSaved((s) => !s);
+                          });
+                        }
+                      }}
+                      disabled={bookmarkLoading[id || ""]}
+                      className="gap-2"
+                    >
+                      {bookmarkLoading[id || ""] ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />{" "}
+                          Checking...
+                        </>
+                      ) : saved ? (
+                        <>
+                          <BookmarkCheck className="h-4 w-4 fill-primary text-primary" />{" "}
+                          Saved
+                        </>
+                      ) : (
+                        <>
+                          <Bookmark className="h-4 w-4" /> Save Job
+                        </>
+                      )}
+                    </Button>
+                  )}
                   {/*  <Button
                     size="lg"
                     variant="outline"

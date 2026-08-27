@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect, useLayoutEffect } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Search,
   MapPin,
@@ -242,9 +243,14 @@ export default function CandidateJobs() {
   const [applyingJob, setApplyingJob] = useState<any | null>(null);
   const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set());
   const [token, setToken] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null);
+  const navigate = useNavigate();
+  useEffect(() => {
+    const token = localStorage.getItem("token") ?? Cookies.get("token") ?? null;
+    const role = localStorage.getItem("role") ?? null;
 
-  useLayoutEffect(() => {
-    setToken(localStorage.getItem("token") || Cookies.get("token"));
+    setToken(token);
+    setRole(role);
   }, []);
 
   useEffect(() => {
@@ -487,7 +493,7 @@ export default function CandidateJobs() {
                       {job.companyName}
                     </p>
                   </div>
-                  {token && (
+                  {token && Number(role) === 1 && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -517,6 +523,7 @@ export default function CandidateJobs() {
                       onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
+                        navigate("/login");
                       }}
                       className={cn(
                         "text-muted-foreground hover:text-primary transition-colors p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center",
@@ -592,7 +599,7 @@ export default function CandidateJobs() {
                     >
                       <Link to={`/jobs/${job._id}`}>View</Link>
                     </Button>
-                    {token && (
+                    {token && Number(role) === 1 && (
                       <Button
                         size="sm"
                         onClick={(e) => {
@@ -614,6 +621,22 @@ export default function CandidateJobs() {
                             Apply
                           </>
                         )}
+                      </Button>
+                    )}
+                    {!token && (
+                      <Button
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          navigate("/login");
+                        }}
+                        className="gap-1.5"
+                      >
+                        <>
+                          <Send className="h-3.5 w-3.5" />
+                          Apply
+                        </>
                       </Button>
                     )}
                   </div>

@@ -234,97 +234,170 @@ export default function JobPortal() {
       {/* Header */}
       <Header url="true" />
       {/* Hero */}
-      <section className="bg-[#113068] pt-20 pb-16">
-        <div className="mx-auto max-w-4xl px-4 text-center">
-          <h1 className="font-display text-[46px] leading-[1.1] md:text-[46px] font-extrabold tracking-tight text-white">
+      <section className="bg-[#113068] pt-12 pb-12 sm:pt-16 sm:pb-14 md:pt-20 md:pb-16">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 text-center">
+          {/* Heading */}
+          <h1 className="font-display text-3xl leading-tight font-extrabold tracking-tight text-white sm:text-4xl md:text-[46px] md:leading-[1.1]">
             Find your dream job now
           </h1>
 
-          <p className="mt-3 text-lg md:text-xl text-white/70">
+          {/* Subtitle */}
+          <p className="mt-3 text-base text-white/70 sm:text-lg md:text-xl">
             5 lakh+ jobs for you to explore
           </p>
 
-          <Card className="mt-8 p-2 rounded-full shadow-lg flex flex-col md:flex-row md:items-center gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          {/* Search Box */}
+          <Card className="mx-auto mt-7 w-full max-w-4xl rounded-2xl p-2 shadow-xl sm:mt-8 sm:rounded-3xl md:rounded-full">
+            <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-1">
+              {/* Keyword */}
+              <div className="relative min-w-0 flex-1">
+                <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
 
-              <Input
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-                placeholder="Enter skills / designations / companies"
-                className="pl-12 h-12 border-0 shadow-none focus-visible:ring-0 rounded-full text-base"
+                <Input
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
+                  placeholder="Enter skills / designations / companies"
+                  className="
+              h-12 w-full rounded-xl  pl-12 pr-4
+              text-sm shadow-none
+              focus-visible:outline-none
+              focus-visible:ring-0
+              focus-visible:ring-offset-0
+              sm:text-base
+              md:rounded-full
+            "
+                />
+              </div>
+
+              <Separator
+                orientation="vertical"
+                className="hidden h-7 md:block"
               />
-            </div>
 
-            <Separator orientation="vertical" className="hidden md:block h-7" />
+              {/* Experience */}
+              <Select value={experience} onValueChange={setExperience}>
+                <SelectTrigger
+                  className="
+              h-12 w-full rounded-xl px-4
+              text-sm text-muted-foreground shadow-none
+               focus:border-0
+              focus:outline-none
+              focus:ring-0
+              focus:ring-offset-0
+                      
+              sm:text-base
+              md:w-[180px] md:rounded-full
+            "
+                >
+                  <SelectValue placeholder="Select experience" />
+                </SelectTrigger>
 
-            <Select value={experience} onValueChange={setExperience}>
-              <SelectTrigger className="md:w-[180px] h-12 border-0 shadow-none focus:ring-0 rounded-full text-base text-muted-foreground">
-                <SelectValue placeholder="Select experience" />
-              </SelectTrigger>
+                <SelectContent>
+                  {[
+                    "Fresher",
+                    "1-3 years",
+                    "3-6 years",
+                    "6-10 years",
+                    "10+ years",
+                  ].map((e) => (
+                    <SelectItem key={e} value={e}>
+                      {e}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-              <SelectContent>
-                {[
-                  "Fresher",
-                  "1-3 years",
-                  "3-6 years",
-                  "6-10 years",
-                  "10+ years",
-                ].map((e) => (
-                  <SelectItem key={e} value={e}>
-                    {e}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Separator orientation="vertical" className="hidden md:block h-7" />
-
-            <div className="relative flex-1">
-              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground md:hidden" />
-
-              <Input
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                placeholder="Enter location"
-                className="pl-12 md:pl-3 h-12 border-0 shadow-none focus-visible:ring-0 rounded-full text-base"
+              <Separator
+                orientation="vertical"
+                className="hidden h-7 md:block"
               />
-            </div>
 
-            <Button
-              asChild
-              className="rounded-full h-12 px-8 bg-accent hover:bg-accent/90 text-accent-foreground text-base"
-            >
-              <Link
-                to="/job-list"
-                className="bg-[#113068] hover:bg-[#1a4385] transition-colors"
+              {/* Location */}
+              <div className="relative min-w-0 flex-1">
+                <MapPin className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground md:hidden" />
+
+                <Input
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="Enter location"
+                  className="
+              h-12 w-full rounded-xl
+              pl-12 pr-4 text-sm shadow-none
+               text-sm shadow-none
+              focus-visible:outline-none
+              focus-visible:ring-0
+              focus-visible:ring-offset-0
+              sm:text-base
+              md:rounded-full md:pl-3
+            "
+                />
+              </div>
+
+              {/* Search Button */}
+              <Button
+                asChild
+                className="
+            h-12 w-full rounded-xl
+            bg-accent px-8
+            text-base text-accent-foreground
+            transition-colors hover:bg-accent/90
+            md:w-auto md:rounded-full
+          "
               >
-                Search
-              </Link>
-            </Button>
+                <Link
+                  to="/job-list"
+                  className="flex h-full w-full items-center justify-center rounded-xl bg-[#113068] transition-colors hover:bg-[#1a4385] md:rounded-full"
+                >
+                  Search
+                </Link>
+              </Button>
+            </div>
           </Card>
 
-          <p className="mt-5 text-sm text-white/70">
+          {/* Trending keyword */}
+          <p className="mt-4 text-xs text-white/70 sm:mt-5 sm:text-sm">
             react.js{" "}
-            <span className="text-accent font-semibold">24707 new</span>
+            <span className="font-semibold text-accent">24707 new</span>
           </p>
         </div>
 
-        {/* Quick chips */}
-        <div className="mx-auto max-w-5xl px-4 mt-10 flex flex-wrap justify-center gap-3">
-          {CHIPS.map(({ label, icon: Icon }) => (
-            <Link
-              key={label}
-              to="/job-search"
-              className="group flex items-center gap-2 rounded-xl border border-white/10 bg-white px-5 py-3 text-sm font-medium text-foreground shadow-sm hover:border-accent/50 hover:shadow-md transition"
-            >
-              <Icon className="h-4 w-4 text-accent" />
+        {/* Quick Chips */}
+        <div className="mx-auto mt-8 max-w-6xl px-4 sm:mt-10 sm:px-6">
+          <div
+            className="
+        flex gap-3 overflow-x-auto pb-2
+        sm:flex-wrap sm:justify-center sm:overflow-visible
+      "
+          >
+            {CHIPS.map(({ label, icon: Icon }) => (
+              <Link
+                key={label}
+                to="/job-search"
+                className="
+            group flex shrink-0 items-center gap-2
+            rounded-xl border border-white/10
+            bg-white px-4 py-3
+            text-sm font-medium text-foreground
+            shadow-sm transition
+            hover:border-accent/50 hover:shadow-md
+            sm:px-5
+          "
+              >
+                <Icon className="h-4 w-4 shrink-0 text-accent" />
 
-              <span className="max-w-[110px] truncate">{label}</span>
+                <span className="max-w-[120px] truncate">{label}</span>
 
-              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
-            </Link>
-          ))}
+                <ChevronRight
+                  className="
+              h-3.5 w-3.5 shrink-0
+              text-muted-foreground
+              transition-transform
+              group-hover:translate-x-0.5
+            "
+                />
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
