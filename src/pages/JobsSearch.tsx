@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect, useLayoutEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   Search,
   MapPin,
@@ -223,14 +223,25 @@ export default function CandidateJobs() {
   //custom hook for bookmark
   const { handleBookmark, bookmarkLoading } = useBookmarkJob();
 
-  const [query, setQuery] = useState("");
-  const [location, setLocation] = useState("all");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlKeyword = searchParams.get("keyword") || searchParams.get("q") || "";
+  const urlLocation = searchParams.get("location") || "";
+  const urlExperience = searchParams.get("experience") || "";
+
+  const [query, setQuery] = useState(urlKeyword);
+  const [location, setLocation] = useState(urlLocation || "all");
   const [sort, setSort] = useState("recent");
   const [view, setView] = useState<"grid" | "list">("list");
   const [selectedDatePosted, setSelectedDatePosted] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedModes, setSelectedModes] = useState<string[]>([]);
-  const [selectedExp, setSelectedExp] = useState<string[]>([]);
+  const [selectedExp, setSelectedExp] = useState<string[]>(urlExperience ? [urlExperience] : []);
+
+  useEffect(() => {
+    setQuery(urlKeyword);
+    setLocation(urlLocation || "all");
+    setSelectedExp(urlExperience ? [urlExperience] : []);
+  }, [urlKeyword, urlLocation, urlExperience]);
   const [salary, setSalary] = useState<number[]>([0, 50]);
   const [saved, setSaved] = useState<Set<string>>(new Set(["j2", "j6"]));
 
@@ -323,6 +334,7 @@ export default function CandidateJobs() {
     setSalary([0, 50]);
     setLocation("all");
     setQuery("");
+    setSearchParams({});
   };
 
   const toggleSave = async (id: string, isCurrentlyBookmarked: boolean) => {

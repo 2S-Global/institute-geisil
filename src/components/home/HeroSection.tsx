@@ -1,402 +1,54 @@
-import { useEffect, useState, useCallback } from "react";
-import { Link } from "react-router-dom";
-import { ArrowRight, Sparkles, ShieldCheck, Zap } from "lucide-react";
-import { AnimatePresence, motion, PanInfo } from "framer-motion";
-
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import api from "@/lib/axios";
-
-interface BannerItem {
-  _id?: string | number;
-  subtitle?: string;
-  banner_title?: string;
-  description?: string;
-  banner_image?: string;
-  is_del?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-const SWIPE_THRESHOLD = 40;
+import GlassSearchBar from "./GlassSearchBar";
+import heroVideo from "@/assets/files/You_want_to_turn_these_static.mp4";
 
 export default function HeroSection() {
-  const [slide, setSlide] = useState(0);
-  const [direction, setDirection] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [homeBanner, setHomeBanner] = useState<BannerItem[]>([]);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    (async () => {
-      try {
-        setLoading(true);
-
-        const response = await api.get(`/api/home/all-banner`);
-
-        if (isMounted && response.data?.data) {
-          setHomeBanner(response.data.data);
-        }
-      } catch (error) {
-        console.error("Error fetching hero banners:", error);
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  const nextSlide = useCallback(() => {
-    if (homeBanner.length > 0) {
-      setDirection(1);
-      setSlide((prev) => (prev + 1) % homeBanner.length);
-    }
-  }, [homeBanner.length]);
-
-  const prevSlide = useCallback(() => {
-    if (homeBanner.length > 0) {
-      setDirection(-1);
-      setSlide((prev) => (prev === 0 ? homeBanner.length - 1 : prev - 1));
-    }
-  }, [homeBanner.length]);
-
-  const handleDragEnd = (_: unknown, info: PanInfo) => {
-    if (info.offset.x < -SWIPE_THRESHOLD) {
-      nextSlide();
-    } else if (info.offset.x > SWIPE_THRESHOLD) {
-      prevSlide();
-    }
-  };
-
-  useEffect(() => {
-    if (slide >= homeBanner.length && homeBanner.length > 0) {
-      setSlide(0);
-    }
-  }, [homeBanner, slide]);
-
-  useEffect(() => {
-    if (homeBanner.length <= 1) return;
-
-    const timer = setInterval(() => {
-      nextSlide();
-    }, 6000);
-
-    return () => clearInterval(timer);
-  }, [homeBanner.length, nextSlide]);
-
-  const slideVariants = {
-    enter: (dir: number) => ({
-      x: dir > 0 ? "100%" : "-100%",
-      opacity: 0,
-      scale: 0.95,
-    }),
-
-    center: {
-      x: 0,
-      opacity: 1,
-      scale: 1,
-    },
-
-    exit: (dir: number) => ({
-      x: dir > 0 ? "-100%" : "100%",
-      opacity: 0,
-      scale: 0.95,
-    }),
-  };
-
-  const currentBanner = homeBanner[slide];
-
-  /*
-   * LOADING STATE
-   */
-  if (loading) {
-    return (
-      <section className="w-full min-h-[calc(100vh-4rem)] flex items-center justify-center bg-white border-b border-slate-200 px-4 sm:px-6 py-12">
-        <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-          <div className="lg:col-span-7 flex flex-col items-center lg:items-start space-y-4 sm:space-y-6 text-center lg:text-left">
-            <Skeleton className="h-7 w-36 sm:w-44 rounded-full" />
-
-            <Skeleton className="h-10 sm:h-16 w-full max-w-xl rounded-xl" />
-
-            <Skeleton className="h-20 sm:h-24 w-full max-w-lg rounded-xl" />
-
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto pt-2">
-              <Skeleton className="h-12 sm:h-14 w-full sm:w-40 rounded-xl" />
-
-              <Skeleton className="h-12 sm:h-14 w-full sm:w-40 rounded-xl" />
-            </div>
-          </div>
-
-          <div className="lg:col-span-5 w-full max-w-md lg:max-w-none mx-auto">
-            <Skeleton className="w-full aspect-[4/3] sm:aspect-[16/10] lg:aspect-[4/3] rounded-3xl" />
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  /*
-   * NO BANNER
-   */
-  if (!homeBanner.length) {
-    return null;
-  }
-
   return (
     <section
       id="home"
-      className="relative w-full min-h-[calc(100vh-4rem)] lg:min-h-[90vh] flex items-center justify-center overflow-hidden bg-white border-b border-slate-200 py-8 sm:py-12 lg:py-16 select-none"
+      className="relative w-full overflow-hidden bg-white select-none border-b border-slate-200"
     >
-      {/* ================================
-          BACKGROUND GRAPHICS
-      ================================= */}
+      <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-6">
+        <div className="relative w-full h-[450px] sm:h-[520px] md:h-[580px] lg:h-[620px] rounded-2xl overflow-hidden bg-slate-950 shadow-2xl">
+          <video
+            src={heroVideo}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-f
+            ul object-bottom  object-cover block opacity-100 z-0 transition-opacity duration-300"
+          />
 
-      {/* Soft background gradient */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(17,43,95,0.07),transparent_35%),radial-gradient(circle_at_85%_80%,rgba(37,99,235,0.06),transparent_35%)] pointer-events-none" />
+          {/* Dark gradient overlay at the bottom for contrast on bright video sections */}
+          <div
+  className="
+    absolute bottom-0 left-0 w-full h-[120px]
+    bg-[linear-gradient(to_top,rgba(2,6,23,0.82)_0%,rgba(2,6,23,0.65)_18%,rgba(2,6,23,0.40)_38%,rgba(2,6,23,0.20)_58%,rgba(2,6,23,0.08)_76%,rgba(2,6,23,0.02)_90%,transparent_100%)]
+    pointer-events-none z-10
+  "
+/>
 
-      {/* Left glow */}
-      <div className="absolute top-1/4 -left-20 sm:-left-32 w-64 sm:w-96 h-64 sm:h-96 bg-[#112B5F]/10 rounded-full blur-[90px] pointer-events-none" />
-
-      {/* Right glow */}
-      <div className="absolute bottom-10 -right-20 w-72 sm:w-[500px] h-72 sm:h-[500px] bg-blue-500/10 rounded-full blur-[110px] pointer-events-none" />
-
-      {/* Subtle dot pattern */}
-      <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:20px_20px] opacity-30 pointer-events-none" />
-
-      {/* ================================
-          MAIN CONTAINER
-      ================================= */}
-
-      <div className="max-w-[1536px] w-full mx-auto px-4 sm:px-6 lg:px-12 z-10 my-auto">
-        <AnimatePresence mode="wait" custom={direction}>
-          <motion.div
-            key={slide}
-            custom={direction}
-            variants={slideVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{
-              x: {
-                type: "spring",
-                stiffness: 280,
-                damping: 30,
-              },
-              opacity: {
-                duration: 0.3,
-              },
-              scale: {
-                duration: 0.3,
-              },
-            }}
-            className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center"
+          {/* Search Section Overlay (Bottom-Center Position) */}
+          <div
+            className="
+              absolute
+              left-0
+              right-0
+              bottom-0
+              z-[20]
+              px-3
+              sm:bottom-0
+              sm:px-6
+              lg:bottom-4
+              lg:px-8
+            "
           >
-            {/* ================================
-                LEFT COLUMN
-            ================================= */}
-
-            <div className="lg:col-span-7 xl:col-span-6 order-1 text-center lg:text-left space-y-4 sm:space-y-6 lg:pr-4">
-              {/* Badge */}
-              <motion.div
-                initial={{
-                  opacity: 0,
-                  y: 10,
-                }}
-                animate={{
-                  opacity: 1,
-                  y: 0,
-                }}
-                transition={{
-                  delay: 0.1,
-                }}
-                className="inline-block"
-              >
-                <Badge
-                  variant="outline"
-                  className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1 sm:py-1.5 bg-[#112B5F]/5 text-[#112B5F] border-[#112B5F]/20 rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase shadow-sm"
-                >
-                  <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#112B5F]" />
-
-                  {currentBanner?.subtitle || "Verified Service"}
-                </Badge>
-              </motion.div>
-
-              {/* Heading */}
-              <motion.h1
-                initial={{
-                  opacity: 0,
-                  y: 15,
-                }}
-                animate={{
-                  opacity: 1,
-                  y: 0,
-                }}
-                transition={{
-                  delay: 0.15,
-                }}
-                className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.15]"
-              >
-                <span className="bg-gradient-to-r from-slate-950 via-slate-800 to-[#112B5F] bg-clip-text text-transparent">
-                  {currentBanner?.banner_title}
-                </span>
-              </motion.h1>
-
-              {/* Description */}
-              <motion.p
-                initial={{
-                  opacity: 0,
-                  y: 15,
-                }}
-                animate={{
-                  opacity: 1,
-                  y: 0,
-                }}
-                transition={{
-                  delay: 0.2,
-                }}
-                className="text-slate-600 text-justify text-sm sm:text-lg xl:text-xl max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal tracking-wide"
-              >
-                {currentBanner?.description}
-              </motion.p>
-
-              {/* CTA BUTTONS */}
-              <motion.div
-                initial={{
-                  opacity: 0,
-                  y: 15,
-                }}
-                animate={{
-                  opacity: 1,
-                  y: 0,
-                }}
-                transition={{
-                  delay: 0.25,
-                }}
-                className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:gap-4 pt-2 sm:pt-4"
-              >
-                {/* Primary Button */}
-                <Button
-                  asChild
-                  size="lg"
-                  className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base font-semibold rounded-xl sm:rounded-2xl bg-[#112B5F] hover:bg-[#0D2149] shadow-lg shadow-[#112B5F]/20 hover:shadow-xl hover:shadow-[#112B5F]/30 hover:scale-[1.02] active:scale-[0.98] transition-all border-none text-white"
-                >
-                  <Link
-                    to="/register"
-                    className="flex items-center justify-center"
-                  >
-                    Get Started Free
-                    <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
-                  </Link>
-                </Button>
-
-                {/* Secondary Button */}
-                <Button
-                  asChild
-                  size="lg"
-                  variant="outline"
-                  className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base font-semibold rounded-xl sm:rounded-2xl bg-white text-[#112B5F] border-[#112B5F]/30 hover:bg-[#112B5F] hover:text-white hover:border-[#112B5F] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
-                >
-                  <a
-                    href="#services"
-                    className="flex items-center justify-center"
-                  >
-                    Explore Services
-                  </a>
-                </Button>
-              </motion.div>
-
-              {/* SLIDER DOTS */}
-              {homeBanner.length > 1 && (
-                <div className="flex justify-center lg:justify-start items-center gap-2 sm:gap-3 pt-4 sm:pt-6">
-                  {homeBanner.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        setDirection(index > slide ? 1 : -1);
-                        setSlide(index);
-                      }}
-                      aria-label={`Go to slide ${index + 1}`}
-                      className={`h-2.5 sm:h-3 rounded-full transition-all duration-500 focus:outline-none p-1 -m-1 ${
-                        slide === index
-                          ? "w-8 sm:w-12 bg-[#112B5F] shadow-md shadow-[#112B5F]/30"
-                          : "w-2.5 sm:w-3 bg-[#112B5F]/25 hover:bg-[#112B5F]/50"
-                      }`}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* ================================
-                RIGHT COLUMN
-            ================================= */}
-
-            <div className="lg:col-span-5 xl:col-span-6 order-2 w-full">
-              <motion.div
-                drag="x"
-                dragConstraints={{
-                  left: 0,
-                  right: 0,
-                }}
-                dragElastic={0.15}
-                onDragEnd={handleDragEnd}
-                className="relative mx-auto max-w-md sm:max-w-lg lg:max-w-none cursor-grab active:cursor-grabbing touch-pan-y"
-              >
-                {/* Image Card - No Border / No Shadow */}
-                <Card className="relative overflow-hidden border-0 shadow-none bg-transparent rounded-3xl sm:rounded-[2.5rem]">
-                  <CardContent className="p-0">
-                    <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] lg:aspect-[4/3] overflow-hidden group rounded-3xl sm:rounded-[2.5rem]">
-                      {/* Banner Image */}
-                      <img
-                        src={currentBanner?.banner_image}
-                        alt={currentBanner?.banner_title || "Hero Banner"}
-                        className="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-105 pointer-events-none select-none"
-                        draggable={false}
-                      />
-
-                      {/* Image Information Card */}
-                      <div className="absolute bottom-3 sm:bottom-6 left-3 sm:left-6 right-3 sm:right-6 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/90 backdrop-blur-xl border border-white/80 shadow-lg flex items-center justify-between gap-2 pointer-events-none">
-                        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                          {/* Icon */}
-                          <div className="p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-[#112B5F]/10 text-[#112B5F] shrink-0">
-                            <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
-                          </div>
-
-                          {/* Text */}
-                          <div className="min-w-0">
-                            <p className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">
-                              System Feature
-                            </p>
-
-                            <p className="text-xs sm:text-sm font-bold text-slate-900 truncate">
-                              {currentBanner?.banner_title}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Status */}
-                        <div className="flex items-center gap-1.5 text-emerald-600 text-[10px] sm:text-xs font-bold bg-emerald-50 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-emerald-200 shrink-0">
-                          <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-
-                          {!currentBanner?.is_del ? "Active" : "Archived"}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </div>
-          </motion.div>
-        </AnimatePresence>
+            <GlassSearchBar />
+          </div>
+        </div>
       </div>
     </section>
   );
 }
+
+
