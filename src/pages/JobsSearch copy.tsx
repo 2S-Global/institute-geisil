@@ -119,12 +119,12 @@ function FilterPanel({
   selectedCategories: string[];
   experienceLevels: string[];
   setSelectedCategories: (v: string[]) => void;
-  setSelectedTypes: (v: string[]) => void;
-  setSelectedModes: (v: string[]) => void;
-  setSelectedExp: (v: string[]) => void;
   selectedTypes: string[];
+  setSelectedTypes: (v: string[]) => void;
   selectedModes: string[];
+  setSelectedModes: (v: string[]) => void;
   selectedExp: string[];
+  setSelectedExp: (v: string[]) => void;
   salary: number[];
   setSalary: (v: number[]) => void;
   onReset: () => void;
@@ -312,11 +312,6 @@ export default function CandidateJobs() {
   const [experienceLevels, setExperienceLevels] = useState<string[]>([]);
 
   /**
-   * Recent searches coming from API.
-   */
-  const [recentSearches, setRecentSearches] = useState<string[]>([]);
-
-  /**
    * Sync keyword/location from URL.
    *
    * Experience is intentionally handled separately below
@@ -432,7 +427,6 @@ export default function CandidateJobs() {
     fetchJobTypes();
     fetchExperienceLevels();
     fetchJobs();
-    fetchRecentSearches();
   }, []);
 
   useEffect(() => {
@@ -498,52 +492,6 @@ export default function CandidateJobs() {
       console.error("Experience Levels API Error:", error);
 
       setExperienceLevels([]);
-    }
-  };
-
-  /**
-   * Get recent searches.
-   */
-  const fetchRecentSearches = async () => {
-    try {
-      const res = await API.get("/api/jobposting/get-recent-searches");
-
-      if (res.data.success) {
-        const searches = Array.isArray(res.data.data) ? res.data.data : [];
-
-        const formattedSearches = searches
-          .map((item: any) => {
-            if (typeof item === "string") {
-              return item;
-            }
-
-            return item.query || "";
-          })
-          .filter(Boolean);
-
-        setRecentSearches(formattedSearches);
-      }
-    } catch (error) {
-      console.error("Recent Searches API Error:", error);
-      setRecentSearches([]);
-    }
-  };
-  const saveRecentSearch = async (value: string) => {
-    const searchValue = value.trim();
-    // Do not save empty searches.
-    if (!searchValue) {
-      return;
-    }
-
-    try {
-      await API.post("/api/jobposting/save-recent-searches", {
-        query: searchValue,
-      });
-
-      // Refresh recent searches after saving.
-      await fetchRecentSearches();
-    } catch (error) {
-      console.error("Save Recent Search API Error:", error);
     }
   };
 
@@ -915,7 +863,6 @@ export default function CandidateJobs() {
                     <Input
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
-                      onBlur={() => saveRecentSearch(query)}
                       placeholder="Designation or company"
                       className="h-12 rounded-xl border-slate-200 bg-slate-50 pl-11 pr-4 text-[14px] text-slate-900 shadow-none placeholder:text-slate-400 focus-visible:border-blue-400 focus-visible:bg-white focus-visible:ring-2 focus-visible:ring-blue-100 md:h-11 md:rounded-full"
                     />
@@ -1050,33 +997,21 @@ export default function CandidateJobs() {
                   </div>
 
                   {/* ================= SEARCH BUTTON ================= */}
-                  {/* ================= SEARCH BUTTON ================= */}
-                  <div className="flex w-full shrink-0 gap-2 md:w-auto">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={reset}
-                      className="h-12 flex-1 rounded-xl border-slate-300 bg-white px-5 text-sm font-semibold text-[#17396F] shadow-sm transition-all hover:border-[#17396F] hover:bg-[#17396F]/10 hover:text-[#17396F] active:scale-[0.98] md:h-11 md:flex-none md:rounded-full"
-                    >
-                      Reset
-                    </Button>
-
-                    <Button
-                      type="button"
-                      className="h-12 flex-1 rounded-xl bg-[#17396F] px-7 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#102e5e] active:scale-[0.98] md:h-11 md:flex-none md:rounded-full"
-                    >
-                      <Search className="mr-2 h-4 w-4 md:hidden" />
-                      Search
-                    </Button>
-                  </div>
+                  <Button
+                    type="button"
+                    className="h-12 w-full shrink-0 rounded-xl bg-[#17396F] px-7 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#102e5e] active:scale-[0.98] md:h-11 md:w-auto md:rounded-full"
+                  >
+                    <Search className="mr-2 h-4 w-4 md:hidden" />
+                    Search Jobs
+                  </Button>
                 </div>
               </div>
             </div>
 
-            {/* ================= QUICK FILTERS / RECENT SEARCHES ================= */}
+            {/* ================= QUICK FILTERS ================= */}
             <div className="mt-4 -mx-4 overflow-hidden sm:-mx-6 lg:mx-0">
               <div className="scrollbar-none flex gap-2 overflow-x-auto px-4 pb-1 sm:px-6 lg:px-0">
-                {recentSearches.map((item) => (
+                {["React", "Data Analyst"].map((item) => (
                   <button
                     key={item}
                     type="button"

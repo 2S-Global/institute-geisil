@@ -13,10 +13,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+// Keep your existing API import
+import API from "@/lib/axios";
+
 export default function GlassSearchBar() {
   const [keyword, setKeyword] = useState("");
   const [experience, setExperience] = useState("");
   const [location, setLocation] = useState("");
+
+  const [experienceLevels, setExperienceLevels] = useState<string[]>([]);
 
   const [isFocused, setIsFocused] = useState(false);
   const [selectOpen, setSelectOpen] = useState(false);
@@ -44,6 +49,28 @@ export default function GlassSearchBar() {
     return () => {
       mediaQuery.removeEventListener("change", handleChange);
     };
+  }, []);
+
+  /* =============================================
+     EXPERIENCE LEVELS API
+  ============================================== */
+
+  const fetchExperienceLevels = async () => {
+    try {
+      const res = await API.get("/api/jobposting/all_job_experience_levels");
+
+      if (res.data.success) {
+        setExperienceLevels(res.data.data.map((item: any) => item.name));
+      }
+    } catch (error) {
+      console.error("Experience Levels API Error:", error);
+
+      setExperienceLevels([]);
+    }
+  };
+
+  useEffect(() => {
+    fetchExperienceLevels();
   }, []);
 
   /* =============================================
@@ -83,7 +110,7 @@ export default function GlassSearchBar() {
       setCurrentPlaceholder(
         isMobile
           ? "Skills / designation / company"
-          : "Enter skills / designations / companies"
+          : "Enter skills / designations / companies",
       );
       return;
     }
@@ -95,7 +122,7 @@ export default function GlassSearchBar() {
 
       if (!isDeleting) {
         setCurrentPlaceholder(
-          fullText.substring(0, currentPlaceholder.length + 1)
+          fullText.substring(0, currentPlaceholder.length + 1),
         );
         setTypingSpeed(80);
 
@@ -107,15 +134,13 @@ export default function GlassSearchBar() {
         }
       } else {
         setCurrentPlaceholder(
-          fullText.substring(0, currentPlaceholder.length - 1)
+          fullText.substring(0, currentPlaceholder.length - 1),
         );
         setTypingSpeed(40);
 
         if (currentPlaceholder === "") {
           setIsDeleting(false);
-          setPlaceholderIndex(
-            (prev) => (prev + 1) % placeholders.length
-          );
+          setPlaceholderIndex((prev) => (prev + 1) % placeholders.length);
           setTypingSpeed(250);
         }
       }
@@ -123,13 +148,7 @@ export default function GlassSearchBar() {
 
     timer = setTimeout(handleType, typingSpeed);
     return () => clearTimeout(timer);
-  }, [
-    currentPlaceholder,
-    isDeleting,
-    placeholderIndex,
-    isExpanded,
-    isMobile,
-  ]);
+  }, [currentPlaceholder, isDeleting, placeholderIndex, isExpanded, isMobile]);
 
   /* =============================================
      SEARCH
@@ -231,9 +250,7 @@ export default function GlassSearchBar() {
                 <div className="pointer-events-none absolute left-4 top-1/2 z-10 -translate-y-1/2">
                   <motion.div
                     animate={
-                      isExpanded
-                        ? { scale: 1 }
-                        : { scale: [1, 1.15, 1] }
+                      isExpanded ? { scale: 1 } : { scale: [1, 1.15, 1] }
                     }
                     transition={
                       isExpanded
@@ -302,13 +319,7 @@ export default function GlassSearchBar() {
                 </SelectTrigger>
 
                 <SelectContent>
-                  {[
-                    "Fresher",
-                    "1-3 years",
-                    "3-6 years",
-                    "6-10 years",
-                    "10+ years",
-                  ].map((item) => (
+                  {experienceLevels.map((item) => (
                     <SelectItem key={item} value={item}>
                       {item}
                     </SelectItem>

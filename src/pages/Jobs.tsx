@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Header from "@/components/home/Header";
 import Footer from "@/components/home/Footer";
@@ -18,21 +18,20 @@ import {
   Landmark,
   PieChart,
   Briefcase,
-  Smartphone,
-  QrCode,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
+import API from "@/lib/axios";
 
 const CHIPS = [
   { label: "Remote", icon: Home },
@@ -200,6 +199,7 @@ const IQ_COMPANY = [
   { name: "TCS", n: "2.5K+ Interviews" },
   { name: "Cognizant", n: "1.6K+ Interviews" },
 ];
+
 const IQ_ROLE = [
   "Software Engineer (7.2K+ questions)",
   "Business Analyst (2.8K+ questions)",
@@ -215,8 +215,9 @@ function Initials({ name }: { name: string }) {
     .slice(0, 2)
     .map((w) => w[0])
     .join("");
+
   return (
-    <div className="h-10 w-10 shrink-0 rounded-lg bg-primary-soft text-primary grid place-items-center text-xs font-bold">
+    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary-soft text-xs font-bold text-primary">
       {t}
     </div>
   );
@@ -224,24 +225,96 @@ function Initials({ name }: { name: string }) {
 
 export default function JobPortal() {
   const { toast } = useToast();
+
   const [keyword, setKeyword] = useState("");
   const [location, setLocation] = useState("");
-  const [experience, setExperience] = useState("");
+
+  // API experience levels
+  const [experienceLevels, setExperienceLevels] = useState<string[]>([]);
+
+  // Selected API experience values
+  const [selectedExperience, setSelectedExperience] = useState<string[]>([]);
+
   const [sponsorFilter, setSponsorFilter] = useState("All");
+
+  /**
+   * Fetch experience levels from API
+   */
+  const fetchExperienceLevels = async () => {
+    try {
+      const res = await API.get("/api/jobposting/all_job_experience_levels");
+
+      if (res.data.success) {
+        const levels = res.data.data
+          .map((item: any) => item.name)
+          .filter(Boolean);
+
+        setExperienceLevels(levels);
+      } else {
+        setExperienceLevels([]);
+      }
+    } catch (error) {
+      console.error("Experience Levels API Error:", error);
+      setExperienceLevels([]);
+    }
+  };
+
+  /**
+   * Fetch experience levels when page loads
+   */
+  useEffect(() => {
+    fetchExperienceLevels();
+  }, []);
+
+  /**
+   * Toggle experience
+   */
+  const toggleExperience = (level: string, checked: boolean) => {
+    setSelectedExperience((prev) => {
+      if (checked) {
+        return prev.includes(level) ? prev : [...prev, level];
+      }
+
+      return prev.filter((item) => item !== level);
+    });
+  };
+
+  /**
+   * Build search URL
+   *
+   * Example:
+   *
+   * /job-search?keyword=developer&experience=2-3%20Years,3-5%20Years&location=Kolkata
+   */
+  const searchParams = new URLSearchParams();
+
+  if (keyword.trim()) {
+    searchParams.set("keyword", keyword.trim());
+  }
+
+  if (selectedExperience.length > 0) {
+    searchParams.set("experience", selectedExperience.join(","));
+  }
+
+  if (location.trim()) {
+    searchParams.set("location", location.trim());
+  }
+
+  const searchUrl = `/job-search${
+    searchParams.toString() ? `?${searchParams.toString()}` : ""
+  }`;
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <Header url="true" />
+
       {/* Hero */}
-      <section className="bg-[#113068] pt-12 pb-12 sm:pt-16 sm:pb-14 md:pt-20 md:pb-16">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 text-center">
-          {/* Heading */}
-          <h1 className="font-display text-3xl leading-tight font-extrabold tracking-tight text-white sm:text-4xl md:text-[46px] md:leading-[1.1]">
+      <section className="bg-[#113068] pb-12 pt-12 sm:pb-14 sm:pt-16 md:pb-16 md:pt-20">
+        <div className="mx-auto max-w-5xl px-4 text-center sm:px-6">
+          <h1 className="font-display text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl md:text-[46px] md:leading-[1.1]">
             Find your dream job now
           </h1>
 
-          {/* Subtitle */}
           <p className="mt-3 text-base text-white/70 sm:text-lg md:text-xl">
             5 lakh+ jobs for you to explore
           </p>
@@ -256,16 +329,16 @@ export default function JobPortal() {
                 <Input
                   value={keyword}
                   onChange={(e) => setKeyword(e.target.value)}
-                  placeholder="Enter skills / designations / companies"
+                  placeholder="Enter designations / companies"
                   className="
-              h-12 w-full rounded-xl  pl-12 pr-4
-              text-sm shadow-none
-              focus-visible:outline-none
-              focus-visible:ring-0
-              focus-visible:ring-offset-0
-              sm:text-base
-              md:rounded-full
-            "
+                    h-12 w-full rounded-xl pl-12 pr-4
+                    text-sm shadow-none
+                    focus-visible:outline-none
+                    focus-visible:ring-0
+                    focus-visible:ring-offset-0
+                    sm:text-base
+                    md:rounded-full
+                  "
                 />
               </div>
 
@@ -274,38 +347,104 @@ export default function JobPortal() {
                 className="hidden h-7 md:block"
               />
 
-              {/* Experience */}
-              <Select value={experience} onValueChange={setExperience}>
-                <SelectTrigger
-                  className="
-              h-12 w-full rounded-xl px-4
-              text-sm text-muted-foreground shadow-none
-               focus:border-0
-              focus:outline-none
-              focus:ring-0
-              focus:ring-offset-0
-                      
-              sm:text-base
-              md:w-[180px] md:rounded-full
-            "
-                >
-                  <SelectValue placeholder="Select experience" />
-                </SelectTrigger>
+              {/* ================= EXPERIENCE API DROPDOWN ================= */}
+              <div className="min-w-0 flex-1">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="
+                        h-12 w-full justify-start rounded-xl
+                        border-slate-200 bg-slate-50 px-4
+                        text-[14px] font-normal text-slate-900
+                        shadow-none hover:bg-white
+                        focus:ring-2 focus:ring-blue-100
+                        sm:text-base
+                        md:h-11 md:rounded-full
+                      "
+                    >
+                      <Briefcase className="mr-2 h-[18px] w-[18px] shrink-0 text-slate-400" />
 
-                <SelectContent>
-                  {[
-                    "Fresher",
-                    "1-3 years",
-                    "3-6 years",
-                    "6-10 years",
-                    "10+ years",
-                  ].map((e) => (
-                    <SelectItem key={e} value={e}>
-                      {e}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                      <span className="truncate">
+                        {selectedExperience.length === 0
+                          ? "Select experience"
+                          : selectedExperience.length === 1
+                            ? selectedExperience[0]
+                            : `${selectedExperience.length} experiences selected`}
+                      </span>
+                    </Button>
+                  </PopoverTrigger>
+
+                  <PopoverContent
+                    align="start"
+                    className="w-[var(--radix-popover-trigger-width)] p-2"
+                  >
+                    <div className="space-y-1">
+                      {experienceLevels.map((level) => {
+                        const checked = selectedExperience.includes(level);
+
+                        return (
+                          <label
+                            key={level}
+                            className={`
+                              flex cursor-pointer items-center gap-2
+                              rounded-md px-2 py-2 text-sm
+                              transition-colors
+                              ${
+                                checked
+                                  ? "bg-[#17396F]/10 text-[#17396F]"
+                                  : "text-slate-700 hover:bg-slate-100"
+                              }
+                            `}
+                          >
+                            <Checkbox
+                              checked={checked}
+                              onCheckedChange={(value) =>
+                                toggleExperience(level, value === true)
+                              }
+                              className="
+                                data-[state=checked]:border-[#17396F]
+                                data-[state=checked]:bg-[#17396F]
+                                data-[state=checked]:text-white
+                              "
+                            />
+
+                            <span>{level}</span>
+                          </label>
+                        );
+                      })}
+
+                      {experienceLevels.length === 0 && (
+                        <p className="px-2 py-2 text-sm text-muted-foreground">
+                          No experience levels available
+                        </p>
+                      )}
+
+                      {selectedExperience.length > 0 && (
+                        <>
+                          <Separator className="my-2" />
+
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="
+                              w-full text-[#17396F]
+                              hover:bg-[#17396F]/10
+                              hover:text-[#17396F]
+                            "
+                            onClick={() => setSelectedExperience([])}
+                          >
+                            <X className="mr-2 h-4 w-4" />
+                            Clear experience
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
 
               <Separator
                 orientation="vertical"
@@ -321,67 +460,61 @@ export default function JobPortal() {
                   onChange={(e) => setLocation(e.target.value)}
                   placeholder="Enter location"
                   className="
-              h-12 w-full rounded-xl
-              pl-12 pr-4 text-sm shadow-none
-               text-sm shadow-none
-              focus-visible:outline-none
-              focus-visible:ring-0
-              focus-visible:ring-offset-0
-              sm:text-base
-              md:rounded-full md:pl-3
-            "
+                    h-12 w-full rounded-xl
+                    pl-12 pr-4 text-sm shadow-none
+                    focus-visible:outline-none
+                    focus-visible:ring-0
+                    focus-visible:ring-offset-0
+                    sm:text-base
+                    md:rounded-full md:pl-3
+                  "
                 />
               </div>
 
-              {/* Search Button */}
+              {/* Search */}
               <Button
                 asChild
                 className="
-            h-12 w-full rounded-xl
-            bg-accent px-8
-            text-base text-accent-foreground
-            transition-colors hover:bg-accent/90
-            md:w-auto md:rounded-full
-          "
+                  h-12 w-full rounded-xl
+                  bg-[#17396F] px-8
+                  text-base text-white
+                  transition-colors
+                  hover:bg-[#102d5a]
+                  md:w-auto md:rounded-full
+                "
               >
-                <Link
-                  to="/job-list"
-                  className="flex h-full w-full items-center justify-center rounded-xl bg-[#113068] transition-colors hover:bg-[#1a4385] md:rounded-full"
-                >
-                  Search
-                </Link>
+                <Link to={searchUrl}>Search</Link>
               </Button>
             </div>
           </Card>
 
-          {/* Trending keyword */}
-          <p className="mt-4 text-xs text-white/70 sm:mt-5 sm:text-sm">
+          {/* <p className="mt-4 text-xs text-white/70 sm:mt-5 sm:text-sm">
             react.js{" "}
             <span className="font-semibold text-accent">24707 new</span>
-          </p>
+          </p> */}
         </div>
 
         {/* Quick Chips */}
         <div className="mx-auto mt-8 max-w-6xl px-4 sm:mt-10 sm:px-6">
           <div
             className="
-        flex gap-3 overflow-x-auto pb-2
-        sm:flex-wrap sm:justify-center sm:overflow-visible
-      "
+              flex gap-3 overflow-x-auto pb-2
+              sm:flex-wrap sm:justify-center sm:overflow-visible
+            "
           >
             {CHIPS.map(({ label, icon: Icon }) => (
               <Link
                 key={label}
                 to="/job-search"
                 className="
-            group flex shrink-0 items-center gap-2
-            rounded-xl border border-white/10
-            bg-white px-4 py-3
-            text-sm font-medium text-foreground
-            shadow-sm transition
-            hover:border-accent/50 hover:shadow-md
-            sm:px-5
-          "
+                  group flex shrink-0 items-center gap-2
+                  rounded-xl border border-white/10
+                  bg-white px-4 py-3
+                  text-sm font-medium text-foreground
+                  shadow-sm transition
+                  hover:border-accent/50 hover:shadow-md
+                  sm:px-5
+                "
               >
                 <Icon className="h-4 w-4 shrink-0 text-accent" />
 
@@ -389,11 +522,11 @@ export default function JobPortal() {
 
                 <ChevronRight
                   className="
-              h-3.5 w-3.5 shrink-0
-              text-muted-foreground
-              transition-transform
-              group-hover:translate-x-0.5
-            "
+                    h-3.5 w-3.5 shrink-0
+                    text-muted-foreground
+                    transition-transform
+                    group-hover:translate-x-0.5
+                  "
                 />
               </Link>
             ))}
@@ -406,24 +539,28 @@ export default function JobPortal() {
         <h2 className="text-center font-display text-xl font-bold text-foreground">
           Top companies hiring now
         </h2>
+
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
           {CATEGORIES.map((c) => (
             <Card
               key={c.title}
-              className="p-4 hover:shadow-md transition-shadow"
+              className="p-4 transition-shadow hover:shadow-md"
             >
               <Link
                 to="/job-list"
                 className="flex items-center gap-1 text-sm font-bold text-foreground hover:text-accent"
               >
-                {c.title} <ChevronRight className="h-3.5 w-3.5" />
+                {c.title}
+                <ChevronRight className="h-3.5 w-3.5" />
               </Link>
+
               <p className="mt-0.5 text-xs text-muted-foreground">{c.note}</p>
+
               <div className="mt-4 flex items-center gap-2">
                 {c.brands.map((b) => (
                   <div
                     key={b}
-                    className="h-9 w-9 rounded-full border bg-muted grid place-items-center text-[10px] font-bold text-muted-foreground"
+                    className="grid h-9 w-9 place-items-center rounded-full border bg-muted text-[10px] font-bold text-muted-foreground"
                   >
                     {b.slice(0, 2).toUpperCase()}
                   </div>
@@ -439,19 +576,23 @@ export default function JobPortal() {
         <h2 className="text-center font-display text-xl font-bold text-foreground">
           Featured companies actively hiring
         </h2>
+
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {FEATURED.map((f) => (
             <Card
               key={f.name}
-              className="p-5 text-center hover:shadow-md transition-shadow"
+              className="p-5 text-center transition-shadow hover:shadow-md"
             >
-              <div className="h-12 grid place-items-center">
+              <div className="grid h-12 place-items-center">
                 <span className="font-display text-lg font-extrabold text-primary">
                   {f.name}
                 </span>
               </div>
+
               <Separator className="my-4" />
+
               <p className="text-sm font-semibold text-foreground">{f.name}</p>
+
               <p className="mt-1 flex items-center justify-center gap-1 text-xs text-muted-foreground">
                 <Star className="h-3.5 w-3.5 fill-warning text-warning" />
                 {f.rating}
@@ -459,9 +600,11 @@ export default function JobPortal() {
                   | {f.reviews} reviews
                 </span>
               </p>
-              <p className="mt-3 text-xs text-muted-foreground leading-relaxed">
+
+              <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
                 {f.blurb}
               </p>
+
               <Button
                 asChild
                 variant="ghost"
@@ -473,11 +616,12 @@ export default function JobPortal() {
             </Card>
           ))}
         </div>
+
         <div className="mt-6 flex justify-center">
           <Button
             asChild
             variant="outline"
-            className="rounded-full text-accent border-accent/40"
+            className="rounded-full border-accent/40 text-accent"
           >
             <Link to="/job-list">View all companies</Link>
           </Button>
@@ -486,15 +630,17 @@ export default function JobPortal() {
 
       {/* Promo banner */}
       <section className="mx-auto max-w-6xl px-4 pb-12">
-        <Card className="overflow-hidden border-0 bg-[image:var(--gradient-brand)] p-6 md:p-8 flex flex-col md:flex-row md:items-center gap-6">
+        <Card className="flex flex-col gap-6 overflow-hidden border-0 bg-[image:var(--gradient-brand)] p-6 md:flex-row md:items-center md:p-8">
           <div className="flex-1">
-            <h3 className="font-display text-xl md:text-2xl font-extrabold text-primary-foreground">
+            <h3 className="font-display text-xl font-extrabold text-primary-foreground md:text-2xl">
               Stand out to leading recruiters nationwide
             </h3>
-            <p className="mt-2 text-sm text-primary-foreground/75 max-w-lg">
+
+            <p className="mt-2 max-w-lg text-sm text-primary-foreground/75">
               Compete in India's biggest skill contest and win from ₹20L prize
               pool.
             </p>
+
             <Button
               className="mt-4 rounded-full bg-warning text-warning-foreground hover:bg-warning/90"
               onClick={() =>
@@ -507,12 +653,13 @@ export default function JobPortal() {
               Tell me more
             </Button>
           </div>
+
           <div className="grid grid-cols-3 gap-3">
             {["Zydus", "AI/ML", "Infosys", "AIS", "AIS", "Infosys"].map(
               (b, i) => (
                 <div
                   key={i}
-                  className="h-14 w-20 rounded-lg bg-card grid place-items-center text-xs font-bold text-primary"
+                  className="grid h-14 w-20 place-items-center rounded-lg bg-card text-xs font-bold text-primary"
                 >
                   {b}
                 </div>
@@ -524,27 +671,31 @@ export default function JobPortal() {
 
       {/* Popular roles */}
       <section className="mx-auto max-w-6xl px-4 pb-12">
-        <Card className="grid gap-0 md:grid-cols-2 overflow-hidden">
-          <div className="bg-[hsl(28_60%_96%)] p-8 flex flex-col justify-center">
+        <Card className="grid overflow-hidden md:grid-cols-2">
+          <div className="flex flex-col justify-center bg-[hsl(28_60%_96%)] p-8">
             <h3 className="font-display text-xl font-extrabold text-foreground">
               Discover jobs across popular roles
             </h3>
+
             <p className="mt-2 text-sm text-muted-foreground">
               Select a role and we'll show you relevant jobs for it!
             </p>
           </div>
-          <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+          <div className="grid grid-cols-1 gap-3 p-6 sm:grid-cols-2">
             {ROLES.map((r) => (
               <Link
                 key={r.role}
                 to="/job-list"
-                className="rounded-lg border bg-card p-3 hover:border-accent/50 hover:shadow-sm transition"
+                className="rounded-lg border bg-card p-3 transition hover:border-accent/50 hover:shadow-sm"
               >
                 <p className="text-sm font-semibold text-foreground">
                   {r.role}
                 </p>
+
                 <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                  {r.jobs} <ChevronRight className="h-3 w-3" />
+                  {r.jobs}
+                  <ChevronRight className="h-3 w-3" />
                 </p>
               </Link>
             ))}
@@ -557,6 +708,7 @@ export default function JobPortal() {
         <h2 className="text-center font-display text-xl font-bold text-foreground">
           Sponsored companies
         </h2>
+
         <div className="mt-5 flex flex-wrap justify-center gap-2">
           {SPONSOR_FILTERS.map((f) => (
             <button
@@ -564,7 +716,7 @@ export default function JobPortal() {
               onClick={() => setSponsorFilter(f)}
               className={`rounded-full border px-3.5 py-1.5 text-xs font-medium transition ${
                 sponsorFilter === f
-                  ? "border-accent bg-accent/10 text-accent"
+                  ? "border-[#17396F] bg-[#17396F]/10 text-[#17396F]"
                   : "bg-card text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -572,18 +724,21 @@ export default function JobPortal() {
             </button>
           ))}
         </div>
+
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {SPONSORED.map((s) => (
             <Card
               key={s.name}
-              className="p-5 text-center hover:shadow-md transition-shadow"
+              className="p-5 text-center transition-shadow hover:shadow-md"
             >
               <div className="flex justify-center">
                 <Initials name={s.name} />
               </div>
+
               <p className="mt-3 text-sm font-semibold text-foreground">
                 {s.name}
               </p>
+
               <p className="mt-1 flex items-center justify-center gap-1 text-xs text-muted-foreground">
                 <Star className="h-3.5 w-3.5 fill-warning text-warning" />
                 {s.rating}
@@ -591,6 +746,7 @@ export default function JobPortal() {
                   | {s.reviews} reviews
                 </span>
               </p>
+
               <div className="mt-3 flex flex-wrap justify-center gap-1.5">
                 {s.tags.map((t) => (
                   <span
@@ -604,11 +760,12 @@ export default function JobPortal() {
             </Card>
           ))}
         </div>
+
         <div className="mt-6 flex justify-center">
           <Button
             asChild
             variant="outline"
-            className="rounded-full text-accent border-accent/40"
+            className="rounded-full border-accent/40 text-accent"
           >
             <Link to="/job-list">View all companies</Link>
           </Button>
@@ -618,17 +775,20 @@ export default function JobPortal() {
       {/* Interview prep */}
       <section className="mx-auto max-w-6xl px-4 pb-12">
         <div className="grid gap-4 lg:grid-cols-[1fr_1.2fr_1.2fr]">
-          <Card className="bg-[hsl(28_60%_96%)] p-6 flex flex-col justify-end">
+          <Card className="flex flex-col justify-end bg-[hsl(28_60%_96%)] p-6">
             <p className="text-xs text-muted-foreground">by AmbitionBox</p>
+
             <h3 className="mt-2 font-display text-lg font-extrabold text-foreground">
               Prepare for your next interview
             </h3>
           </Card>
+
           <Card className="p-5">
             <p className="text-sm font-bold text-foreground">
               Interview questions by company
             </p>
-            <div className="mt-4 grid sm:grid-cols-2 gap-2">
+
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
               {IQ_COMPANY.map((c) => (
                 <Link
                   key={c.name}
@@ -636,16 +796,20 @@ export default function JobPortal() {
                   className="flex items-center gap-3 rounded-lg border p-2.5 hover:border-accent/50"
                 >
                   <Initials name={c.name} />
+
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium text-foreground">
                       {c.name}
                     </p>
+
                     <p className="text-[11px] text-muted-foreground">{c.n}</p>
                   </div>
+
                   <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground" />
                 </Link>
               ))}
             </div>
+
             <Link
               to="/blog-list"
               className="mt-4 block text-center text-xs font-semibold text-accent hover:underline"
@@ -653,10 +817,12 @@ export default function JobPortal() {
               View all companies →
             </Link>
           </Card>
+
           <Card className="p-5">
             <p className="text-sm font-bold text-foreground">
               Interview questions by role
             </p>
+
             <ul className="mt-4 space-y-2.5">
               {IQ_ROLE.map((r) => (
                 <li key={r}>
@@ -669,6 +835,7 @@ export default function JobPortal() {
                 </li>
               ))}
             </ul>
+
             <Link
               to="/blog-list"
               className="mt-4 block text-center text-xs font-semibold text-accent hover:underline"
@@ -681,15 +848,17 @@ export default function JobPortal() {
 
       {/* Premium services */}
       <section className="mx-auto max-w-6xl px-4 pb-12">
-        <Card className="p-6 flex flex-col md:flex-row md:items-center gap-6">
+        <Card className="flex flex-col gap-6 p-6 md:flex-row md:items-center">
           <div className="flex-1">
             <h3 className="font-display text-lg font-extrabold text-foreground">
               Accelerate your job search with premium services
             </h3>
+
             <p className="mt-1.5 text-sm text-muted-foreground">
               Services to help you get hired faster: from preparing your CV,
               getting recruiter attention, finding the right jobs, and more!
             </p>
+
             <div className="mt-4 flex flex-wrap gap-4 text-xs text-muted-foreground">
               {["Resume writing", "Priority applicant", "Resume display"].map(
                 (s) => (
@@ -701,16 +870,19 @@ export default function JobPortal() {
               )}
             </div>
           </div>
+
           <div className="text-right">
             <p className="text-[11px] text-muted-foreground">
               by GEISIL FastForward
             </p>
+
             <Button
               asChild
-              className="mt-2 rounded-full bg-accent hover:bg-accent/90 text-accent-foreground"
+              className="mt-2 rounded-full bg-accent text-accent-foreground hover:bg-accent/90"
             >
               <Link to="/candidate/resume">Learn more</Link>
             </Button>
+
             <p className="mt-1.5 text-[11px] text-muted-foreground">
               Includes paid services
             </p>
@@ -718,61 +890,6 @@ export default function JobPortal() {
         </Card>
       </section>
 
-      {/* App download */}
-      {/*  <section className="mx-auto max-w-6xl px-4 pb-14">
-        <Card className="bg-primary-soft border-0 p-8 flex flex-col md:flex-row md:items-center gap-8">
-          <div className="flex-1">
-            <h3 className="font-display text-xl font-extrabold text-foreground">
-              10M+ users are on the GEISIL app
-            </h3>
-            <p className="mt-1.5 text-sm text-muted-foreground">
-              Get real-time job updates & more!
-            </p>
-            <form
-              className="mt-4 flex max-w-sm gap-2"
-              onSubmit={(e) => {
-                e.preventDefault();
-                toast({
-                  title: "Link sent",
-                  description: "Check your SMS for the app link.",
-                });
-              }}
-            >
-              <Input
-                placeholder="Enter mobile number..."
-                className="h-10 rounded-full bg-card"
-              />
-              <Button
-                type="submit"
-                className="rounded-full h-10 px-5 bg-accent hover:bg-accent/90 text-accent-foreground"
-              >
-                Get link
-              </Button>
-            </form>
-            <div className="mt-4 flex gap-3">
-              {["Google Play", "App Store"].map((s) => (
-                <div
-                  key={s}
-                  className="flex items-center gap-2 rounded-lg bg-foreground px-3 py-2 text-xs font-semibold text-background"
-                >
-                  <Smartphone className="h-4 w-4" />
-                  {s}
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="grid place-items-center">
-            <div className="rounded-xl bg-card p-3 shadow-sm">
-              <QrCode className="h-20 w-20 text-foreground" />
-            </div>
-            <p className="mt-2 text-[11px] text-muted-foreground">
-              Scan to download
-            </p>
-          </div>
-        </Card>
-      </section> */}
-
-      {/* Footer */}
       <Footer />
     </div>
   );

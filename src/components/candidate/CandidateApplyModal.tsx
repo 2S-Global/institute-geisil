@@ -17,10 +17,11 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useApplyJob } from "@/pages/candidate/hooks/useApplyJob";
-import { ApplyFormValues, applySchema } from "./resumeHeadline/validation/applyFormValidation";
-
-
-
+import {
+  ApplyFormValues,
+  applySchema,
+} from "./resumeHeadline/validation/applyFormValidation";
+import API from "@/lib/axios";
 interface CandidateApplyModalProps {
   open: boolean;
   onClose: () => void;
@@ -34,7 +35,7 @@ export default function CandidateApplyModal({
   job,
   onSuccess,
 }: CandidateApplyModalProps) {
-  console.log("is that working==>", job)
+  console.log("is that working==>", job);
   const { applyJob, loading, error } = useApplyJob();
   // console.log("Check data ==>", data)
 
@@ -44,6 +45,7 @@ export default function CandidateApplyModal({
     handleSubmit,
     control,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<ApplyFormValues>({
     resolver: zodResolver(applySchema),
@@ -60,7 +62,9 @@ export default function CandidateApplyModal({
 
   // Reset form when modal opens/closes
   useEffect(() => {
-    if (open) {
+    if (!open) return;
+
+    const fetchExperience = async () => {
       reset({
         noticePeriod: "",
         preferredTime: "",
@@ -70,14 +74,27 @@ export default function CandidateApplyModal({
         acceptedTerms: false,
         experienceLevel: "",
       });
-    }
-  }, [open, reset]);
+
+      try {
+        const res = await API.get("/api/jobposting/get-total-experienced");
+        if (res.data.success) {
+          const experience = res.data?.data?.totalExperience?.year || "0";
+          setValue("experienceLevel", String(experience), {
+            shouldValidate: true,
+          });
+        }
+      } catch (error) {
+        console.error("Failed to fetch experience:", error);
+      }
+    };
+
+    fetchExperience();
+  }, [open, reset, setValue]);
 
   const onSubmit = async (values: ApplyFormValues) => {
     if (!job) return;
 
     try {
-
       //payload for sending data for the API
       const applyData = {
         noticePeriod: values.noticePeriod,
@@ -90,7 +107,7 @@ export default function CandidateApplyModal({
       };
 
       const result = await applyJob(job._id, applyData);
-      console.log("Result", result)
+      console.log("Result", result);
       if (result?.success || result) {
         toast.success("Job applied successfully 🎉");
         onSuccess(job._id);
@@ -117,6 +134,7 @@ export default function CandidateApplyModal({
             <div className="space-y-1">
               <Label htmlFor="experienceLevel">Experience (Years)</Label>
               <Input
+                readOnly={true}
                 id="experienceLevel"
                 type="number"
                 placeholder="Experience (Years)"
@@ -125,7 +143,9 @@ export default function CandidateApplyModal({
                 max="40"
               />
               {errors.experienceLevel && (
-                <p className="text-xs text-destructive">{errors.experienceLevel.message}</p>
+                <p className="text-xs text-destructive">
+                  {errors.experienceLevel.message}
+                </p>
               )}
             </div>
 
@@ -145,7 +165,9 @@ export default function CandidateApplyModal({
                 <option value="60 days">60 Days</option>
               </select>
               {errors.noticePeriod && (
-                <p className="text-xs text-destructive">{errors.noticePeriod.message}</p>
+                <p className="text-xs text-destructive">
+                  {errors.noticePeriod.message}
+                </p>
               )}
             </div>
 
@@ -164,7 +186,9 @@ export default function CandidateApplyModal({
                 <option value="flexible">Flexible</option>
               </select>
               {errors.preferredTime && (
-                <p className="text-xs text-destructive">{errors.preferredTime.message}</p>
+                <p className="text-xs text-destructive">
+                  {errors.preferredTime.message}
+                </p>
               )}
             </div>
 
@@ -181,7 +205,9 @@ export default function CandidateApplyModal({
                 <option value="No">No</option>
               </select>
               {errors.willingToRelocate && (
-                <p className="text-xs text-destructive">{errors.willingToRelocate.message}</p>
+                <p className="text-xs text-destructive">
+                  {errors.willingToRelocate.message}
+                </p>
               )}
             </div>
 
@@ -209,7 +235,9 @@ export default function CandidateApplyModal({
                 </label>
               </div>
               {errors.availabilityOnSaturday && (
-                <p className="text-xs text-destructive mt-1">{errors.availabilityOnSaturday.message}</p>
+                <p className="text-xs text-destructive mt-1">
+                  {errors.availabilityOnSaturday.message}
+                </p>
               )}
             </div>
 
@@ -223,7 +251,9 @@ export default function CandidateApplyModal({
                 {...register("description")}
               />
               {errors.description && (
-                <p className="text-xs text-destructive">{errors.description.message}</p>
+                <p className="text-xs text-destructive">
+                  {errors.description.message}
+                </p>
               )}
             </div>
 
@@ -241,7 +271,10 @@ export default function CandidateApplyModal({
                     />
                   )}
                 />
-                <label htmlFor="acceptedTerms" className="text-sm font-normal text-muted-foreground leading-none cursor-pointer">
+                <label
+                  htmlFor="acceptedTerms"
+                  className="text-sm font-normal text-muted-foreground leading-none cursor-pointer"
+                >
                   I accept{" "}
                   <Link to="/terms" className="text-primary hover:underline">
                     Terms & Privacy Policy
@@ -249,7 +282,9 @@ export default function CandidateApplyModal({
                 </label>
               </div>
               {errors.acceptedTerms && (
-                <p className="text-xs text-destructive mt-1">{errors.acceptedTerms.message}</p>
+                <p className="text-xs text-destructive mt-1">
+                  {errors.acceptedTerms.message}
+                </p>
               )}
             </div>
           </div>

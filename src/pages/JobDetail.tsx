@@ -474,7 +474,7 @@ export default function CandidateJobDetail() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-6">
                 <Tabs defaultValue="overview" className="w-full">
-                  <TabsList className="grid grid-cols-3 w-full md:w-auto">
+                  <TabsList className="grid grid-cols-2 w-full md:w-auto">
                     <TabsTrigger value="overview">Overview</TabsTrigger>
                     <TabsTrigger value="company">Company</TabsTrigger>
                   </TabsList>
