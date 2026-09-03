@@ -1,17 +1,18 @@
 import { useParams, Link } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { YMD } from "../lib/utils";
-import {
-  ArrowLeft,
-  CheckCircle2,
-  Clock,
-  XCircle,
-} from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock, XCircle } from "lucide-react";
 
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { StatCard } from "@/components/dashboard/StatCard";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -112,7 +113,6 @@ const emptyForm: RecruiterForm = {
   role: "",
 };
 
-
 const statusStyles: Record<string, string> = {
   Active: "bg-white text-[#00b33c] border-green-600/40",
   Reviewing: "bg-white text-warning border-warning/20",
@@ -136,23 +136,41 @@ const recruitersDB: Record<string, any> = {
     hired: 28,
     interviews: 96,
     offerRate: 67,
-    sectors: ["Software Engineering", "Data & Analytics", "Cloud", "Consulting"],
+    sectors: [
+      "Software Engineering",
+      "Data & Analytics",
+      "Cloud",
+      "Consulting",
+    ],
   },
 };
 
-
-
 const stageStyles: Record<string, { cls: string; icon: any }> = {
-  Hired: { cls: "bg-success/10 text-success border-success/20", icon: CheckCircle2 },
-  Offered: { cls: "bg-primary/10 text-primary border-primary/20", icon: CheckCircle2 },
-  "Final Round": { cls: "bg-accent/10 text-accent border-accent/20", icon: Clock },
-  Technical: { cls: "bg-warning/10 text-warning border-warning/20", icon: Clock },
-  Rejected: { cls: "bg-destructive/10 text-destructive border-destructive/20", icon: XCircle },
+  Hired: {
+    cls: "bg-success/10 text-success border-success/20",
+    icon: CheckCircle2,
+  },
+  Offered: {
+    cls: "bg-primary/10 text-primary border-primary/20",
+    icon: CheckCircle2,
+  },
+  "Final Round": {
+    cls: "bg-accent/10 text-accent border-accent/20",
+    icon: Clock,
+  },
+  Technical: {
+    cls: "bg-warning/10 text-warning border-warning/20",
+    icon: Clock,
+  },
+  Rejected: {
+    cls: "bg-destructive/10 text-destructive border-destructive/20",
+    icon: XCircle,
+  },
 };
 import API from "../lib/axios";
 const RecruiterRequirementDetail = () => {
-  const [recruiter, setRecruiter] = useState()
-  const [requirements, setRequirement] = useState()
+  const [recruiter, setRecruiter] = useState();
+  const [requirements, setRequirement] = useState();
   const [query, setQuery] = useState("");
   const { id } = useParams();
 
@@ -173,10 +191,13 @@ const RecruiterRequirementDetail = () => {
   const { toast } = useToast();
   const today = new Date().toISOString().split("T")[0];
   const r = recruitersDB[id ?? "default"] ?? recruitersDB.default;
-  const initials = r.name.split(" ").map((w: string) => w[0]).slice(0, 2).join("");
+  const initials = r.name
+    .split(" ")
+    .map((w: string) => w[0])
+    .slice(0, 2)
+    .join("");
 
   console.log("selected", selectedSudent, recruiter?._id);
-
 
   /* const itemsPerPage = 10;
     const filtered = (requirements || [])?.filter((s) =>
@@ -204,24 +225,19 @@ const RecruiterRequirementDetail = () => {
       }
     }; */
 
-
   const toggleItem = (item) => {
     setSelectedSudent((prev) =>
-      prev.includes(item)
-        ? prev.filter((i) => i !== item)
-        : [...prev, item]
+      prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item],
     );
   };
   useEffect(() => {
-    setSelectedSudent(requirements)
-  }, [requirements])
-
+    setSelectedSudent(requirements);
+  }, [requirements]);
 
   const sendInterview = async () => {
-
     const payload = {
       students: selectedSudent,
-      recruiter: recruiter
+      recruiter: recruiter,
     };
 
     let response = "";
@@ -235,7 +251,6 @@ const RecruiterRequirementDetail = () => {
         title: "Success",
         description: "Requirement save successfully",
       });
-
     } catch (err) {
       if (err.response) {
         toast({
@@ -246,7 +261,6 @@ const RecruiterRequirementDetail = () => {
       }
     }
   };
-
 
   const fetchRequirement = async () => {
     try {
@@ -263,7 +277,6 @@ const RecruiterRequirementDetail = () => {
 
   const fetchCompanyRequirementSudents = async (program, tenth, twelvth) => {
     try {
-      //console.log("gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg")
       const res = await API.get(
         `/api/institutestudent/company-requirement-sudents?program=${program}&tenth=${tenth}&twelvth=${twelvth}`,
       );
@@ -275,7 +288,6 @@ const RecruiterRequirementDetail = () => {
     }
   };
 
-
   useEffect(() => {
     /* fetchRecruiter(); */
     fetchRequirement();
@@ -284,7 +296,7 @@ const RecruiterRequirementDetail = () => {
   useEffect(() => {
     //console.log('recruiter?._id',recruiter?._id)
     if (recruiter?._id) {
-      console.log('recruiter', recruiter);
+      console.log("recruiter", recruiter);
       setForm({
         numberOfHired: recruiter?.numberOfHired || "",
         numberOfOpenings: String(recruiter?.numberOfOpenings) || "",
@@ -296,17 +308,21 @@ const RecruiterRequirementDetail = () => {
         remarks: recruiter?.remarks || "",
         role: recruiter?.role || "",
       });
-      const program = []
+      const program = [];
       const course = recruiter?.courses?.map((id) => {
         const row = courses.find((item) => item.value === id);
         if (row) {
-          program.push(row.value)
-          return ({ 'value': row.value, 'label': row.label })
+          program.push(row.value);
+          return { value: row.value, label: row.label };
         }
-      })
+      });
       //console.log("ssssssssssssssssssssssssssssssssssssssssss",courses,course,program,recruiter?.courses,recruiter?.twelvth)
-      fetchCompanyRequirementSudents(program, recruiter?.tenth, recruiter?.twelvth)
-      setCourseSelected(() => course || [])
+      fetchCompanyRequirementSudents(
+        program,
+        recruiter?.tenth,
+        recruiter?.twelvth,
+      );
+      setCourseSelected(() => course || []);
     }
   }, [recruiter?._id]);
 
@@ -321,8 +337,6 @@ const RecruiterRequirementDetail = () => {
       [key]: undefined,
     }));
   };
-
-
 
   // ✅ Submit
   const handleSubmit = async (e: React.FormEvent) => {
@@ -352,7 +366,7 @@ const RecruiterRequirementDetail = () => {
       courses: courseOptions,
       date: form.date,
       time: form.time,
-      id: recruiter?._id
+      id: recruiter?._id,
     };
 
     let response = "";
@@ -362,7 +376,7 @@ const RecruiterRequirementDetail = () => {
         url: "/api/instituteprofile/update_company_requirement",
         data: payload,
       });
-      window.location.reload()
+      window.location.reload();
       toast({
         title: "Success",
         description: "Requirement save successfully",
@@ -381,11 +395,10 @@ const RecruiterRequirementDetail = () => {
     }
   };
 
-
   const StudentInterview = async () => {
     const payload = {
       students: selectedSudent,
-      recruiter: recruiter
+      recruiter: recruiter,
     };
     let response = "";
     try {
@@ -398,7 +411,6 @@ const RecruiterRequirementDetail = () => {
         title: "Success",
         description: "Requirement save successfully",
       });
-
     } catch (err) {
       if (err.response) {
         toast({
@@ -409,9 +421,6 @@ const RecruiterRequirementDetail = () => {
       }
     }
   };
-
-
-
 
   const fetchCourseList = async () => {
     try {
@@ -431,14 +440,17 @@ const RecruiterRequirementDetail = () => {
     fetchCourseList();
   }, []);
 
-
-
-
-
   return (
     <DashboardLayout>
-      <Button asChild variant="ghost" size="sm" className="mb-4 -ml-2 text-muted-foreground hover:text-foreground">
-        <Link to="/institute/recruiters"><ArrowLeft className="h-4 w-4" /> Back to recruiters</Link>
+      <Button
+        asChild
+        variant="ghost"
+        size="sm"
+        className="mb-4 -ml-2 text-muted-foreground hover:text-foreground"
+      >
+        <Link to="/institute/recruiters">
+          <ArrowLeft className="h-4 w-4" /> Back to recruiters
+        </Link>
       </Button>
 
       {/*  <PageHeader
@@ -460,7 +472,6 @@ const RecruiterRequirementDetail = () => {
         {/* Header */}
         <div className="bg-[#1b4498] px-6 pt-6 pb-6">
           <div className="flex flex-col md:flex-row md:items-end gap-4">
-
             {/*  <Avatar className="h-20 w-20 border-4 border-card shadow-md">
               <AvatarFallback className="bg-primary-soft text-white font-display font-bold text-2xl">
                 {recruiter?.companyName?.charAt(0) || ""}
@@ -483,8 +494,6 @@ const RecruiterRequirementDetail = () => {
                     ))}
                   </div>
                 </div>
-
-
 
                 {/*   <Badge
                   variant="outline"
@@ -516,7 +525,6 @@ const RecruiterRequirementDetail = () => {
 
           <form onSubmit={handleSubmit} className="space-y-5 pt-2">
             <div className="grid gap-4 md:grid-cols-2">
-
               <div className="space-y-1.5 md:col-span-2">
                 <Label htmlFor="Course">
                   Course <span className="text-red-500">*</span>
@@ -537,8 +545,6 @@ const RecruiterRequirementDetail = () => {
                   <p className="text-sm text-red-500">{errors.courses}</p>
                 )}
               </div>
-
-
 
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-1.5">
@@ -580,7 +586,9 @@ const RecruiterRequirementDetail = () => {
                     placeholder="12th (%)"
                   />
                   {errors.twelveTh && (
-                    <p className="text-xs text-destructive">{errors.twelveTh}</p>
+                    <p className="text-xs text-destructive">
+                      {errors.twelveTh}
+                    </p>
                   )}
                 </div>
 
@@ -662,9 +670,7 @@ const RecruiterRequirementDetail = () => {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="scheduledDate">
-                  Exam Date
-                </Label>
+                <Label htmlFor="scheduledDate">Interview Date</Label>
                 <Input
                   style={{ position: "relative" }}
                   id="date"
@@ -675,15 +681,11 @@ const RecruiterRequirementDetail = () => {
                   onChange={(e) => update("date", e.target.value)}
                 />
                 {errors.date && (
-                  <p className="text-xs text-destructive">
-                    {errors.date}
-                  </p>
+                  <p className="text-xs text-destructive">{errors.date}</p>
                 )}
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="time">
-                    Exam Time
-                  </Label>
+                  <Label htmlFor="time">Exam Time</Label>
                   <Input
                     style={{ position: "relative" }}
                     id="time"
@@ -692,13 +694,10 @@ const RecruiterRequirementDetail = () => {
                     onChange={(e) => update("time", e.target.value)}
                   />
                   {errors.time && (
-                    <p className="text-xs text-destructive">
-                      {errors.time}
-                    </p>
+                    <p className="text-xs text-destructive">{errors.time}</p>
                   )}
                 </div>
               </div>
-
             </div>
 
             <div className="flex justify-end">
@@ -709,7 +708,6 @@ const RecruiterRequirementDetail = () => {
                 Update
               </Button>
             </div>
-
           </form>
         </CardContent>
       </Card>
@@ -742,15 +740,13 @@ const RecruiterRequirementDetail = () => {
                     Student Name
                   </th>
 
-                  <th className="font-medium py-3 px-4 text-center">Course Name</th>
-
                   <th className="font-medium py-3 px-4 text-center">
-                    10th %
+                    Course Name
                   </th>
 
-                  <th className="font-medium py-3 px-4 text-center">
-                    12th %
-                  </th>
+                  <th className="font-medium py-3 px-4 text-center">10th %</th>
+
+                  <th className="font-medium py-3 px-4 text-center">12th %</th>
                   <th className="font-medium py-3 px-4 text-center">
                     Placement
                   </th>
@@ -784,14 +780,16 @@ const RecruiterRequirementDetail = () => {
                     </td>
 
                     <td className="py-4 px-4 text-muted-foreground">
-                      <input type="checkbox" checked={selectedSudent?.includes(s)}
-                        onChange={() => toggleItem(s)} />
+                      <input
+                        type="checkbox"
+                        checked={selectedSudent?.includes(s)}
+                        onChange={() => toggleItem(s)}
+                      />
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-
           </div>
           <div className="flex justify-end">
             <Button

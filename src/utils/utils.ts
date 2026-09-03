@@ -20,7 +20,11 @@ export function toLocalDateTime(utcTime) {
 export const parseDatabaseDateToYYYYMMDD = (dateStr: any): string | null => {
   if (!dateStr) return null;
   const str = String(dateStr);
-  if (str.endsWith("T00:00:00.000Z") || str.endsWith("T00:00:00Z") || str.endsWith("T00:00:00")) {
+  if (
+    str.endsWith("T00:00:00.000Z") ||
+    str.endsWith("T00:00:00Z") ||
+    str.endsWith("T00:00:00")
+  ) {
     return str.split("T")[0];
   }
   const d = new Date(str);
@@ -67,4 +71,17 @@ export const parseDatabaseDateToLocal = (dateStr: any): Date | null => {
     return new Date(year, month, day);
   }
   return new Date(dateStr);
+};
+
+export const formatUTCDate = (date) => {
+  if (date) {
+    const d = new Date(date);
+
+    return [
+      String(d.getUTCDate()).padStart(2, "0"),
+      String(d.getUTCMonth() + 1).padStart(2, "0"),
+      d.getUTCFullYear(),
+    ].join("/");
+  }
+  return "";
 };

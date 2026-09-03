@@ -101,12 +101,27 @@ const List = ({ data, setContact, openModalEdit, requirementAdd }) => {
           <CardContent>
             <div className="grid grid-cols-3 gap-3 mb-4">
               <div>
-                <Link to={`/institute/requirement-detail/${r?.latestRequirement?._id}`}>
-                  <p className="text-xs text-muted-foreground">Openings</p>
-                  <p className="font-display text-xl font-bold text-foreground h-8">
-                    {r?.latestRequirement?.numberOfOpenings || ""}
-                  </p>
+                {r?.latestRequirement?._id ? (
+                  <Link
+                    to={`/institute/requirement-detail/${r?.latestRequirement?._id}`}
+                  >
+                    <p className="text-xs text-muted-foreground">Openings</p>
+                    <p className="font-display text-xl font-bold text-foreground h-8">
+                      {r?.latestRequirement?.numberOfOpenings || ""}
+                    </p>
                   </Link>
+                ) : (
+                  <Link
+                    to={"#"}
+                    className="cursor-not-allowed opacity-50"
+                    aria-disabled="true"
+                  >
+                    <p className="text-xs text-muted-foreground">Openings</p>
+                    <p className="font-display text-xl font-bold text-foreground h-8">
+                      0
+                    </p>
+                  </Link>
+                )}
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Hired</p>

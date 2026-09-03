@@ -1,8 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { CandidateLayout } from "@/components/CandidateLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import API from "@/lib/axios";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
@@ -166,8 +173,7 @@ const initialMessages = [
     initials: "AK",
     role: "Recruiter",
     time: "12 Mar · 6:45 PM",
-    text:
-      "Hi Riya, your profile looks great! We'd like to schedule a technical round on 14 Mar at 3 PM IST. Does that work?",
+    text: "Hi Riya, your profile looks great! We'd like to schedule a technical round on 14 Mar at 3 PM IST. Does that work?",
   },
   {
     from: "Riya Sharma",
@@ -178,7 +184,13 @@ const initialMessages = [
   },
 ];
 
-const statusOrder = ["Applied", "In Review", "Shortlisted", "Interview", "Offered"];
+const statusOrder = [
+  "Applied",
+  "Shortlisted",
+  "Interview",
+  "Offered",
+  "Rejected",
+];
 
 export default function CandidateApplicationDetail() {
   const { id } = useParams();
@@ -194,42 +206,46 @@ export default function CandidateApplicationDetail() {
   //@ts-ignore
   //main Jobdetails Data
   const jobDetails = data?.data;
-  console.log("thats the job details", jobDetails)
+  console.log("thats the job details", jobDetails);
   // Helper to format salary
 
-
-
-  //basic job data 
-  const jobTitle = jobDetails?.title
-  const companyName = jobDetails?.companyName
+  //basic job data
+  const jobTitle = jobDetails?.title;
+  const companyName = jobDetails?.companyName;
   const logoContent = jobDetails?.logoImage ? (
-    <img src={jobDetails.logoImage} alt={companyName} className="h-full w-full object-contain p-2" />
+    <img
+      src={jobDetails.logoImage}
+      alt={companyName}
+      className="h-full w-full object-contain p-2"
+    />
   ) : (
     companyName?.[0] || application.logo
   );
 
   // Status mapping
-  const jobStatus = jobDetails?.isApplied ? (jobDetails.totalInterviewScheduled > 0 ? "Interview" : "Applied") : "-"
+  const jobStatus = jobDetails?.isApplied
+    ? jobDetails.totalInterviewScheduled > 0
+      ? "Interview"
+      : "Applied"
+    : "-";
 
-  //mock 
+  //mock
   const currentStepIndex = statusOrder.indexOf(jobStatus);
   const progressPct = ((currentStepIndex + 1) / statusOrder.length) * 100;
 
-
-
   //on-site - remote - hybrid
-  const workMode = jobDetails?.jobLocationType
-
+  const workMode = jobDetails?.jobLocationType;
 
   //location
-  const jobLocation = jobDetails?.location
+  const jobLocation = jobDetails?.location;
 
   //parttime-fulltime
   const jobType = jobDetails?.jobType?.join(", ");
 
   //salary
-  const salaryText = jobDetails?.salary ? formatSalary(jobDetails.salary) : "No disclosed";
-
+  const salaryText = jobDetails?.salary
+    ? formatSalary(jobDetails.salary)
+    : "No disclosed";
 
   //applied time ago
   const appliedTimeAgo = jobDetails?.createdAgo
@@ -249,7 +265,10 @@ export default function CandidateApplicationDetail() {
       },
     ]);
     setDraft("");
-    toast({ title: "Message sent", description: "The recruiter will be notified." });
+    toast({
+      title: "Message sent",
+      description: "The recruiter will be notified.",
+    });
   };
 
   // if (isLoading) {
@@ -265,6 +284,160 @@ export default function CandidateApplicationDetail() {
   //   );
   // }
 
+  const [resumeFile, setResumeFile] = useState<any>(null);
+  const [resumeUrl, setResumeUrl] = useState("");
+  const [uploadDate, setUploadDate] = useState("");
+
+  const [coverFile, setCoverFile] = useState<any>(null);
+  const [coverUrl, setCoverUrl] = useState("");
+  const [coverDate, setCoverDate] = useState("");
+
+  const [resumeLoading, setResumeLoading] = useState(false);
+  const [coverLetterLoading, setCoverLetterLoading] = useState(false);
+  const [downloadLoading, setDownloadLoading] = useState(false);
+  const [downloadLoadingCover, setDownloadLoadingCover] = useState(false);
+  const [downloadReportLoading, setDownloadReportLoading] = useState(false);
+
+  const fetchCoverLetter = async () => {
+    try {
+      setCoverLetterLoading(true);
+      const response = await API.get("/api/candidate/resumefile/cover-letter");
+
+      if (response.data.success) {
+        const { fileName, fileUrl, updatedAt } = response.data.data;
+        if (fileName) {
+          setCoverFile({ name: fileName });
+          setCoverUrl(fileUrl);
+
+          const formattedDate = new Date(updatedAt).toLocaleString("en-IN", {
+            month: "short",
+            day: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+
+          setCoverDate(formattedDate);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setCoverLetterLoading(false);
+    }
+  };
+
+  const fetchResume = async () => {
+    try {
+      setResumeLoading(true);
+
+      const response = await API.get(
+        "/api/candidate/resumefile/get_resume_details",
+      );
+
+      if (response.data.success) {
+        const { fileName, fileUrl, updatedAt } = response.data.data;
+
+        if (fileName) {
+          setResumeFile({ name: fileName });
+          setResumeUrl(fileUrl);
+
+          const formattedDate = new Date(updatedAt).toLocaleString("en-IN", {
+            month: "short",
+            day: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+
+          setUploadDate(formattedDate);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setResumeLoading(false);
+    }
+  };
+
+  const handleCoverLetterDownload = () => {
+    if (!coverUrl) return;
+    // Open PDF in a new tab
+    const pdfWindow = window.open("", "_blank");
+    if (pdfWindow) {
+      pdfWindow.location.href = coverUrl;
+    }
+    // Download file separately
+    const link = document.createElement("a");
+    link.href = coverUrl;
+    link.target = "_blank";
+    link.download = "Cover Letter.pdf";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleResumeDownload = () => {
+    if (!resumeUrl) return;
+
+    // Open PDF in a new tab
+    const pdfWindow = window.open("", "_blank");
+
+    if (pdfWindow) {
+      pdfWindow.location.href = resumeUrl;
+    }
+
+    // Download file separately
+    const link = document.createElement("a");
+    link.href = resumeUrl;
+    link.target = "_blank";
+    link.download = "resume.pdf";
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  const downloadReport = async () => {
+    try {
+      setDownloadReportLoading(true);
+
+      const response = await API.get("/api/candidate/resume/get_resume", {
+        responseType: "blob",
+      });
+      console.log("response---", response);
+      const contentDisposition =
+        response.headers["content-disposition"] ||
+        response.headers["Content-Disposition"] ||
+        "";
+      const filenameMatch = contentDisposition.match(/filename\*?=([^;]+)/i);
+      const filename = filenameMatch
+        ? filenameMatch[1].trim().replace(/^(?:UTF-8'')?/, "")
+        : response.headers["filename"] || "Report.pdf";
+
+      const blob = new Blob([response.data], {
+        type: response.headers["content-type"] || "application/pdf",
+      });
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename.replace(/"/g, "") || "Report.pdf";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Report download failed:", error);
+      toast.error("Failed to download report. Please try again.");
+    } finally {
+      setDownloadReportLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchResume();
+    fetchCoverLetter();
+  }, []);
+
   return (
     <CandidateLayout>
       <div className="space-y-6">
@@ -276,8 +449,14 @@ export default function CandidateApplicationDetail() {
             </Link>
           </Button>
           <p className="text-xs text-muted-foreground">
-            Application ref: <span className="font-mono">{application.applicationRef}</span>
-            {id && <> · ID: <span className="font-mono">{id}</span></>}
+            Application ref:{" "}
+            <span className="font-mono">{application.applicationRef}</span>
+            {id && (
+              <>
+                {" "}
+                · ID: <span className="font-mono">{id}</span>
+              </>
+            )}
           </p>
         </div>
 
@@ -291,7 +470,10 @@ export default function CandidateApplicationDetail() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2 mb-1">
-                  <Badge className="bg-primary/10 text-primary border-primary/20" variant="outline">
+                  <Badge
+                    className="bg-primary/10 text-primary border-primary/20"
+                    variant="outline"
+                  >
                     <CalendarCheck className="h-3 w-3 mr-1" /> {jobStatus}
                   </Badge>
                   {jobDetails?.match !== undefined && (
@@ -328,7 +510,9 @@ export default function CandidateApplicationDetail() {
                   <Bookmark className="h-4 w-4" /> Save
                 </Button> */}
                 <Button size="sm" asChild className="gap-2">
-                  <Link to={`/candidate/jobs/${jobDetails?.jobId || application.jobId}`}>
+                  <Link
+                    to={`/candidate/jobs/${jobDetails?.jobId || application.jobId}`}
+                  >
                     <ExternalLink className="h-4 w-4" /> View job
                   </Link>
                 </Button>
@@ -338,7 +522,9 @@ export default function CandidateApplicationDetail() {
             {/* Stage progress */}
             <div className="mt-6">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-sm font-medium text-foreground">Application progress</p>
+                <p className="text-sm font-medium text-foreground">
+                  Application progress
+                </p>
                 <p className="text-xs text-muted-foreground">
                   Stage {currentStepIndex + 1} of {statusOrder.length}
                 </p>
@@ -348,8 +534,11 @@ export default function CandidateApplicationDetail() {
                 {statusOrder.map((s, i) => (
                   <div
                     key={s}
-                    className={`text-center ${i <= currentStepIndex ? "text-foreground font-medium" : "text-muted-foreground"
-                      }`}
+                    className={`text-center ${
+                      i <= currentStepIndex
+                        ? "text-foreground font-medium"
+                        : "text-muted-foreground"
+                    }`}
                   >
                     {s}
                   </div>
@@ -376,7 +565,9 @@ export default function CandidateApplicationDetail() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Activity timeline</CardTitle>
-                    <CardDescription>Every step of your application, in order.</CardDescription>
+                    <CardDescription>
+                      Every step of your application, in order.
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <ol className="relative border-l-2 border-dashed border-border ml-3 space-y-6">
@@ -387,25 +578,35 @@ export default function CandidateApplicationDetail() {
                         return (
                           <li key={i} className="ml-6">
                             <span
-                              className={`absolute -left-[13px] flex h-6 w-6 items-center justify-center rounded-full ring-4 ring-background ${isDone
-                                ? "bg-emerald-500/15 text-emerald-600"
-                                : isCurrent
-                                  ? "bg-primary text-primary-foreground"
-                                  : "bg-muted text-muted-foreground"
-                                }`}
+                              className={`absolute -left-[13px] flex h-6 w-6 items-center justify-center rounded-full ring-4 ring-background ${
+                                isDone
+                                  ? "bg-emerald-500/15 text-emerald-600"
+                                  : isCurrent
+                                    ? "bg-primary text-primary-foreground"
+                                    : "bg-muted text-muted-foreground"
+                              }`}
                             >
                               <Icon className="h-3.5 w-3.5" />
                             </span>
                             <div className="flex flex-wrap items-center gap-2">
-                              <p className="font-medium text-foreground">{t.label}</p>
+                              <p className="font-medium text-foreground">
+                                {t.label}
+                              </p>
                               {isCurrent && (
-                                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                                <Badge
+                                  variant="outline"
+                                  className="bg-primary/10 text-primary border-primary/20"
+                                >
                                   Current
                                 </Badge>
                               )}
                             </div>
-                            <p className="text-xs text-muted-foreground mt-0.5">{t.date}</p>
-                            <p className="text-sm text-muted-foreground mt-1">{t.description}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              {t.date}
+                            </p>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {t.description}
+                            </p>
                           </li>
                         );
                       })}
@@ -424,49 +625,74 @@ export default function CandidateApplicationDetail() {
                     {jobDetails?.jobDescription ? (
                       <div
                         className="text-sm text-muted-foreground leading-relaxed space-y-2 ql-editor"
-                        dangerouslySetInnerHTML={{ __html: jobDetails.jobDescription }}
+                        dangerouslySetInnerHTML={{
+                          __html: jobDetails.jobDescription,
+                        }}
                       />
                     ) : (
-                      <p className="text-sm text-muted-foreground leading-relaxed">{application.about}</p>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {application.about}
+                      </p>
                     )}
 
-                    {jobDetails?.jobSkills && jobDetails.jobSkills.length > 0 && (
-                      <>
-                        <Separator />
-                        <div>
-                          <p className="font-medium text-foreground mb-2">Required Skills</p>
-                          <div className="flex flex-wrap gap-2">
-                            {jobDetails.jobSkills.map((skill: string, index: number) => (
-                              <Badge key={index} variant="secondary">
-                                {skill}
-                              </Badge>
-                            ))}
+                    {jobDetails?.jobSkills &&
+                      jobDetails.jobSkills.length > 0 && (
+                        <>
+                          <Separator />
+                          <div>
+                            <p className="font-medium text-foreground mb-2">
+                              Required Skills
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {jobDetails.jobSkills.map(
+                                (skill: string, index: number) => (
+                                  <Badge key={index} variant="secondary">
+                                    {skill}
+                                  </Badge>
+                                ),
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      </>
-                    )}
+                        </>
+                      )}
 
-                    {(jobDetails?.qualification || jobDetails?.experienceLevel || jobDetails?.careerLevel) && (
+                    {(jobDetails?.qualification ||
+                      jobDetails?.experienceLevel ||
+                      jobDetails?.careerLevel) && (
                       <>
                         <Separator />
                         <div>
-                          <p className="font-medium text-foreground mb-2">Requirements & Level</p>
+                          <p className="font-medium text-foreground mb-2">
+                            Requirements & Level
+                          </p>
                           <ul className="space-y-2 text-sm text-muted-foreground">
                             {jobDetails.experienceLevel && (
                               <li className="flex items-center gap-2">
-                                <span className="font-medium text-foreground">Experience:</span> {jobDetails.experienceLevel}
+                                <span className="font-medium text-foreground">
+                                  Experience:
+                                </span>{" "}
+                                {jobDetails.experienceLevel}
                               </li>
                             )}
                             {jobDetails.careerLevel && (
                               <li className="flex items-center gap-2">
-                                <span className="font-medium text-foreground">Career Level:</span> {jobDetails.careerLevel}
+                                <span className="font-medium text-foreground">
+                                  Career Level:
+                                </span>{" "}
+                                {jobDetails.careerLevel}
                               </li>
                             )}
-                            {jobDetails.qualification && jobDetails.qualification.length > 0 && (
-                              <li className="flex items-center gap-2">
-                                <span className="font-medium text-foreground">Minimum Qualification:</span> {jobDetails.qualification.filter(Boolean).join(", ")}
-                              </li>
-                            )}
+                            {jobDetails.qualification &&
+                              jobDetails.qualification.length > 0 && (
+                                <li className="flex items-center gap-2">
+                                  <span className="font-medium text-foreground">
+                                    Minimum Qualification:
+                                  </span>{" "}
+                                  {jobDetails.qualification
+                                    .filter(Boolean)
+                                    .join(", ")}
+                                </li>
+                              )}
                           </ul>
                         </div>
                       </>
@@ -476,13 +702,21 @@ export default function CandidateApplicationDetail() {
                       <>
                         <Separator />
                         <div>
-                          <p className="font-medium text-foreground mb-2">Benefits</p>
+                          <p className="font-medium text-foreground mb-2">
+                            Benefits
+                          </p>
                           <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                            {jobDetails.benefits.map((benefit: string, index: number) => (
-                              <li key={index} className="flex gap-2 text-sm text-muted-foreground">
-                                <CheckCircle2 className="h-4 w-4 text-emerald-600 mt-0.5 shrink-0" /> {benefit}
-                              </li>
-                            ))}
+                            {jobDetails.benefits.map(
+                              (benefit: string, index: number) => (
+                                <li
+                                  key={index}
+                                  className="flex gap-2 text-sm text-muted-foreground"
+                                >
+                                  <CheckCircle2 className="h-4 w-4 text-emerald-600 mt-0.5 shrink-0" />{" "}
+                                  {benefit}
+                                </li>
+                              ),
+                            )}
                           </ul>
                         </div>
                       </>
@@ -509,7 +743,9 @@ export default function CandidateApplicationDetail() {
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <div className="flex items-center gap-2">
                             <Video className="h-4 w-4 text-primary" />
-                            <p className="font-medium text-foreground">{iv.round}</p>
+                            <p className="font-medium text-foreground">
+                              {iv.round}
+                            </p>
                           </div>
                           <Badge
                             variant="outline"
@@ -526,25 +762,36 @@ export default function CandidateApplicationDetail() {
                         </div>
                         <div className="mt-2 grid grid-cols-2 md:grid-cols-4 gap-3 text-xs text-muted-foreground">
                           <div>
-                            <p className="text-foreground font-medium">{iv.date}</p>
+                            <p className="text-foreground font-medium">
+                              {iv.date}
+                            </p>
                             <p>Date</p>
                           </div>
                           <div>
-                            <p className="text-foreground font-medium">{iv.time}</p>
+                            <p className="text-foreground font-medium">
+                              {iv.time}
+                            </p>
                             <p>Time</p>
                           </div>
                           <div>
-                            <p className="text-foreground font-medium">{iv.mode}</p>
+                            <p className="text-foreground font-medium">
+                              {iv.mode}
+                            </p>
                             <p>Mode</p>
                           </div>
                           <div>
-                            <p className="text-foreground font-medium">{iv.interviewer}</p>
+                            <p className="text-foreground font-medium">
+                              {iv.interviewer}
+                            </p>
                             <p>Interviewer</p>
                           </div>
                         </div>
                         {iv.feedback && (
                           <p className="mt-3 text-sm text-muted-foreground bg-muted/40 rounded-md p-2.5">
-                            <span className="font-medium text-foreground">Feedback:</span> {iv.feedback}
+                            <span className="font-medium text-foreground">
+                              Feedback:
+                            </span>{" "}
+                            {iv.feedback}
                           </p>
                         )}
                         {iv.status === "Upcoming" && (
@@ -552,8 +799,13 @@ export default function CandidateApplicationDetail() {
                             <Button size="sm" className="gap-2">
                               <Video className="h-4 w-4" /> Join meeting
                             </Button>
-                            <Button size="sm" variant="outline" className="gap-2">
-                              <CalendarCheck className="h-4 w-4" /> Add to calendar
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="gap-2"
+                            >
+                              <CalendarCheck className="h-4 w-4" /> Add to
+                              calendar
                             </Button>
                           </div>
                         )}
@@ -568,14 +820,19 @@ export default function CandidateApplicationDetail() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Messages with recruiter</CardTitle>
-                    <CardDescription>Direct conversation with the hiring team.</CardDescription>
+                    <CardDescription>
+                      Direct conversation with the hiring team.
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4 max-h-[420px] overflow-y-auto pr-1">
                       {messages.map((m, i) => {
                         const isMe = m.role === "You";
                         return (
-                          <div key={i} className={`flex gap-3 ${isMe ? "flex-row-reverse" : ""}`}>
+                          <div
+                            key={i}
+                            className={`flex gap-3 ${isMe ? "flex-row-reverse" : ""}`}
+                          >
                             <Avatar className="h-9 w-9 shrink-0">
                               <AvatarFallback
                                 className={
@@ -587,16 +844,21 @@ export default function CandidateApplicationDetail() {
                                 {m.initials}
                               </AvatarFallback>
                             </Avatar>
-                            <div className={`max-w-[78%] ${isMe ? "text-right" : ""}`}>
+                            <div
+                              className={`max-w-[78%] ${isMe ? "text-right" : ""}`}
+                            >
                               <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-                                <span className="font-medium text-foreground">{m.from}</span>
+                                <span className="font-medium text-foreground">
+                                  {m.from}
+                                </span>
                                 <span>· {m.time}</span>
                               </div>
                               <div
-                                className={`inline-block text-sm rounded-2xl px-3.5 py-2 ${isMe
-                                  ? "bg-primary text-primary-foreground rounded-tr-sm"
-                                  : "bg-muted text-foreground rounded-tl-sm"
-                                  }`}
+                                className={`inline-block text-sm rounded-2xl px-3.5 py-2 ${
+                                  isMe
+                                    ? "bg-primary text-primary-foreground rounded-tr-sm"
+                                    : "bg-muted text-foreground rounded-tl-sm"
+                                }`}
                               >
                                 {m.text}
                               </div>
@@ -626,10 +888,12 @@ export default function CandidateApplicationDetail() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Documents shared</CardTitle>
-                    <CardDescription>Files attached to this application.</CardDescription>
+                    <CardDescription>
+                      Files attached to this application.
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-2">
-                    {documents.map((d) => (
+                    {/*  {documents.map((d) => (
                       <div
                         key={d.name}
                         className="flex items-center justify-between gap-3 p-3 rounded-lg border bg-card hover:bg-muted/30 transition-colors"
@@ -639,7 +903,9 @@ export default function CandidateApplicationDetail() {
                             <FileText className="h-5 w-5" />
                           </div>
                           <div className="min-w-0">
-                            <p className="font-medium text-foreground truncate">{d.name}</p>
+                            <p className="font-medium text-foreground truncate">
+                              {d.name}
+                            </p>
                             <p className="text-xs text-muted-foreground">
                               {d.type} · {d.size}
                             </p>
@@ -649,7 +915,86 @@ export default function CandidateApplicationDetail() {
                           <Download className="h-4 w-4" /> Download
                         </Button>
                       </div>
-                    ))}
+                    ))} */}
+                    <div
+                      key={coverFile}
+                      className="flex items-center justify-between gap-3 p-3 rounded-lg border bg-card hover:bg-muted/30 transition-colors"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                          <FileText className="h-5 w-5" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-medium text-foreground truncate">
+                            {coverFile?.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Cover letter
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-2"
+                        onClick={() => handleCoverLetterDownload()}
+                      >
+                        <Download className="h-4 w-4" /> Download
+                      </Button>
+                    </div>
+                    <div
+                      key={resumeFile}
+                      className="flex items-center justify-between gap-3 p-3 rounded-lg border bg-card hover:bg-muted/30 transition-colors"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                          <FileText className="h-5 w-5" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-medium text-foreground truncate">
+                            {resumeFile?.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Resume
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-2"
+                        onClick={() => handleResumeDownload()}
+                      >
+                        <Download className="h-4 w-4" /> Download
+                      </Button>
+                    </div>
+
+                    <div
+                      key="downloadReport"
+                      className="flex items-center justify-between gap-3 p-3 rounded-lg border bg-card hover:bg-muted/30 transition-colors"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                          <FileText className="h-5 w-5" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-medium text-foreground truncate">
+                            Download Report
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Get your resume report PDF
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-2"
+                        onClick={() => downloadReport()}
+                      >
+                        <Download className="h-4 w-4" /> Download
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -667,7 +1012,9 @@ export default function CandidateApplicationDetail() {
                   <p className="text-xs text-primary font-medium uppercase tracking-wide">
                     Upcoming interview
                   </p>
-                  <p className="font-semibold text-foreground mt-1">Technical Round 1</p>
+                  <p className="font-semibold text-foreground mt-1">
+                    Technical Round 1
+                  </p>
                   <p className="text-sm text-muted-foreground mt-1">
                     14 Mar 2026 · 3:00 PM IST · Google Meet
                   </p>
@@ -693,7 +1040,9 @@ export default function CandidateApplicationDetail() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0">
-                    <p className="font-medium text-foreground truncate">{recruiter.name}</p>
+                    <p className="font-medium text-foreground truncate">
+                      {recruiter.name}
+                    </p>
                     <p className="text-xs text-muted-foreground truncate">
                       {recruiter.role} · {recruiter.company}
                     </p>
@@ -724,12 +1073,18 @@ export default function CandidateApplicationDetail() {
               <Card>
                 <CardHeader>
                   <CardTitle className="text-base">Match insight</CardTitle>
-                  <CardDescription>How well your profile fits this role.</CardDescription>
+                  <CardDescription>
+                    How well your profile fits this role.
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Overall match</span>
-                    <span className="text-sm font-semibold text-foreground">{jobDetails.match}%</span>
+                    <span className="text-sm text-muted-foreground">
+                      Overall match
+                    </span>
+                    <span className="text-sm font-semibold text-foreground">
+                      {jobDetails.match}%
+                    </span>
                   </div>
                   <Progress value={jobDetails.match} className="h-2" />
                   {[
@@ -741,7 +1096,9 @@ export default function CandidateApplicationDetail() {
                     <div key={s.label}>
                       <div className="flex items-center justify-between text-xs">
                         <span className="text-muted-foreground">{s.label}</span>
-                        <span className="font-medium text-foreground">{s.value}%</span>
+                        <span className="font-medium text-foreground">
+                          {s.value}%
+                        </span>
                       </div>
                       <Progress value={s.value} className="h-1.5 mt-1" />
                     </div>
@@ -764,15 +1121,20 @@ export default function CandidateApplicationDetail() {
                       rel="noopener noreferrer"
                       className="hover:underline flex items-center gap-1"
                     >
-                      {jobDetails.companyWebsite.replace(/(^\w+:|^)\/\//, "")} <ExternalLink className="h-3 w-3" />
+                      {jobDetails.companyWebsite.replace(/(^\w+:|^)\/\//, "")}{" "}
+                      <ExternalLink className="h-3 w-3" />
                     </a>
                   </div>
                 )}
                 <div className="flex items-center gap-2">
-                  <Briefcase className="h-4 w-4" /> {jobDetails?.industry || "Fintech · Payments"}
+                  <Briefcase className="h-4 w-4" />{" "}
+                  {jobDetails?.industry || "Fintech · Payments"}
                 </div>
                 <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4" /> {jobDetails?.totalApplicants !== undefined ? `${jobDetails.totalApplicants} Applicants` : "3,000+ employees"}
+                  <Users className="h-4 w-4" />{" "}
+                  {jobDetails?.totalApplicants !== undefined
+                    ? `${jobDetails.totalApplicants} Applicants`
+                    : "3,000+ employees"}
                 </div>
               </CardContent>
             </Card>
@@ -789,7 +1151,10 @@ export default function CandidateApplicationDetail() {
               <CardContent>
                 <Dialog open={withdrawOpen} onOpenChange={setWithdrawOpen}>
                   <DialogTrigger asChild>
-                    <Button variant="outline" className="w-full gap-2 text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive">
+                    <Button
+                      variant="outline"
+                      className="w-full gap-2 text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
+                    >
                       <Trash2 className="h-4 w-4" /> Withdraw
                     </Button>
                   </DialogTrigger>
@@ -797,11 +1162,15 @@ export default function CandidateApplicationDetail() {
                     <DialogHeader>
                       <DialogTitle>Withdraw application?</DialogTitle>
                       <DialogDescription>
-                        You won't be able to reapply for 30 days. The recruiter will be notified.
+                        You won't be able to reapply for 30 days. The recruiter
+                        will be notified.
                       </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
-                      <Button variant="ghost" onClick={() => setWithdrawOpen(false)}>
+                      <Button
+                        variant="ghost"
+                        onClick={() => setWithdrawOpen(false)}
+                      >
                         Cancel
                       </Button>
                       <Button

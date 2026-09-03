@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import API from "../../../lib/axios";
@@ -137,7 +136,6 @@ const FormModal = ({
     }));
   };
 
- 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -291,12 +289,12 @@ const FormModal = ({
                   <p className="text-xs text-destructive">{errors.twelveTh}</p>
                 )}
               </div>
-                
+
               <div className="space-y-1.5">
                 <Label htmlFor="numberOfOpenings">
                   Openings <span className="text-red-500">*</span>
                 </Label>
-                
+
                 <Input
                   id="numberOfOpenings"
                   value={form.numberOfOpenings}
@@ -370,8 +368,8 @@ const FormModal = ({
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="scheduledDate">Exam Date</Label>
-              
+              <Label htmlFor="scheduledDate">Interview Date</Label>
+
               <Input
                 id="date"
                 type="date"
@@ -398,7 +396,7 @@ const FormModal = ({
               </div>
             </div>
           </div>
-          
+
           <DialogFooter className="gap-2">
             <Button type="button" variant="outline" onClick={() => onClose()}>
               Cancel

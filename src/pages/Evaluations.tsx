@@ -1,17 +1,38 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ClipboardCheck, CheckCircle2, Clock, AlertCircle, Plus, Download } from "lucide-react";
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import {
+  ClipboardCheck,
+  CheckCircle2,
+  Clock,
+  AlertCircle,
+  Plus,
+  Download,
+} from "lucide-react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { z } from "zod";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { StatCard } from "@/components/dashboard/StatCard";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { nameFormate, timeAgo } from "../lib/utils"
+import { nameFormate, timeAgo } from "../lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -44,12 +65,54 @@ const monthly = [
 ];
 
 const initialEvaluations = [
-  { id: "EV-2841", student: "Priya Menon", type: "Aptitude + Coding", score: 92, status: "Completed", date: "2 hrs ago" },
-  { id: "EV-2840", student: "Rohan Verma", type: "Case Study", score: 87, status: "Completed", date: "5 hrs ago" },
-  { id: "EV-2839", student: "Aisha Khan", type: "Technical", score: 81, status: "Reviewing", date: "Yesterday" },
-  { id: "EV-2838", student: "Karthik Iyer", type: "Aptitude + Coding", score: 78, status: "Completed", date: "Yesterday" },
-  { id: "EV-2837", student: "Neha Gupta", type: "Group Discussion", score: 74, status: "Reviewing", date: "2 days ago" },
-  { id: "EV-2836", student: "Arjun Reddy", type: "Technical", score: 0, status: "Pending", date: "Scheduled" },
+  {
+    id: "EV-2841",
+    student: "Priya Menon",
+    type: "Aptitude + Coding",
+    score: 92,
+    status: "Completed",
+    date: "2 hrs ago",
+  },
+  {
+    id: "EV-2840",
+    student: "Rohan Verma",
+    type: "Case Study",
+    score: 87,
+    status: "Completed",
+    date: "5 hrs ago",
+  },
+  {
+    id: "EV-2839",
+    student: "Aisha Khan",
+    type: "Technical",
+    score: 81,
+    status: "Reviewing",
+    date: "Yesterday",
+  },
+  {
+    id: "EV-2838",
+    student: "Karthik Iyer",
+    type: "Aptitude + Coding",
+    score: 78,
+    status: "Completed",
+    date: "Yesterday",
+  },
+  {
+    id: "EV-2837",
+    student: "Neha Gupta",
+    type: "Group Discussion",
+    score: 74,
+    status: "Reviewing",
+    date: "2 days ago",
+  },
+  {
+    id: "EV-2836",
+    student: "Arjun Reddy",
+    type: "Technical",
+    score: 0,
+    status: "Pending",
+    date: "Scheduled",
+  },
 ];
 
 const statusStyles: Record<string, string> = {
@@ -64,7 +127,7 @@ const evaluationTypes = [
   { key: "Case_Study", value: "Case Study" },
   { key: "Group_Discussion", value: "Group Discussion" },
   { key: "Behavioral", value: "Behavioral" },
-  { key: "Domain_Knowledge", value: "Domain Knowledge" }
+  { key: "Domain_Knowledge", value: "Domain Knowledge" },
 ];
 
 const evaluationSchema = z
@@ -74,8 +137,18 @@ const evaluationSchema = z
     type: z.string().min(1, "Select an evaluation type"),
     status: z.enum(["Completed", "Reviewing", "Pending"]),
     score: z.coerce.number().int().min(0).max(100),
-    scheduledDate: z.string().trim().min(1, "Date is required").pipe(z.coerce.date()),
-    evaluator: z.string().regex(/^[A-Za-z ]*$/, "only letters allow").trim().max(80).optional().or(z.literal("")),
+    scheduledDate: z
+      .string()
+      .trim()
+      .min(1, "Date is required")
+      .pipe(z.coerce.date()),
+    evaluator: z
+      .string()
+      .regex(/^[A-Za-z ]*$/, "only letters allow")
+      .trim()
+      .max(80)
+      .optional()
+      .or(z.literal("")),
     notes: z.string().max(500).optional().or(z.literal("")),
   })
   .refine((d) => d.status === "Pending" || d.score > 0, {
@@ -96,8 +169,6 @@ const emptyForm: EvaluationForm = {
   notes: "",
 };
 
-
-
 const Evaluations = () => {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
@@ -105,9 +176,14 @@ const Evaluations = () => {
   const [studentList, setStudentList] = useState([]);
   const [edit, setEdit] = useState();
   const [form, setForm] = useState<EvaluationForm>(emptyForm);
-  const [errors, setErrors] = useState<Partial<Record<keyof EvaluationForm, string>>>({});
+  const [errors, setErrors] = useState<
+    Partial<Record<keyof EvaluationForm, string>>
+  >({});
 
-  const update = <K extends keyof EvaluationForm>(key: K, value: EvaluationForm[K]) => {
+  const update = <K extends keyof EvaluationForm>(
+    key: K,
+    value: EvaluationForm[K],
+  ) => {
     setForm((f) => ({ ...f, [key]: value }));
   };
 
@@ -115,19 +191,12 @@ const Evaluations = () => {
     if (value) {
       setForm((f) => ({ ...f, [key]: value }));
 
-      const findData = studentList.find(
-        (u) => u._id === value,
-      );
-      setForm((f) => ({ ...f, 'rollNo': findData.USN }));
-
+      const findData = studentList.find((u) => u._id === value);
+      setForm((f) => ({ ...f, rollNo: findData.USN }));
     } else {
-      setForm((f) => ({ ...f, 'rollNo': '' }));
+      setForm((f) => ({ ...f, rollNo: "" }));
     }
-
   };
-
-
-
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -142,7 +211,7 @@ const Evaluations = () => {
       return;
     }
     setErrors({});
-    toast({})
+    toast({});
     //const nextId = `EV-${2842 + (evaluations.length - initialEvaluations.length)}`;
     /* setEvaluations((prev) => [
       {
@@ -164,12 +233,13 @@ const Evaluations = () => {
       score: result.data.score,
       date: result.data.scheduledDate,
       evaluator_name: result.data.evaluator,
-      notes: result.data.notes
-    }
+      notes: result.data.notes,
+    };
 
     let response = "";
     try {
-      response = await api.post("/api/instituteprofile/add_evaluation",
+      response = await api.post(
+        "/api/instituteprofile/add_evaluation",
         sendData,
       );
 
@@ -178,9 +248,8 @@ const Evaluations = () => {
           title: "success",
           description: "Evaluations saved successfully",
         });
-        fetchEvaluationList()
-      }
-      else {
+        fetchEvaluationList();
+      } else {
         toast({
           title: "Error",
           variant: "destructive",
@@ -218,11 +287,9 @@ const Evaluations = () => {
 
   const fetchEvaluationList = async () => {
     try {
-      const res = await api.get(
-        "/api/instituteprofile/get_evaluation",
-      );
+      const res = await api.get("/api/instituteprofile/get_evaluation");
       const data = res?.data?.data || [];
-      console.log('data', data)
+      console.log("data", data);
       setEvaluations(data);
     } catch (err) {
       console.error("Error fetching stats", err);
@@ -234,7 +301,7 @@ const Evaluations = () => {
     fetchEvaluationList();
   }, []);
 
-  console.log('evaluations', evaluations)
+  console.log("evaluations", evaluations);
   return (
     <DashboardLayout>
       <PageHeader
@@ -252,15 +319,20 @@ const Evaluations = () => {
               </DialogTrigger>
               <DialogContent className="sm:max-w-[640px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                  <DialogTitle className="font-display text-2xl">Add new evaluation</DialogTitle>
+                  <DialogTitle className="font-display text-2xl">
+                    Add new evaluation
+                  </DialogTitle>
                   <DialogDescription>
-                    Record a new assessment result or schedule one for an upcoming candidate.
+                    Record a new assessment result or schedule one for an
+                    upcoming candidate.
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-5 pt-2">
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-1.5">
-                      <Label htmlFor="student">Student name <span style={{ color: "red" }}>*</span></Label>
+                      <Label htmlFor="student">
+                        Student name <span style={{ color: "red" }}>*</span>
+                      </Label>
                       {/*   <Input
                         id="student"
                         value={form.student}
@@ -270,51 +342,76 @@ const Evaluations = () => {
                       />
                       {errors.student && <p className="text-xs text-destructive">{errors.student}</p>} */}
 
-                      <Select value={form.student} onValueChange={(v) => handleSelect("student", v)}>
+                      <Select
+                        value={form.student}
+                        onValueChange={(v) => handleSelect("student", v)}
+                      >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select type" />
+                          <SelectValue placeholder="Select Student name" />
                         </SelectTrigger>
                         <SelectContent>
                           {studentList.map((t) => (
-                            <SelectItem key={t._id} value={t._id}>{nameFormate(t.name)}</SelectItem>
+                            <SelectItem key={t._id} value={t._id}>
+                              {nameFormate(t.name)}
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
-                      {errors.student && <p className="text-xs text-destructive">{errors.student}</p>}
+                      {errors.student && (
+                        <p className="text-xs text-destructive">
+                          {errors.student}
+                        </p>
+                      )}
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label htmlFor="rollNo">University Registration Number</Label>
+                      <Label htmlFor="rollNo">
+                        University Registration Number
+                      </Label>
                       <Input
                         id="rollNo"
                         value={form.rollNo}
                         onChange={(e) => update("rollNo", e.target.value)}
                         placeholder="e.g. 22BCE1234"
                         readonly="readonly"
-
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label>Evaluation type <span style={{ color: "red" }}>*</span></Label>
-                      <Select value={form.type} onValueChange={(v) => update("type", v)}>
+                      <Label>
+                        Evaluation type <span style={{ color: "red" }}>*</span>
+                      </Label>
+                      <Select
+                        value={form.type}
+                        onValueChange={(v) => update("type", v)}
+                      >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select type" />
+                          <SelectValue placeholder="Select Evaluation type" />
                         </SelectTrigger>
                         <SelectContent>
                           {evaluationTypes.map((t) => (
-                            <SelectItem key={t.key} value={t.key}>{t.value}</SelectItem>
+                            <SelectItem key={t.key} value={t.key}>
+                              {t.value}
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
-                      {errors.type && <p className="text-xs text-destructive">{errors.type}</p>}
+                      {errors.type && (
+                        <p className="text-xs text-destructive">
+                          {errors.type}
+                        </p>
+                      )}
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label>Status <span style={{ color: "red" }}>*</span></Label>
+                      <Label>
+                        Status <span style={{ color: "red" }}>*</span>
+                      </Label>
                       <Select
                         value={form.status}
-                        onValueChange={(v) => update("status", v as EvaluationForm["status"])}
+                        onValueChange={(v) =>
+                          update("status", v as EvaluationForm["status"])
+                        }
                       >
                         <SelectTrigger>
                           <SelectValue />
@@ -328,14 +425,15 @@ const Evaluations = () => {
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label htmlFor="score">Score (0–100) <span style={{ color: "red" }}>*</span></Label>
+                      <Label htmlFor="score">
+                        Score (0–100) <span style={{ color: "red" }}>*</span>
+                      </Label>
                       <Input
                         id="score"
                         type="number"
                         min={0}
                         max={100}
                         value={form.score}
-
                         onChange={(e) => {
                           const value = e.target.value;
 
@@ -345,19 +443,31 @@ const Evaluations = () => {
                         }}
                         disabled={form.status === "Pending"}
                       />
-                      {errors.score && <p className="text-xs text-destructive">{errors.score}</p>}
+                      {errors.score && (
+                        <p className="text-xs text-destructive">
+                          {errors.score}
+                        </p>
+                      )}
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label htmlFor="scheduledDate">Date <span style={{ color: "red" }}>*</span></Label>
+                      <Label htmlFor="scheduledDate">
+                        Date <span style={{ color: "red" }}>*</span>
+                      </Label>
                       <Input
                         style={{ position: "relative" }}
                         id="scheduledDate"
                         type="date"
                         value={form.scheduledDate}
-                        onChange={(e) => update("scheduledDate", e.target.value)}
+                        onChange={(e) =>
+                          update("scheduledDate", e.target.value)
+                        }
                       />
-                      {errors.scheduledDate && <p className="text-xs text-destructive">{errors.scheduledDate}</p>}
+                      {errors.scheduledDate && (
+                        <p className="text-xs text-destructive">
+                          {errors.scheduledDate}
+                        </p>
+                      )}
                     </div>
 
                     <div className="space-y-1.5 md:col-span-2">
@@ -369,7 +479,11 @@ const Evaluations = () => {
                         placeholder="Faculty or panelist name"
                         maxLength={80}
                       />
-                      {errors.evaluator && <p className="text-xs text-destructive">{errors.evaluator}</p>}
+                      {errors.evaluator && (
+                        <p className="text-xs text-destructive">
+                          {errors.evaluator}
+                        </p>
+                      )}
                     </div>
 
                     <div className="space-y-1.5 md:col-span-2">
@@ -386,7 +500,11 @@ const Evaluations = () => {
                   </div>
 
                   <DialogFooter className="gap-2">
-                    <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setOpen(false)}
+                    >
                       Cancel
                     </Button>
                     <Button
@@ -404,25 +522,71 @@ const Evaluations = () => {
       />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 mb-6">
-        <StatCard label="Total (MTD)" value="1,267" delta={24} icon={ClipboardCheck} tint="primary" />
-        <StatCard label="Completed" value="982" delta={18} icon={CheckCircle2} tint="success" />
-        <StatCard label="In Review" value="218" delta={6} icon={Clock} tint="warning" />
-        <StatCard label="Flagged" value="12" delta={-3} icon={AlertCircle} tint="accent" />
+        <StatCard
+          label="Total (MTD)"
+          value="1,267"
+          delta={24}
+          icon={ClipboardCheck}
+          tint="primary"
+        />
+        <StatCard
+          label="Completed"
+          value="982"
+          delta={18}
+          icon={CheckCircle2}
+          tint="success"
+        />
+        <StatCard
+          label="In Review"
+          value="218"
+          delta={6}
+          icon={Clock}
+          tint="warning"
+        />
+        <StatCard
+          label="Flagged"
+          value="12"
+          delta={-3}
+          icon={AlertCircle}
+          tint="accent"
+        />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3 mb-6">
         <Card className="lg:col-span-2 shadow-sm border-border/60">
           <CardHeader>
-            <CardTitle className="text-lg font-display">Evaluations per month</CardTitle>
-            <CardDescription>Volume trend across the last six months</CardDescription>
+            <CardTitle className="text-lg font-display">
+              Evaluations per month
+            </CardTitle>
+            <CardDescription>
+              Volume trend across the last six months
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="h-[260px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthly} margin={{ top: 5, right: 8, left: -16, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                  <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                <BarChart
+                  data={monthly}
+                  margin={{ top: 5, right: 8, left: -16, bottom: 0 }}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="hsl(var(--border))"
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="month"
+                    stroke="hsl(var(--muted-foreground))"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis
+                    stroke="hsl(var(--muted-foreground))"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                  />
                   <Tooltip
                     cursor={{ fill: "hsl(var(--muted))" }}
                     contentStyle={{
@@ -432,7 +596,11 @@ const Evaluations = () => {
                       fontSize: "12px",
                     }}
                   />
-                  <Bar dataKey="count" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} />
+                  <Bar
+                    dataKey="count"
+                    fill="hsl(var(--primary))"
+                    radius={[6, 6, 0, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -441,7 +609,9 @@ const Evaluations = () => {
 
         <Card className="shadow-sm border-border/60">
           <CardHeader>
-            <CardTitle className="text-lg font-display">Score Distribution</CardTitle>
+            <CardTitle className="text-lg font-display">
+              Score Distribution
+            </CardTitle>
             <CardDescription>Across completed evaluations</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -454,10 +624,15 @@ const Evaluations = () => {
               <div key={b.label}>
                 <div className="flex items-center justify-between mb-1.5 text-sm">
                   <span className="text-muted-foreground">{b.label}</span>
-                  <span className="font-semibold text-foreground">{b.value}%</span>
+                  <span className="font-semibold text-foreground">
+                    {b.value}%
+                  </span>
                 </div>
                 <div className="h-2 rounded-full bg-muted overflow-hidden">
-                  <div className={`h-full ${b.color} rounded-full`} style={{ width: `${b.value}%` }} />
+                  <div
+                    className={`h-full ${b.color} rounded-full`}
+                    style={{ width: `${b.value}%` }}
+                  />
                 </div>
               </div>
             ))}
@@ -467,8 +642,12 @@ const Evaluations = () => {
 
       <Card className="shadow-sm border-border/60">
         <CardHeader>
-          <CardTitle className="text-lg font-display">All Evaluations</CardTitle>
-          <CardDescription>Most recent submissions and their status</CardDescription>
+          <CardTitle className="text-lg font-display">
+            All Evaluations
+          </CardTitle>
+          <CardDescription>
+            Most recent submissions and their status
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto rounded-lg border border-border/60">
@@ -486,7 +665,8 @@ const Evaluations = () => {
               <tbody className="divide-y divide-border/60">
                 {evaluations?.map((e) => {
                   const last = e?.evaluations?.length - 1;
-                  let lastEvaluation = last > 0 ? e?.evaluations[last] : e?.evaluations[0];
+                  let lastEvaluation =
+                    last > 0 ? e?.evaluations[last] : e?.evaluations[0];
 
                   return (
                     <tr
@@ -501,8 +681,7 @@ const Evaluations = () => {
                         >
                           <Avatar className="h-9 w-9 border shrink-0">
                             <AvatarFallback className="bg-accent/10 text-accent text-xs font-semibold">
-                              {e?.student_name
-                                .charAt(0).toUpperCase()}
+                              {e?.student_name.charAt(0).toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
 
@@ -511,9 +690,7 @@ const Evaluations = () => {
                               {e?.student_name && nameFormate(e?.student_name)}
                             </p>
 
-                            <p className="text-xs text-muted-foreground truncate">
-
-                            </p>
+                            <p className="text-xs text-muted-foreground truncate"></p>
                           </div>
                         </Link>
                       </td>
@@ -526,10 +703,15 @@ const Evaluations = () => {
                       {/* Score */}
                       <td className="py-3 px-4">
                         {lastEvaluation?.status === "Pending" ? (
-                          <span className="text-xs text-muted-foreground">—</span>
+                          <span className="text-xs text-muted-foreground">
+                            —
+                          </span>
                         ) : (
                           <div className="flex items-center gap-3 min-w-[150px]">
-                            <Progress value={lastEvaluation?.score} className="h-1.5 flex-1" />
+                            <Progress
+                              value={lastEvaluation?.score}
+                              className="h-1.5 flex-1"
+                            />
 
                             <span className="text-sm font-semibold text-foreground w-10 text-right shrink-0">
                               {lastEvaluation?.score}
@@ -553,10 +735,8 @@ const Evaluations = () => {
                         </Badge>
                       </td>
                     </tr>
-                  )
-                }
-
-                )}
+                  );
+                })}
               </tbody>
             </table>
           </div>

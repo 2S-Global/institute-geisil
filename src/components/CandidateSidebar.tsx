@@ -35,8 +35,8 @@ const main = [
   { title: "Browse Jobs", url: "/candidate/jobs", icon: Briefcase },
   { title: "Applied Jobs", url: "/candidate/applications", icon: FileText },
   { title: "Saved Jobs", url: "/candidate/saved-jobs", icon: Bookmark },
-  { title: "Interviews", url: "/candidate/interviews", icon: CalendarCheck },
-  { title: "Assessments", url: "/candidate/assessments", icon: ClipboardList },
+  /*  { title: "Interviews", url: "/candidate/interviews", icon: CalendarCheck },
+  { title: "Assessments", url: "/candidate/assessments", icon: ClipboardList }, */
 ];
 
 const secondary = [
