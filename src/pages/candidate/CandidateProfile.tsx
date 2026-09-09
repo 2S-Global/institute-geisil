@@ -634,15 +634,13 @@ export default function CandidateProfile() {
                           <>
                             <CircleX className="ml-2 h-4 w-4 text-red-500" />
 
-                            {user?.isIndianNumber ? (
+                            {user?.isIndianNumber && (
                               <button
                                 className="ml-2 rounded bg-blue-600 px-2 py-1 text-[10px] leading-none text-white hover:bg-blue-700"
                                 onClick={openModalRHotp}
                               >
                                 Verify Now
                               </button>
-                            ) : (
-                              <CircleX className=" h-4 w-4 text-red-500" />
                             )}
                           </>
                         )}
@@ -1188,7 +1186,6 @@ export default function CandidateProfile() {
               </TabsContent>
             </Tabs>
           </div>
-
 
           <div className="space-y-6 ">
             <ProfileStrength refresh={refresh} />

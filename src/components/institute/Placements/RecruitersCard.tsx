@@ -3,6 +3,7 @@ import * as Collapsible from "@radix-ui/react-collapsible";
 import StudentList from "./StudentList";
 import API from "../../../lib/axios";
 import { formatUTCDate } from "../../../utils/utils";
+import { useCompanyStore } from "./RecruitersStore";
 
 function CalendarIcon() {
   return (
@@ -33,8 +34,16 @@ function CheckIcon() {
   );
 }
 
-function Card({ card, selected, onSelect }) {
-  const initials = card?.companyName?.[0];
+function Card({
+  card,
+  selected,
+  onSelect,
+}: {
+  card: any;
+  selected: boolean;
+  onSelect: (card: any) => void;
+}) {
+  const initials = card?.companyName?.[0] || "C";
 
   return (
     <button
@@ -51,18 +60,14 @@ function Card({ card, selected, onSelect }) {
         bg-white
         p-5
         text-left
-
         shadow-[0_4px_20px_rgba(15,23,42,0.04)]
-
         transition-all
         duration-300
         ease-out
-
         focus:outline-none
         focus-visible:ring-2
         focus-visible:ring-violet-500
         focus-visible:ring-offset-2
-
         ${
           selected
             ? `
@@ -80,37 +85,30 @@ function Card({ card, selected, onSelect }) {
         }
       `}
     >
-      {/* Selected Check */}
       <div
         className={`
           absolute
           right-4
           top-4
           z-10
-
           flex
           h-6
           w-6
           items-center
           justify-center
-
           rounded-full
           bg-violet-600
           text-white
           shadow-sm
-
           transition-all
           duration-300
-
           ${selected ? "scale-100 opacity-100" : "scale-75 opacity-0"}
         `}
       >
         <CheckIcon />
       </div>
 
-      {/* Recruiter */}
       <div className="flex w-full min-w-0 items-center gap-3 pr-8">
-        {/* Avatar */}
         <div
           className={`
             flex
@@ -120,18 +118,13 @@ function Card({ card, selected, onSelect }) {
             shrink-0
             items-center
             justify-center
-
             rounded-full
-
             text-sm
             font-bold
             text-white
-
             shadow-sm
-
             transition-transform
             duration-300
-
             ${
               selected
                 ? "bg-gradient-to-br from-violet-600 to-indigo-600"
@@ -142,25 +135,12 @@ function Card({ card, selected, onSelect }) {
           {initials}
         </div>
 
-        {/* Name + Company */}
         <div className="min-w-0 flex-1">
-          {/* Recruiter Name */}
           <div className="group/name relative w-full">
-            <p
-              className="
-                block
-                w-full
-                truncate
-                text-sm
-                font-semibold
-                leading-5
-                text-slate-900
-              "
-            >
+            <p className="block w-full truncate text-sm font-semibold leading-5 text-slate-900">
               {card?.companyName}
             </p>
 
-            {/* Full Name Tooltip */}
             <div
               className="
                 pointer-events-none
@@ -169,28 +149,21 @@ function Card({ card, selected, onSelect }) {
                 left-0
                 z-[100]
                 mb-2
-
                 whitespace-nowrap
-
                 rounded-lg
                 bg-slate-900
                 px-3
                 py-2
-
                 text-xs
                 font-medium
                 leading-4
                 text-white
-
                 opacity-0
                 translate-y-1
                 scale-95
-
                 shadow-xl
-
                 transition-all
                 duration-200
-
                 group-hover/name:translate-y-0
                 group-hover/name:scale-100
                 group-hover/name:opacity-100
@@ -198,7 +171,6 @@ function Card({ card, selected, onSelect }) {
             >
               {card?.companyName}
 
-              {/* Tooltip Arrow */}
               <span
                 className="
                   absolute
@@ -213,35 +185,11 @@ function Card({ card, selected, onSelect }) {
               />
             </div>
           </div>
-
-          {/* Company */}
-          {/*  <p
-            className="
-              mt-0.5
-              block
-              w-full
-              truncate
-              text-xs
-              leading-4
-              text-slate-500
-            "
-          >
-            {card.company}
-          </p> */}
         </div>
       </div>
 
-      {/* Interview Date */}
       <div className="mt-6 border-t border-slate-100 pt-4">
-        <p
-          className="
-            text-[11px]
-            font-semibold
-            uppercase
-            tracking-[0.15em]
-            text-slate-400
-          "
-        >
+        <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-slate-400">
           Interview Date
         </p>
 
@@ -250,14 +198,7 @@ function Card({ card, selected, onSelect }) {
             <CalendarIcon />
           </span>
 
-          <span
-            className="
-              text-base
-              font-bold
-              tracking-tight
-              text-slate-900
-            "
-          >
+          <span className="text-base font-bold tracking-tight text-slate-900">
             {formatUTCDate(card?.latestRequirement?.date)}
           </span>
         </div>
@@ -266,13 +207,16 @@ function Card({ card, selected, onSelect }) {
   );
 }
 
-export default function RecruitersCard() {
+export default function RecruitersSection() {
   const [open, setOpen] = useState(false);
-  const [selectedCard, setSelectedCard] = useState(null);
-  const [recruiters, setRecruiters] = useState([]);
-  const sectionRef = useRef(null);
+  const [selectedCard, setSelectedCard] = useState<any>(null);
+  const [isSelectedCard, setIsSeleted] = useState(false);
+  const [recruiters, setRecruiters] = useState<any[]>([]);
+  const sectionRef = useRef<HTMLElement | null>(null);
 
-  const handleOpenChange = (value) => {
+  const setSelectedCompany = useCompanyStore((state) => state.setItem);
+  const setSelectedCompanyRemove = useCompanyStore((state) => state.removeItem);
+  const handleOpenChange = (value: boolean) => {
     setOpen(value);
 
     if (value) {
@@ -285,102 +229,94 @@ export default function RecruitersCard() {
     }
   };
 
-  const handleSelect = (card) => {
-    setSelectedCard(card);
-  };
-
-  const fetchRecruiterList = async () => {
-    try {
-      const res = await API.get(
-        "/api/instituteprofile/get_all_companies_by_institute_placement",
-      );
-      const data = res?.data?.data || [];
-      setRecruiters(data);
-    } catch (err) {
-      console.error("Error fetching stats", err);
+  const handleSelect = (card: any) => {
+    if (selectedCard?._id === card._id) {
+      setSelectedCard(null);
+      setSelectedCompanyRemove(null);
+      setIsSeleted(false);
+      return;
     }
+
+    setSelectedCard(card);
+    setSelectedCompany(card);
+    setIsSeleted(true);
   };
 
   useEffect(() => {
+    let mounted = true;
+
+    const fetchRecruiterList = async () => {
+      try {
+        const res = await API.get(
+          "/api/instituteprofile/get_all_companies_by_institute_placement",
+        );
+
+        if (!mounted) return;
+
+        setRecruiters(res?.data?.data || []);
+      } catch (err) {
+        console.error("Error fetching recruiters:", err);
+      }
+    };
+
     fetchRecruiterList();
-  }, [recruiters.length]);
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <>
       <section
         ref={sectionRef}
         className="
-        bg-gradient-to-b
-        from-slate-50
-        via-white
-        to-slate-50
-        py-12
-      "
+          bg-gradient-to-b
+          from-slate-50
+          via-white
+          to-slate-50
+          py-12
+        "
       >
         <Collapsible.Root
           open={open}
           onOpenChange={handleOpenChange}
           className="mx-auto max-w-7xl px-5"
         >
-          {/* Header */}
-          <div
-            className="
-            mb-8
-            flex
-            items-end
-            justify-between
-            gap-5
-          "
-          >
+          <div className="mb-8 flex items-end justify-between gap-5">
             <div>
-              <span
-                className="
-                text-[11px]
-                font-bold
-                uppercase
-                tracking-[0.2em]
-                text-violet-600
-              "
-              >
+              <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-violet-600">
                 Opportunities
               </span>
             </div>
 
-            {/* Show All */}
             <Collapsible.Trigger asChild>
               <button
                 type="button"
                 className="
-                group
-                flex
-                shrink-0
-                items-center
-                gap-2
-
-                rounded-full
-                border
-                border-slate-200
-                bg-white
-
-                px-5
-                py-2.5
-
-                text-sm
-                font-semibold
-                text-slate-700
-
-                shadow-sm
-
-                transition-all
-                duration-300
-
-                hover:border-violet-200
-                hover:bg-violet-50
-                hover:text-violet-600
-                hover:shadow-md
-
-                active:scale-95
-              "
+                  group
+                  flex
+                  shrink-0
+                  items-center
+                  gap-2
+                  rounded-full
+                  border
+                  border-slate-200
+                  bg-white
+                  px-5
+                  py-2.5
+                  text-sm
+                  font-semibold
+                  text-slate-700
+                  shadow-sm
+                  transition-all
+                  duration-300
+                  hover:border-violet-200
+                  hover:bg-violet-50
+                  hover:text-violet-600
+                  hover:shadow-md
+                  active:scale-95
+                "
               >
                 <span className="group-data-[state=open]:hidden">Show All</span>
 
@@ -390,11 +326,11 @@ export default function RecruitersCard() {
 
                 <svg
                   className="
-                  h-4 w-4
-                  transition-transform
-                  duration-300
-                  group-data-[state=open]:rotate-180
-                "
+                    h-4 w-4
+                    transition-transform
+                    duration-300
+                    group-data-[state=open]:rotate-180
+                  "
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -410,16 +346,15 @@ export default function RecruitersCard() {
             </Collapsible.Trigger>
           </div>
 
-          {/* First 10 Cards */}
           <div
             className="
-            grid
-            grid-cols-1
-            gap-5
-            sm:grid-cols-2
-            lg:grid-cols-4
-            xl:grid-cols-5
-          "
+              grid
+              grid-cols-1
+              gap-5
+              sm:grid-cols-2
+              lg:grid-cols-4
+              xl:grid-cols-5
+            "
           >
             {recruiters.slice(0, 10).map((card) => (
               <Card
@@ -431,24 +366,23 @@ export default function RecruitersCard() {
             ))}
           </div>
 
-          {/* Remaining Cards */}
           <Collapsible.Content
             className="
-            overflow-visible
-            data-[state=open]:animate-expand
-            data-[state=closed]:animate-collapse
-          "
+              overflow-visible
+              data-[state=open]:animate-expand
+              data-[state=closed]:animate-collapse
+            "
           >
             <div
               className="
-              mt-5
-              grid
-              grid-cols-1
-              gap-5
-              sm:grid-cols-2
-              lg:grid-cols-4
-              xl:grid-cols-5
-            "
+                mt-5
+                grid
+                grid-cols-1
+                gap-5
+                sm:grid-cols-2
+                lg:grid-cols-4
+                xl:grid-cols-5
+              "
             >
               {recruiters.slice(10).map((card, index) => (
                 <div
@@ -467,50 +401,13 @@ export default function RecruitersCard() {
               ))}
             </div>
           </Collapsible.Content>
-
-          {/* Selected Interview */}
-          {/* {selectedCard && (
-            <div
-              className="
-              mt-6
-              flex
-              items-center
-              justify-between
-              gap-4
-
-              rounded-xl
-              border
-              border-violet-200
-              bg-violet-50
-
-              px-5
-              py-4
-
-              animate-card-in
-            "
-            >
-              <div className="min-w-0">
-                <p className="text-xs font-medium text-violet-500">
-                  Selected Interview
-                </p>
-
-                <p className="mt-1 truncate text-sm font-semibold text-violet-900">
-                  {selectedCard.recruiter}
-
-                  <span className="mx-2 text-violet-300">•</span>
-
-                  {selectedCard.company}
-                </p>
-              </div>
-
-              <div className="shrink-0 text-sm font-bold text-violet-700">
-                {selectedCard.interviewDate}
-              </div>
-            </div>
-          )} */}
         </Collapsible.Root>
       </section>
-      <StudentList />
+
+      <StudentList
+        companyRequirementId={selectedCard?.latestRequirement?._id}
+        isSelectedCard={isSelectedCard}
+      />
     </>
   );
 }
