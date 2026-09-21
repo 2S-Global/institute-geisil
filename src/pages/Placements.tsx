@@ -52,6 +52,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import API from "@/lib/axios";
 import { useCompanyStore } from "@/components/institute/Placements/RecruitersStore";
+import { useRefresh } from "@/components/common/Refresh";
 
 interface Offer {
   student: string;
@@ -130,6 +131,8 @@ const Placements = () => {
   >({});
 
   const [companyOptions, setCompanyOptions] = useState<CompanyOption[]>([]);
+  const [placementsGraph, setPlacementsGraph] = useState();
+  const [statistics, Setstatistics] = useState();
 
   const [studentOptions, setStudentOptions] = useState<
     { value: string; label: string }[]
@@ -143,6 +146,7 @@ const Placements = () => {
     useState<CompanyOption | null>(null);
 
   const getSelectedCompany = useCompanyStore((state) => state.getItem);
+  const triggerRefresh = useRefresh((state) => state.triggerRefresh);
   const getSelecteCompany = getSelectedCompany() || "";
 
   /*
@@ -187,6 +191,58 @@ const Placements = () => {
     };
 
     fetchRecruiterList();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // 1. Fetch placements graph
+  useEffect(() => {
+    let mounted = true;
+
+    const fetchRecruiterList = async () => {
+      try {
+        const res = await API.get("/api/instituteprofile/placements-graph");
+
+        if (!mounted) return;
+
+        const rawData = res?.data?.data || [];
+
+        setPlacementsGraph(rawData);
+      } catch (err) {
+        console.error("Error fetching recruiters:", err);
+      }
+    };
+
+    fetchRecruiterList();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // 1. Fetch placements statistics statistics
+  useEffect(() => {
+    let mounted = true;
+
+    const fetchStatistics = async () => {
+      try {
+        const res = await API.get(
+          "/api/instituteprofile/placements-statistics",
+        );
+
+        if (!mounted) return;
+
+        const rawData = res?.data?.data || [];
+
+        Setstatistics(rawData);
+      } catch (err) {
+        console.error("Error fetching recruiters:", err);
+      }
+    };
+
+    fetchStatistics();
 
     return () => {
       mounted = false;
@@ -285,7 +341,7 @@ const Placements = () => {
         title: "Offer logged",
         description: "The offer has been successfully logged.",
       });
-
+      triggerRefresh();
       update("ctc", "");
       update("student", "");
       update("location", "");
@@ -295,9 +351,9 @@ const Placements = () => {
 
       update("status", "Pending");
 
-      setSelectedCompanyId(null);
-      setSelectedCompanyData(null);
-      setStudentOptions([]);
+      //setSelectedCompanyId(null);
+      //setSelectedCompanyData(null);
+      //setStudentOptions([]);
       setErrors({});
       setOpen(false);
     } catch (error) {
@@ -361,10 +417,10 @@ const Placements = () => {
         description="Track offers extended, accepted and overall placement performance."
         actions={
           <>
-            <Button variant="outline" className="gap-2">
+            {/* <Button variant="outline" className="gap-2">
               <Download className="h-4 w-4" />
               Export
-            </Button>
+            </Button> */}
 
             <Dialog
               open={open}
@@ -783,7 +839,7 @@ const Placements = () => {
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 mb-6">
         <StatCard
           label="Offers Extended"
-          value="1,438"
+          value={statistics?.OfferExtended || 0}
           delta={16}
           icon={Building2}
           tint="primary"
@@ -791,7 +847,7 @@ const Placements = () => {
 
         <StatCard
           label="Offers Accepted"
-          value="1,182"
+          value={statistics?.OfferAccepted || 0}
           delta={11}
           icon={Users}
           tint="success"
@@ -799,7 +855,7 @@ const Placements = () => {
 
         <StatCard
           label="Avg. CTC"
-          value="₹ 9.4 LPA"
+          value={statistics?.avgCtc || 0}
           delta={7}
           icon={IndianRupee}
           tint="accent"
@@ -807,7 +863,7 @@ const Placements = () => {
 
         <StatCard
           label="Placement Rate"
-          value="86.4%"
+          value={statistics?.placementRate || 0}
           delta={-2}
           icon={TrendingUp}
           tint="warning"
@@ -827,7 +883,7 @@ const Placements = () => {
           <div className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
-                data={trend}
+                data={placementsGraph}
                 margin={{
                   top: 5,
                   right: 8,

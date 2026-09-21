@@ -103,8 +103,6 @@ const Dashboard = () => {
     }
   };
 
-
-
   const fetchStats = async () => {
     try {
       const res = await api.get("/api/institutestudent/get_students_counts");
@@ -184,10 +182,10 @@ const Dashboard = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" className="gap-2">
+          {/*   <Button variant="outline" className="gap-2">
             <Calendar className="h-4 w-4" />
             <span>{formatted}</span>
-          </Button>
+          </Button> */}
           {/*    <Button variant="outline" size="icon">
             <Download className="h-4 w-4" />
           </Button>

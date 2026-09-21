@@ -47,7 +47,7 @@ const main = [
     icon: UserSearch,
   },
   { title: "Applications", url: "/employer/applications", icon: FileText },
-  { title: "Interviews", url: "/employer/interviews", icon: CalendarCheck },
+  /*  { title: "Interviews", url: "/employer/interviews", icon: CalendarCheck }, */
   { title: "Assessments", url: "/employer/assessments", icon: ClipboardList },
   { title: "Reports", url: "/employer/reports", icon: BarChart3 },
   {

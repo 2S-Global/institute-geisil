@@ -20,13 +20,13 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import API from "../../../lib/axios";
 import { OfferStatusModal, type OfferStatusForm } from "./StatusFrom";
 import { useToast } from "@/components/ui/use-toast";
-
+import { useRefresh } from "@/components/common/Refresh";
 const PAGE_SIZE = 10;
 
 const statusStyles: Record<string, string> = {
-  Accepted: "bg-success/10 text-success border-success/20",
+  Offered: "bg-success/10 text-success border-success/20",
   Pending: "bg-warning/10 text-warning border-warning/20",
-  Negotiating: "bg-accent/10 text-accent border-accent/20",
+  Rejected: "bg-red-500/10 text-red-500 border-red-500/20",
 };
 
 interface ApiOffer {
@@ -132,79 +132,67 @@ export default function StudentList({
     setSelectedOffer(offer);
     setOfferModalOpen(true);
   };
-
+  const isRefresh = useRefresh((state) => state.refreshKey);
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   useEffect(() => {
     setPage(1);
   }, [companyRequirementId]);
 
-  useEffect(() => {
-    let mounted = true;
+  const fetchStudentList = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-    const fetchStudentList = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+      const params: {
+        page: number;
+        limit: number;
+        companyRequirementId?: string;
+        id?: string;
+      } = {
+        page,
+        limit: PAGE_SIZE,
+      };
 
-        const params: {
-          page: number;
-          limit: number;
-          companyRequirementId?: string;
-          id?: string;
-        } = {
-          page,
-          limit: PAGE_SIZE,
-        };
-
-        if (isSelectedCard) {
-          params.id = companyRequirementId
-            ? companyRequirementId
-            : "No interview yet.";
-        }
-
-        const res = await API.get<OffersResponse>(
-          "/api/instituteprofile/get_all_companies_institute_placement_student",
-          {
-            params,
-          },
-        );
-
-        if (!mounted) return;
-
-        const response = res.data;
-
-        const mappedOffers: Offer[] = (response.data || []).map((item) => ({
-          id: item._id,
-          student: item.studentName || "-",
-          company: item.recruiterName || "-",
-          role: item.role || "-",
-          ctc: item?.ctc || "-",
-          location: item?.location || "-",
-          status: item.placement ? "Accepted" : "Pending",
-        }));
-
-        setOffers(mappedOffers);
-        setTotal(response.pagination?.total || 0);
-      } catch (err) {
-        if (!mounted) return;
-
-        console.error("Error fetching offers:", err);
-
-        setError("No interview yet.");
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
+      if (isSelectedCard) {
+        params.id = companyRequirementId
+          ? companyRequirementId
+          : "No interview yet.";
       }
-    };
 
+      const res = await API.get<OffersResponse>(
+        "/api/instituteprofile/get_all_companies_institute_placement_student",
+        {
+          params,
+        },
+      );
+
+      const response = res.data;
+
+      const mappedOffers: Offer[] = (response.data || []).map((item) => ({
+        id: item._id,
+        student: item.studentName || "-",
+        company: item.recruiterName || "-",
+        role: item.role || "-",
+        ctc: item?.ctc || "-",
+        location: item?.location || "-",
+        status: item?.status || "Pending",
+      }));
+
+      setOffers(mappedOffers);
+      setTotal(response.pagination?.total || 0);
+    } catch (err) {
+      console.error("Error fetching offers:", err);
+
+      setError("No interview yet.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchStudentList();
-
-    return () => {
-      mounted = false;
-    };
-  }, [page, companyRequirementId, isSelectedCard]);
+  }, [page, companyRequirementId, isSelectedCard, isRefresh]);
 
   const handlePageChange = (newPage: number) => {
     if (loading || newPage < 1 || newPage > totalPages) {
