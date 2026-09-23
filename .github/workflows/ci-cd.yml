@@ -42,25 +42,28 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 2222
 
-          script: |
-            set -e
+    script: |
+      set -e
 
-            cd /var/www/services.geisil.com
+      echo "Going to project directory..."
+      cd /var/www/services.geisil.com
 
-            echo "Node version:"
-            node -v
+      echo "Current directory:"
+      pwd
 
-            echo "Pulling latest code..."
-            git pull origin main
+      echo "Node version:"
+      node -v
 
-            echo "Installing dependencies..."
-            npm install
+      echo "Pulling latest code..."
+      git pull origin main
 
-            echo "Building Vite app..."
-            npm run build
+      echo "Installing dependencies..."
+      npm install
 
-            echo "Deploying dist..."
-            sudo rm -rf /var/www/services.geisil.com*
-            sudo cp -r dist/* /var/www/services.geisil.com
+      echo "Building Vite app..."
+      npm run build
 
-            echo "Deployment completed successfully!"
+      echo "Checking dist..."
+      ls -lah dist
+
+      echo "Deployment completed successfully!"
