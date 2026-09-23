@@ -36,8 +36,7 @@ export default function JobDetail() {
 
   const [jobDetails, setJobDetails] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-const [applicants, setApplicants] = useState<any[]>([]);
-
+  const [applicants, setApplicants] = useState<any[]>([]);
 
   const fetchJobDetails = async () => {
     try {
@@ -184,7 +183,7 @@ const [applicants, setApplicants] = useState<any[]>([]);
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="candidates">Applicants</TabsTrigger>
-          <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
+          {/*  <TabsTrigger value="pipeline">Pipeline</TabsTrigger> */}
         </TabsList>
         <TabsContent value="overview" className="mt-6">
           <div className="grid gap-6 lg:grid-cols-12">

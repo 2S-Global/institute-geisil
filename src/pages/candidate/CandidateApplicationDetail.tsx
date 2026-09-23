@@ -555,7 +555,7 @@ export default function CandidateApplicationDetail() {
               <TabsList className="w-full justify-start flex-wrap h-auto">
                 <TabsTrigger value="timeline">Timeline</TabsTrigger>
                 <TabsTrigger value="overview">Job overview</TabsTrigger>
-                <TabsTrigger value="interviews">Interviews</TabsTrigger>
+                {/* <TabsTrigger value="interviews">Interviews</TabsTrigger> */}
                 <TabsTrigger value="messages">Messages</TabsTrigger>
                 <TabsTrigger value="documents">Documents</TabsTrigger>
               </TabsList>
@@ -1003,7 +1003,7 @@ export default function CandidateApplicationDetail() {
 
           {/* Sidebar */}
           <aside className="space-y-6">
-            <Card>
+            {/*  <Card>
               <CardHeader>
                 <CardTitle className="text-base">Next step</CardTitle>
               </CardHeader>
@@ -1026,9 +1026,9 @@ export default function CandidateApplicationDetail() {
                   <CalendarCheck className="h-4 w-4" /> Reschedule
                 </Button>
               </CardContent>
-            </Card>
+            </Card> */}
 
-            <Card>
+            {/*   <Card>
               <CardHeader>
                 <CardTitle className="text-base">Recruiter</CardTitle>
               </CardHeader>
@@ -1068,7 +1068,7 @@ export default function CandidateApplicationDetail() {
                 </Button>
               </CardContent>
             </Card>
-
+ */}
             {jobDetails?.match !== undefined && (
               <Card>
                 <CardHeader>
@@ -1139,7 +1139,7 @@ export default function CandidateApplicationDetail() {
               </CardContent>
             </Card>
 
-            <Card className="border-destructive/30">
+            {/*  <Card className="border-destructive/30">
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2 text-destructive">
                   <AlertCircle className="h-4 w-4" /> Withdraw application
@@ -1189,7 +1189,7 @@ export default function CandidateApplicationDetail() {
                   </DialogContent>
                 </Dialog>
               </CardContent>
-            </Card>
+            </Card> */}
           </aside>
         </div>
       </div>

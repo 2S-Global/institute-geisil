@@ -1,5 +1,13 @@
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Mail, Phone, MapPin, Linkedin, Download, MessageSquare } from "lucide-react";
+import {
+  ArrowLeft,
+  Mail,
+  Phone,
+  MapPin,
+  Linkedin,
+  Download,
+  MessageSquare,
+} from "lucide-react";
 import { EmployerLayout } from "@/components/EmployerLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,55 +20,53 @@ import { useState, useEffect } from "react";
 import { CheckCircle, XCircle } from "lucide-react";
 export default function CandidateDetail() {
   const { id } = useParams();
- const [loading, setLoading] = useState(false);
- const [candidate, setCandidate] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [candidate, setCandidate] = useState(null);
 
+  useEffect(() => {
+    if (id) {
+      loadCandidateData();
+    }
+  }, [id]);
 
+  const loadCandidateData = async () => {
+    try {
+      setLoading(true);
 
-useEffect(() => {
-  if (id) {
-    loadCandidateData();
-  }
-}, [id]);
+      const [detailsRes, detailsV2Res] = await Promise.all([
+        API.get(
+          `/api/candidate/candidateDetails/get_candidate_details?candidateId=${id}`,
+        ),
+        API.get(
+          `/api/candidate/candidateDetails/get_candidate_details_v2?candidateId=${id}`,
+        ),
+      ]);
 
-const loadCandidateData = async () => {
-  try {
-    setLoading(true);
+      const mergedData = {
+        ...detailsRes.data.data,
+        ...detailsV2Res.data.data,
+      };
 
-    const [detailsRes, detailsV2Res] = await Promise.all([
-      API.get(
-        `/api/candidate/candidateDetails/get_candidate_details?candidateId=${id}`,
-      ),
-      API.get(
-        `/api/candidate/candidateDetails/get_candidate_details_v2?candidateId=${id}`,
-      ),
-    ]);
+      setCandidate(mergedData);
+    } catch (error) {
+      console.error("Error fetching candidate details:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const mergedData = {
-      ...detailsRes.data.data,
-      ...detailsV2Res.data.data,
-    };
-
-    setCandidate(mergedData);
-  } catch (error) {
-    console.error("Error fetching candidate details:", error);
-  } finally {
-    setLoading(false);
-  }
-};
-
-const head = candidate?.headsectiondata;
-const education = candidate?.academicDetails || [];
-const employment = candidate?.employmentdata || [];
-const certificates = candidate?.certificate || [];
-const patents = candidate?.patent || [];
-const presentations = candidate?.presentation || [];
-const whitepapers = candidate?.whitepaper || [];
-const kyc = candidate?.kycData;
-const personal = candidate?.personalData;
-const userInfo = candidate?.userInformation;
-const sidebar = candidate?.sidebarDetails;
-const projects = candidate?.candidateProjects || [];
+  const head = candidate?.headsectiondata;
+  const education = candidate?.academicDetails || [];
+  const employment = candidate?.employmentdata || [];
+  const certificates = candidate?.certificate || [];
+  const patents = candidate?.patent || [];
+  const presentations = candidate?.presentation || [];
+  const whitepapers = candidate?.whitepaper || [];
+  const kyc = candidate?.kycData;
+  const personal = candidate?.personalData;
+  const userInfo = candidate?.userInformation;
+  const sidebar = candidate?.sidebarDetails;
+  const projects = candidate?.candidateProjects || [];
   return (
     <EmployerLayout>
       {/* <Button asChild variant="ghost" size="sm" className="gap-2 mb-4 -ml-2">
@@ -138,7 +144,7 @@ const projects = candidate?.candidateProjects || [];
         </div>
       </Card>
 
-      <div className="grid gap-4 md:grid-cols-4 mb-6">
+      {/*  <div className="grid gap-4 md:grid-cols-4 mb-6">
         {[
           ["Match score", "92"],
           ["Interviews", "3"],
@@ -154,7 +160,7 @@ const projects = candidate?.candidateProjects || [];
             </p>
           </Card>
         ))}
-      </div>
+      </div> */}
 
       <Tabs defaultValue="profile">
         <TabsList>
@@ -511,12 +517,10 @@ const projects = candidate?.candidateProjects || [];
           <Card className="border-border/60 shadow-sm">
             <CardContent className="p-6 space-y-5">
               {employment.length > 0 ? (
-                employment.map((exp: any) => (
+                employment.map((exp: any, i: number) => (
                   <div key={exp._id} className="flex gap-4">
                     <div className="h-10 w-10 rounded-lg bg-primary-soft text-primary flex items-center justify-center font-semibold">
-                      {(exp.company_name || exp.companyName || "C")
-                        .charAt(0)
-                        .toUpperCase()}
+                      {i + 1}
                     </div>
 
                     <div>

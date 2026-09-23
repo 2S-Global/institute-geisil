@@ -109,7 +109,7 @@ const similarJobs = [
 export default function CandidateJobDetail() {
   const { id } = useParams<{ id: string }>();
   const { handleBookmark, bookmarkLoading } = useBookmarkJob();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [jobData, setJobData] = useState<JobPreviewDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -160,7 +160,7 @@ export default function CandidateJobDetail() {
   // useEffect(() => {
   //   const checkApplicationStatus = async () => {
   //     if (!id) return;
-  // 
+  //
   //     try {
   //       const response = await api.get(
   //         "/api/jobposting/check-application-status",
@@ -168,7 +168,7 @@ export default function CandidateJobDetail() {
   //           params: { jobId: id },
   //         },
   //       );
-  // 
+  //
   //       if (response.data?.success) {
   //         setAlreadyApplied(!!response.data.alreadyApplied);
   //       }
@@ -176,7 +176,7 @@ export default function CandidateJobDetail() {
   //       console.error("Error checking application status:", err);
   //     }
   //   };
-  // 
+  //
   //   checkApplicationStatus();
   // }, [id]);
 
@@ -205,8 +205,6 @@ export default function CandidateJobDetail() {
         return "Salary not disclosed";
     }
   };
-
-
 
   const handleShare = () => {
     if (navigator.clipboard) {
@@ -260,7 +258,7 @@ export default function CandidateJobDetail() {
     applyBy: jobData.expiredAt || "Apply by 25 Jul 2026",
     openings: jobData.opening || "N/A",
     applicants: jobData.totalApplicants || 0,
-    match: 92,
+    match: 925,
     featured: true,
     // about: stripHtmlTags(jobData.jobDescription) || "No description available.",
     about: jobData.jobDescription
@@ -439,7 +437,8 @@ export default function CandidateJobDetail() {
                   </>
                 ) : saved ? (
                   <>
-                    <BookmarkCheck className="h-4 w-4 fill-primary text-primary" /> Saved
+                    <BookmarkCheck className="h-4 w-4 fill-primary text-primary" />{" "}
+                    Saved
                   </>
                 ) : (
                   <>
