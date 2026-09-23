@@ -553,9 +553,7 @@ export default function CandidateApplicationDetail() {
           <div className="lg:col-span-2 space-y-6">
             <Tabs defaultValue="timeline">
               <TabsList className="w-full justify-start flex-wrap h-auto">
-                <TabsTrigger value="timeline">
-                  Timeline qqqqqqqqqqqqqq
-                </TabsTrigger>
+                <TabsTrigger value="timeline">Timeline qqqqqqqqqq</TabsTrigger>
                 <TabsTrigger value="overview">Job overview</TabsTrigger>
                 {/* <TabsTrigger value="interviews">Interviews</TabsTrigger> */}
                 <TabsTrigger value="messages">Messages</TabsTrigger>
