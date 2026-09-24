@@ -44,10 +44,10 @@ import API from "@/lib/axios";
 
 const pipeline = [
   { stage: "Applied", count: 482 },
-  { stage: "Screened", count: 268 },
+  { stage: "Shortlisted", count: 268 },
   { stage: "Interview", count: 124 },
   { stage: "Offer", count: 38 },
-  { stage: "Hired", count: 22 },
+  { stage: "Rejected", count: 22 },
 ];
 
 const hiringTrend = [
